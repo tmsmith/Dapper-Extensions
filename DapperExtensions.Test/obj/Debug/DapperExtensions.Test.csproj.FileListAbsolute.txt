@@ -1,0 +1,14 @@
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\DapperExtensions.Test.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\DapperExtensions.Test.pdb
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\DapperExtensions.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\Moq.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\nunit.framework.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\nunit.mocks.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\pnunit.framework.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\DapperExtensions.pdb
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\Moq.pdb
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\Moq.xml
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\bin\Debug\nunit.framework.xml
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\obj\Debug\ResolveAssemblyReference.cache
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\obj\Debug\DapperExtensions.Test.dll
+C:\Data\Projects\DapperExtensions\DapperExtensions.Test\obj\Debug\DapperExtensions.Test.pdb
