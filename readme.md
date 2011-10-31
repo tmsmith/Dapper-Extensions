@@ -11,7 +11,7 @@ public class Person
     public string LastName { get; set; }
 }
 ```
-...
+
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
