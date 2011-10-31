@@ -43,6 +43,11 @@ namespace DapperExtensions
 
     public class ClassMapper<T> : ClassMapper, IClassMapper<T> where T : class
     {
+        public ClassMapper()
+        {
+            Table(typeof(T).Name);
+        }
+
         public PropertyMap Map(Expression<Func<T, object>> expression)
         {
             PropertyInfo propertyInfo = GetProperty(expression) as PropertyInfo;
