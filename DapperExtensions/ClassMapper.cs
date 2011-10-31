@@ -24,12 +24,12 @@ namespace DapperExtensions
             Properties = new List<IPropertyMap>();
         }
 
-        public void Schema(string schemaName)
+        public virtual void Schema(string schemaName)
         {
             SchemaName = schemaName;
         }
 
-        public void Table(string tableName)
+        public virtual void Table(string tableName)
         {
             TableName = tableName;
         }
@@ -110,6 +110,14 @@ namespace DapperExtensions
                     }
                 }
             }
+        }
+    }
+
+    public class PlurizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
+    {
+        public override void Table(string tableName)
+        {
+            base.Table(tableName + "s");
         }
     }
 }
