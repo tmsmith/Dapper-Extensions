@@ -17,17 +17,47 @@ public class Person
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-    Person person = _connection.Object.Get<Person>(1);
+	cn.Open();
+    Person person = _connection.Get<Person>(1);
+	cn.Close();
 }
 ```
 
-# Insert Operation
+# Simple Insert Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-    Person p = new Person { FirstName = "Foo", LastName = "Bar" };
-    _connection.Object.Insert(p);
-    // Person.Id is populated after the insertion.
+	cn.Open();
+    Person person = new Person { FirstName = "Foo", LastName = "Bar" };
+    _connection.Insert(person);
+    // person.Id is populated after the insertion.
+	cn.Close();
+}
+```
+
+# Simple Update Operation
+
+```
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+	cn.Open();
+    Person person = _connection.Get<Person>(1);
+	person.LastName = "Baz";
+    _connection.Update(person);
+	cn.Close();
+}
+```
+
+
+# Simple Delete Operation
+
+```
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+	cn.Open();
+	Person person = _connection.Get<Person>(1);
+    _connection.Delete(person);
+	cn.Close();
 }
 ```
