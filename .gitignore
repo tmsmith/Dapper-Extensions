@@ -1,0 +1,4 @@
+*.user
+*.dotCover
+/bin
+/obj
