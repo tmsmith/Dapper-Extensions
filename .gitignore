@@ -1,4 +1,4 @@
 *.user
 *.dotCover
-/bin
-/obj
+\bin
+\obj
