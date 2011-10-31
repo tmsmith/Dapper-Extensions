@@ -14,12 +14,33 @@ namespace DapperExtensions
         public static IDapperFormatter Formatter { get; set; }
         public static Type DefaultMapper { get; set; }
 
+        private static readonly List<Type> _simpleTypes;
         private static readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
 
         static DapperExtensions()
         {
             Formatter = new DefaultFormatter();
             DefaultMapper = typeof(AutoClassMapper<>);
+
+            _simpleTypes = new List<Type>();
+            _simpleTypes.Add(typeof(byte));
+            _simpleTypes.Add(typeof(sbyte));
+            _simpleTypes.Add(typeof(short));
+            _simpleTypes.Add(typeof(ushort));
+            _simpleTypes.Add(typeof(int));
+            _simpleTypes.Add(typeof(uint));
+            _simpleTypes.Add(typeof(long));
+            _simpleTypes.Add(typeof(ulong));
+            _simpleTypes.Add(typeof(float));
+            _simpleTypes.Add(typeof(double));
+            _simpleTypes.Add(typeof(decimal));
+            _simpleTypes.Add(typeof(bool));
+            _simpleTypes.Add(typeof(string));
+            _simpleTypes.Add(typeof(char));
+            _simpleTypes.Add(typeof(Guid));
+            _simpleTypes.Add(typeof(DateTime));
+            _simpleTypes.Add(typeof(DateTimeOffset));
+            _simpleTypes.Add(typeof(byte[]));
         }
 
         public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
@@ -36,6 +57,13 @@ namespace DapperExtensions
                 throw new ArgumentException("Only supporting 1 Key column at this time.");
             }
 
+            bool isSimpleType = IsSimpleType(id.GetType());
+            IDictionary<string, object> paramValues = null;
+            if (!isSimpleType)
+            {
+                paramValues = GetObjectValues(id);
+            }
+            
             string tableName = Formatter.GetTableName(classMap);
             List<string> columns = new List<string>();
             List<string> where = new List<string>();
@@ -50,10 +78,16 @@ namespace DapperExtensions
                 }
 
                 where.Add(Formatter.GetColumnName(classMap, column, false) + " = @" + column.Name);
-                parameters.Add("@" + column.Name, id);
+                object value = id;
+                if (!isSimpleType)
+                {
+                    value = paramValues[column.Name];
+                }
+                
+                parameters.Add("@" + column.Name, value);
             }
 
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}", columns.AppendStrings(), tableName, where.AppendStrings());
+            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}", columns.AppendStrings(), tableName, where.AppendStrings(" AND "));
             T result = connection.Query<T>(sql, parameters, transaction, true, commandTimeout, CommandType.Text).SingleOrDefault();
             return result;
         }
@@ -107,7 +141,6 @@ namespace DapperExtensions
             string tableName = Formatter.GetTableName(classMap);
             List<string> columns = new List<string>();
             List<string> where = new List<string>();
-            PropertyInfo identityProperty = null;
             foreach (var column in classMap.Properties)
             {
                 string sqlString = string.Format("{0} = @{1}", Formatter.GetColumnName(classMap, column, false), column.Name);
@@ -120,7 +153,7 @@ namespace DapperExtensions
                 columns.Add(sqlString);
             }
 
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2};", tableName, columns.AppendStrings(), where.AppendStrings());
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2};", tableName, columns.AppendStrings(), where.AppendStrings(" AND "));
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
@@ -145,7 +178,7 @@ namespace DapperExtensions
                 }
             }
 
-            string sql = string.Format("DELETE FROM {0} WHERE {1}", tableName, where.AppendStrings());
+            string sql = string.Format("DELETE FROM {0} WHERE {1}", tableName, where.AppendStrings(" AND "));
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
@@ -168,12 +201,47 @@ namespace DapperExtensions
             return map;
         }
 
-        private static string AppendStrings(this IList<string> list)
+        private static string AppendStrings(this IList<string> list, string seperator = ", ")
         {
             return list.Aggregate(
                 new StringBuilder(), 
-                (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(s),
+                (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
                 sb => sb.ToString());
+        }
+
+        private static bool IsSimpleType(Type type)
+        {
+            Type actualType = type;
+            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                actualType = type.GetGenericArguments()[0];
+            }
+
+            return _simpleTypes.Contains(actualType);
+        }
+
+        private static IDictionary<string, object> GetObjectValues(object obj)
+        {
+            IDictionary<string, object> result = new Dictionary<string, object>();
+            if (obj == null)
+            {
+                return result;
+            }
+
+
+            foreach (var propertyInfo in obj.GetType().GetProperties())
+            {
+                string name = propertyInfo.Name;
+                object value = propertyInfo.GetValue(obj, null);
+                if (value == null)
+                {
+                    continue;
+                }
+
+                result[name] = value;
+            }
+
+            return result;
         }
     }
 }
