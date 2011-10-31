@@ -2,3 +2,4 @@
 *.dotCover
 \bin
 \obj
+.suo
