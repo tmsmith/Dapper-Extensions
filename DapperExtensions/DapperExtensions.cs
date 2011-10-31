@@ -96,6 +96,11 @@ namespace DapperExtensions
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
+            if (classMap.Properties.Count(c => c.KeyType != KeyType.NotAKey) > 1)
+            {
+                throw new ArgumentException("Only supporting 1 Key column at this time.");
+            }
+
             string tableName = Formatter.GetTableName(classMap);
             List<string> columns = new List<string>();
             List<string> values = new List<string>();
