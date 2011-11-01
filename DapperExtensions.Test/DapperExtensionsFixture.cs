@@ -64,5 +64,18 @@ namespace DapperExtensions.Test
             Assert.AreEqual("Foo", p2.FirstName);
             Assert.AreEqual("Bar", p2.LastName);
         }
+
+        [Test]
+        public void Delete_Person_Deletes_Person_Entity()
+        {
+            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            _connection.Insert(p1);
+
+            Assert.AreNotEqual(0, p1);
+
+            _connection.Delete(p1);
+            Assert.IsNull(_connection.Get<Person>(p1.Id));
+
+        }
     }
 }
