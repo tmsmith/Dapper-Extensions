@@ -1,14 +1,31 @@
 Dapper Extensions
 ==========================
-Dapper Extensions add the basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. This library keeps your POCOs pure by not requiring attributes.
+Dapper Extensions is a small library that extends [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. This library keeps your POCOs pure by not requiring attributes.
 
-Custom mappings are achieved through ClassMapper<T>. 
+Custom mappings are achieved through ClassMapper. 
+
+Features
+--------
+* Zero configuration
+* Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
+* Automatic support for Guid and Integer primary keys.
+* Pure POCOs through use of ClassMapper.
+* Customized mapping through the use of ClassMapper.
+* Composite Primary Key support (coming soon).
+* Singular and Pluralized table name support.
 
 Naming Conventions
------------
+------------------
 * POCO names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
 * POCO property names should match each column name in the table.
 * By convention, the primary key should be named Id. Using another name is supported through custom mappings.
+
+Installation
+------------
+
+```
+PM> Install-Package Dapper-Extensions (Coming Soon)
+```
 
 # Examples
 The following examples will use a Person POCO defined as:
