@@ -3,3 +3,4 @@
 \bin
 \obj
 *.suo
+_ReSharper.*
