@@ -50,7 +50,7 @@ namespace DapperExtensions
 
         public PropertyMap Map(Expression<Func<T, object>> expression)
         {
-            PropertyInfo propertyInfo = GetProperty(expression) as PropertyInfo;
+            PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return Map(propertyInfo);
         }
 
@@ -59,29 +59,6 @@ namespace DapperExtensions
             PropertyMap result = new PropertyMap(propertyInfo);
             Properties.Add(result);
             return result;
-        }
-
-        protected MemberInfo GetProperty(LambdaExpression lambda)
-        {
-            Expression expr = lambda;
-            for (; ; )
-            {
-                switch (expr.NodeType)
-                {
-                    case ExpressionType.Lambda:
-                        expr = ((LambdaExpression)expr).Body;
-                        break;
-                    case ExpressionType.Convert:
-                        expr = ((UnaryExpression)expr).Operand;
-                        break;
-                    case ExpressionType.MemberAccess:
-                        MemberExpression memberExpression = (MemberExpression)expr;
-                        MemberInfo mi = memberExpression.Member;
-                        return mi;
-                    default:
-                        return null;
-                }
-            }
         }
     }
 
