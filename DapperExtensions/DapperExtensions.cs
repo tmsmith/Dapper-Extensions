@@ -128,8 +128,12 @@ namespace DapperExtensions
             var result = connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
             if (identityProperty != null)
             {
-                var identityId = connection.Query(string.Format("SELECT IDENT_CURRENT('{0}') AS [Id]", tableName), null, transaction, true, commandTimeout, CommandType.Text);
-                identityProperty.SetValue(entity, identityId.First().Id, null);
+                // TODO: Determine provider and use appropriate method for obtaining identity.
+                // SQLCE only supports @@IDENTITY.
+                var identityId = connection.Query("SELECT @@IDENTITY AS [Id]", null, transaction, true, commandTimeout, CommandType.Text);
+
+                // TODO: Cast to int required here, Id is a decimal?
+                identityProperty.SetValue(entity, (int)identityId.First().Id, null);
             }
 
             return result;
