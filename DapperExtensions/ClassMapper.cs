@@ -13,7 +13,13 @@ namespace DapperExtensions
         IList<IPropertyMap> Properties { get; }
     }
 
-    public class ClassMapper : IClassMapper
+    public interface IClassMapper<T> : IClassMapper where T : class
+    {
+        PropertyMap Map(Expression<Func<T, object>> expression);
+        PropertyMap Map(PropertyInfo propertyInfo);
+    }
+
+    public class ClassMapper<T> : IClassMapper<T> where T : class
     {
         public string SchemaName { get; private set; }
         public string TableName { get; private set; }
@@ -22,6 +28,7 @@ namespace DapperExtensions
         public ClassMapper()
         {
             Properties = new List<IPropertyMap>();
+            Table(typeof(T).Name);
         }
 
         public virtual void Schema(string schemaName)
@@ -33,19 +40,34 @@ namespace DapperExtensions
         {
             TableName = tableName;
         }
-    }
 
-    public interface IClassMapper<T> where T : class
-    {
-        PropertyMap Map(Expression<Func<T, object>> expression);
-        PropertyMap Map(PropertyInfo propertyInfo);
-    }
-
-    public class ClassMapper<T> : ClassMapper, IClassMapper<T> where T : class
-    {
-        public ClassMapper()
+        public virtual void AutoMap()
         {
-            Table(typeof(T).Name);
+            Type type = typeof(T);
+            foreach (var propertyInfo in type.GetProperties())
+            {
+                if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    continue;
+                }
+
+                PropertyMap map = Map(propertyInfo);
+                if (map.PropertyInfo.Name.Equals("id", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (map.PropertyInfo.PropertyType == typeof(int))
+                    {
+                        map.Key(KeyType.Identity);
+                    }
+                    else if (map.PropertyInfo.PropertyType == typeof(Guid))
+                    {
+                        map.Key(KeyType.Guid);
+                    }
+                    else
+                    {
+                        map.Key(KeyType.Assigned);
+                    }
+                }
+            }
         }
 
         public PropertyMap Map(Expression<Func<T, object>> expression)
@@ -68,25 +90,7 @@ namespace DapperExtensions
         {
             Type type = typeof(T);
             Table(type.Name);
-            foreach (var propertyInfo in type.GetProperties())
-            {
-                PropertyMap map = Map(propertyInfo);
-                if (map.PropertyInfo.Name.Equals("id", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    if (map.PropertyInfo.PropertyType == typeof(int))
-                    {
-                        map.Key(KeyType.Identity);
-                    }
-                    else if (map.PropertyInfo.PropertyType == typeof(Guid))
-                    {
-                        map.Key(KeyType.Guid);
-                    }
-                    else
-                    {
-                        map.Key(KeyType.Assigned);
-                    }
-                }
-            }
+            AutoMap();
         }
     }
 
