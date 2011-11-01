@@ -1,6 +1,17 @@
-
-CRUD Extensions for Dapper
+Dapper Extensions
 ==========================
+Dapper Extensions add the basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. This library keeps your POCOs pure by not requiring attributes.
+
+Custom mappings are achieved through ClassMapper<T>. 
+
+Naming Conventions
+-----------
+* POCO names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
+* POCO property names should match each column name in the table.
+* By convention, the primary key should be named Id. Using another name is supported through custom mappings.
+
+# Examples
+The following examples will use a Person POCO defined as:
 
 ```
 public class Person
@@ -12,7 +23,7 @@ public class Person
 ```
 
 
-# Get Operation
+## Get Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
@@ -23,7 +34,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 }
 ```
 
-# Simple Insert Operation
+## Simple Insert Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
@@ -36,7 +47,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 }
 ```
 
-# Simple Update Operation
+## Simple Update Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
@@ -50,7 +61,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 ```
 
 
-# Simple Delete Operation
+## Simple Delete Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
