@@ -77,5 +77,26 @@ namespace DapperExtensions.Test
             Assert.IsNull(_connection.Get<Person>(p1.Id));
 
         }
+
+        [Test]
+        public void Update_Person_Updates_Person_Entity()
+        {
+            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            _connection.Insert(p1);
+
+            Assert.AreNotEqual(0, p1);
+
+            var p2 = _connection.Get<Person>(p1.Id);
+            p2.FirstName = "Baz";
+            p2.Active = false;
+
+            _connection.Update(p2);
+
+            var p3 = _connection.Get<Person>(p1.Id);
+            Assert.AreEqual("Baz", p3.FirstName);
+            Assert.AreEqual("Bar", p3.LastName);
+            Assert.AreEqual(false, p3.Active);
+
+        }
     }
 }
