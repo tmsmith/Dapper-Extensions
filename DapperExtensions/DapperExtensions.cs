@@ -182,6 +182,29 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            Type type = typeof(T);
+            IClassMapper classMap = GetMap<T>();
+            string tableName = Formatter.GetTableName(classMap);
+            List<string> columns = new List<string>();
+            foreach (var column in classMap.Properties)
+            {
+                columns.Add(Formatter.GetColumnName(classMap, column, true));
+            }
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}", columns.AppendStrings(), tableName, predicate.GetSql(parameters));
+
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
+        }
+
         public static IClassMapper GetMap<T>() where T : class
         {
             Type type = typeof(T);
