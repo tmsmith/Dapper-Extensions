@@ -230,7 +230,66 @@ namespace DapperExtensions.Test
             Assert.AreEqual("(PredicateTestEntity.Name IS NOT NULL)", result);
             Assert.AreEqual(0, parameters.Count);
         }
-        
+
+        [Test]
+        public void Predicates_Group_Returns_Setup_Predicate()
+        {
+            var pred = Predicates.Group(GroupOperator.And,
+                Predicates.Field<PredicateTestEntity>(f => f.Id, Operator.Gt, 5),
+                Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Eq, "foo"));
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("((PredicateTestEntity.Id > @Idp0) AND (PredicateTestEntity.Name = @Namep1))", result);
+            Assert.AreEqual(5, parameters["@Idp0"]);
+            Assert.AreEqual("foo", parameters["@Namep1"]);
+        }
+
+        [Test]
+        public void GroupPredicate_Includes_All_Predicates()
+        {
+            var pred = new PredicateGroup
+                           {
+                               Operator = GroupOperator.And,
+                               Predicates = new List<IPredicate>
+                                                {
+                                                    new TestPredicate("one"),
+                                                    new TestPredicate("two")
+                                                }
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            var result = pred.GetSql(parameters);
+            Assert.AreEqual("(one AND two)", result);
+        }
+
+        [Test]
+        public void GroupPredicate_Includes_Sub_PredicateGroup()
+        {
+            var pred = new PredicateGroup
+            {
+                Operator = GroupOperator.And,
+                Predicates = new List<IPredicate>
+                                                {
+                                                    new TestPredicate("one"),
+                                                    new TestPredicate("two"),
+                                                    new PredicateGroup
+                                                        {
+                                                            Operator = GroupOperator.Or,
+                                                            Predicates = new List<IPredicate>
+                                                                             {
+                                                                                 new TestPredicate("three"),
+                                                                                 new TestPredicate("four"),
+                                                                             }
+                                                        }
+                                                }
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            var result = pred.GetSql(parameters);
+            Assert.AreEqual("(one AND two AND (three OR four))", result);
+        }
+
         private class TestFormatter : IDapperFormatter
         {
             public string GetTableName(IClassMapper map)
@@ -253,6 +312,21 @@ namespace DapperExtensions.Test
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class TestPredicate : IPredicate
+        {
+            private string _value;
+
+            public TestPredicate(string value)
+            {
+                _value = value;
+            }
+
+            public string GetSql(IDictionary<string, object> parameters)
+            {
+                return _value;
+            }
         }
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace DapperExtensions
 {
     public static class Predicates
     {
-        public static IPredicate Field<T>(Expression<Func<T, object>> expression, Operator op, object value, bool not = false) where T : class
+        public static IFieldPredicate<T> Field<T>(Expression<Func<T, object>> expression, Operator op, object value, bool not = false) where T : class
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new FieldPredicate<T>
@@ -19,6 +20,15 @@ namespace DapperExtensions
                            Not = not
                        };
         }
+
+        public static IPredicateGroup Group<T>(GroupOperator op, params IFieldPredicate<T>[] predicate) where T : class
+        {
+            return new PredicateGroup
+                       {
+                           Operator = op,
+                           Predicates = predicate
+                       };
+        }
     }
 
     public interface IPredicate
@@ -26,7 +36,7 @@ namespace DapperExtensions
         string GetSql(IDictionary<string, object> parameters);
     }
 
-    public interface IFieldPredicate : IPredicate
+    public interface IFieldPredicate<T> : IPredicate
     {
         string PropertyName { get; set; }
         Operator Operator { get; set; }
@@ -34,7 +44,7 @@ namespace DapperExtensions
         bool Not { get; set; }
     }
 
-    public class FieldPredicate<T> : IFieldPredicate where T : class
+    public class FieldPredicate<T> : IFieldPredicate<T> where T : class
     {
         public string PropertyName { get; set; }
         public Operator Operator { get; set; }
@@ -83,21 +93,28 @@ namespace DapperExtensions
         Le
     }
 
-    //public interface IPredicateGroup : IPredicate
-    //{
-    //    GroupOperator Operator { get; set; }
-    //    IList<IPredicate> Predicates { get; set; }
-    //}
+    public interface IPredicateGroup : IPredicate
+    {
+        GroupOperator Operator { get; set; }
+        IList<IPredicate> Predicates { get; set; }
+    }
 
-    //public class PredicateGroup : IPredicateGroup
-    //{
-    //    public GroupOperator Operator { get; set; }
-    //    public IList<IPredicate> Predicates { get; set; }
-    //}
+    public class PredicateGroup : IPredicateGroup
+    {
+        public GroupOperator Operator { get; set; }
+        public IList<IPredicate> Predicates { get; set; }
+        public string GetSql(IDictionary<string, object> parameters)
+        {
+            string seperator = Operator == GroupOperator.And ? " AND " : " OR ";
+            return "(" + Predicates.Aggregate(new StringBuilder(),
+                                        (sb, p) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(p.GetSql(parameters)),
+                                        sb => sb.ToString()) + ")";
+        }
+    }
 
-    //public enum GroupOperator
-    //{
-    //    And,
-    //    Or
-    //}
+    public enum GroupOperator
+    {
+        And,
+        Or
+    }
 }
