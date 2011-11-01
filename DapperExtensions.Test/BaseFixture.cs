@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
@@ -17,6 +18,15 @@ namespace DapperExtensions.Test
         [TearDown]
         public virtual void Teardown()
         {
+        }
+
+        protected string ReadScriptFile(string name)
+        {
+            using (Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("DapperExtensions.Test.SqlScripts." + name + ".sql"))
+            using (StreamReader sr = new StreamReader(s))
+            {
+                return sr.ReadToEnd();
+            }
         }
     }
 }

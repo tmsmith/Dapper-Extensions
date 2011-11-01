@@ -1,6 +1,42 @@
+# Introduction
 
-CRUD Extensions for Dapper
-==========================
+Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
+
+Customized mappings are achieved through ClassMapper. 
+
+**Important**: This library is a separate effort from Dapper.Contrib (a sub-system of the [Dapper](https://github.com/SamSaffron/dapper-dot-net) project).
+
+Features
+--------
+* Zero configuration out of the box.
+* Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
+* Automatic support for Guid and Integer primary keys.
+* Pure POCOs through use of ClassMapper.
+* Customized mapping through the use of ClassMapper.
+* Composite Primary Key support (coming soon).
+* Singular and Pluralized table name support.
+* Easy-to-use Predicate System for more advanced scenarios (coming soon).
+
+Naming Conventions
+------------------
+* POCO names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
+* POCO property names should match each column name in the table.
+* By convention, the primary key should be named Id. Using another name is supported through custom mappings.
+
+# Installation
+
+**Using Nuget**
+
+```
+PM> Install-Package Dapper-Extensions (Coming Soon)
+```
+
+**Manual Installation**
+
+Coming Soon
+
+# Examples
+The following examples will use a Person POCO defined as:
 
 ```
 public class Person
@@ -12,52 +48,68 @@ public class Person
 ```
 
 
-# Get Operation
+## Get Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-	cn.Open();
-    Person person = _connection.Get<Person>(1);
-	cn.Close();
+    cn.Open();
+    Person person = _connection.Get<Person>(1);	
+    cn.Close();
 }
 ```
 
-# Simple Insert Operation
+## Simple Insert Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-	cn.Open();
+    cn.Open();
     Person person = new Person { FirstName = "Foo", LastName = "Bar" };
     _connection.Insert(person);
     // person.Id is populated after the insertion.
-	cn.Close();
+    cn.Close();
 }
 ```
 
-# Simple Update Operation
+## Simple Update Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-	cn.Open();
+    cn.Open();
     Person person = _connection.Get<Person>(1);
-	person.LastName = "Baz";
+    person.LastName = "Baz";
     _connection.Update(person);
-	cn.Close();
+    cn.Close();
 }
 ```
 
 
-# Simple Delete Operation
+## Simple Delete Operation
 
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
-	cn.Open();
-	Person person = _connection.Get<Person>(1);
+    cn.Open();
+    Person person = _connection.Get<Person>(1);
     _connection.Delete(person);
-	cn.Close();
+    cn.Close();
 }
 ```
+
+# License
+
+Copyright 2011 Thad Smith, Page Brooks and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
