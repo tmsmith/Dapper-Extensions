@@ -62,6 +62,7 @@
     <Compile Include="BaseFixture.cs" />
     <Compile Include="DapperExtensionsFixture.cs" />
     <Compile Include="Data\Person.cs" />
+    <Compile Include="GetMapFixture.cs" />
     <Compile Include="PredicatesFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

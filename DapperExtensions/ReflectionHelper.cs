@@ -29,6 +29,30 @@ namespace DapperExtensions
                         return null;
                 }
             }
-        } 
+        }
+
+        public static IDictionary<string, object> GetObjectValues(object obj)
+        {
+            IDictionary<string, object> result = new Dictionary<string, object>();
+            if (obj == null)
+            {
+                return result;
+            }
+
+
+            foreach (var propertyInfo in obj.GetType().GetProperties())
+            {
+                string name = propertyInfo.Name;
+                object value = propertyInfo.GetValue(obj, null);
+                if (value == null)
+                {
+                    continue;
+                }
+
+                result[name] = value;
+            }
+
+            return result;
+        }
     }
 }
