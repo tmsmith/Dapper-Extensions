@@ -290,6 +290,14 @@ namespace DapperExtensions.Test
             Assert.AreEqual("(one AND two AND (three OR four))", result);
         }
 
+        [Test]
+        public void Predicates_Sort_Retuns_Setup_Sort()
+        {
+            var sort = Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
+            Assert.AreEqual("Name", sort.PropertyName);
+            Assert.IsFalse(sort.Ascending);
+        }
+
         private class TestFormatter : IDapperFormatter
         {
             public string GetTableName(IClassMapper map)
@@ -300,6 +308,11 @@ namespace DapperExtensions.Test
             public string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
             {
                 return string.Format("{0}.{1}", map.TableName, property.Name);
+            }
+
+            public string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
+            {
+                return string.Format("{0}.{1}", map.TableName, propertyName);
             }
 
             public Guid GetNextGuid()

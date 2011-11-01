@@ -29,6 +29,16 @@ namespace DapperExtensions
                            Predicates = predicate
                        };
         }
+
+        public static ISort Sort<T>(Expression<Func<T, object>> expression, bool ascending = true)
+        {
+            PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+            return new Sort
+                       {
+                           PropertyName = propertyInfo.Name,
+                           Ascending = ascending
+                       };
+        }
     }
 
     public interface IPredicate
@@ -110,6 +120,18 @@ namespace DapperExtensions
                                         (sb, p) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(p.GetSql(parameters)),
                                         sb => sb.ToString()) + ")";
         }
+    }
+
+    public interface ISort
+    {
+        string PropertyName { get; set; }
+        bool Ascending { get; set; }
+    }
+
+    public class Sort : ISort
+    {
+        public string PropertyName { get; set; }
+        public bool Ascending { get; set; }
     }
 
     public enum GroupOperator

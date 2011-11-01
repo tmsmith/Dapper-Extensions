@@ -8,6 +8,7 @@ namespace DapperExtensions
     {
         string GetTableName(IClassMapper map);
         string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
+        string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
         Guid GetNextGuid();
     }
 
@@ -28,6 +29,17 @@ namespace DapperExtensions
             }
 
             return result + " AS [" + property.Name + "]";
+        }
+
+        public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
+        {
+            IPropertyMap propertyMap = map.Properties.Where(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
+            if (propertyMap == null)
+            {
+                throw new ArgumentException("Could not find '{0} in Mapping.");
+            }
+
+            return GetColumnName(map, propertyMap, includeAlias);
         }
 
         public virtual Guid GetNextGuid()

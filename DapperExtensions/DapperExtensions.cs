@@ -187,19 +187,17 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
             string tableName = Formatter.GetTableName(classMap);
-            List<string> columns = new List<string>();
-            foreach (var column in classMap.Properties)
-            {
-                columns.Add(Formatter.GetColumnName(classMap, column, true));
-            }
+            List<string> columns = classMap.Properties.Select(p => Formatter.GetColumnName(classMap, p, true)).ToList();
+            IEnumerable<string> sorts = sort == null ? null : sort.Select(s => Formatter.GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC"));
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}", columns.AppendStrings(), tableName, predicate.GetSql(parameters));
+            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}{3}", columns.AppendStrings(), tableName, predicate.GetSql(parameters),
+                sorts == null ? string.Empty : " ORDER BY " + sorts.AppendStrings());
 
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
@@ -236,7 +234,7 @@ namespace DapperExtensions
             _classMaps.Clear();
         }
 
-        private static string AppendStrings(this IList<string> list, string seperator = ", ")
+        private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
         {
             return list.Aggregate(
                 new StringBuilder(), 
