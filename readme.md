@@ -1,5 +1,5 @@
-Dapper Extensions
-==========================
+# Introduction
+
 Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
 
 Customized mappings are achieved through ClassMapper. 
@@ -23,12 +23,17 @@ Naming Conventions
 * POCO property names should match each column name in the table.
 * By convention, the primary key should be named Id. Using another name is supported through custom mappings.
 
-Installation
-------------
+# Installation
+
+**Using Nuget**
 
 ```
 PM> Install-Package Dapper-Extensions (Coming Soon)
 ```
+
+**Manual Installation**
+
+Coming Soon
 
 # Examples
 The following examples will use a Person POCO defined as:
