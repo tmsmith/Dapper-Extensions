@@ -116,7 +116,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+    var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
     int count = _connection.Count<Person>(predicate);
     cn.Close();
 }            
