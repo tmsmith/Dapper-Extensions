@@ -13,7 +13,7 @@ Features
 * Automatic support for Guid and Integer primary keys.
 * Pure POCOs through use of ClassMapper.
 * Customized mapping through the use of ClassMapper.
-* Composite Primary Key support (coming soon).
+* Composite Primary Key support.
 * Singular and Pluralized table name support.
 * Easy-to-use Predicate System for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
