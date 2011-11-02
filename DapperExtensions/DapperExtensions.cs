@@ -67,7 +67,7 @@ namespace DapperExtensions
             {
                 paramValues = ReflectionHelper.GetObjectValues(id);
             }
-            
+
             string tableName = Formatter.GetTableName(classMap);
             List<string> columns = new List<string>();
             List<string> where = new List<string>();
@@ -87,7 +87,7 @@ namespace DapperExtensions
                 {
                     value = paramValues[column.Name];
                 }
-                
+
                 parameters.Add("@" + column.Name, value);
             }
 
@@ -105,7 +105,7 @@ namespace DapperExtensions
             List<string> values = new List<string>();
             PropertyInfo identityProperty = null;
             IDictionary<string, object> keyValues = new ExpandoObject();
-            
+
             foreach (var column in classMap.Properties)
             {
                 if (column.KeyType == KeyType.Identity)
@@ -225,6 +225,22 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
+        public static int Count<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            IClassMapper classMap = GetMap<T>();
+            string tableName = Formatter.GetTableName(classMap);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+
+            string sql = string.Format("SELECT COUNT(*) Total FROM {0} WHERE {1}", tableName, predicate.GetSql(parameters));
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return (int)connection.Query(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text).Single().Total;
+        }
+
         public static IClassMapper GetMap<T>() where T : class
         {
             Type entityType = typeof(T);
@@ -232,9 +248,9 @@ namespace DapperExtensions
             if (!_classMaps.TryGetValue(entityType, out map))
             {
                 Type[] types = entityType.Assembly.GetTypes();
-                Type mapType = (from type in types 
-                                let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName) 
-                                where interfaceType != null && interfaceType.GetGenericArguments()[0] == entityType 
+                Type mapType = (from type in types
+                                let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
+                                where interfaceType != null && interfaceType.GetGenericArguments()[0] == entityType
                                 select type).SingleOrDefault();
 
                 if (mapType == null)
@@ -257,7 +273,7 @@ namespace DapperExtensions
         private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
         {
             return list.Aggregate(
-                new StringBuilder(), 
+                new StringBuilder(),
                 (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
                 sb => sb.ToString());
         }
