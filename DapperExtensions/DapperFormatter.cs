@@ -36,7 +36,7 @@ namespace DapperExtensions
             IPropertyMap propertyMap = map.Properties.Where(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
             if (propertyMap == null)
             {
-                throw new ArgumentException("Could not find '{0} in Mapping.");
+                throw new ArgumentException(string.Format("Could not find '{0}' in Mapping.", propertyName));
             }
 
             return GetColumnName(map, propertyMap, includeAlias);
