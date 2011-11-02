@@ -55,7 +55,7 @@ public class Person
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = _connection.Get<Person>(1);	
+    Person person = cn.Get<Person>(1);	
     cn.Close();
 }
 ```
@@ -67,7 +67,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     Person person = new Person { FirstName = "Foo", LastName = "Bar" };
-    _connection.Insert(person);
+    cn.Insert(person);
     // person.Id is populated after the insertion.
     cn.Close();
 }
@@ -81,7 +81,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
     cn.Open();
     Person person = _connection.Get<Person>(1);
     person.LastName = "Baz";
-    _connection.Update(person);
+    cn.Update(person);
     cn.Close();
 }
 ```
@@ -94,7 +94,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     Person person = _connection.Get<Person>(1);
-    _connection.Delete(person);
+    cn.Delete(person);
     cn.Close();
 }
 ```
@@ -106,7 +106,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
-    IEnumerable<Person> list = _connection.GetList<Person>(predicate);
+    IEnumerable<Person> list = cn.GetList<Person>(predicate);
     cn.Close();
 }
 ```
@@ -117,7 +117,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
-    int count = _connection.Count<Person>(predicate);
+    int count = cn.Count<Person>(predicate);
     cn.Close();
 }            
 ```
