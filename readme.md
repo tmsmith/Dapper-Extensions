@@ -1,6 +1,6 @@
 # Introduction
 
-Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
+Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
 
 Customized mappings are achieved through ClassMapper. 
 
@@ -17,7 +17,7 @@ Features
 * Singular and Pluralized table name support.
 * Easy-to-use Predicate System for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
-* Properly escapes table names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId)
+* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId)
 
 Naming Conventions
 ------------------
@@ -30,12 +30,14 @@ Naming Conventions
 **Using Nuget**
 
 ```
-PM> Install-Package Dapper-Extensions (Coming Soon)
+PM> Install-Package Dapper
+PM> Install-Package DapperExtensions (Coming Soon)
 ```
 
 **Manual Installation**
 
-Coming Soon
+Include SqlMapper.cs in your project (from Dapper project)
+Include DapperExtensions.cs in your project
 
 # Examples
 The following examples will use a Person POCO defined as:
