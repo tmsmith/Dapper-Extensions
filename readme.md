@@ -15,7 +15,8 @@ Features
 * Customized mapping through the use of ClassMapper.
 * Composite Primary Key support (coming soon).
 * Singular and Pluralized table name support.
-* Easy-to-use Predicate System for more advanced scenarios (coming soon).
+* Easy-to-use Predicate System for more advanced scenarios.
+* GetList, Count methods for more advanced scenarios.
 
 Naming Conventions
 ------------------
@@ -108,6 +109,17 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
     IEnumerable<Person> list = _connection.GetList<Person>(predicate);
     cn.Close();
 }
+```
+
+## Count Operation (with Predicates)
+```
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+    cn.Open();
+    var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+    int count = _connection.Count<Person>(predicate);
+    cn.Close();
+}            
 ```
 
 # License
