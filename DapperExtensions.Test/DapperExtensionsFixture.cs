@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 using System.IO;
+using System.Linq;
 using DapperExtensions.Test.Data;
 using NUnit.Framework;
 
@@ -97,6 +99,34 @@ namespace DapperExtensions.Test
             Assert.AreEqual("Bar", p3.LastName);
             Assert.AreEqual(false, p3.Active);
 
+        }
+
+        [Test]
+        public void GetList_With_Predicates_Returns_Correct_Items()
+        {
+            _connection.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
+            _connection.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
+            _connection.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
+            _connection.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+
+            var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+            IEnumerable<Person> list = _connection.GetList<Person>(predicate);
+            Assert.AreEqual(2, list.Count());
+            var a = list.Single(p => p.FirstName == "a");
+            Assert.AreEqual("a1", a.LastName);
+        }
+
+        [Test]
+        public void Count_With_Predicates_Returns_Correct_Count()
+        {
+            _connection.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            _connection.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            _connection.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
+            _connection.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+
+            var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
+            int count = _connection.Count<Person>(predicate);
+            Assert.AreEqual(2, count);
         }
     }
 }
