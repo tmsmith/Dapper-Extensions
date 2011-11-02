@@ -70,9 +70,33 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     Person person = new Person { FirstName = "Foo", LastName = "Bar" };
-    cn.Insert(person);
-    // person.Id is populated after the insertion.
+    int id = cn.Insert(person);
     cn.Close();
+}
+```
+
+## Advanced Insert Operation (Composite Key)
+
+```
+
+public class Car
+{
+    public int ModelId { get; set; }
+    public int Year { get; set; }
+    public string Color { get; set; }
+}
+
+...
+
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+    cn.Open();
+    Car car = new Car { Color = "Red" };
+    var multiKey = cn.Insert(car);
+    cn.Close();
+
+    int modelId = multiKey.ModelId;
+    int year = multiKey.Year;
 }
 ```
 
