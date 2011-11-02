@@ -98,6 +98,18 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 }
 ```
 
+## GetList Operation (with Predicates)
+
+```
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+    cn.Open();
+    var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+    IEnumerable<Person> list = _connection.GetList<Person>(predicate);
+    cn.Close();
+}
+```
+
 # License
 
 Copyright 2011 Thad Smith, Page Brooks and contributors
