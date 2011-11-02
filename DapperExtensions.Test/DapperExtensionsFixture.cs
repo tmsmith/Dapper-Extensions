@@ -174,5 +174,32 @@ namespace DapperExtensions.Test
             int count = _connection.Count<Person>(predicate);
             Assert.AreEqual(2, count);
         }
+
+        [Test]
+        public void GetPage_With_Predicates_Returns_Correct_Items()
+        {
+            var id1 = _connection.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+            var id2 = _connection.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+            var id3 = _connection.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
+            var id4 = _connection.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+            IList<ISort> sort = new List<ISort>
+                                    {
+                                        Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Sort<Person>(p => p.FirstName)
+                                    };
+
+            IEnumerable<Person> list = _connection.GetPage<Person>(null, sort, 1, 2);
+            Assert.AreEqual(2, list.Count());
+            Assert.AreEqual(id2, list.First().Id);
+            Assert.AreEqual(id1, list.Skip(1).First().Id);
+
+            list = _connection.GetPage<Person>(null, sort, 2, 2);
+            Assert.AreEqual(2, list.Count());
+            Assert.AreEqual(id4, list.First().Id);
+            Assert.AreEqual(id3, list.Skip(1).First().Id);
+
+            list = _connection.GetPage<Person>(null, sort, 3, 2);
+            Assert.AreEqual(0, list.Count());
+        }
     }
 }

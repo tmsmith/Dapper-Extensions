@@ -203,7 +203,7 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
@@ -212,10 +212,56 @@ namespace DapperExtensions
             IEnumerable<string> sorts = sort == null ? null : sort.Select(s => Formatter.GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC"));
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}{3}", columns.AppendStrings(), tableName, predicate.GetSql(parameters),
+            string sql = string.Format("SELECT {0} FROM {1}{2}{3}", columns.AppendStrings(), tableName, 
+                predicate == null ? string.Empty : " WHERE " + predicate.GetSql(parameters),
                 sorts == null ? string.Empty : " ORDER BY " + sorts.AppendStrings());
 
             DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
+        }
+
+        public static IEnumerable<T> GetPage<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            Type type = typeof(T);
+            IClassMapper classMap = GetMap<T>();
+            string tableName = Formatter.GetTableName(classMap);
+            List<string> columns = classMap.Properties.Select(p => Formatter.GetColumnName(classMap, p, true)).ToList();
+            IEnumerable<string> sorts = sort.Select(s => Formatter.GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC"));
+
+            if (!IsUsingSqlCe)
+            {
+                columns.Add(string.Format("ROW_NUMBER() OVER (ORDER BY {0}) AS [RowNbr]", sorts.AppendStrings()));
+            }
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string innerSql = string.Format("SELECT {0} FROM {1}{2}", columns.AppendStrings(), tableName, 
+                predicate == null ? string.Empty : " WHERE " + predicate.GetSql(parameters));
+
+            string sql;
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            if (IsUsingSqlCe)
+            {
+                sql = string.Format("{0} ORDER BY {1} OFFSET @pageStartRowNbr ROWS FETCH NEXT @resultsPerPage ROWS ONLY", innerSql, sorts.AppendStrings());
+                int startValue = ((page - 1) * resultsPerPage);
+                dynamicParameters.Add("@pageStartRowNbr", startValue);
+                dynamicParameters.Add("@resultsPerPage", resultsPerPage);
+            }
+            else
+            {
+                List<string> projColumns = classMap.Properties.Select(p => "proj.[" + p.Name + "]").ToList();
+                sql = string.Format("SELECT {0} FROM ({1}) proj WHERE proj.[RowNbr] BETWEEN @pageStartRowNbr AND @pageStopRowNbr ORDER BY proj.[RowNbr]",
+                    projColumns.AppendStrings(), innerSql);
+
+                int startValue = (page * resultsPerPage) + 1;
+                dynamicParameters.Add("@pageStartRowNbr", startValue);
+                dynamicParameters.Add("@pageStopRowNbr", startValue + resultsPerPage);
+            }
+            
             foreach (var parameter in parameters)
             {
                 dynamicParameters.Add(parameter.Key, parameter.Value);
