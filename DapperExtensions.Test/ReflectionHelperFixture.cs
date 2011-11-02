@@ -30,5 +30,12 @@ namespace DapperExtensions.Test
             Assert.AreEqual(3, dictionary["Bar"]);
             Assert.AreEqual("Yum", dictionary["Baz"]);
         }
+
+        [Test]
+        public void GetObjectValues_Returns_Empty_Dictionary_When_Null_Object_Provided()
+        {
+            var dictionary = ReflectionHelper.GetObjectValues(null);
+            Assert.AreEqual(0, dictionary.Count);
+        }
     }
 }
