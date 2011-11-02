@@ -13,7 +13,7 @@ Features
 * Automatic support for Guid and Integer primary keys.
 * Pure POCOs through use of ClassMapper.
 * Customized mapping through the use of ClassMapper.
-* Composite Primary Key support (coming soon).
+* Composite Primary Key support.
 * Singular and Pluralized table name support.
 * Easy-to-use Predicate System for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
@@ -70,9 +70,33 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     Person person = new Person { FirstName = "Foo", LastName = "Bar" };
-    cn.Insert(person);
-    // person.Id is populated after the insertion.
+    int id = cn.Insert(person);
     cn.Close();
+}
+```
+
+## Advanced Insert Operation (Composite Key)
+
+```
+
+public class Car
+{
+    public int ModelId { get; set; }
+    public int Year { get; set; }
+    public string Color { get; set; }
+}
+
+...
+
+using (SqlConnection cn = new SqlConnection(_connectionString))
+{
+    cn.Open();
+    Car car = new Car { Color = "Red" };
+    var multiKey = cn.Insert(car);
+    cn.Close();
+
+    int modelId = multiKey.ModelId;
+    int year = multiKey.Year;
 }
 ```
 
