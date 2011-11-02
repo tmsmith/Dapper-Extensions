@@ -47,7 +47,7 @@ namespace DapperExtensions
                                };
         }
 
-        public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
@@ -129,7 +129,6 @@ namespace DapperExtensions
                 values.Add("@" + column.Name);
             }
 
-
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2});", tableName, columns.AppendStrings(), values.AppendStrings());
             connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
             if (identityProperty != null)
@@ -141,7 +140,7 @@ namespace DapperExtensions
                 }
 
                 var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                keyValues.Add(identityProperty.Name, identityId.First().Id);
+                keyValues.Add(identityProperty.Name, (int)identityId.First().Id);
             }
 
             if (keyValues.Count == 1)
@@ -225,6 +224,22 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
+        public static int Count<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            Type type = typeof(T);
+            IClassMapper classMap = GetMap<T>();
+            string tableName = Formatter.GetTableName(classMap);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = string.Format("SELECT COUNT(*) AS [Total] FROM {0} WHERE {1}", tableName, predicate.GetSql(parameters));
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return (int)connection.Query(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text).Single().Total;
+        }
+
         public static IClassMapper GetMap<T>() where T : class
         {
             Type entityType = typeof(T);
@@ -265,7 +280,7 @@ namespace DapperExtensions
         private static bool IsSimpleType(Type type)
         {
             Type actualType = type;
-            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 actualType = type.GetGenericArguments()[0];
             }
