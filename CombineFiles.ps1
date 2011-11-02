@@ -1,4 +1,4 @@
-$outfile = "testing.cs"
+$outfile = "DapperExtensions.Combined.cs"
 $namespace = "DapperExtensions"
 $usingStatements = New-Object "system.collections.generic.list[string]"
 $files = New-Object "system.collections.generic.list[string]"
@@ -22,11 +22,21 @@ $usingStatements.Sort()
 Remove-Item $outfile
 Add-Content $outfile $usingStatements
 
-Add-Content $outfile "`r`n"
+Add-Content $outfile ""
+Add-Content $outfile "// Dapper Extensions"
+Add-Content $outfile "// Extensions for Dapper to handle basic CRUD operations"
+Add-Content $outfile ""
+$date = Get-Date
+Add-Content $outfile "// Generated: ${date}"
+Add-Content $outfile "// Website: https://github.com/tmsmith/Dapper-Extensions"
+Add-Content $outfile "// License: http://www.apache.org/licenses/LICENSE-2.0"
+Add-Content $outfile ""
+
 Add-Content $outfile "namespace ${namespace}"
 Add-Content $outfile "{"
 $skipNext = $false
 $files | ForEach-Object { 
+		Add-Content $outfile "    // Begin ${_}"
 		$contents = Get-Content $_
 		for ($i=0; $i -lt $contents.Length - 1; $i++) {
 			$l = $contents[$i]
@@ -46,5 +56,6 @@ $files | ForEach-Object {
 				Add-Content $outfile $l			
 			}
 		}
+		Add-Content $outfile "    // End ${_}"
 }
 Add-Content $outfile "}"
