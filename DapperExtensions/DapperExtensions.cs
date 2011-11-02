@@ -56,11 +56,6 @@ namespace DapperExtensions
                 throw new ArgumentException("At least one Key column must be defined.");
             }
 
-            if (classMap.Properties.Count(c => c.KeyType != KeyType.NotAKey) > 1)
-            {
-                throw new ArgumentException("Only supporting 1 Key column at this time.");
-            }
-
             bool isSimpleType = IsSimpleType(id.GetType());
             IDictionary<string, object> paramValues = null;
             if (!isSimpleType)
@@ -123,6 +118,11 @@ namespace DapperExtensions
                 {
                     Guid comb = Formatter.GetNextGuid();
                     keyValues.Add(column.Name, comb);
+                }
+
+                if (column.KeyType == KeyType.Assigned)
+                {
+                    keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
                 }
 
                 columns.Add(Formatter.GetColumnName(classMap, column, false));

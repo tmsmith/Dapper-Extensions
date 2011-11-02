@@ -39,6 +39,8 @@ namespace DapperExtensions.Test
             SqlCeCommand cmd = new SqlCeCommand(ReadScriptFile("CreatePersonTable"), _connection);
             cmd.ExecuteNonQuery();
 
+            cmd = new SqlCeCommand(ReadScriptFile("CreateMultikeyTable"), _connection);
+            cmd.ExecuteNonQuery();
         }
 
         public override void Teardown()
@@ -56,6 +58,15 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void Insert_Multikey_Inserts_Entity()
+        {
+            Multikey m = new Multikey { Key2 = "key", Value = "foo" };
+            var key = _connection.Insert(m);
+            Assert.AreEqual(1, key.Key1);
+            Assert.AreEqual("key", key.Key2);
+        }
+
+        [Test]
         public void Get_Person_Gets_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
@@ -68,6 +79,18 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void Get_Multikey_Gets_Entity()
+        {
+            Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+            var key = _connection.Insert(m1);
+
+            Multikey m2 = _connection.Get<Multikey>(new { key.Key1, key.Key2 });
+            Assert.AreEqual(1, m2.Key1);
+            Assert.AreEqual("key", m2.Key2);
+            Assert.AreEqual("bar", m2.Value);
+        }
+
+        [Test]
         public void Delete_Person_Deletes_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
@@ -76,6 +99,17 @@ namespace DapperExtensions.Test
             Person p2 = _connection.Get<Person>(id);
             _connection.Delete(p2);
             Assert.IsNull(_connection.Get<Person>(id));
+        }
+
+        [Test]
+        public void Delete_Multikey_Deletes_Entity()
+        {
+            Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+            var key = _connection.Insert(m1);
+
+            Multikey m2 = _connection.Get<Multikey>(new { key.Key1, key.Key2 });
+            _connection.Delete(m2);
+            Assert.IsNull(_connection.Get<Multikey>(new { key.Key1, key.Key2 }));
         }
 
         [Test]
@@ -94,6 +128,23 @@ namespace DapperExtensions.Test
             Assert.AreEqual("Baz", p3.FirstName);
             Assert.AreEqual("Bar", p3.LastName);
             Assert.AreEqual(false, p3.Active);
+        }
+
+        [Test]
+        public void Update_Multikey_Updates_Entity()
+        {
+            Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+            var key = _connection.Insert(m1);
+
+            Multikey m2 = _connection.Get<Multikey>(new { key.Key1, key.Key2 });
+            m2.Key2 = "key";
+            m2.Value = "barz";
+            _connection.Update(m2);
+
+            Multikey m3 = _connection.Get<Multikey>(new { Key1 = 1, Key2 = "key" });
+            Assert.AreEqual(1, m3.Key1);
+            Assert.AreEqual("key", m3.Key2);
+            Assert.AreEqual("barz", m3.Value);
         }
 
         [Test]

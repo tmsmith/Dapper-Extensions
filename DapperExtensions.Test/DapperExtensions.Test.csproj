@@ -62,6 +62,7 @@
     <Compile Include="BaseFixture.cs" />
     <Compile Include="DapperExtensionsFixture.cs" />
     <Compile Include="DapperFormatterFixture.cs" />
+    <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
     <Compile Include="GetMapFixture.cs" />
     <Compile Include="PredicatesFixture.cs" />
@@ -81,6 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SqlScripts\CreatePersonTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SqlScripts\CreateMultikeyTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
