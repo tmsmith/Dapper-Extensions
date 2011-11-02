@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,6 +12,7 @@ namespace DapperExtensions
 {
     public static class DapperExtensions
     {
+        public static bool IsUsingSqlCe { get; set; }
         public static IDapperFormatter Formatter { get; set; }
         public static Type DefaultMapper { get; private set; }
 
@@ -94,23 +96,25 @@ namespace DapperExtensions
             return result;
         }
 
-        public static bool Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
-            if (classMap.Properties.Count(c => c.KeyType != KeyType.NotAKey) > 1)
-            {
-                throw new ArgumentException("Only supporting 1 Key column at this time.");
-            }
-
             string tableName = Formatter.GetTableName(classMap);
             List<string> columns = new List<string>();
             List<string> values = new List<string>();
             PropertyInfo identityProperty = null;
+            IDictionary<string, object> keyValues = new ExpandoObject();
+            
             foreach (var column in classMap.Properties)
             {
                 if (column.KeyType == KeyType.Identity)
                 {
+                    if (identityProperty != null)
+                    {
+                        throw new DataException("Can only set 1 property to Identity.");
+                    }
+
                     identityProperty = column.PropertyInfo;
                     continue;
                 }
@@ -118,7 +122,7 @@ namespace DapperExtensions
                 if (column.KeyType == KeyType.Guid && (Guid)column.PropertyInfo.GetValue(entity, null) == Guid.Empty)
                 {
                     Guid comb = Formatter.GetNextGuid();
-                    column.PropertyInfo.SetValue(entity, comb, null);
+                    keyValues.Add(column.Name, comb);
                 }
 
                 columns.Add(Formatter.GetColumnName(classMap, column, false));
@@ -127,14 +131,25 @@ namespace DapperExtensions
 
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2});", tableName, columns.AppendStrings(), values.AppendStrings());
-            var result = connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
+            connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
             if (identityProperty != null)
             {
-                var identityId = connection.Query(string.Format("SELECT IDENT_CURRENT('{0}') AS [Id]", tableName), null, transaction, true, commandTimeout, CommandType.Text);
-                identityProperty.SetValue(entity, identityId.First().Id, null);
+                string identitySql = string.Format("SELECT IDENT_CURRENT('{0}') AS [Id]", tableName);
+                if (IsUsingSqlCe)
+                {
+                    identitySql = "SELECT @@IDENTITY AS [Id]";
+                }
+
+                var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
+                keyValues.Add(identityProperty.Name, identityId.First().Id);
             }
 
-            return result;
+            if (keyValues.Count == 1)
+            {
+                return keyValues.First().Value;
+            }
+
+            return keyValues;
         }
 
         public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
