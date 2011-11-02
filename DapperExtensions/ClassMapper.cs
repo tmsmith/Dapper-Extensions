@@ -15,8 +15,6 @@ namespace DapperExtensions
 
     public interface IClassMapper<T> : IClassMapper where T : class
     {
-        PropertyMap Map(Expression<Func<T, object>> expression);
-        PropertyMap Map(PropertyInfo propertyInfo);
     }
 
     public class ClassMapper<T> : IClassMapper<T> where T : class
@@ -31,17 +29,17 @@ namespace DapperExtensions
             Table(typeof(T).Name);
         }
 
-        public virtual void Schema(string schemaName)
+        protected virtual void Schema(string schemaName)
         {
             SchemaName = schemaName;
         }
 
-        public virtual void Table(string tableName)
+        protected virtual void Table(string tableName)
         {
             TableName = tableName;
         }
 
-        public virtual void AutoMap()
+        protected virtual void AutoMap()
         {
             Type type = typeof(T);
             foreach (var propertyInfo in type.GetProperties())
@@ -70,13 +68,13 @@ namespace DapperExtensions
             }
         }
 
-        public PropertyMap Map(Expression<Func<T, object>> expression)
+        protected PropertyMap Map(Expression<Func<T, object>> expression)
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return Map(propertyInfo);
         }
 
-        public PropertyMap Map(PropertyInfo propertyInfo)
+        protected PropertyMap Map(PropertyInfo propertyInfo)
         {
             PropertyMap result = new PropertyMap(propertyInfo);
             Properties.Add(result);
@@ -96,7 +94,7 @@ namespace DapperExtensions
 
     public class PlurizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
     {
-        public override void Table(string tableName)
+        protected override void Table(string tableName)
         {
             base.Table(tableName + "s");
         }

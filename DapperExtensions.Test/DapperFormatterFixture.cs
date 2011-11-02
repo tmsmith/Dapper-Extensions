@@ -16,8 +16,30 @@ namespace DapperExtensions.Test
         {
             public CustomMapper()
             {
-                this.Map(f => f.Bar).Column("Bar");
-                this.Map(f => f.Email).Column("EmailAddress");
+                Map(f => f.Bar).Column("Bar");
+                Map(f => f.Email).Column("EmailAddress");
+            }
+        }
+
+        private class TestClassMapper<T> : ClassMapper<T> where T : class
+        {
+            public Action<string> SchemaFunc { get; set; }
+            public Action<string> TableFunc { get; set; }
+
+            public TestClassMapper()
+            {
+                SchemaFunc = base.Schema;
+                TableFunc = base.Table;
+            }
+
+            protected override void Schema(string schemaName)
+            {
+                SchemaFunc(schemaName);
+            }
+
+            protected override void  Table(string tableName)
+            {
+ 	             TableFunc(tableName);
             }
         }
 
@@ -25,8 +47,8 @@ namespace DapperExtensions.Test
         public void GetTableName_Returns_Properly_Formatted_Name_When_Schema_Provided()
         {
             DefaultFormatter defaultFormatter = new DefaultFormatter();
-            ClassMapper<Foo> mapper = new ClassMapper<Foo>();
-            mapper.Schema("clients");
+            TestClassMapper<Foo> mapper = new TestClassMapper<Foo>();
+            mapper.SchemaFunc("clients");
             var tableName = defaultFormatter.GetTableName(mapper);
             Assert.AreEqual("[clients].[Foo]", tableName);
         }
@@ -35,7 +57,7 @@ namespace DapperExtensions.Test
         public void GetTableName_Returns_Properly_Formatted_Name_Without_Schema()
         {
             DefaultFormatter defaultFormatter = new DefaultFormatter();
-            ClassMapper<Foo> mapper = new ClassMapper<Foo>();
+            TestClassMapper<Foo> mapper = new TestClassMapper<Foo>();
             var tableName = defaultFormatter.GetTableName(mapper);
             Assert.AreEqual("[Foo]", tableName);
         }
