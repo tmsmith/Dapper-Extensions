@@ -47,7 +47,7 @@ namespace DapperExtensions
                                };
         }
 
-        public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             Type type = typeof(T);
             IClassMapper classMap = GetMap<T>();
@@ -129,7 +129,6 @@ namespace DapperExtensions
                 values.Add("@" + column.Name);
             }
 
-
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2});", tableName, columns.AppendStrings(), values.AppendStrings());
             connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
             if (identityProperty != null)
@@ -141,7 +140,7 @@ namespace DapperExtensions
                 }
 
                 var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                keyValues.Add(identityProperty.Name, identityId.First().Id);
+                keyValues.Add(identityProperty.Name, (int)identityId.First().Id);
             }
 
             if (keyValues.Count == 1)
@@ -281,7 +280,7 @@ namespace DapperExtensions
         private static bool IsSimpleType(Type type)
         {
             Type actualType = type;
-            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 actualType = type.GetGenericArguments()[0];
             }

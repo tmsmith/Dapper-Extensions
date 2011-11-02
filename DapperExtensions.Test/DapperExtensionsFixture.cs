@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 using System.IO;
 using System.Linq;
@@ -17,6 +16,7 @@ namespace DapperExtensions.Test
 
         public DapperExtensionsFixture()
         {
+            DapperExtensions.IsUsingSqlCe = true;
             _databaseName = ConfigurationManager.AppSettings["DatabaseName"];
         }
 
@@ -51,18 +51,18 @@ namespace DapperExtensions.Test
         public void Insert_Person_Inserts_Person_Entity()
         {
             Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            _connection.Insert(p);
-            Assert.AreEqual(1, p.Id);
+            int id = _connection.Insert(p);
+            Assert.AreEqual(1, id);
         }
 
         [Test]
         public void Get_Person_Gets_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            _connection.Insert(p1);
+            int id = _connection.Insert(p1);
 
-            Person p2 = _connection.Get<Person>(p1.Id);
-            Assert.AreEqual(p1.Id, p2.Id);
+            Person p2 = _connection.Get<Person>(id);
+            Assert.AreEqual(id, p2.Id);
             Assert.AreEqual("Foo", p2.FirstName);
             Assert.AreEqual("Bar", p2.LastName);
         }
@@ -71,34 +71,29 @@ namespace DapperExtensions.Test
         public void Delete_Person_Deletes_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            _connection.Insert(p1);
+            int id = _connection.Insert(p1);
 
-            Assert.AreNotEqual(0, p1);
-
-            _connection.Delete(p1);
-            Assert.IsNull(_connection.Get<Person>(p1.Id));
-
+            Person p2 = _connection.Get<Person>(id);
+            _connection.Delete(p2);
+            Assert.IsNull(_connection.Get<Person>(id));
         }
 
         [Test]
         public void Update_Person_Updates_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            _connection.Insert(p1);
+            int id = _connection.Insert(p1);
 
-            Assert.AreNotEqual(0, p1);
-
-            var p2 = _connection.Get<Person>(p1.Id);
+            var p2 = _connection.Get<Person>(id);
             p2.FirstName = "Baz";
             p2.Active = false;
 
             _connection.Update(p2);
 
-            var p3 = _connection.Get<Person>(p1.Id);
+            var p3 = _connection.Get<Person>(id);
             Assert.AreEqual("Baz", p3.FirstName);
             Assert.AreEqual("Bar", p3.LastName);
             Assert.AreEqual(false, p3.Active);
-
         }
 
         [Test]
