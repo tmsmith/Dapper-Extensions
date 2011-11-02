@@ -17,6 +17,7 @@ Features
 * Singular and Pluralized table name support.
 * Easy-to-use Predicate System for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
+* Properly escapes table names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [UserId] = @UserId)
 
 Naming Conventions
 ------------------
