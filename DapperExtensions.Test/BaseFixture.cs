@@ -12,7 +12,7 @@ namespace DapperExtensions.Test
         [SetUp]
         public virtual void Setup()
         {
-            DapperExtensions.ClearMapCache();
+            DapperExtensions.ClearCache();
         }
 
         [TearDown]

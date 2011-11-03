@@ -65,7 +65,7 @@ namespace DapperExtensions
         {
             IClassMapper map = DapperExtensions.GetMap<T>();
             IPropertyMap propertyMap = map.Properties.Single(p => p.Name == PropertyName);
-            string columnName = DapperExtensions.Formatter.GetColumnName(map, propertyMap, false);
+            string columnName = DapperExtensions.SqlGenerator.GetColumnName(map, propertyMap, false);
             if (Value == null)
             {
                 return string.Format("({0} IS {1}NULL)", columnName, Not ? "NOT " : string.Empty);

@@ -42,12 +42,12 @@
   <ItemGroup>
     <Compile Include="ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
-    <Compile Include="DapperFormatter.cs" />
     <Compile Include="Dapper\SqlMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="SqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

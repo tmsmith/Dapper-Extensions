@@ -61,7 +61,6 @@
   <ItemGroup>
     <Compile Include="BaseFixture.cs" />
     <Compile Include="DapperExtensionsFixture.cs" />
-    <Compile Include="DapperFormatterFixture.cs" />
     <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
     <Compile Include="GetMapFixture.cs" />
@@ -69,6 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="SqlGeneratorFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

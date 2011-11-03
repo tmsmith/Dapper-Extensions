@@ -29,12 +29,12 @@ namespace DapperExtensions
             Table(typeof(T).Name);
         }
 
-        protected virtual void Schema(string schemaName)
+        public virtual void Schema(string schemaName)
         {
             SchemaName = schemaName;
         }
 
-        protected virtual void Table(string tableName)
+        public virtual void Table(string tableName)
         {
             TableName = tableName;
         }
@@ -94,7 +94,7 @@ namespace DapperExtensions
 
     public class PlurizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
     {
-        protected override void Table(string tableName)
+        public override void Table(string tableName)
         {
             base.Table(tableName + "s");
         }

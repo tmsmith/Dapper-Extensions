@@ -201,5 +201,11 @@ namespace DapperExtensions.Test
             list = _connection.GetPage<Person>(null, sort, 3, 2);
             Assert.AreEqual(0, list.Count());
         }
+
+        [Test]
+        public void GetNextGuid_Returns_Guid()
+        {
+            DapperExtensions.GetNextGuid();
+        }
     }
 }
