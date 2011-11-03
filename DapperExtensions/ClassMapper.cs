@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -42,6 +43,7 @@ namespace DapperExtensions
         protected virtual void AutoMap()
         {
             Type type = typeof(T);
+            bool keyFound = Properties.Any(p => p.KeyType != KeyType.NotAKey);
             foreach (var propertyInfo in type.GetProperties())
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
@@ -50,7 +52,8 @@ namespace DapperExtensions
                 }
 
                 PropertyMap map = Map(propertyInfo);
-                if (map.PropertyInfo.Name.Equals("id", StringComparison.InvariantCultureIgnoreCase))
+
+                if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                 {
                     if (map.PropertyInfo.PropertyType == typeof(int))
                     {
@@ -64,6 +67,8 @@ namespace DapperExtensions
                     {
                         map.Key(KeyType.Assigned);
                     }
+
+                    keyFound = true;
                 }
             }
         }
