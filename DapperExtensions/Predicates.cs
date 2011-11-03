@@ -100,7 +100,8 @@ namespace DapperExtensions
         Gt,
         Ge,
         Lt,
-        Le
+        Le,
+        Like
     }
 
     public interface IPredicateGroup : IPredicate
