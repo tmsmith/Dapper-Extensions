@@ -1,10 +1,9 @@
-$outfile = "DapperExtensions.Combined.cs"
+$outfile = "nuget\DapperExtensions.cs"
 $namespace = "DapperExtensions"
 $usingStatements = New-Object "system.collections.generic.list[string]"
 $files = New-Object "system.collections.generic.list[string]"
 $files.Add("DapperExtensions\ClassMapper.cs")
 $files.Add("DapperExtensions\DapperExtensions.cs")
-$files.Add("DapperExtensions\DapperFormatter.cs")
 $files.Add("DapperExtensions\Predicates.cs")
 $files.Add("DapperExtensions\PropertyMap.cs")
 $files.Add("DapperExtensions\ReflectionHelper.cs")
