@@ -124,6 +124,20 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
+        public static bool Delete<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            IClassMapper classMap = GetMap<T>();
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = SqlGenerator.Delete(classMap, predicate, parameters);
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
+        }
+
         public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -287,6 +301,18 @@ namespace DapperExtensions
                 return string.Format("DELETE FROM {0} WHERE {1}",
                     GetTableName(classMap),
                     BuildWhere(classMap));
+            }
+
+            public static string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+            {
+                StringBuilder sql = new StringBuilder(string.Format("DELETE FROM {0}", GetTableName(classMap)));
+                if (predicate != null)
+                {
+                    sql.Append(" WHERE ")
+                        .Append(predicate.GetSql(parameters));
+                }
+
+                return sql.ToString();
             }
 
             public static string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)

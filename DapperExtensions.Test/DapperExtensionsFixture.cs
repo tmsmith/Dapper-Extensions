@@ -113,6 +113,27 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void Delete_With_Pedicate_Deletes_Rows()
+        {
+            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
+            _connection.Insert(p1);
+            _connection.Insert(p2);
+            _connection.Insert(p3);
+
+            var list = _connection.GetList<Person>();
+            Assert.AreEqual(3, list.Count());
+
+            IPredicate pred = Predicates.Field<Person>(p => p.LastName, Operator.Eq, "Bar");
+            var result = _connection.Delete<Person>(pred);
+            Assert.IsTrue(result);
+
+            list = _connection.GetList<Person>();
+            Assert.AreEqual(1, list.Count());
+        }
+
+        [Test]
         public void Update_Person_Updates_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
