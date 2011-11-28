@@ -31,7 +31,7 @@ Naming Conventions
 
 ```
 PM> Install-Package Dapper
-PM> Install-Package DapperExtensions (Coming Soon)
+PM> Install-Package DapperExtensions
 ```
 
 **Manual Installation**
