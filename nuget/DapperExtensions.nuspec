@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DapperExtensions</id>
-    <version>1.0</version>
+    <version>1.1</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
