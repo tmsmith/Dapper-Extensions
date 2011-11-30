@@ -22,7 +22,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Eq_Returns_Property_Sql()
+        public void FieldPredicate_Eq_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
                            {
@@ -39,7 +39,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Not_Eq_Returns_Property_Sql()
+        public void FieldPredicate_Not_Eq_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -56,7 +56,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Gt_Returns_Property_Sql()
+        public void FieldPredicate_Gt_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -73,7 +73,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Not_Gt_Returns_Property_Sql()
+        public void FieldPredicate_Not_Gt_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -90,7 +90,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Ge_Returns_Property_Sql()
+        public void FieldPredicate_Ge_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -107,7 +107,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Not_Ge_Returns_Property_Sql()
+        public void FieldPredicate_Not_Ge_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -124,7 +124,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Lt_Returns_Property_Sql()
+        public void FieldPredicate_Lt_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -141,7 +141,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Not_Lt_Returns_Property_Sql()
+        public void FieldPredicate_Not_Lt_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -158,7 +158,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Le_Returns_Property_Sql()
+        public void FieldPredicate_Le_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -175,7 +175,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_Not_Le_Returns_Property_Sql()
+        public void FieldPredicate_Not_Le_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -192,7 +192,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_With_Null_Returns_Property_Sql()
+        public void FieldPredicate_With_Null_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -209,7 +209,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_With_Null_ANd_Not_Returns_Property_Sql()
+        public void FieldPredicate_With_Null_ANd_Not_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
@@ -292,10 +292,237 @@ namespace DapperExtensions.Test
             Assert.IsFalse(sort.Ascending);
         }
 
+        [Test]
+        public void Predicates_Property_Returns_Setup_Predicate()
+        {
+            var pred = Predicates.Property<PredicateTestEntity, PredicateTestEntity2>(f => f.Name, Operator.Eq, f => f.Value);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Name] = [PredicateTestEntity2].[Value])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Eq_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = false,
+                               Operator = Operator.Eq
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Not_Eq_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = true,
+                               Operator = Operator.Eq
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <> [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Gt_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = false,
+                               Operator = Operator.Gt
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] > [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Not_Gt_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = true,
+                               Operator = Operator.Gt
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <= [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Ge_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = false,
+                               Operator = Operator.Ge
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] >= [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Not_Ge_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = true,
+                               Operator = Operator.Ge
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] < [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Lt_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = false,
+                               Operator = Operator.Lt
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] < [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Not_Lt_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = true,
+                               Operator = Operator.Lt
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] >= [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Le_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = false,
+                               Operator = Operator.Le
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <= [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void PropertyPredicate_Not_Le_Returns_Proper_Sql()
+        {
+            var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                           {
+                               PropertyName = "Id",
+                               PropertyName2 = "Key",
+                               Not = true,
+                               Operator = Operator.Le
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] > [PredicateTestEntity2].[Key])", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void ExistsPredicate_Returns_Proper_Sql()
+        {
+            var pred = new ExistsPredicate<PredicateTestEntity2>
+                           {
+                               Predicate = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                                               {
+                                                   PropertyName = "Id",
+                                                   PropertyName2 = "Key",
+                                                   Not = false,
+                                                   Operator = Operator.Eq
+                                               }
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("(EXISTS (SELECT 1 FROM [PredicateTestEntity2] WHERE ([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])))", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [Test]
+        public void ExistsPredicate_Not_Returns_Proper_Sql()
+        {
+            var pred = new ExistsPredicate<PredicateTestEntity2>
+                           {
+                               Not = true,
+                               Predicate = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
+                                               {
+                                                   PropertyName = "Id",
+                                                   PropertyName2 = "Key",
+                                                   Not = false,
+                                                   Operator = Operator.Eq
+                                               }
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("(NOT EXISTS (SELECT 1 FROM [PredicateTestEntity2] WHERE ([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])))", result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
         private class PredicateTestEntity
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class PredicateTestEntity2
+        {
+            public int Key { get; set; }
+            public string Value { get; set; }
         }
 
         private class TestPredicate : IPredicate
