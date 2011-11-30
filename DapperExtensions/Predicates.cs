@@ -88,6 +88,8 @@ namespace DapperExtensions
                     return Not ? ">=" : "<";
                 case Operator.Le:
                     return Not ? ">" : "<=";
+                case Operator.Like:
+                    return Not ? "NOT LIKE" : "LIKE";
                 default:
                     return Not ? "<>" : "=";
             }
