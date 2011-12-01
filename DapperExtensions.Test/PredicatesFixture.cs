@@ -193,6 +193,41 @@ namespace DapperExtensions.Test
 
         [Test]
         public void FieldPredicate_With_Null_Returns_Proper_Sql()
+        public void FieldPredicate_Like_Returns_Property_Sql()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Name",
+                Value = "%foo",
+                Not = false,
+                Operator = Operator.Like
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Name] LIKE @Namep0)", result);
+            Assert.AreEqual("%foo", parameters["@Namep0"]);
+        }
+
+        [Test]
+        public void FieldPredicate_Not_Like_Returns_Property_Sql()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Name",
+                Value = "%foo",
+                Not = true,
+                Operator = Operator.Like
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Name] NOT LIKE @Namep0)", result);
+            Assert.AreEqual("%foo", parameters["@Namep0"]);
+        }
+
+        [Test]
+        public void FieldPredicate_With_Null_Returns_Property_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
