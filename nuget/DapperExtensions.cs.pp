@@ -14,11 +14,11 @@ using System;
 // Dapper Extensions
 // Extensions for Dapper to handle basic CRUD operations
 
-// Generated: 11/30/2011 14:41:58
+// Generated: 12/01/2011 11:29:40
 // Website: https://github.com/tmsmith/Dapper-Extensions
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
-namespace DapperExtensions
+namespace $rootnamespace$.Dapper
 {
     // Begin DapperExtensions\ClassMapper.cs
 

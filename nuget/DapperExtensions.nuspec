@@ -23,6 +23,6 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="DapperExtensions.cs" target="content\Dapper\DapperExtensions.cs" />
+    <file src="DapperExtensions.cs.pp" target="content\Dapper\DapperExtensions.cs.pp" />
   </files>  
 </package>

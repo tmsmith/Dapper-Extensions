@@ -1,5 +1,5 @@
-$outfile = "nuget\DapperExtensions.cs"
-$namespace = "DapperExtensions"
+$outfile = "nuget\DapperExtensions.cs.pp"
+$namespace = "`$rootnamespace`$.Dapper"
 $usingStatements = New-Object "system.collections.generic.list[string]"
 $files = New-Object "system.collections.generic.list[string]"
 $files.Add("DapperExtensions\ClassMapper.cs")
