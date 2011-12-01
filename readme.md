@@ -29,8 +29,9 @@ Naming Conventions
 
 **Using Nuget**
 
+http://nuget.org/List/Packages/DapperExtensions
+
 ```
-PM> Install-Package Dapper
 PM> Install-Package DapperExtensions
 ```
 
