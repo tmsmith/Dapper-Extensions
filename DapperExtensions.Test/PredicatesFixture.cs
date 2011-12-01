@@ -192,7 +192,6 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_With_Null_Returns_Proper_Sql()
         public void FieldPredicate_Like_Returns_Property_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
@@ -244,7 +243,7 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void FieldPredicate_With_Null_ANd_Not_Returns_Proper_Sql()
+        public void FieldPredicate_With_Null_And_Not_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
             {
