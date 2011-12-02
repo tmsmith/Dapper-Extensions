@@ -77,6 +77,16 @@ namespace DapperExtensions
         public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
+
+            foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
+            {
+                if (column.KeyType == KeyType.Guid)
+                {
+                    Guid comb = GetNextGuid();
+                    column.PropertyInfo.SetValue(entity, comb, null);
+                }
+            }
+
             string sql = SqlGenerator.Insert(classMap);
             connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
             IDictionary<string, object> keyValues = new ExpandoObject();
@@ -90,13 +100,7 @@ namespace DapperExtensions
                     keyValues.Add(column.Name, (int)identityId.First().Id);
                 }
 
-                if (column.KeyType == KeyType.Guid)
-                {
-                    Guid comb = GetNextGuid();
-                    keyValues.Add(column.Name, comb);
-                }
-
-                if (column.KeyType == KeyType.Assigned)
+                if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
                 {
                     keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
                 }
