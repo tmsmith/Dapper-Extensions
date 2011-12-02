@@ -69,9 +69,31 @@ namespace DapperExtensions
                 parameters.Add("@" + key.Name, value);
             }
 
-            
+
             T result = connection.Query<T>(sql, parameters, transaction, true, commandTimeout, CommandType.Text).SingleOrDefault();
             return result;
+        }
+
+        public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            IClassMapper classMap = GetMap<T>();
+            var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+
+            foreach (var e in entities)
+            {
+                foreach (var column in properties)
+                {
+                    if (column.KeyType == KeyType.Guid)
+                    {
+                            Guid comb = GetNextGuid();
+                            column.PropertyInfo.SetValue(e, comb, null);
+                    }
+                }
+            }
+            
+            string sql = SqlGenerator.Insert(classMap);
+
+            connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
         }
 
         public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class

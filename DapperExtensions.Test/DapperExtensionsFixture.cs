@@ -81,6 +81,19 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void Insert_With_IEnumerable_Inserts_Multiple_Entities()
+        {
+            Animal a1 = new Animal { Name = "Foo" };
+            Animal a2 = new Animal { Name = "Bar" };
+            Animal a3 = new Animal { Name = "Baz" };
+
+            _connection.Insert<Animal>(new[] { a1, a2, a3 });
+
+            var animals = _connection.GetList<Animal>().ToList();
+            Assert.AreEqual(3, animals.Count);
+        }
+
+        [Test]
         public void Get_Person_Gets_Person_Entity()
         {
             Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
