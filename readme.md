@@ -131,6 +131,8 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## GetList Operation (with Predicates)
 
+More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
+
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
@@ -142,6 +144,9 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 ```
 
 ## Count Operation (with Predicates)
+
+More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
+
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
