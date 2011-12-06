@@ -11,7 +11,7 @@ Features
 * Zero configuration out of the box.
 * Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
 * Automatic support for Guid and Integer primary keys.
-* Pure POCOs through use of ClassMapper.
+* Pure POCOs through use of ClassMapper (_Attribute Free!_).
 * Customized mapping through the use of ClassMapper.
 * Composite Primary Key support.
 * Singular and Pluralized table name support.
@@ -28,7 +28,7 @@ Naming Conventions
 
 # Installation
 
-**Using Nuget**
+**Using Nuget (Recommended)**
 
 http://nuget.org/List/Packages/DapperExtensions
 
@@ -38,8 +38,8 @@ PM> Install-Package DapperExtensions
 
 **Manual Installation**
 
-Include SqlMapper.cs in your project (from Dapper project)
-Include DapperExtensions.cs in your project
+* Include SqlMapper.cs in your project (from Dapper project)
+* Include DapperExtensions.cs in your project
 
 # Examples
 The following examples will use a Person POCO defined as:
@@ -62,7 +62,8 @@ public class Person
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = cn.Get<Person>(1);	
+    int personId = 1;
+    Person person = cn.Get<Person>(personId);	
     cn.Close();
 }
 ```
@@ -110,7 +111,8 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = _connection.Get<Person>(1);
+    int personId = 1;
+    Person person = _connection.Get<Person>(personId);
     person.LastName = "Baz";
     cn.Update(person);
     cn.Close();
