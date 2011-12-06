@@ -11,12 +11,13 @@ Features
 * Zero configuration out of the box.
 * Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
 * Automatic support for Guid and Integer primary keys.
-* Pure POCOs through use of ClassMapper.
+* Pure POCOs through use of ClassMapper (_Attribute Free!_).
 * Customized mapping through the use of ClassMapper.
 * Composite Primary Key support.
 * Singular and Pluralized table name support.
-* Easy-to-use Predicate System for more advanced scenarios.
+* Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
+* GetPage for returning paged result sets.
 * Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId)
 
 Naming Conventions
@@ -27,7 +28,7 @@ Naming Conventions
 
 # Installation
 
-**Using Nuget**
+**Using Nuget (Recommended)**
 
 http://nuget.org/List/Packages/DapperExtensions
 
@@ -37,8 +38,8 @@ PM> Install-Package DapperExtensions
 
 **Manual Installation**
 
-Include SqlMapper.cs in your project (from Dapper project)
-Include DapperExtensions.cs in your project
+* Include SqlMapper.cs in your project (from Dapper project)
+* Include DapperExtensions.cs in your project
 
 # Examples
 The following examples will use a Person POCO defined as:
@@ -49,6 +50,8 @@ public class Person
     public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public bool Active { get; set; }
+    public DateTime DateCreated { get; set; }
 }
 ```
 
@@ -59,7 +62,8 @@ public class Person
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = cn.Get<Person>(1);	
+    int personId = 1;
+    Person person = cn.Get<Person>(personId);	
     cn.Close();
 }
 ```
@@ -107,7 +111,8 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = _connection.Get<Person>(1);
+    int personId = 1;
+    Person person = _connection.Get<Person>(personId);
     person.LastName = "Baz";
     cn.Update(person);
     cn.Close();
@@ -139,7 +144,24 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 }
 ```
 
+Generated SQL
+
+```
+SELECT 
+   [Person].[Id]
+ , [Person].[FirstName]
+ , [Person].[LastName]
+ , [Person].[Active]
+ , [Person].[DateCreated] 
+FROM [Person] 
+WHERE ([Person].[Active] = @Activep0)
+```
+
+More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
+
+
 ## Count Operation (with Predicates)
+
 ```
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
@@ -149,6 +171,18 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
     cn.Close();
 }            
 ```
+
+Generated SQL
+
+```
+SELECT 
+   COUNT(*) Total 
+FROM [Person] 
+WHERE ([Person].[DateCreated] < @DateCreatedp0)
+```
+
+More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
+
 
 # License
 

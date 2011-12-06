@@ -41,6 +41,9 @@ namespace DapperExtensions.Test
 
             cmd = new SqlCeCommand(ReadScriptFile("CreateMultikeyTable"), _connection);
             cmd.ExecuteNonQuery();
+
+            cmd = new SqlCeCommand(ReadScriptFile("CreateAnimalTable"), _connection);
+            cmd.ExecuteNonQuery();
         }
 
         public override void Teardown()
@@ -64,6 +67,30 @@ namespace DapperExtensions.Test
             var key = _connection.Insert(m);
             Assert.AreEqual(1, key.Key1);
             Assert.AreEqual("key", key.Key2);
+        }
+
+        [Test]
+        public void Insert_With_Guid_Primary_Key_Generates_Guid_Before_Insert()
+        {
+            Animal a1 = new Animal { Name = "Foo" };
+            _connection.Insert(a1);
+
+            var a2 = _connection.Get<Animal>(a1.Id);
+            Assert.AreNotEqual(Guid.Empty, a2.Id);
+            Assert.AreEqual(a1.Id, a2.Id);
+        }
+
+        [Test]
+        public void Insert_With_IEnumerable_Inserts_Multiple_Entities()
+        {
+            Animal a1 = new Animal { Name = "Foo" };
+            Animal a2 = new Animal { Name = "Bar" };
+            Animal a3 = new Animal { Name = "Baz" };
+
+            _connection.Insert<Animal>(new[] { a1, a2, a3 });
+
+            var animals = _connection.GetList<Animal>().ToList();
+            Assert.AreEqual(3, animals.Count);
         }
 
         [Test]
