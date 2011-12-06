@@ -56,6 +56,60 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void FieldPredicate_Eq_Enumerable_Returns_Proper_Sql()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+                           {
+                               PropertyName = "Id",
+                               Value = new[] { 3, 4, 5 },
+                               Not = false,
+                               Operator = Operator.Eq
+                           };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Idp0, @Idp1, @Idp2))", result);
+            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual(4, parameters["@Idp1"]);
+            Assert.AreEqual(5, parameters["@Idp2"]);
+        }
+
+        [Test]
+        public void FieldPredicate_Not_Eq_Enumerable_Returns_Proper_Sql()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Id",
+                Value = new[] { 3, 4, 5 },
+                Not = true,
+                Operator = Operator.Eq
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] NOT IN (@Idp0, @Idp1, @Idp2))", result);
+            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual(4, parameters["@Idp1"]);
+            Assert.AreEqual(5, parameters["@Idp2"]);
+        }
+
+        [Test]
+        public void FieldPredicate_Enumerable_Throws_Exception_If_Operator_Not_Eq()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Id",
+                Value = new[] { 3, 4, 5 },
+                Not = false,
+                Operator = Operator.Ge
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            var ex = Assert.Throws<ArgumentException>(() => pred.GetSql(parameters));
+            Assert.AreEqual("Operator must be set to Eq for Enumerable types", ex.Message);
+        }
+
+        [Test]
         public void FieldPredicate_Gt_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
