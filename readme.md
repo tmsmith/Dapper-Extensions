@@ -17,6 +17,7 @@ Features
 * Singular and Pluralized table name support.
 * Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
 * GetList, Count methods for more advanced scenarios.
+* GetPage for returning paged result sets.
 * Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId)
 
 Naming Conventions
