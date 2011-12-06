@@ -143,6 +143,20 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
     cn.Close();
 }
 ```
+
+Generated SQL
+
+```
+SELECT 
+   [Person].[Id]
+ , [Person].[FirstName]
+ , [Person].[LastName]
+ , [Person].[Active]
+ , [Person].[DateCreated] 
+FROM [Person] 
+WHERE ([Person].[Active] = @Activep0)
+```
+
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
 
 
@@ -157,6 +171,16 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
     cn.Close();
 }            
 ```
+
+Generated SQL
+
+```
+SELECT 
+   COUNT(*) Total 
+FROM [Person] 
+WHERE ([Person].[DateCreated] < @DateCreatedp0)
+```
+
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
 
 
