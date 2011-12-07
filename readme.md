@@ -11,8 +11,8 @@ Features
 * Zero configuration out of the box.
 * Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
 * Automatic support for Guid and Integer primary keys.
-* Pure POCOs through use of ClassMapper (_Attribute Free!_).
-* Customized mapping through the use of ClassMapper.
+* Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper) (_Attribute Free!_).
+* Customized mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper).
 * Composite Primary Key support.
 * Singular and Pluralized table name support.
 * Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
