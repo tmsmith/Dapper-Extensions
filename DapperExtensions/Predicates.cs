@@ -141,7 +141,7 @@ namespace DapperExtensions
                 return string.Format("({0} IS {1}NULL)", columnName, Not ? "NOT " : string.Empty);
             }
 
-            if (Value is IEnumerable)
+            if (Value is IEnumerable && !(Value is string))
             {
                 if (Operator != Operator.Eq)
                 {
