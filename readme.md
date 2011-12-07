@@ -10,15 +10,15 @@ Features
 --------
 * Zero configuration out of the box.
 * Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
-* Automatic support for Guid and Integer primary keys.
+* GetList, Count methods for more advanced scenarios.
+* GetPage for returning paged result sets.
+* Automatic support for Guid and Integer primary keys (Includes manual support for other key types).
 * Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper) (_Attribute Free!_).
 * Customized mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper).
 * Composite Primary Key support.
 * Singular and Pluralized table name support.
 * Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
-* GetList, Count methods for more advanced scenarios.
-* GetPage for returning paged result sets.
-* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId)
+* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserIdp0)
 
 Naming Conventions
 ------------------
