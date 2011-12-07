@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Dapper;
 
@@ -13,7 +12,7 @@ namespace DapperExtensions
     public static class DapperExtensions
     {
         public static bool IsUsingSqlCe { get; set; }
-        public static Type DefaultMapper { get; private set; }
+        public static Type DefaultMapper { get; set; }
 
         private static readonly List<Type> _simpleTypes;
         private static readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
