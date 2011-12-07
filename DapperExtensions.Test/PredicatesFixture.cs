@@ -39,6 +39,43 @@ namespace DapperExtensions.Test
         }
 
         [Test]
+        public void FieldPredicate_Eq_Returns_Proper_Sql_When_String()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Id",
+                Value = "Foo",
+                Not = false,
+                Operator = Operator.Eq
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] = @Idp0)", result);
+            Assert.AreEqual("Foo", parameters["@Idp0"]);
+        }
+
+        [Test]
+        public void FieldPredicate_Eq_Returns_Proper_Sql_When_Enumerable_Of_String()
+        {
+            var pred = new FieldPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Id",
+                Value = new[] { "Alpha", "Beta", "Gamma", "Delta" },
+                Not = false,
+                Operator = Operator.Eq
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Idp0, @Idp1, @Idp2, @Idp3))", result);
+            Assert.AreEqual("Alpha", parameters["@Idp0"]);
+            Assert.AreEqual("Beta", parameters["@Idp1"]);
+            Assert.AreEqual("Gamma", parameters["@Idp2"]);
+            Assert.AreEqual("Delta", parameters["@Idp3"]);
+        }
+
+        [Test]
         public void FieldPredicate_Not_Eq_Returns_Proper_Sql()
         {
             var pred = new FieldPredicate<PredicateTestEntity>
