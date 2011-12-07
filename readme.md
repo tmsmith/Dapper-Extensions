@@ -2,7 +2,7 @@
 
 Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
 
-Customized mappings are achieved through ClassMapper. 
+Customized mappings are achieved through [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper). 
 
 **Important**: This library is a separate effort from Dapper.Contrib (a sub-system of the [Dapper](https://github.com/SamSaffron/dapper-dot-net) project).
 
