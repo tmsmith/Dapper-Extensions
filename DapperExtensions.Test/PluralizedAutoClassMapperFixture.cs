@@ -42,6 +42,14 @@ namespace DapperExtensions.Test
             Assert.AreEqual("Persons", m.TableName);
         }
 
+        [Test]
+        public void Custom_Pluralized_Mapper_Should_Process_Singluar_Names()
+        {
+            CustomPluralizedMapper<Foo> m = new CustomPluralizedMapper<Foo>();
+            m.Table("Dog");
+            Assert.AreEqual("Dogs", m.TableName);
+        }
+
         public class Foo
         {
         }
