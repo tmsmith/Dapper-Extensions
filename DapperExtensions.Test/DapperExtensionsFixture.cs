@@ -58,6 +58,7 @@ namespace DapperExtensions.Test
             Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
             int id = _connection.Insert(p);
             Assert.AreEqual(1, id);
+            Assert.AreEqual(1, p.Id);
         }
 
         [Test]
