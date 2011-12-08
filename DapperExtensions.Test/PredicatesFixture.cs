@@ -22,8 +22,8 @@ namespace DapperExtensions.Test
                                                             { "Field", "123" }
                                                         };
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Name] = @Namep1)", result);
-            Assert.AreEqual("Lead", parameters["@Namep1"]);
+            Assert.AreEqual("([PredicateTestEntity].[Name] = @Name_1)", result);
+            Assert.AreEqual("Lead", parameters["@Name_1"]);
         }
 
         [Test]
@@ -39,8 +39,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] = @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] = @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -56,8 +56,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] = @Idp0)", result);
-            Assert.AreEqual("Foo", parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] = @Id_0)", result);
+            Assert.AreEqual("Foo", parameters["@Id_0"]);
         }
 
         [Test]
@@ -73,11 +73,11 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Idp0, @Idp1, @Idp2, @Idp3))", result);
-            Assert.AreEqual("Alpha", parameters["@Idp0"]);
-            Assert.AreEqual("Beta", parameters["@Idp1"]);
-            Assert.AreEqual("Gamma", parameters["@Idp2"]);
-            Assert.AreEqual("Delta", parameters["@Idp3"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Id_0, @Id_1, @Id_2, @Id_3))", result);
+            Assert.AreEqual("Alpha", parameters["@Id_0"]);
+            Assert.AreEqual("Beta", parameters["@Id_1"]);
+            Assert.AreEqual("Gamma", parameters["@Id_2"]);
+            Assert.AreEqual("Delta", parameters["@Id_3"]);
         }
 
         [Test]
@@ -93,8 +93,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] <> @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <> @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -110,10 +110,10 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Idp0, @Idp1, @Idp2))", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
-            Assert.AreEqual(4, parameters["@Idp1"]);
-            Assert.AreEqual(5, parameters["@Idp2"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Id_0, @Id_1, @Id_2))", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
+            Assert.AreEqual(4, parameters["@Id_1"]);
+            Assert.AreEqual(5, parameters["@Id_2"]);
         }
 
         [Test]
@@ -129,10 +129,10 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] NOT IN (@Idp0, @Idp1, @Idp2))", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
-            Assert.AreEqual(4, parameters["@Idp1"]);
-            Assert.AreEqual(5, parameters["@Idp2"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] NOT IN (@Id_0, @Id_1, @Id_2))", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
+            Assert.AreEqual(4, parameters["@Id_1"]);
+            Assert.AreEqual(5, parameters["@Id_2"]);
         }
 
         [Test]
@@ -164,8 +164,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] > @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] > @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -181,8 +181,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] <= @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <= @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -198,8 +198,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] >= @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] >= @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -215,8 +215,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] < @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] < @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -232,8 +232,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] < @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] < @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -249,8 +249,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] >= @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] >= @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -266,8 +266,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] <= @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] <= @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -283,8 +283,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Id] > @Idp0)", result);
-            Assert.AreEqual(3, parameters["@Idp0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Id] > @Id_0)", result);
+            Assert.AreEqual(3, parameters["@Id_0"]);
         }
 
         [Test]
@@ -300,8 +300,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Name] LIKE @Namep0)", result);
-            Assert.AreEqual("%foo", parameters["@Namep0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Name] LIKE @Name_0)", result);
+            Assert.AreEqual("%foo", parameters["@Name_0"]);
         }
 
         [Test]
@@ -317,8 +317,8 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("([PredicateTestEntity].[Name] NOT LIKE @Namep0)", result);
-            Assert.AreEqual("%foo", parameters["@Namep0"]);
+            Assert.AreEqual("([PredicateTestEntity].[Name] NOT LIKE @Name_0)", result);
+            Assert.AreEqual("%foo", parameters["@Name_0"]);
         }
 
         [Test]
@@ -364,9 +364,9 @@ namespace DapperExtensions.Test
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string result = pred.GetSql(parameters);
-            Assert.AreEqual("(([PredicateTestEntity].[Id] > @Idp0) AND ([PredicateTestEntity].[Name] = @Namep1))", result);
-            Assert.AreEqual(5, parameters["@Idp0"]);
-            Assert.AreEqual("foo", parameters["@Namep1"]);
+            Assert.AreEqual("(([PredicateTestEntity].[Id] > @Id_0) AND ([PredicateTestEntity].[Name] = @Name_1))", result);
+            Assert.AreEqual(5, parameters["@Id_0"]);
+            Assert.AreEqual("foo", parameters["@Name_1"]);
         }
 
         [Test]

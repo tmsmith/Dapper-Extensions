@@ -118,7 +118,9 @@ namespace DapperExtensions
                 {
                     string identitySql = SqlGenerator.IdentitySql(classMap);
                     var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                    keyValues.Add(column.Name, (int)identityId.First().Id);
+                    int id = (int)identityId.First().Id;
+                    keyValues.Add(column.Name, id);
+                    column.PropertyInfo.SetValue(entity, id, null);
                 }
 
                 if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
