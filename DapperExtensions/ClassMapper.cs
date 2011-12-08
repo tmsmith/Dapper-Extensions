@@ -21,8 +21,15 @@ namespace DapperExtensions
 
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        private string _tableName;
+
         public string SchemaName { get; private set; }
-        public string TableName { get; private set; }
+        public string TableName
+        {
+            get { return _tableName; }
+            private set { _tableName = GetTableName(value); } 
+        }
+
         public IList<IPropertyMap> Properties { get; private set; }
 
         public ClassMapper()
@@ -39,6 +46,11 @@ namespace DapperExtensions
         public virtual void Table(string tableName)
         {
             TableName = tableName;
+        }
+
+        protected virtual string GetTableName(string tableName)
+        {
+            return tableName;
         }
 
         protected virtual void AutoMap()
@@ -100,17 +112,16 @@ namespace DapperExtensions
 
     public class PluralizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
     {
-        public override void Table(string tableName)
+        protected override string GetTableName(string tableName)
         {
-            base.Table(Formatting.Pluralize(2, tableName));
+            return Formatting.Pluralize(2, tableName);
         }
-    }
 
-    // http://mattgrande.wordpress.com/2009/10/28/pluralization-helper-for-c/
-    public class Formatting
-    {
-        private static readonly IList<string> Unpluralizables = new List<string> { "equipment", "information", "rice", "money", "species", "series", "fish", "sheep", "deer" };
-        private static readonly IDictionary<string, string> Pluralizations = new Dictionary<string, string>
+        // http://mattgrande.wordpress.com/2009/10/28/pluralization-helper-for-c/
+        private static class Formatting
+        {
+            private static readonly IList<string> Unpluralizables = new List<string> { "equipment", "information", "rice", "money", "species", "series", "fish", "sheep", "deer" };
+            private static readonly IDictionary<string, string> Pluralizations = new Dictionary<string, string>
         {
             // Start with the rarest cases, and move to the most common
             { "person", "people" },
@@ -132,26 +143,27 @@ namespace DapperExtensions
             { "(.+)", @"$1s" }
         };
 
-        public static string Pluralize(int count, string singular)
-        {
-            if (count == 1)
-                return singular;
-
-            if (Unpluralizables.Contains(singular))
-                return singular;
-
-            var plural = "";
-
-            foreach (var pluralization in Pluralizations)
+            public static string Pluralize(int count, string singular)
             {
-                if (Regex.IsMatch(singular, pluralization.Key))
-                {
-                    plural = Regex.Replace(singular, pluralization.Key, pluralization.Value);
-                    break;
-                }
-            }
+                if (count == 1)
+                    return singular;
 
-            return plural;
+                if (Unpluralizables.Contains(singular))
+                    return singular;
+
+                var plural = "";
+
+                foreach (var pluralization in Pluralizations)
+                {
+                    if (Regex.IsMatch(singular, pluralization.Key))
+                    {
+                        plural = Regex.Replace(singular, pluralization.Key, pluralization.Value);
+                        break;
+                    }
+                }
+
+                return plural;
+            }
         }
     }
 }

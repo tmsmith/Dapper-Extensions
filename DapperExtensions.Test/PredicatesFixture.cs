@@ -8,6 +8,11 @@ namespace DapperExtensions.Test
     [TestFixture]
     public class PredicatesFixture : BaseFixture
     {
+        public override void Setup()
+        {
+            base.Setup();
+        }
+
         [Test]
         public void Predicates_Field_Returns_Setup_Predicate()
         {

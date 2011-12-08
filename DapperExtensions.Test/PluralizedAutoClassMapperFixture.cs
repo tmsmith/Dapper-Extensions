@@ -34,8 +34,29 @@ namespace DapperExtensions.Test
             Assert.AreEqual("messes", m.TableName);            
         }
 
+        [Test]
+        public void Custom_Pluralized_Mapper_Should_Process_Exceptions()
+        {
+            CustomPluralizedMapper<Foo> m = new CustomPluralizedMapper<Foo>();
+            m.Table("Person");
+            Assert.AreEqual("Persons", m.TableName);
+        }
+
         public class Foo
         {
+        }
+
+        public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T> where T : class 
+        {
+            protected override string GetTableName(string tableName)
+            {
+                if(tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return "Persons";
+                }
+
+                return base.GetTableName(tableName);
+            }
         }
     }
 }

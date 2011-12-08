@@ -12,6 +12,7 @@ namespace DapperExtensions.Test
         [SetUp]
         public virtual void Setup()
         {
+            DapperExtensions.DefaultMapper = typeof(AutoClassMapper<>);
             DapperExtensions.ClearCache();
         }
 
