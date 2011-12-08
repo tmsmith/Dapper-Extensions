@@ -154,7 +154,7 @@ SELECT
  , [Person].[Active]
  , [Person].[DateCreated] 
 FROM [Person] 
-WHERE ([Person].[Active] = @Activep0)
+WHERE ([Person].[Active] = @Active_0)
 ```
 
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
@@ -178,7 +178,7 @@ Generated SQL
 SELECT 
    COUNT(*) Total 
 FROM [Person] 
-WHERE ([Person].[DateCreated] < @DateCreatedp0)
+WHERE ([Person].[DateCreated] < @DateCreated_0)
 ```
 
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
