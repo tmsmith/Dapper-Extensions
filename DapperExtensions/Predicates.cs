@@ -151,7 +151,7 @@ namespace DapperExtensions
                 List<string> @params = new List<string>();
                 foreach (var value in (IEnumerable)Value)
                 {
-                    string valueParameterName = string.Format("@{0}p{1}", PropertyName, parameters.Count);
+                    string valueParameterName = string.Format("@{0}_{1}", PropertyName, parameters.Count);
                     parameters.Add(valueParameterName, value);
                     @params.Add(valueParameterName);
                 }
@@ -160,7 +160,7 @@ namespace DapperExtensions
                 return string.Format("({0} {1}IN ({2}))", columnName, Not ? "NOT " : string.Empty, paramStrings);
             }
 
-            string parameterName = string.Format("@{0}p{1}", PropertyName, parameters.Count);
+            string parameterName = string.Format("@{0}_{1}", PropertyName, parameters.Count);
             parameters.Add(parameterName, Value);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), parameterName);
         }
