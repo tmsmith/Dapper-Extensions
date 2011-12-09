@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>A small library that complements Dapper by adding basic CRUD operations.</releaseNotes>
-    <tags>orm sql micro-orm</tags>
+    <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
       <dependency id="Dapper" />
     </dependencies>
