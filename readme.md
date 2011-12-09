@@ -28,18 +28,13 @@ Naming Conventions
 
 # Installation
 
-**Using Nuget (Recommended)**
+For more information, please view our [Getting Started](https://github.com/tmsmith/Dapper-Extensions/wiki/Getting-Started) guide.
 
 http://nuget.org/List/Packages/DapperExtensions
 
 ```
 PM> Install-Package DapperExtensions
 ```
-
-**Manual Installation**
-
-* Include SqlMapper.cs in your project (from Dapper project)
-* Include DapperExtensions.cs in your project
 
 # Examples
 The following examples will use a Person POCO defined as:
@@ -154,7 +149,7 @@ SELECT
  , [Person].[Active]
  , [Person].[DateCreated] 
 FROM [Person] 
-WHERE ([Person].[Active] = @Activep0)
+WHERE ([Person].[Active] = @Active_0)
 ```
 
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
@@ -178,7 +173,7 @@ Generated SQL
 SELECT 
    COUNT(*) Total 
 FROM [Person] 
-WHERE ([Person].[DateCreated] < @DateCreatedp0)
+WHERE ([Person].[DateCreated] < @DateCreated_0)
 ```
 
 More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
