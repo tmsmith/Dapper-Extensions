@@ -28,6 +28,8 @@ Naming Conventions
 
 # Installation
 
+For more information, please view our [Getting Started](https://github.com/tmsmith/Dapper-Extensions/wiki/Getting-Started) guide.
+
 **Using Nuget (Recommended)**
 
 http://nuget.org/List/Packages/DapperExtensions
@@ -39,7 +41,7 @@ PM> Install-Package DapperExtensions
 **Manual Installation**
 
 * Include SqlMapper.cs in your project (from Dapper project)
-* Include DapperExtensions.cs in your project
+* Include DapperExtensions.cs in your project (use CombineFiles.ps1 to generate this file)
 
 # Examples
 The following examples will use a Person POCO defined as:
