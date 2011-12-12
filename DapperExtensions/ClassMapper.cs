@@ -21,14 +21,8 @@ namespace DapperExtensions
 
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
-        private string _tableName;
-
-        public string SchemaName { get; private set; }
-        public string TableName
-        {
-            get { return _tableName; }
-            private set { _tableName = GetTableName(value); } 
-        }
+        public string SchemaName { get; protected set; }
+        public string TableName { get; protected set; }
 
         public IList<IPropertyMap> Properties { get; private set; }
 
@@ -46,11 +40,6 @@ namespace DapperExtensions
         public virtual void Table(string tableName)
         {
             TableName = tableName;
-        }
-
-        protected virtual string GetTableName(string tableName)
-        {
-            return tableName;
         }
 
         protected virtual void AutoMap()
@@ -112,11 +101,11 @@ namespace DapperExtensions
 
     public class PluralizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
     {
-        protected override string GetTableName(string tableName)
+        public override void Table(string tableName)
         {
-            return Formatting.Pluralize(2, tableName);
+            base.Table(Formatting.Pluralize(2, tableName));
         }
-
+        
         // http://mattgrande.wordpress.com/2009/10/28/pluralization-helper-for-c/
         private static class Formatting
         {

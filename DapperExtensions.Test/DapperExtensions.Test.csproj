@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseFixture.cs" />
-    <Compile Include="CustomMapper.cs" />
+    <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="DapperExtensionsFixture.cs" />
     <Compile Include="Data\Animal.cs" />
     <Compile Include="Data\Multikey.cs" />

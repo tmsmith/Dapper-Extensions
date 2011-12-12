@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DapperExtensions.Test.Data;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test
@@ -31,7 +30,7 @@ namespace DapperExtensions.Test
         {
             PluralizedAutoClassMapper<Foo> m = new PluralizedAutoClassMapper<Foo>();
             m.Table("mess");
-            Assert.AreEqual("messes", m.TableName);            
+            Assert.AreEqual("messes", m.TableName);
         }
 
         [Test]
@@ -56,14 +55,14 @@ namespace DapperExtensions.Test
 
         public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T> where T : class 
         {
-            protected override string GetTableName(string tableName)
+            public override void Table(string tableName)
             {
-                if(tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
+                if (tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    return "Persons";
+                    TableName = "Persons";
                 }
 
-                return base.GetTableName(tableName);
+                base.Table(tableName);
             }
         }
     }

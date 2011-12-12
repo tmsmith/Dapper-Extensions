@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DapperExtensions.Test
+namespace DapperExtensions.Test.Data
 {
     public class CustomMapper : ClassMapper<Foo>
     {
