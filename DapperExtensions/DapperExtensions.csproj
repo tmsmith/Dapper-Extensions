@@ -47,7 +47,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="SqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
