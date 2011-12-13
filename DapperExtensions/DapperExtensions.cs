@@ -11,7 +11,14 @@ namespace DapperExtensions
 {
     public static class DapperExtensions
     {
+        /// <summary>
+        /// When using SQL CE, some SQL constructs are not supported. This flag will enable proper SQL generation for execution in the SQL CE environment.
+        /// </summary>
         public static bool IsUsingSqlCe { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
+        /// </summary>
         public static Type DefaultMapper { get; set; }
 
         private static readonly List<Type> _simpleTypes;
@@ -44,6 +51,9 @@ namespace DapperExtensions
                                };
         }
 
+        /// <summary>
+        /// Executes a query for the specified id, returning the data typed as per T
+        /// </summary>
         public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -73,6 +83,9 @@ namespace DapperExtensions
             return result;
         }
 
+        /// <summary>
+        /// Executes an insert query for the specified entity.
+        /// </summary>
         public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -95,6 +108,12 @@ namespace DapperExtensions
             connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
         }
 
+        /// <summary>
+        /// Executes an insert query for the specified entity, returning the primary key.  
+        /// If the entity has a single key, just the value is returned.  
+        /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
+        /// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
+        /// </summary>
         public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -137,6 +156,9 @@ namespace DapperExtensions
             return keyValues;
         }
 
+        /// <summary>
+        /// Executes an update query for the specified entity.
+        /// </summary>
         public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -144,6 +166,9 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
+        /// <summary>
+        /// Executes a delete query for the specified entity.
+        /// </summary>
         public static bool Delete<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -151,6 +176,9 @@ namespace DapperExtensions
             return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
+        /// <summary>
+        /// Executes a delete query using the specified predicate.
+        /// </summary>
         public static bool Delete<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -165,6 +193,9 @@ namespace DapperExtensions
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
+        /// </summary>
         public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -179,6 +210,10 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
+        /// Data returned is dependent upon the specified page and resultsPerPage.
+        /// </summary>
         public static IEnumerable<T> GetPage<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -193,6 +228,9 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
+        /// <summary>
+        /// Executes a query using the specified predicate, returning an integer that represents the number of rows that match the query.
+        /// </summary>
         public static int Count<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             IClassMapper classMap = GetMap<T>();
@@ -207,6 +245,10 @@ namespace DapperExtensions
             return (int)connection.Query(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text).Single().Total;
         }
 
+        /// <summary>
+        /// Gets the appropriate mapper for the specified type T. 
+        /// If the mapper for the type is not yet created, a new mapper is generated from the mapper type specifed by DefaultMapper.
+        /// </summary>
         public static IClassMapper GetMap<T>() where T : class
         {
             Type entityType = typeof(T);
@@ -231,22 +273,18 @@ namespace DapperExtensions
             return map;
         }
 
+        /// <summary>
+        /// Clears the ClassMappers for each type.
+        /// </summary>
         public static void ClearCache()
         {
             _classMaps.Clear();
         }
 
-        public static bool IsSimpleType(Type type)
-        {
-            Type actualType = type;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                actualType = type.GetGenericArguments()[0];
-            }
-
-            return _simpleTypes.Contains(actualType);
-        }
-
+        /// <summary>
+        /// Generates a COMB Guid which solves the fragmented index issue.
+        /// See: http://davybrion.com/blog/2009/05/using-the-guidcomb-identifier-strategy
+        /// </summary>
         public static Guid GetNextGuid()
         {
             byte[] b = Guid.NewGuid().ToByteArray();
@@ -261,6 +299,17 @@ namespace DapperExtensions
             Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
             Array.Copy(bytes2, bytes2.Length - 4, b, b.Length - 4, 4);
             return new Guid(b);
+        }
+
+        private static bool IsSimpleType(Type type)
+        {
+            Type actualType = type;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                actualType = type.GetGenericArguments()[0];
+            }
+
+            return _simpleTypes.Contains(actualType);
         }
 
         private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")

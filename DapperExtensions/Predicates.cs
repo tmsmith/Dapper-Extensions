@@ -185,13 +185,39 @@ namespace DapperExtensions
         }
     }
 
+    /// <summary>
+    /// Comparison operator for predicates.
+    /// </summary>
     public enum Operator
     {
+        /// <summary>
+        /// Equal to
+        /// </summary>
         Eq,
+
+        /// <summary>
+        /// Greater than
+        /// </summary>
         Gt,
+
+        /// <summary>
+        /// Greater than or equal to
+        /// </summary>
         Ge,
+
+        /// <summary>
+        /// Less than
+        /// </summary>
         Lt,
+
+        /// <summary>
+        /// Less than or equal to
+        /// </summary>
         Le,
+
+        /// <summary>
+        /// Like (You can use % in the value to do wilcard searching)
+        /// </summary>
         Like
     }
 
@@ -201,6 +227,9 @@ namespace DapperExtensions
         IList<IPredicate> Predicates { get; set; }
     }
 
+    /// <summary>
+    /// Groups IPredicates together using the specified group operator.
+    /// </summary>
     public class PredicateGroup : IPredicateGroup
     {
         public GroupOperator Operator { get; set; }
@@ -260,6 +289,9 @@ namespace DapperExtensions
         public bool Ascending { get; set; }
     }
 
+    /// <summary>
+    /// Operator to use when joining predicates in a PredicateGroup.
+    /// </summary>
     public enum GroupOperator
     {
         And,
