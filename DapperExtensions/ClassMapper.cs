@@ -19,11 +19,24 @@ namespace DapperExtensions
     {
     }
 
+    /// <summary>
+    /// Maps an entity to a table through a collection of property maps.
+    /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        /// <summary>
+        /// Gets or sets the schema to use when referring to the corresponding table name in the database.
+        /// </summary>
         public string SchemaName { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the table to use in the database.
+        /// </summary>
         public string TableName { get; protected set; }
 
+        /// <summary>
+        /// A collection of properties that will map to columns in the database table.
+        /// </summary>
         public IList<IPropertyMap> Properties { get; private set; }
 
         public ClassMapper()
@@ -75,12 +88,18 @@ namespace DapperExtensions
             }
         }
 
+        /// <summary>
+        /// Fluently, maps an entity property to a column
+        /// </summary>
         protected PropertyMap Map(Expression<Func<T, object>> expression)
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return Map(propertyInfo);
         }
 
+        /// <summary>
+        /// Fluently, maps an entity property to a column
+        /// </summary>
         protected PropertyMap Map(PropertyInfo propertyInfo)
         {
             PropertyMap result = new PropertyMap(propertyInfo);
@@ -89,6 +108,9 @@ namespace DapperExtensions
         }
     }
 
+    /// <summary>
+    /// Automatically maps an entity to a table using a combination of reflection and naming conventions for keys.
+    /// </summary>
     public class AutoClassMapper<T> : ClassMapper<T> where T : class
     {
         public AutoClassMapper()
@@ -99,6 +121,11 @@ namespace DapperExtensions
         }
     }
 
+    /// <summary>
+    /// Automatically maps an entity to a table using a combination of reflection and naming conventions for keys. 
+    /// Identical to AutoClassMapper, but attempts to pluralize table names automatically.
+    /// Example: Person entity maps to People table
+    /// </summary>
     public class PluralizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
     {
         public override void Table(string tableName)
