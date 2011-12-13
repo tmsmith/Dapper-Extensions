@@ -13,7 +13,7 @@ Features
 * GetList, Count methods for more advanced scenarios.
 * GetPage for returning paged result sets.
 * Automatic support for Guid and Integer [primary keys](https://github.com/tmsmith/Dapper-Extensions/wiki/KeyTypes) (Includes manual support for other key types).
-* Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/ClassMapper) (_Attribute Free!_).
+* Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper) (_Attribute Free!_).
 * Customized mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
 * Composite Primary Key support.
 * Singular and Pluralized table name support.
