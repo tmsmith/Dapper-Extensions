@@ -18,7 +18,7 @@ Features
 * Composite Primary Key support.
 * Singular and Pluralized table name support (Singular by default).
 * Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
-* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserIdp0)
+* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId_0)
 
 Naming Conventions
 ------------------
