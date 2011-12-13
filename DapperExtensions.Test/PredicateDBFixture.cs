@@ -99,5 +99,17 @@ namespace DapperExtensions.Test
             Foo f = new Foo() { FirstName = "Foo", LastName = "Bar", DateOfBirth = DateTime.UtcNow.AddYears(-20) };
             _connection.Insert(f);
         }
+
+        //[Test]
+        //public void Test2()
+        //{
+        //    Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
+        //    Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
+        //    Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Bar", DateCreated = DateTime.UtcNow.add };
+        //    _connection.Insert<Person>(new[] { p1, p2, p3 });
+
+        //    var subPredicate = Predicates.Between(p => p.
+        //    var predicate = Predicates.Exists<Animal>(subPredicate);
+        //}
     }
 }

@@ -643,6 +643,37 @@ namespace DapperExtensions.Test
             Assert.AreEqual(0, parameters.Count);
         }
 
+        [Test]
+        public void BetweenPredicate_Returns_Proper_Sql()
+        {
+            var pred = new BetweenPredicate<PredicateTestEntity>
+            {
+                PropertyName = "Id",
+                Value = new BetweenValues { Value1 = 1, Value2 = 10 }
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] BETWEEN @Id_0 AND @Id_1)", result);
+            Assert.AreEqual(2, parameters.Count);
+        }
+
+        [Test]
+        public void BetweenPredicate_Not_Returns_Proper_Sql()
+        {
+            var pred = new BetweenPredicate<PredicateTestEntity>
+            {
+                Not = true,
+                PropertyName = "Id",
+                Value = new BetweenValues { Value1 = 1, Value2 = 10 }
+            };
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string result = pred.GetSql(parameters);
+            Assert.AreEqual("([PredicateTestEntity].[Id] NOT BETWEEN @Id_0 AND @Id_1)", result);
+            Assert.AreEqual(2, parameters.Count);
+        }
+
         private class PredicateTestEntity
         {
             public int Id { get; set; }

@@ -43,7 +43,7 @@ namespace DapperExtensions
         /// <param name="expression2">An expression that returns the right operand [FieldName2].</param>
         /// <param name="not">Effectively inverts the comparison operator. Example: WHERE FirstName &lt;&gt; LastName </param>
         /// <returns>An instance of IPropertyPredicate.</returns>
-        public static IPropertyPredicate Property<T, T2>(Expression<Func<T, object>> expression, Operator op, Expression<Func<T2, object>> expression2, bool not = false) 
+        public static IPropertyPredicate Property<T, T2>(Expression<Func<T, object>> expression, Operator op, Expression<Func<T2, object>> expression2, bool not = false)
             where T : class
             where T2 : class
         {
@@ -88,6 +88,21 @@ namespace DapperExtensions
         }
 
         /// <summary>
+        /// Factory method that creates a new IBetweenPredicate predicate. 
+        /// </summary>
+        public static IBetweenPredicate Between<T>(Expression<Func<T, object>> expression, BetweenValues values, bool not = false)
+            where T : class
+        {
+            PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+            return new BetweenPredicate<T>
+                       {
+                           Not = not,
+                           PropertyName = propertyInfo.Name,
+                           Value = values
+                       };
+        }
+
+        /// <summary>
         /// Factory method that creates a new Sort which controls how the results will be sorted.
         /// </summary>
         public static ISort Sort<T>(Expression<Func<T, object>> expression, bool ascending = true)
@@ -106,15 +121,41 @@ namespace DapperExtensions
         string GetSql(IDictionary<string, object> parameters);
     }
 
-    public interface IComparePredicate : IPredicate
+    public interface IBasePredicate : IPredicate
     {
         string PropertyName { get; set; }
+    }
+
+    public abstract class BasePredicate : IBasePredicate
+    {
+        public abstract string GetSql(IDictionary<string, object> parameters);
+        public string PropertyName { get; set; }
+
+        protected string GetColumnName<T>(string propertyName) where T : class
+        {
+            IClassMapper map = DapperExtensions.GetMap<T>();
+            if (map == null)
+            {
+                throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));
+            }
+
+            IPropertyMap propertyMap = map.Properties.Single(p => p.Name == propertyName);
+            if (map == null)
+            {
+                throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, typeof(T)));
+            }
+
+            return DapperExtensions.SqlGenerator.GetColumnName(map, propertyMap, false);
+        }
+    }
+
+    public interface IComparePredicate : IBasePredicate
+    {
         Operator Operator { get; set; }
     }
 
-    public abstract class ComparePredicate : IComparePredicate
+    public abstract class ComparePredicate : BasePredicate
     {
-        public string PropertyName { get; set; }
         public Operator Operator { get; set; }
         public bool Not { get; set; }
 
@@ -136,25 +177,6 @@ namespace DapperExtensions
                     return Not ? "<>" : "=";
             }
         }
-
-        protected string GetColumnName<T>(string propertyName) where T : class
-        {
-            IClassMapper map = DapperExtensions.GetMap<T>();
-            if (map == null)
-            {
-                throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));
-            }
-
-            IPropertyMap propertyMap = map.Properties.Single(p => p.Name == propertyName);
-            if (map == null)
-            {
-                throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, typeof(T)));
-            }
-
-            return DapperExtensions.SqlGenerator.GetColumnName(map, propertyMap, false);
-        }
-
-        public abstract string GetSql(IDictionary<string, object> parameters);
     }
 
     public interface IFieldPredicate : IComparePredicate
@@ -162,7 +184,7 @@ namespace DapperExtensions
         object Value { get; set; }
     }
 
-    public class FieldPredicate<T> : ComparePredicate, IFieldPredicate 
+    public class FieldPredicate<T> : ComparePredicate, IFieldPredicate
         where T : class
     {
         public object Value { get; set; }
@@ -217,6 +239,39 @@ namespace DapperExtensions
             string columnName2 = GetColumnName<T2>(PropertyName2);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), columnName2);
         }
+    }
+
+    public class BetweenValues
+    {
+        public object Value1 { get; set; }
+        public object Value2 { get; set; }
+    }
+
+    public interface IBetweenPredicate
+    {
+        string PropertyName { get; set; }
+        BetweenValues Value { get; set; }
+        bool Not { get; set; }
+
+    }
+
+    public class BetweenPredicate<T> : BasePredicate, IBetweenPredicate
+        where T : class
+    {
+        public override string GetSql(IDictionary<string, object> parameters)
+        {
+            string columnName = GetColumnName<T>(PropertyName);
+            string propertyName1 = string.Format("@{0}_0", PropertyName);
+            string propertyName2 = string.Format("@{0}_1", PropertyName);
+
+            parameters.Add(propertyName1, Value.Value1);
+            parameters.Add(propertyName2, Value.Value2);
+            return string.Format("({0} {1}BETWEEN {2} AND {3})", columnName, Not ? "NOT " : string.Empty, propertyName1, propertyName2);
+        }
+
+        public BetweenValues Value { get; set; }
+
+        public bool Not { get; set; }
     }
 
     /// <summary>
@@ -292,9 +347,9 @@ namespace DapperExtensions
         public string GetSql(IDictionary<string, object> parameters)
         {
             IClassMapper mapSub = GetClassMapper<TSub>();
-            string sql = string.Format("({0}EXISTS (SELECT 1 FROM {1} WHERE {2}))", 
+            string sql = string.Format("({0}EXISTS (SELECT 1 FROM {1} WHERE {2}))",
                 Not ? "NOT " : string.Empty,
-                DapperExtensions.SqlGenerator.GetTableName(mapSub), 
+                DapperExtensions.SqlGenerator.GetTableName(mapSub),
                 Predicate.GetSql(parameters));
             return sql;
         }
