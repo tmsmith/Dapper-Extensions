@@ -14,9 +14,9 @@ Features
 * GetPage for returning paged result sets.
 * Automatic support for Guid and Integer [primary keys](https://github.com/tmsmith/Dapper-Extensions/wiki/KeyTypes) (Includes manual support for other key types).
 * Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper) (_Attribute Free!_).
-* Customized mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
+* Customized entity-table mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
 * Composite Primary Key support.
-* Singular and Pluralized table name support.
+* Singular and Pluralized table name support (Singular by default).
 * Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
 * Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserIdp0)
 
