@@ -93,23 +93,26 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void Test()
+        public void CustomMapper_Allows_Definition_Of_Custom_Mappings()
         {
             DapperExtensions.DefaultMapper = typeof(CustomMapper);
             Foo f = new Foo() { FirstName = "Foo", LastName = "Bar", DateOfBirth = DateTime.UtcNow.AddYears(-20) };
             _connection.Insert(f);
         }
 
-        //[Test]
-        //public void Test2()
-        //{
-        //    Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
-        //    Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
-        //    Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Bar", DateCreated = DateTime.UtcNow.add };
-        //    _connection.Insert<Person>(new[] { p1, p2, p3 });
+        [Test]
+        public void Between_Returns_Runs_Sql_Without_Error()
+        {
+            Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Omega", DateCreated = DateTime.UtcNow };
+            _connection.Insert<Person>(new[] { p1, p2, p3 });
 
-        //    var subPredicate = Predicates.Between(p => p.
-        //    var predicate = Predicates.Exists<Animal>(subPredicate);
-        //}
+            var pred = Predicates.Between<Person>(p => p.LastName, new BetweenValues { Value1 = "Aaa", Value2 = "Bzz" });
+            var result = _connection.GetList<Person>(pred).ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("Alpha", result[0].FirstName);
+            Assert.AreEqual("Beta", result[1].FirstName);
+        }
     }
 }

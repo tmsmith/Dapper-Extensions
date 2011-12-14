@@ -241,13 +241,13 @@ namespace DapperExtensions
         }
     }
 
-    public class BetweenValues
+    public struct BetweenValues
     {
         public object Value1 { get; set; }
         public object Value2 { get; set; }
     }
 
-    public interface IBetweenPredicate
+    public interface IBetweenPredicate : IPredicate
     {
         string PropertyName { get; set; }
         BetweenValues Value { get; set; }
