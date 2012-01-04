@@ -1,6 +1,14 @@
+# User-specific files
 *.user
-*.dotCover
-\bin
-\obj
 *.suo
+
+# Build
+[Bb]in
+[Oo]bj
+*.xap
+[Pp]ublish
+
+# Other files
+*.dotCover
 _ReSharper.*
+StyleCop.*
