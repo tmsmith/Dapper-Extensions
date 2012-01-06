@@ -261,8 +261,8 @@ namespace DapperExtensions
         public override string GetSql(IDictionary<string, object> parameters)
         {
             string columnName = GetColumnName<T>(PropertyName);
-            string propertyName1 = string.Format("@{0}_0", PropertyName);
-            string propertyName2 = string.Format("@{0}_1", PropertyName);
+            string propertyName1 = string.Format("@{0}_{1}", PropertyName, parameters.Count);
+            string propertyName2 = string.Format("@{0}_{1}", PropertyName, parameters.Count + 1);
 
             parameters.Add(propertyName1, Value.Value1);
             parameters.Add(propertyName2, Value.Value2);

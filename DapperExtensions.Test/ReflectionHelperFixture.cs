@@ -1,11 +1,11 @@
 using System;
 using System.Linq.Expressions;
-using DapperExtensions.Test;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test
 {
-    public class ReflectionHelperFixture : BaseFixture
+    [TestFixture]
+    public class ReflectionHelperFixture
     {
         private class Foo
         {

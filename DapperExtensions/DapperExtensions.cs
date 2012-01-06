@@ -11,24 +11,235 @@ namespace DapperExtensions
 {
     public static class DapperExtensions
     {
+        private static bool _isUsingSqlCe;
+        private static Type _defaultMapper;
+        private static Func<Type, bool, IDapperExtensionsImpl> _instanceFactory;
+        private static IDapperExtensionsImpl _instance;
+        private static object _lock = new object();
+
         /// <summary>
         /// When using SQL CE, some SQL constructs are not supported. This flag will enable proper SQL generation for execution in the SQL CE environment.
         /// </summary>
-        public static bool IsUsingSqlCe { get; set; }
+        public static bool IsUsingSqlCe
+        {
+            get
+            {
+                return _isUsingSqlCe;
+            }
+
+            set
+            {
+                _instance = null;
+                _isUsingSqlCe = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
         /// </summary>
-        public static Type DefaultMapper { get; set; }
+        public static Type DefaultMapper
+        {
+            get
+            {
+                return _defaultMapper;
+            }
 
-        private static readonly List<Type> _simpleTypes;
-        private static readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
+            set
+            {
+                _instance = null;
+                _defaultMapper = value;
+            }
+        }
+
+        /// <summary>
+        /// Get or sets the Dapper Extensions Implementation Factory.
+        /// </summary>
+        public static Func<Type, bool, IDapperExtensionsImpl> InstanceFactory
+        {
+            get
+            {
+                if (_instanceFactory == null)
+                {
+                    _instanceFactory = (dm, ce) => new DapperExtensionsImpl(dm, ce);
+                }
+
+                return _instanceFactory;
+            }
+            set
+            {
+                _instance = null;
+                _instanceFactory = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the Dapper Extensions Implementation
+        /// </summary>
+        private static IDapperExtensionsImpl Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = InstanceFactory(DefaultMapper, IsUsingSqlCe);
+                        }
+                    }
+                }
+
+                return _instance;
+            }
+        }
 
         static DapperExtensions()
         {
             DefaultMapper = typeof(AutoClassMapper<>);
+        }
 
-            _simpleTypes = new List<Type>
+        /// <summary>
+        /// Executes a query for the specified id, returning the data typed as per T
+        /// </summary>
+        public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            var result = Instance.Get<T>(connection, id, transaction, commandTimeout);
+            return (T)result;
+        }
+
+        /// <summary>
+        /// Executes an insert query for the specified entity.
+        /// </summary>
+        public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            Instance.Insert<T>(connection, entities, transaction, commandTimeout);
+        }
+
+        /// <summary>
+        /// Executes an insert query for the specified entity, returning the primary key.  
+        /// If the entity has a single key, just the value is returned.  
+        /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
+        /// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
+        /// </summary>
+        public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Insert<T>(connection, entity, transaction, commandTimeout);
+        }
+
+        /// <summary>
+        /// Executes an update query for the specified entity.
+        /// </summary>
+        public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            IClassMapper classMap = GetMap<T>();
+            string sql = SqlGenerator.Update(classMap);
+            return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
+        }
+
+        /// <summary>
+        /// Executes a delete query for the specified entity.
+        /// </summary>
+        public static bool Delete<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Delete<T>(connection, entity, transaction, commandTimeout);
+        }
+
+        /// <summary>
+        /// Executes a delete query using the specified predicate.
+        /// </summary>
+        public static bool Delete<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Delete<T>(connection, predicate, transaction, commandTimeout);
+        }
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
+        /// </summary>
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            return Instance.GetList<T>(connection, predicate, sort, transaction, commandTimeout, buffered);
+        }
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
+        /// Data returned is dependent upon the specified page and resultsPerPage.
+        /// </summary>
+        public static IEnumerable<T> GetPage<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        {
+            return Instance.GetPage<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
+        }
+
+        /// <summary>
+        /// Executes a query using the specified predicate, returning an integer that represents the number of rows that match the query.
+        /// </summary>
+        public static int Count<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Count<T>(connection, predicate, transaction, commandTimeout);
+        }
+
+        /// <summary>
+        /// Gets the appropriate mapper for the specified type T. 
+        /// If the mapper for the type is not yet created, a new mapper is generated from the mapper type specifed by DefaultMapper.
+        /// </summary>
+        public static IClassMapper GetMap<T>() where T : class
+        {
+            return Instance.GetMap<T>();
+        }
+
+        /// <summary>
+        /// Clears the ClassMappers for each type.
+        /// </summary>
+        public static void ClearCache()
+        {
+            Instance.ClearCache();
+        }
+
+        /// <summary>
+        /// Generates a COMB Guid which solves the fragmented index issue.
+        /// See: http://davybrion.com/blog/2009/05/using-the-guidcomb-identifier-strategy
+        /// </summary>
+        public static Guid GetNextGuid()
+        {
+            return Instance.GetNextGuid();
+        }
+        
+        private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
+        {
+            return list.Aggregate(
+                new StringBuilder(),
+                (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
+                sb => sb.ToString());
+        }
+
+        public interface IDapperExtensionsImpl
+        {
+            T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
+            void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
+            dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
+            bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
+            bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
+            bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
+            IEnumerable<T> GetList<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
+            IEnumerable<T> GetPage<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
+            int Count<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
+            IClassMapper GetMap<T>() where T : class;
+            void ClearCache();
+            Guid GetNextGuid();
+        }
+
+        public class DapperExtensionsImpl : IDapperExtensionsImpl
+        {
+            private readonly Type _defaultMapper;
+            private readonly bool _useSqlCe;
+            private readonly List<Type> _simpleTypes;
+            private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
+
+            public DapperExtensionsImpl(Type defaultMapper, bool useSqlCe)
+            {
+                _defaultMapper = defaultMapper;
+                _useSqlCe = useSqlCe;
+                _simpleTypes = new List<Type>
                                {
                                    typeof(byte),
                                    typeof(sbyte),
@@ -49,275 +260,226 @@ namespace DapperExtensions
                                    typeof(DateTimeOffset),
                                    typeof(byte[])
                                };
-        }
-
-        /// <summary>
-        /// Executes a query for the specified id, returning the data typed as per T
-        /// </summary>
-        public static T Get<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            string sql = SqlGenerator.Get(classMap);
-            bool isSimpleType = IsSimpleType(id.GetType());
-            IDictionary<string, object> paramValues = null;
-            if (!isSimpleType)
-            {
-                paramValues = ReflectionHelper.GetObjectValues(id);
             }
 
-            DynamicParameters parameters = new DynamicParameters();
-            var keys = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
-            foreach (var key in keys)
+            public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
             {
-                object value = id;
+                IClassMapper classMap = GetMap<T>();
+                string sql = SqlGenerator.Get(classMap);
+                bool isSimpleType = IsSimpleType(id.GetType());
+                IDictionary<string, object> paramValues = null;
                 if (!isSimpleType)
                 {
-                    value = paramValues[key.Name];
+                    paramValues = ReflectionHelper.GetObjectValues(id);
                 }
 
-                parameters.Add("@" + key.Name, value);
+                DynamicParameters parameters = new DynamicParameters();
+                var keys = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+                foreach (var key in keys)
+                {
+                    object value = id;
+                    if (!isSimpleType)
+                    {
+                        value = paramValues[key.Name];
+                    }
+
+                    parameters.Add("@" + key.Name, value);
+                }
+
+
+                T result = connection.Query<T>(sql, parameters, transaction, true, commandTimeout, CommandType.Text).SingleOrDefault();
+                return result;
             }
 
-
-            T result = connection.Query<T>(sql, parameters, transaction, true, commandTimeout, CommandType.Text).SingleOrDefault();
-            return result;
-        }
-
-        /// <summary>
-        /// Executes an insert query for the specified entity.
-        /// </summary>
-        public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
-
-            foreach (var e in entities)
+            public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
             {
-                foreach (var column in properties)
+                IClassMapper classMap = GetMap<T>();
+                var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+
+                foreach (var e in entities)
+                {
+                    foreach (var column in properties)
+                    {
+                        if (column.KeyType == KeyType.Guid)
+                        {
+                            Guid comb = GetNextGuid();
+                            column.PropertyInfo.SetValue(e, comb, null);
+                        }
+                    }
+                }
+
+                string sql = SqlGenerator.Insert(classMap);
+
+                connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
+            }
+
+            public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+            {
+                IClassMapper classMap = GetMap<T>();
+
+                foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
                 {
                     if (column.KeyType == KeyType.Guid)
                     {
-                            Guid comb = GetNextGuid();
-                            column.PropertyInfo.SetValue(e, comb, null);
+                        Guid comb = GetNextGuid();
+                        column.PropertyInfo.SetValue(entity, comb, null);
                     }
                 }
+
+                string sql = SqlGenerator.Insert(classMap);
+                connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+                IDictionary<string, object> keyValues = new ExpandoObject();
+
+                foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
+                {
+                    if (column.KeyType == KeyType.Identity)
+                    {
+                        string identitySql = SqlGenerator.IdentitySql(classMap, _useSqlCe);
+                        var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
+                        int id = (int)identityId.First().Id;
+                        keyValues.Add(column.Name, id);
+                        column.PropertyInfo.SetValue(entity, id, null);
+                    }
+
+                    if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
+                    {
+                        keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
+                    }
+                }
+
+                if (keyValues.Count == 1)
+                {
+                    return keyValues.First().Value;
+                }
+
+                return keyValues;
+            }
+
+            public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+            {
+                IClassMapper classMap = GetMap<T>();
+                string sql = SqlGenerator.Update(classMap);
+                return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
+            }
+
+            public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+            {
+                IClassMapper classMap = GetMap<T>();
+                string sql = SqlGenerator.Delete(classMap);
+                return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
+            }
+
+            public bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+            {
+                IClassMapper classMap = GetMap<T>();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                string sql = SqlGenerator.Delete(classMap, predicate, parameters);
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                foreach (var parameter in parameters)
+                {
+                    dynamicParameters.Add(parameter.Key, parameter.Value);
+                }
+
+                return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
             }
             
-            string sql = SqlGenerator.Insert(classMap);
-
-            connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
-        }
-
-        /// <summary>
-        /// Executes an insert query for the specified entity, returning the primary key.  
-        /// If the entity has a single key, just the value is returned.  
-        /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
-        /// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
-        /// </summary>
-        public static dynamic Insert<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-
-            foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
+            public IEnumerable<T> GetList<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
             {
-                if (column.KeyType == KeyType.Guid)
+                IClassMapper classMap = GetMap<T>();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                string sql = SqlGenerator.GetList(classMap, predicate, sort, parameters);
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                foreach (var parameter in parameters)
                 {
-                    Guid comb = GetNextGuid();
-                    column.PropertyInfo.SetValue(entity, comb, null);
-                }
-            }
-
-            string sql = SqlGenerator.Insert(classMap);
-            connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
-            IDictionary<string, object> keyValues = new ExpandoObject();
-
-            foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
-            {
-                if (column.KeyType == KeyType.Identity)
-                {
-                    string identitySql = SqlGenerator.IdentitySql(classMap);
-                    var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                    int id = (int)identityId.First().Id;
-                    keyValues.Add(column.Name, id);
-                    column.PropertyInfo.SetValue(entity, id, null);
+                    dynamicParameters.Add(parameter.Key, parameter.Value);
                 }
 
-                if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
+                return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
+            }
+
+            public IEnumerable<T> GetPage<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+            {
+                IClassMapper classMap = GetMap<T>();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                string sql = SqlGenerator.GetPage(classMap, predicate, sort, page, resultsPerPage, parameters, _useSqlCe);
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                foreach (var parameter in parameters)
                 {
-                    keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
-                }
-            }
-
-            if (keyValues.Count == 1)
-            {
-                return keyValues.First().Value;
-            }
-
-            return keyValues;
-        }
-
-        /// <summary>
-        /// Executes an update query for the specified entity.
-        /// </summary>
-        public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            string sql = SqlGenerator.Update(classMap);
-            return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
-        }
-
-        /// <summary>
-        /// Executes a delete query for the specified entity.
-        /// </summary>
-        public static bool Delete<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            string sql = SqlGenerator.Delete(classMap);
-            return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
-        }
-
-        /// <summary>
-        /// Executes a delete query using the specified predicate.
-        /// </summary>
-        public static bool Delete<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Delete(classMap, predicate, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
-
-            return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
-        }
-
-        /// <summary>
-        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
-        /// </summary>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, IPredicate predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.GetList(classMap, predicate, sort, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
-
-            return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
-        }
-
-        /// <summary>
-        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
-        /// Data returned is dependent upon the specified page and resultsPerPage.
-        /// </summary>
-        public static IEnumerable<T> GetPage<T>(this IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.GetPage(classMap, predicate, sort, page, resultsPerPage, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
-
-            return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
-        }
-
-        /// <summary>
-        /// Executes a query using the specified predicate, returning an integer that represents the number of rows that match the query.
-        /// </summary>
-        public static int Count<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
-        {
-            IClassMapper classMap = GetMap<T>();
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Count(classMap, predicate, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
-
-            return (int)connection.Query(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text).Single().Total;
-        }
-
-        /// <summary>
-        /// Gets the appropriate mapper for the specified type T. 
-        /// If the mapper for the type is not yet created, a new mapper is generated from the mapper type specifed by DefaultMapper.
-        /// </summary>
-        public static IClassMapper GetMap<T>() where T : class
-        {
-            Type entityType = typeof(T);
-            IClassMapper map;
-            if (!_classMaps.TryGetValue(entityType, out map))
-            {
-                Type[] types = entityType.Assembly.GetTypes();
-                Type mapType = (from type in types
-                                let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
-                                where interfaceType != null && interfaceType.GetGenericArguments()[0] == entityType
-                                select type).SingleOrDefault();
-
-                if (mapType == null)
-                {
-                    mapType = DefaultMapper.MakeGenericType(typeof(T));
+                    dynamicParameters.Add(parameter.Key, parameter.Value);
                 }
 
-                map = Activator.CreateInstance(mapType) as IClassMapper;
-                _classMaps[entityType] = map;
+                return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
             }
 
-            return map;
-        }
-
-        /// <summary>
-        /// Clears the ClassMappers for each type.
-        /// </summary>
-        public static void ClearCache()
-        {
-            _classMaps.Clear();
-        }
-
-        /// <summary>
-        /// Generates a COMB Guid which solves the fragmented index issue.
-        /// See: http://davybrion.com/blog/2009/05/using-the-guidcomb-identifier-strategy
-        /// </summary>
-        public static Guid GetNextGuid()
-        {
-            byte[] b = Guid.NewGuid().ToByteArray();
-            DateTime dateTime = new DateTime(1900, 1, 1);
-            DateTime now = DateTime.Now;
-            TimeSpan timeSpan = new TimeSpan(now.Ticks - dateTime.Ticks);
-            TimeSpan timeOfDay = now.TimeOfDay;
-            byte[] bytes1 = BitConverter.GetBytes(timeSpan.Days);
-            byte[] bytes2 = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
-            Array.Reverse(bytes1);
-            Array.Reverse(bytes2);
-            Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
-            Array.Copy(bytes2, bytes2.Length - 4, b, b.Length - 4, 4);
-            return new Guid(b);
-        }
-
-        private static bool IsSimpleType(Type type)
-        {
-            Type actualType = type;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            public int Count<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
             {
-                actualType = type.GetGenericArguments()[0];
+                IClassMapper classMap = GetMap<T>();
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                string sql = SqlGenerator.Count(classMap, predicate, parameters);
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                foreach (var parameter in parameters)
+                {
+                    dynamicParameters.Add(parameter.Key, parameter.Value);
+                }
+
+                return (int)connection.Query(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text).Single().Total;
             }
 
-            return _simpleTypes.Contains(actualType);
-        }
+            public IClassMapper GetMap<T>() where T : class
+            {
+                Type entityType = typeof(T);
+                IClassMapper map;
+                if (!_classMaps.TryGetValue(entityType, out map))
+                {
+                    Type[] types = entityType.Assembly.GetTypes();
+                    Type mapType = (from type in types
+                                    let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
+                                    where interfaceType != null && interfaceType.GetGenericArguments()[0] == entityType
+                                    select type).SingleOrDefault();
 
-        private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
-        {
-            return list.Aggregate(
-                new StringBuilder(),
-                (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
-                sb => sb.ToString());
+                    if (mapType == null)
+                    {
+                        mapType = _defaultMapper.MakeGenericType(typeof(T));
+                    }
+
+                    map = Activator.CreateInstance(mapType) as IClassMapper;
+                    _classMaps[entityType] = map;
+                }
+
+                return map;
+            }
+
+            public void ClearCache()
+            {
+                _classMaps.Clear();
+            }
+
+            public Guid GetNextGuid()
+            {
+                byte[] b = Guid.NewGuid().ToByteArray();
+                DateTime dateTime = new DateTime(1900, 1, 1);
+                DateTime now = DateTime.Now;
+                TimeSpan timeSpan = new TimeSpan(now.Ticks - dateTime.Ticks);
+                TimeSpan timeOfDay = now.TimeOfDay;
+                byte[] bytes1 = BitConverter.GetBytes(timeSpan.Days);
+                byte[] bytes2 = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
+                Array.Reverse(bytes1);
+                Array.Reverse(bytes2);
+                Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
+                Array.Copy(bytes2, bytes2.Length - 4, b, b.Length - 4, 4);
+                return new Guid(b);
+            }
+
+            private bool IsSimpleType(Type type)
+            {
+                Type actualType = type;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    actualType = type.GetGenericArguments()[0];
+                }
+
+                return _simpleTypes.Contains(actualType);
+            }
         }
 
         public static class SqlGenerator
@@ -411,7 +573,7 @@ namespace DapperExtensions
                 return sql.ToString();
             }
 
-            public static string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
+            public static string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters, bool isUsingSqlCe)
             {
                 if (sort == null || !sort.Any())
                 {
@@ -429,7 +591,7 @@ namespace DapperExtensions
 
                 string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
                 string sql;
-                if (IsUsingSqlCe)
+                if (isUsingSqlCe)
                 {
                     sql = string.Format("{0} ORDER BY {1} OFFSET @pageStartRowNbr ROWS FETCH NEXT @resultsPerPage ROWS ONLY", innerSql, orderBy);
                     int startValue = ((page - 1) * resultsPerPage);
@@ -450,9 +612,9 @@ namespace DapperExtensions
                 return sql;
             }
 
-            public static string IdentitySql(IClassMapper classMap)
+            public static string IdentitySql(IClassMapper classMap, bool isUsingSqlCe)
             {
-                if (IsUsingSqlCe)
+                if (isUsingSqlCe)
                 {
                     return "SELECT @@IDENTITY AS [Id]";
                 }
@@ -462,9 +624,15 @@ namespace DapperExtensions
 
             public static string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
             {
-                return string.Format("SELECT COUNT(*) Total FROM {0} WHERE {1}",
-                    GetTableName(classMap),
-                    predicate.GetSql(parameters));
+                StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS [Total] FROM {0}",
+                                    GetTableName(classMap)));
+                if (predicate != null)
+                {
+                    sql.Append(" WHERE ")
+                        .Append(predicate.GetSql(parameters));
+                }
+
+                return sql.ToString();
             }
 
             public static string GetTableName(IClassMapper map)
