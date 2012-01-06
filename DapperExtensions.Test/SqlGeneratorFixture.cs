@@ -5,7 +5,8 @@ using NUnit.Framework;
 
 namespace DapperExtensions.Test
 {
-    public class SqlGeneratorFixture : BaseFixture
+    [TestFixture]
+    public class SqlGeneratorFixture
     {
         [Test]
         public void GetTableName_Returns_Properly_Formatted_Name_When_Schema_Provided()

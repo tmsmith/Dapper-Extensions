@@ -7,7 +7,8 @@ using NUnit.Framework;
 
 namespace DapperExtensions.Test
 {
-    public class PropertyMapFixture : BaseFixture
+    [TestFixture]
+    public class PropertyMapFixture
     {
         private class Foo
         {

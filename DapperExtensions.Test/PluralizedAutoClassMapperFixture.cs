@@ -7,63 +7,79 @@ using NUnit.Framework;
 namespace DapperExtensions.Test
 {
     [TestFixture]
-    public class PluralizedAutoClassMapperFixture : BaseFixture
+    public class PluralizedAutoClassMapperFixture
     {
-        [Test]
-        public void TableName_Should_Properly_Pluralize()
+        public class PluralizedAutoClassMapperTableName
         {
-            PluralizedAutoClassMapper<Foo> m = new PluralizedAutoClassMapper<Foo>();
-            m.Table("robot");
-            Assert.AreEqual("robots", m.TableName);
-        }
-
-        [Test]
-        public void TableName_Should_Properly_Pluralize_Words_Ending_With_Y()
-        {
-            PluralizedAutoClassMapper<Foo> m = new PluralizedAutoClassMapper<Foo>();
-            m.Table("penny");
-            Assert.AreEqual("pennies", m.TableName);
-        }
-
-        [Test]
-        public void TableName_Should_Properly_Pluralize_Words_Ending_With_S()
-        {
-            PluralizedAutoClassMapper<Foo> m = new PluralizedAutoClassMapper<Foo>();
-            m.Table("mess");
-            Assert.AreEqual("messes", m.TableName);
-        }
-
-        [Test]
-        public void Custom_Pluralized_Mapper_Should_Process_Exceptions()
-        {
-            CustomPluralizedMapper<Foo> m = new CustomPluralizedMapper<Foo>();
-            m.Table("Person");
-            Assert.AreEqual("Persons", m.TableName);
-        }
-
-        [Test]
-        public void Custom_Pluralized_Mapper_Should_Process_Singluar_Names()
-        {
-            CustomPluralizedMapper<Foo> m = new CustomPluralizedMapper<Foo>();
-            m.Table("Dog");
-            Assert.AreEqual("Dogs", m.TableName);
-        }
-
-        public class Foo
-        {
-        }
-
-        public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T> where T : class 
-        {
-            public override void Table(string tableName)
+            [Test]
+            public void ReturnsProperPluralization()
             {
-                if (tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    TableName = "Persons";
-                }
-
-                base.Table(tableName);
+                PluralizedAutoClassMapper<Foo> m = GetMapper<Foo>();
+                m.Table("robot");
+                Assert.AreEqual("robots", m.TableName);
             }
+
+            [Test]
+            public void ReturnsProperPluralizationWhenWordEndsWithY()
+            {
+                PluralizedAutoClassMapper<Foo> m = GetMapper<Foo>();
+                m.Table("penny");
+                Assert.AreEqual("pennies", m.TableName);
+            }
+
+            [Test]
+            public void ReturnsProperPluralizationWhenWordEndsWithS()
+            {
+                PluralizedAutoClassMapper<Foo> m = GetMapper<Foo>();
+                m.Table("mess");
+                Assert.AreEqual("messes", m.TableName);
+            }
+
+            private PluralizedAutoClassMapper<T> GetMapper<T>() where T : class
+            {
+                return new PluralizedAutoClassMapper<T>();
+            }
+        }
+
+        public class CustomPluralizedMapperTableName
+        {
+            [Test]
+            public void ReturnsProperPluralization()
+            {
+                CustomPluralizedMapper<Foo> m = GetMapper<Foo>();
+                m.Table("Dog");
+                Assert.AreEqual("Dogs", m.TableName);
+            }
+
+            [Test]
+            public void ReturnsProperResultsForExceptions()
+            {
+                CustomPluralizedMapper<Foo> m = GetMapper<Foo>();
+                m.Table("Person");
+                Assert.AreEqual("Persons", m.TableName);
+            }
+
+            private CustomPluralizedMapper<T> GetMapper<T>() where T : class
+            {
+                return new CustomPluralizedMapper<T>();
+            }
+
+            public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T> where T : class
+            {
+                public override void Table(string tableName)
+                {
+                    if (tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        TableName = "Persons";
+                    }
+
+                    base.Table(tableName);
+                }
+            }
+        }
+
+        private class Foo
+        {
         }
     }
 }
