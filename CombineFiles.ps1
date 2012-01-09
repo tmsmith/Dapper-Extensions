@@ -7,6 +7,7 @@ $files.Add("DapperExtensions\DapperExtensions.cs")
 $files.Add("DapperExtensions\Predicates.cs")
 $files.Add("DapperExtensions\PropertyMap.cs")
 $files.Add("DapperExtensions\ReflectionHelper.cs")
+$files.Add("DapperExtensions\SqlDialect.cs")
 $files | ForEach-Object { 
 		Write-Host "Extracting usings from" $_ 
 		$contents = Get-Content $_
