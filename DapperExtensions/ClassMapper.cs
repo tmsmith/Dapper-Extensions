@@ -70,11 +70,11 @@ namespace DapperExtensions
 
                 if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                 {
-                    if (map.PropertyInfo.PropertyType == typeof(int))
+                    if (map.PropertyInfo.PropertyType == typeof(int) || map.PropertyInfo.PropertyType == typeof(int?))
                     {
                         map.Key(KeyType.Identity);
                     }
-                    else if (map.PropertyInfo.PropertyType == typeof(Guid))
+                    else if (map.PropertyInfo.PropertyType == typeof(Guid) || map.PropertyInfo.PropertyType == typeof(Guid?))
                     {
                         map.Key(KeyType.Guid);
                     }
