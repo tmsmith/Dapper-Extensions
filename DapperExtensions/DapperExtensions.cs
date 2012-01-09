@@ -11,11 +11,13 @@ namespace DapperExtensions
 {
     public static class DapperExtensions
     {
+        private readonly static object _lock = new object();
+
         private static bool _isUsingSqlCe;
         private static Type _defaultMapper;
-        private static Func<Type, bool, IDapperExtensionsImpl> _instanceFactory;
+        private static Func<Type, ISqlGenerator, IDapperExtensionsImpl> _instanceFactory;
         private static IDapperExtensionsImpl _instance;
-        private static object _lock = new object();
+        private static ISqlGenerator _sqlGenerator;
 
         /// <summary>
         /// When using SQL CE, some SQL constructs are not supported. This flag will enable proper SQL generation for execution in the SQL CE environment.
@@ -31,6 +33,7 @@ namespace DapperExtensions
             {
                 _instance = null;
                 _isUsingSqlCe = value;
+                _sqlGenerator = value ? new SqlGeneratorImpl(new SqlCeDialect()) : new SqlGeneratorImpl(new SqlServerDialect());
             }
         }
 
@@ -51,16 +54,21 @@ namespace DapperExtensions
             }
         }
 
+        public static ISqlGenerator SqlGenerator
+        {
+            get { return _sqlGenerator; }
+        }
+
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>
-        public static Func<Type, bool, IDapperExtensionsImpl> InstanceFactory
+        public static Func<Type, ISqlGenerator, IDapperExtensionsImpl> InstanceFactory
         {
             get
             {
                 if (_instanceFactory == null)
                 {
-                    _instanceFactory = (dm, ce) => new DapperExtensionsImpl(dm, ce);
+                    _instanceFactory = (dm, sg) => new DapperExtensionsImpl(dm, sg);
                 }
 
                 return _instanceFactory;
@@ -85,7 +93,7 @@ namespace DapperExtensions
                     {
                         if (_instance == null)
                         {
-                            _instance = InstanceFactory(DefaultMapper, IsUsingSqlCe);
+                            _instance = InstanceFactory(DefaultMapper, _sqlGenerator);
                         }
                     }
                 }
@@ -97,6 +105,7 @@ namespace DapperExtensions
         static DapperExtensions()
         {
             DefaultMapper = typeof(AutoClassMapper<>);
+            _sqlGenerator = new SqlGeneratorImpl(new SqlServerDialect());
         }
 
         /// <summary>
@@ -132,9 +141,7 @@ namespace DapperExtensions
         /// </summary>
         public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
-            IClassMapper classMap = GetMap<T>();
-            string sql = SqlGenerator.Update(classMap);
-            return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
+            return Instance.Update<T>(connection, entity, transaction, commandTimeout);
         }
 
         /// <summary>
@@ -231,14 +238,14 @@ namespace DapperExtensions
         public class DapperExtensionsImpl : IDapperExtensionsImpl
         {
             private readonly Type _defaultMapper;
-            private readonly bool _useSqlCe;
+            private readonly ISqlGenerator _sqlGenerator;
             private readonly List<Type> _simpleTypes;
             private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
 
-            public DapperExtensionsImpl(Type defaultMapper, bool useSqlCe)
+            public DapperExtensionsImpl(Type defaultMapper, ISqlGenerator sqlGenerator)
             {
                 _defaultMapper = defaultMapper;
-                _useSqlCe = useSqlCe;
+                _sqlGenerator = sqlGenerator;
                 _simpleTypes = new List<Type>
                                {
                                    typeof(byte),
@@ -265,7 +272,7 @@ namespace DapperExtensions
             public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
             {
                 IClassMapper classMap = GetMap<T>();
-                string sql = SqlGenerator.Get(classMap);
+                string sql = _sqlGenerator.Get(classMap);
                 bool isSimpleType = IsSimpleType(id.GetType());
                 IDictionary<string, object> paramValues = null;
                 if (!isSimpleType)
@@ -308,7 +315,7 @@ namespace DapperExtensions
                     }
                 }
 
-                string sql = SqlGenerator.Insert(classMap);
+                string sql = _sqlGenerator.Insert(classMap);
 
                 connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
             }
@@ -326,7 +333,7 @@ namespace DapperExtensions
                     }
                 }
 
-                string sql = SqlGenerator.Insert(classMap);
+                string sql = _sqlGenerator.Insert(classMap);
                 connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                 IDictionary<string, object> keyValues = new ExpandoObject();
 
@@ -334,7 +341,7 @@ namespace DapperExtensions
                 {
                     if (column.KeyType == KeyType.Identity)
                     {
-                        string identitySql = SqlGenerator.IdentitySql(classMap, _useSqlCe);
+                        string identitySql = _sqlGenerator.IdentitySql(classMap);
                         var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
                         int id = (int)identityId.First().Id;
                         keyValues.Add(column.Name, id);
@@ -358,14 +365,14 @@ namespace DapperExtensions
             public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
             {
                 IClassMapper classMap = GetMap<T>();
-                string sql = SqlGenerator.Update(classMap);
+                string sql = _sqlGenerator.Update(classMap);
                 return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
             }
 
             public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
             {
                 IClassMapper classMap = GetMap<T>();
-                string sql = SqlGenerator.Delete(classMap);
+                string sql = _sqlGenerator.Delete(classMap);
                 return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
             }
 
@@ -373,7 +380,7 @@ namespace DapperExtensions
             {
                 IClassMapper classMap = GetMap<T>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = SqlGenerator.Delete(classMap, predicate, parameters);
+                string sql = _sqlGenerator.Delete(classMap, predicate, parameters);
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 foreach (var parameter in parameters)
                 {
@@ -387,7 +394,7 @@ namespace DapperExtensions
             {
                 IClassMapper classMap = GetMap<T>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = SqlGenerator.GetList(classMap, predicate, sort, parameters);
+                string sql = _sqlGenerator.GetList(classMap, predicate, sort, parameters);
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 foreach (var parameter in parameters)
                 {
@@ -401,7 +408,7 @@ namespace DapperExtensions
             {
                 IClassMapper classMap = GetMap<T>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = SqlGenerator.GetPage(classMap, predicate, sort, page, resultsPerPage, parameters, _useSqlCe);
+                string sql = _sqlGenerator.GetPage(classMap, predicate, sort, page, resultsPerPage, parameters);
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 foreach (var parameter in parameters)
                 {
@@ -415,7 +422,7 @@ namespace DapperExtensions
             {
                 IClassMapper classMap = GetMap<T>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = SqlGenerator.Count(classMap, predicate, parameters);
+                string sql = _sqlGenerator.Count(classMap, predicate, parameters);
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 foreach (var parameter in parameters)
                 {
@@ -482,9 +489,32 @@ namespace DapperExtensions
             }
         }
 
-        public static class SqlGenerator
+        public interface ISqlGenerator
         {
-            public static string Get(IClassMapper classMap)
+            string Get(IClassMapper classMap);
+            string Insert(IClassMapper classMap);
+            string Update(IClassMapper classMap);
+            string Delete(IClassMapper classMap);
+            string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+            string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
+            string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
+            string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+            string IdentitySql(IClassMapper classMap);
+            string GetTableName(IClassMapper map);
+            string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
+            string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
+        }
+
+        public class SqlGeneratorImpl : ISqlGenerator
+        {
+            private readonly ISqlDialect _dialect;
+
+            public SqlGeneratorImpl(ISqlDialect dialect)
+            {
+                _dialect = dialect;
+            }
+
+            public string Get(IClassMapper classMap)
             {
                 if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
                 {
@@ -497,7 +527,7 @@ namespace DapperExtensions
                     BuildWhere(classMap));
             }
 
-            public static string Insert(IClassMapper classMap)
+            public string Insert(IClassMapper classMap)
             {
                 if (classMap.Properties.Count(c => c.KeyType == KeyType.Identity) > 1)
                 {
@@ -514,7 +544,7 @@ namespace DapperExtensions
                                      parameters.AppendStrings());
             }
 
-            public static string Update(IClassMapper classMap)
+            public string Update(IClassMapper classMap)
             {
                 if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
                 {
@@ -529,7 +559,7 @@ namespace DapperExtensions
                     BuildWhere(classMap));
             }
 
-            public static string Delete(IClassMapper classMap)
+            public string Delete(IClassMapper classMap)
             {
                 if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
                 {
@@ -541,7 +571,7 @@ namespace DapperExtensions
                     BuildWhere(classMap));
             }
 
-            public static string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+            public string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
             {
                 StringBuilder sql = new StringBuilder(string.Format("DELETE FROM {0}", GetTableName(classMap)));
                 if (predicate != null)
@@ -553,7 +583,7 @@ namespace DapperExtensions
                 return sql.ToString();
             }
 
-            public static string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
+            public string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
             {
                 StringBuilder sql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
                     BuildSelectColumns(classMap),
@@ -573,7 +603,7 @@ namespace DapperExtensions
                 return sql.ToString();
             }
 
-            public static string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters, bool isUsingSqlCe)
+            public string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
             {
                 if (sort == null || !sort.Any())
                 {
@@ -590,39 +620,12 @@ namespace DapperExtensions
                 }
 
                 string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
-                string sql;
-                if (isUsingSqlCe)
-                {
-                    sql = string.Format("{0} ORDER BY {1} OFFSET @pageStartRowNbr ROWS FETCH NEXT @resultsPerPage ROWS ONLY", innerSql, orderBy);
-                    int startValue = ((page - 1) * resultsPerPage);
-                    parameters.Add("@pageStartRowNbr", startValue);
-                    parameters.Add("@resultsPerPage", resultsPerPage);
-                }
-                else
-                {
-                    var projColumns = classMap.Properties.Select(p => "proj.[" + p.Name + "]");
-                    sql = string.Format("SELECT {0} FROM ({1} ORDER BY {2}) proj WHERE proj.[RowNbr] BETWEEN @pageStartRowNbr AND @pageStopRowNbr ORDER BY proj.[RowNbr]",
-                        projColumns.AppendStrings(), innerSql, orderBy);
-
-                    int startValue = (page * resultsPerPage) + 1;
-                    parameters.Add("@pageStartRowNbr", startValue);
-                    parameters.Add("@pageStopRowNbr", startValue + resultsPerPage);
-                }
-
+                var projColumns = classMap.Properties.Select(p => "proj.[" + p.Name + "]");
+                string sql = _dialect.GetPagingSql(projColumns.AppendStrings(), orderBy, innerSql.ToString(), page, resultsPerPage, parameters);
                 return sql;
             }
 
-            public static string IdentitySql(IClassMapper classMap, bool isUsingSqlCe)
-            {
-                if (isUsingSqlCe)
-                {
-                    return "SELECT @@IDENTITY AS [Id]";
-                }
-
-                return string.Format("SELECT IDENT_CURRENT('{0}') AS [Id]", GetTableName(classMap));
-            }
-
-            public static string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+            public string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
             {
                 StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS [Total] FROM {0}",
                                     GetTableName(classMap)));
@@ -635,26 +638,30 @@ namespace DapperExtensions
                 return sql.ToString();
             }
 
-            public static string GetTableName(IClassMapper map)
+            public string IdentitySql(IClassMapper classMap)
             {
-                string result = (string.IsNullOrWhiteSpace(map.SchemaName) ? null : "[" + map.SchemaName + "].") + "[" + map.TableName + "]";
-                return result;
+                return _dialect.GetIdentitySql(GetTableName(classMap));
             }
 
-            public static string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+            public string GetTableName(IClassMapper map)
             {
-                string result = GetTableName(map) + ".[" + property.ColumnName + "]";
-                if (property.ColumnName == property.Name || !includeAlias)
+                return _dialect.GetTableName(map.SchemaName, map.TableName, null);
+            }
+
+            public string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+            {
+                string alias = null;
+                if (property.ColumnName != property.Name && includeAlias)
                 {
-                    return result;
+                    alias = property.Name;
                 }
 
-                return result + " AS [" + property.Name + "]";
+                return _dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
             }
 
-            public static string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
+            public string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
             {
-                IPropertyMap propertyMap = map.Properties.Where(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
+                IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
                 if (propertyMap == null)
                 {
                     throw new ArgumentException(string.Format("Could not find '{0}' in Mapping.", propertyName));
@@ -663,13 +670,13 @@ namespace DapperExtensions
                 return GetColumnName(map, propertyMap, includeAlias);
             }
 
-            private static string BuildSelectColumns(IClassMapper classMap)
+            private string BuildSelectColumns(IClassMapper classMap)
             {
                 var columns = classMap.Properties.Where(p => !p.Ignored).Select(p => GetColumnName(classMap, p, true));
                 return columns.AppendStrings();
             }
 
-            private static string BuildWhere(IClassMapper classMap)
+            private string BuildWhere(IClassMapper classMap)
             {
                 var where = classMap.Properties
                     .Where(p => p.KeyType != KeyType.NotAKey)
