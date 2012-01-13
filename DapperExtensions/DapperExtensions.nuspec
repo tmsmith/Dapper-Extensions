@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
-<package >
-  <metadata>
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.1</version>
+    <version>1.3</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -10,19 +10,24 @@
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
-    <releaseNotes>A small library that complements Dapper by adding basic CRUD operations.</releaseNotes>
+    <releaseNotes>
+		1.3 - Release Notes
+			* Switched to DLL.
+			* Can be extended to support more than SQL Server and SQL Server CE
+	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
-      <dependency id="Dapper" />
+      <dependency id="Dapper" version="1.8" />
     </dependencies>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
-      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
+      <frameworkAssembly assemblyName="System.Core"/>
+      <frameworkAssembly assemblyName="System"/>
+      <frameworkAssembly assemblyName="System.Data"/>
       <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="DapperExtensions.cs.pp" target="content\Dapper\DapperExtensions.cs.pp" />
+	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
+    <file src="bin\Release\DapperExtensions.pdb" target="lib\net40" />
   </files>  
 </package>
