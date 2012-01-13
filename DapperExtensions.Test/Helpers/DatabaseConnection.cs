@@ -17,7 +17,7 @@ namespace DapperExtensions.Test.Helpers
             string databaseName = "db_" + Guid.NewGuid().ToString() + ".sdf";
             TestHelpers.LoadDatabase(databaseName);
             Connection = TestHelpers.GetConnection(databaseName);
-            Impl = new DapperExtensions.DapperExtensionsImpl(typeof(AutoClassMapper<>), new DapperExtensions.SqlGeneratorImpl(new SqlCeDialect()));
+            Impl = new DapperExtensions.DapperExtensionsImpl(typeof(AutoClassMapper<>), new SqlGeneratorImpl(new SqlCeDialect()));
         }
 
         [TearDown]

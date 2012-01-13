@@ -70,7 +70,7 @@ namespace DapperExtensions.Test.IntegrationTests
             [Test]
             public void GeneratesAndRunsProperSql()
             {
-                Impl = new DapperExtensions.DapperExtensionsImpl(typeof(CustomMapper), new DapperExtensions.SqlGeneratorImpl(new SqlCeDialect()));
+                Impl = new DapperExtensions.DapperExtensionsImpl(typeof(CustomMapper), new SqlGeneratorImpl(new SqlCeDialect()));
                 Foo f = new Foo { FirstName = "Foo", LastName = "Bar", DateOfBirth = DateTime.UtcNow.AddYears(-20) };
                 Impl.Insert(Connection, f, null, null);
             }

@@ -50,6 +50,7 @@
     <Compile Include="PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="SqlDialect.cs" />
+    <Compile Include="SqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
