@@ -13,30 +13,12 @@ namespace DapperExtensions
     {
         private readonly static object _lock = new object();
 
-        private static bool _isUsingSqlCe;
         private static Type _defaultMapper;
         private static Func<Type, ISqlGenerator, IDapperExtensionsImpl> _instanceFactory;
         private static IDapperExtensionsImpl _instance;
+        private static ISqlDialect _sqlDialect;
         private static ISqlGenerator _sqlGenerator;
-
-        /// <summary>
-        /// When using SQL CE, some SQL constructs are not supported. This flag will enable proper SQL generation for execution in the SQL CE environment.
-        /// </summary>
-        public static bool IsUsingSqlCe
-        {
-            get
-            {
-                return _isUsingSqlCe;
-            }
-
-            set
-            {
-                _instance = null;
-                _isUsingSqlCe = value;
-                _sqlGenerator = value ? new SqlGeneratorImpl(new SqlCeDialect()) : new SqlGeneratorImpl(new SqlServerDialect());
-            }
-        }
-
+        
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
         /// </summary>
@@ -54,6 +36,27 @@ namespace DapperExtensions
             }
         }
 
+        /// <summary>
+        /// Gets or sets the type of sql to be generated.
+        /// </summary>
+        public static ISqlDialect SqlDialect
+        {
+            get
+            {
+                return _sqlDialect;
+            }
+
+            set
+            {
+                _instance = null;
+                _sqlDialect = value;
+                _sqlGenerator = new SqlGeneratorImpl(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets the currently setup generator
+        /// </summary>
         public static ISqlGenerator SqlGenerator
         {
             get { return _sqlGenerator; }
@@ -105,7 +108,7 @@ namespace DapperExtensions
         static DapperExtensions()
         {
             DefaultMapper = typeof(AutoClassMapper<>);
-            _sqlGenerator = new SqlGeneratorImpl(new SqlServerDialect());
+            SqlDialect = new SqlServerDialect();
         }
 
         /// <summary>
@@ -620,8 +623,9 @@ namespace DapperExtensions
                 }
 
                 string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
-                var projColumns = classMap.Properties.Select(p => "proj.[" + p.Name + "]");
-                string sql = _dialect.GetPagingSql(projColumns.AppendStrings(), orderBy, innerSql.ToString(), page, resultsPerPage, parameters);
+                innerSql.Append(" ORDER BY " + orderBy);
+                
+                string sql = _dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
                 return sql;
             }
 
