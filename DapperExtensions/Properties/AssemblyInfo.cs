@@ -22,6 +22,8 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("792b61ca-432b-4db2-a5b3-d2fb5043d0ed")]
 
+[assembly: InternalsVisibleTo("DapperExtensions.Test")]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version

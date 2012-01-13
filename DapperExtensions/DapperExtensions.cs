@@ -213,14 +213,6 @@ namespace DapperExtensions
         {
             return Instance.GetNextGuid();
         }
-        
-        private static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
-        {
-            return list.Aggregate(
-                new StringBuilder(),
-                (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
-                sb => sb.ToString());
-        }
 
         public interface IDapperExtensionsImpl
         {
