@@ -5,7 +5,7 @@ using DapperExtensions.Test.Data;
 using DapperExtensions.Test.Helpers;
 using NUnit.Framework;
 
-namespace DapperExtensions.Test
+namespace DapperExtensions.Test.IntegrationTests
 {
     [TestFixture]
     public class DatabaseTestsFixture

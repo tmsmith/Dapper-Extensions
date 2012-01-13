@@ -59,18 +59,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFixture.cs" />
-    <Compile Include="DapperExtensionsImpFixture.cs" />
+    <Compile Include="IntegrationTests\DapperExtensionsImpFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="Data\Animal.cs" />
     <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
     <Compile Include="Helpers\DatabaseConnection.cs" />
     <Compile Include="PluralizedAutoClassMapperFixture.cs" />
-    <Compile Include="DatabaseTestsFixture.cs" />
+    <Compile Include="IntegrationTests\DatabaseTestsFixture.cs" />
     <Compile Include="PredicatesFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="SqlDialectFixture.cs" />
     <Compile Include="SqlGeneratorFixture.cs" />
     <Compile Include="Helpers\TestHelpers.cs" />
   </ItemGroup>
