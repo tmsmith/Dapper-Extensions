@@ -11,9 +11,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
-		1.3 - Release Notes
+		Release Notes
 			* Switched to DLL.
-			* Can be extended to support more than SQL Server and SQL Server CE
+			* Added ability to create other Sql Dialects (Currently supports SQL Server 2005, 2008 and CE)
+			* Reorganized ClassMappers to DapperExtensions.Mapper
+			* Reorganized Sql generation to DapperExtensions.Sql
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
