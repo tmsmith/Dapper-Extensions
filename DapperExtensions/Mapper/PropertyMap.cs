@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace DapperExtensions
+namespace DapperExtensions.Mapper
 {
     /// <summary>
     /// Maps an entity property to its corresponding column in the database.

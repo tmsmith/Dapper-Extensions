@@ -1,4 +1,5 @@
 ﻿using System;
+using DapperExtensions.Mapper;
 
 namespace DapperExtensions.Test.Data
 {

@@ -6,6 +6,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using Dapper;
+using DapperExtensions.Sql;
+using DapperExtensions.Mapper;
 
 namespace DapperExtensions
 {

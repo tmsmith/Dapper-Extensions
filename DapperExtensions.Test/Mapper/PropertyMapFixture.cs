@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DapperExtensions.Mapper;
 using NUnit.Framework;
 
-
-namespace DapperExtensions.Test
+namespace DapperExtensions.Test.Mapper
 {
     [TestFixture]
     public class PropertyMapFixture

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DapperExtensions.Mapper;
 using NUnit.Framework;
 
-namespace DapperExtensions.Test
+namespace DapperExtensions.Test.Mapper
 {
     [TestFixture]
     public class PluralizedAutoClassMapperFixture

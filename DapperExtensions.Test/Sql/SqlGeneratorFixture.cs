@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DapperExtensions.Mapper;
 using NUnit.Framework;
 
-namespace DapperExtensions.Test
+namespace DapperExtensions.Test.Sql
 {
     [TestFixture]
     public class SqlGeneratorFixture

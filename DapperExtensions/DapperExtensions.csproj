@@ -43,14 +43,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassMapper.cs" />
+    <Compile Include="Mapper\AutoClassMapper.cs" />
+    <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
+    <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyMap.cs" />
+    <Compile Include="Mapper\PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="SqlDialect.cs" />
-    <Compile Include="SqlGenerator.cs" />
+    <Compile Include="Sql\SqlCeDialect.cs" />
+    <Compile Include="Sql\SqlDialectBase.cs" />
+    <Compile Include="Sql\SqlGenerator.cs" />
+    <Compile Include="Sql\MySqlDialect.cs" />
+    <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

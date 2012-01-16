@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test.Helpers
