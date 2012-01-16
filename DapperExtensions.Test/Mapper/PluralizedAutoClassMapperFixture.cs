@@ -57,7 +57,7 @@ namespace DapperExtensions.Test.Mapper
             {
                 CustomPluralizedMapper<Foo> m = GetMapper<Foo>();
                 m.Table("Person");
-                Assert.AreEqual("Persons", m.TableName);
+                Assert.AreEqual("People", m.TableName);
             }
 
             private CustomPluralizedMapper<T> GetMapper<T>() where T : class
@@ -71,10 +71,12 @@ namespace DapperExtensions.Test.Mapper
                 {
                     if (tableName.Equals("Person", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        TableName = "Persons";
+                        TableName = "People";
                     }
-
-                    base.Table(tableName);
+                    else
+                    {
+                        base.Table(tableName);
+                    }
                 }
             }
         }
