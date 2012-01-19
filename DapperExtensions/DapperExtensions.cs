@@ -67,7 +67,7 @@ namespace DapperExtensions
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>
-        internal static Func<Type, ISqlGenerator, IDapperExtensionsImpl> InstanceFactory
+        public static Func<Type, ISqlGenerator, IDapperExtensionsImpl> InstanceFactory
         {
             get
             {

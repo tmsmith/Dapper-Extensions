@@ -6,7 +6,7 @@ using DapperExtensions.Mapper;
 
 namespace DapperExtensions.Sql
 {
-    internal interface ISqlGenerator
+    public interface ISqlGenerator
     {
         string Get(IClassMapper classMap);
         string Insert(IClassMapper classMap);
@@ -22,7 +22,7 @@ namespace DapperExtensions.Sql
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
     }
 
-    internal class SqlGeneratorImpl : ISqlGenerator
+    public class SqlGeneratorImpl : ISqlGenerator
     {
         private readonly ISqlDialect _dialect;
 
