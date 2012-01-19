@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.1.8\lib\net40\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,13 +43,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassMapper.cs" />
+    <Compile Include="Mapper\AutoClassMapper.cs" />
+    <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
-    <Compile Include="Dapper\SqlMapper.cs" />
+    <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyMap.cs" />
+    <Compile Include="Mapper\PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Sql\SqlCeDialect.cs" />
+    <Compile Include="Sql\SqlDialectBase.cs" />
+    <Compile Include="Sql\SqlGenerator.cs" />
+    <Compile Include="Sql\MySqlDialect.cs" />
+    <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

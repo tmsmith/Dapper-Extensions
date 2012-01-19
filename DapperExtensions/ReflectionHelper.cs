@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace DapperExtensions
 {
-    public static class ReflectionHelper
+    internal static class ReflectionHelper
     {
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
@@ -54,5 +55,14 @@ namespace DapperExtensions
 
             return result;
         }
+
+        public static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
+        {
+            return list.Aggregate(
+                new StringBuilder(),
+                (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
+                sb => sb.ToString());
+        }
+
     }
 }
