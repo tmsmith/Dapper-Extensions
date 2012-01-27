@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,6 +25,8 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        private readonly Dictionary<Type, KeyType> _propertyTypeKeyTypeMapping;
+
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>
@@ -41,6 +44,20 @@ namespace DapperExtensions.Mapper
 
         public ClassMapper()
         {
+            _propertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
+                                             {
+                                                 { typeof(byte), KeyType.Identity }, { typeof(byte?), KeyType.Identity },
+                                                 { typeof(sbyte), KeyType.Identity }, { typeof(sbyte?), KeyType.Identity },
+                                                 { typeof(short), KeyType.Identity }, { typeof(short?), KeyType.Identity },
+                                                 { typeof(ushort), KeyType.Identity }, { typeof(ushort?), KeyType.Identity },
+                                                 { typeof(int), KeyType.Identity }, { typeof(int?), KeyType.Identity },
+                                                 { typeof(uint), KeyType.Identity}, { typeof(uint?), KeyType.Identity },                                                                                                 
+                                                 { typeof(long), KeyType.Identity }, { typeof(long?), KeyType.Identity },
+                                                 { typeof(ulong), KeyType.Identity }, { typeof(ulong?), KeyType.Identity },
+                                                 { typeof(BigInteger), KeyType.Identity }, { typeof(BigInteger?), KeyType.Identity },
+                                                 { typeof(Guid), KeyType.Guid }, { typeof(Guid?), KeyType.Guid },
+                                             };
+
             Properties = new List<IPropertyMap>();
             Table(typeof(T).Name);
         }
@@ -70,19 +87,9 @@ namespace DapperExtensions.Mapper
 
                 if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                 {
-                    if (map.PropertyInfo.PropertyType == typeof(int) || map.PropertyInfo.PropertyType == typeof(int?))
-                    {
-                        map.Key(KeyType.Identity);
-                    }
-                    else if (map.PropertyInfo.PropertyType == typeof(Guid) || map.PropertyInfo.PropertyType == typeof(Guid?))
-                    {
-                        map.Key(KeyType.Guid);
-                    }
-                    else
-                    {
-                        map.Key(KeyType.Assigned);
-                    }
-
+                    map.Key(_propertyTypeKeyTypeMapping.ContainsKey(map.PropertyInfo.PropertyType)
+                                ? _propertyTypeKeyTypeMapping[map.PropertyInfo.PropertyType]
+                                : KeyType.Assigned);
                     keyFound = true;
                 }
             }
