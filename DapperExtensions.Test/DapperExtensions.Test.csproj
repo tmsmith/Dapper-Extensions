@@ -51,6 +51,7 @@
       <Private>True</Private>
       <HintPath>..\packages\SqlServerCompact.4.0.8482.1\lib\System.Data.SqlServerCe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFixture.cs" />
+    <Compile Include="Helpers\Protected.cs" />
     <Compile Include="IntegrationTests\DapperExtensionsImpFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="Data\Animal.cs" />

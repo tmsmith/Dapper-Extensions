@@ -51,7 +51,7 @@ namespace DapperExtensions.Mapper
                                                  { typeof(short), KeyType.Identity }, { typeof(short?), KeyType.Identity },
                                                  { typeof(ushort), KeyType.Identity }, { typeof(ushort?), KeyType.Identity },
                                                  { typeof(int), KeyType.Identity }, { typeof(int?), KeyType.Identity },
-                                                 { typeof(uint), KeyType.Identity}, { typeof(uint?), KeyType.Identity },                                                                                                 
+                                                 { typeof(uint), KeyType.Identity}, { typeof(uint?), KeyType.Identity },
                                                  { typeof(long), KeyType.Identity }, { typeof(long?), KeyType.Identity },
                                                  { typeof(ulong), KeyType.Identity }, { typeof(ulong?), KeyType.Identity },
                                                  { typeof(BigInteger), KeyType.Identity }, { typeof(BigInteger?), KeyType.Identity },

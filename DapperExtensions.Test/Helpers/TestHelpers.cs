@@ -114,5 +114,10 @@ namespace DapperExtensions.Test.Helpers
                 return sr.ReadToEnd();
             }
         }
+
+        public static Protected Protected(this object obj)
+        {
+            return new Protected(obj);
+        }
     }
 }
