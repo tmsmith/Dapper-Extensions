@@ -40,7 +40,7 @@ PM> Install-Package DapperExtensions
 # Examples
 The following examples will use a Person POCO defined as:
 
-```
+```c#
 public class Person
 {
     public int Id { get; set; }
@@ -54,7 +54,7 @@ public class Person
 
 ## Get Operation
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
@@ -66,7 +66,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## Simple Insert Operation
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
@@ -78,8 +78,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## Advanced Insert Operation (Composite Key)
 
-```
-
+```c#
 public class Car
 {
     public int ModelId { get; set; }
@@ -103,7 +102,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## Simple Update Operation
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
@@ -118,7 +117,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## Simple Delete Operation
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
@@ -130,7 +129,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 
 ## GetList Operation (with Predicates)
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
@@ -158,7 +157,7 @@ More information on predicates can be found in [our wiki](https://github.com/tms
 
 ## Count Operation (with Predicates)
 
-```
+```c#
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
