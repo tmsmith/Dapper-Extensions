@@ -46,7 +46,8 @@ namespace DapperExtensions.Sql
 
         public string Insert(IClassMapper classMap)
         {
-            if (classMap.Properties.Count(c => c.KeyType == KeyType.Identity) > 1)
+            int identityCount = classMap.Properties.Count(c => c.KeyType == KeyType.Identity);
+            if (identityCount > 1)
             {
                 throw new ArgumentException("Can only set 1 property to Identity.");
             }
@@ -55,10 +56,16 @@ namespace DapperExtensions.Sql
             var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
             var parameters = columns.Select(p => "@" + p.Name);
 
-            return string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
-                                 GetTableName(classMap),
-                                 columnNames.AppendStrings(),
-                                 parameters.AppendStrings());
+            string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
+                                       GetTableName(classMap),
+                                       columnNames.AppendStrings(),
+                                       parameters.AppendStrings());
+            if (identityCount == 1)
+            {
+                sql += ';' + IdentitySql(classMap);
+            }
+
+            return sql;
         }
 
         public string Update(IClassMapper classMap)

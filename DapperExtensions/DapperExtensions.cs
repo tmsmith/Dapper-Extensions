@@ -320,8 +320,9 @@ namespace DapperExtensions
             public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
             {
                 IClassMapper classMap = GetMap<T>();
-
-                foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
+                List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
+                var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
+                foreach (var column in nonIdentityKeyProperties)
                 {
                     if (column.KeyType == KeyType.Guid)
                     {
@@ -331,24 +332,20 @@ namespace DapperExtensions
                 }
 
                 string sql = _sqlGenerator.Insert(classMap);
-                connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                 IDictionary<string, object> keyValues = new ExpandoObject();
-
-                foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
+                if (identityColumn != null)
                 {
-                    if (column.KeyType == KeyType.Identity)
-                    {
-                        string identitySql = _sqlGenerator.IdentitySql(classMap);
-                        var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                        int id = (int)identityId.First().Id;
-                        keyValues.Add(column.Name, id);
-                        column.PropertyInfo.SetValue(entity, id, null);
-                    }
+                    var result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    keyValues.Add(identityColumn.Name, result.First());
+                }
+                else
+                {
+                    connection.Execute(sql, entity, transaction,  commandTimeout, CommandType.Text);
+                }
 
-                    if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
-                    {
-                        keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
-                    }
+                foreach (var column in nonIdentityKeyProperties)
+                {
+                    keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
                 }
 
                 if (keyValues.Count == 1)
