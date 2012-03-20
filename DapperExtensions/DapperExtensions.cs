@@ -312,7 +312,7 @@ namespace DapperExtensions
                     }
                 }
 
-                string sql = _sqlGenerator.Insert(classMap);
+                string sql = _sqlGenerator.Insert(classMap, false);
 
                 connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
             }
@@ -331,12 +331,25 @@ namespace DapperExtensions
                     }
                 }
 
-                string sql = _sqlGenerator.Insert(classMap);
                 IDictionary<string, object> keyValues = new ExpandoObject();
+                string sql = _sqlGenerator.Insert(classMap, true);
                 if (identityColumn != null)
                 {
-                    var result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
-                    keyValues.Add(identityColumn.Name, result.First());
+                    IEnumerable<int> result;
+                    if (_sqlGenerator.RunInsertAsBatch())
+                    {
+                        result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    }
+                    else
+                    {
+                        connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+                        sql = _sqlGenerator.IdentitySql(classMap);
+                        result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    }
+
+                    int identityValue = result.First();
+                    keyValues.Add(identityColumn.Name, identityValue);
+                    identityColumn.PropertyInfo.SetValue(entity, identityValue, null);
                 }
                 else
                 {

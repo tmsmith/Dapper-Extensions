@@ -9,6 +9,8 @@ namespace DapperExtensions.Sql
     {
         char OpenQuote { get; }
         char CloseQuote { get; }
+        string BatchSeperator { get; }
+        bool RunIdentityInsertAsBatch { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
@@ -27,6 +29,16 @@ namespace DapperExtensions.Sql
         public virtual char CloseQuote
         {
             get { return '"'; }
+        }
+
+        public virtual string BatchSeperator
+        {
+            get { return Environment.NewLine + ";"; }
+        }
+
+        public virtual bool RunIdentityInsertAsBatch
+        {
+            get { return true; }
         }
 
         public virtual string GetTableName(string schemaName, string tableName, string alias)

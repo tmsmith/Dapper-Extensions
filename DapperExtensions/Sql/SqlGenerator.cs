@@ -9,7 +9,7 @@ namespace DapperExtensions.Sql
     public interface ISqlGenerator
     {
         string Get(IClassMapper classMap);
-        string Insert(IClassMapper classMap);
+        string Insert(IClassMapper classMap, bool returnIdentity);
         string Update(IClassMapper classMap);
         string Delete(IClassMapper classMap);
         string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
@@ -20,16 +20,17 @@ namespace DapperExtensions.Sql
         string GetTableName(IClassMapper map);
         string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
+        bool RunInsertAsBatch();
     }
 
     public class SqlGeneratorImpl : ISqlGenerator
     {
-        private readonly ISqlDialect _dialect;
-
         public SqlGeneratorImpl(ISqlDialect dialect)
         {
-            _dialect = dialect;
+            Dialect = dialect;
         }
+
+        public ISqlDialect Dialect { get; private set; }
 
         public string Get(IClassMapper classMap)
         {
@@ -44,7 +45,7 @@ namespace DapperExtensions.Sql
                 BuildWhere(classMap));
         }
 
-        public string Insert(IClassMapper classMap)
+        public string Insert(IClassMapper classMap, bool returnIdentity)
         {
             int identityCount = classMap.Properties.Count(c => c.KeyType == KeyType.Identity);
             if (identityCount > 1)
@@ -60,9 +61,9 @@ namespace DapperExtensions.Sql
                                        GetTableName(classMap),
                                        columnNames.AppendStrings(),
                                        parameters.AppendStrings());
-            if (identityCount == 1)
+            if (identityCount == 1 && Dialect.RunIdentityInsertAsBatch && returnIdentity)
             {
-                sql += ';' + IdentitySql(classMap);
+                sql += Dialect.BatchSeperator + IdentitySql(classMap);
             }
 
             return sql;
@@ -146,7 +147,7 @@ namespace DapperExtensions.Sql
             string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
             innerSql.Append(" ORDER BY " + orderBy);
 
-            string sql = _dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
+            string sql = Dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
             return sql;
         }
 
@@ -165,12 +166,12 @@ namespace DapperExtensions.Sql
 
         public string IdentitySql(IClassMapper classMap)
         {
-            return _dialect.GetIdentitySql(GetTableName(classMap));
+            return Dialect.GetIdentitySql(GetTableName(classMap));
         }
 
         public string GetTableName(IClassMapper map)
         {
-            return _dialect.GetTableName(map.SchemaName, map.TableName, null);
+            return Dialect.GetTableName(map.SchemaName, map.TableName, null);
         }
 
         public string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
@@ -181,7 +182,7 @@ namespace DapperExtensions.Sql
                 alias = property.Name;
             }
 
-            return _dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
+            return Dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
         }
 
         public string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
@@ -193,6 +194,11 @@ namespace DapperExtensions.Sql
             }
 
             return GetColumnName(map, propertyMap, includeAlias);
+        }
+
+        public bool RunInsertAsBatch()
+        {
+            return Dialect.RunIdentityInsertAsBatch;
         }
 
         private string BuildSelectColumns(IClassMapper classMap)

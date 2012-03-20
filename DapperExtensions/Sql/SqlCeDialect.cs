@@ -17,6 +17,11 @@ namespace DapperExtensions.Sql
             get { return ']'; }
         }
 
+        public override bool RunIdentityInsertAsBatch
+        {
+            get { return false; }
+        }
+
         public override string GetTableName(string schemaName, string tableName, string alias)
         {
             StringBuilder result = new StringBuilder();
@@ -39,7 +44,7 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return "SELECT @@IDENTITY AS [Id]";
+            return "SELECT CAST(@@IDENTITY AS INT) AS [Id]";
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
