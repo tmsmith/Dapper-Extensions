@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -19,6 +19,8 @@
 		1.3.1
 			* CLS Compliant
 			* Add Automap Identity support for byte, sbyte, short, ushort, int, uint, long, ulong, BigInteger (including Nullable).
+		1.3.2
+			* Increased speed of Inserts
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
