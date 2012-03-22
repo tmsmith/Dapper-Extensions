@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test.Sql
@@ -9,6 +10,12 @@ namespace DapperExtensions.Test.Sql
     [TestFixture]
     public class SqlGeneratorFixture
     {
+        [SetUp]
+        public void Setup()
+        {
+            DapperExtensions.SqlDialect = new SqlServerDialect();
+        }
+
         [Test]
         public void GetTableName_Returns_Properly_Formatted_Name_When_Schema_Provided()
         {

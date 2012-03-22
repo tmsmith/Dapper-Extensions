@@ -50,7 +50,7 @@ namespace DapperExtensions.Sql
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
             string result = string.Format("{0} OFFSET @pageStartRowNbr ROWS FETCH NEXT @resultsPerPage ROWS ONLY", sql);
-            int startValue = ((page - 1) * resultsPerPage);
+            int startValue = (page * resultsPerPage);
             parameters.Add("@pageStartRowNbr", startValue);
             parameters.Add("@resultsPerPage", resultsPerPage);
             return result;

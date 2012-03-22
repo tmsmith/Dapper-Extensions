@@ -10,7 +10,7 @@ namespace DapperExtensions.Test.IntegrationTests
 {
     [TestFixture]
     public class DatabaseTestsFixture
-    {
+    {/*
         public class PredicateTests : DatabaseConnection
         {
             [Test]
@@ -75,6 +75,6 @@ namespace DapperExtensions.Test.IntegrationTests
                 Foo f = new Foo { FirstName = "Foo", LastName = "Bar", DateOfBirth = DateTime.UtcNow.AddYears(-20) };
                 Impl.Insert(Connection, f, null, null);
             }
-        }
+        }*/
     }
 }

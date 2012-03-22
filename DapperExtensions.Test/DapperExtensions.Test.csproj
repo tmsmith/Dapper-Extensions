@@ -31,8 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.8\lib\net40\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.6.5.4\lib\net40\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -59,14 +65,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyFixture.cs" />
     <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="IntegrationTests\DapperExtensionsImpFixture.cs" />
+    <Compile Include="IntegrationTests\CrudFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="Data\Animal.cs" />
     <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
-    <Compile Include="Helpers\DatabaseConnection.cs" />
+    <Compile Include="IntegrationTests\IntegrationBaseFixture.cs" />
+    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
@@ -90,16 +96,26 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreatePersonTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateMultikeyTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateAnimalTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateFooTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateMultikeyTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
