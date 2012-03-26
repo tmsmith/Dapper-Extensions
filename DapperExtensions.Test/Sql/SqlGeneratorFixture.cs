@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
+using Moq;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test.Sql
@@ -10,74 +11,1037 @@ namespace DapperExtensions.Test.Sql
     [TestFixture]
     public class SqlGeneratorFixture
     {
-        [SetUp]
-        public void Setup()
+        public abstract class SqlGeneratorFixtureBase
         {
-            DapperExtensions.SqlDialect = new SqlServerDialect();
-        }
+            protected Mock<SqlGeneratorImpl> Generator;
+            protected Mock<ISqlDialect> Dialect;
+            protected Mock<IClassMapper> ClassMap;
 
-        [Test]
-        public void GetTableName_Returns_Properly_Formatted_Name_When_Schema_Provided()
-        {
-            ClassMapper<Foo> mapper = new ClassMapper<Foo>();
-            mapper.Schema("clients");
-            var tableName = DapperExtensions.SqlGenerator.GetTableName(mapper);
-            Assert.AreEqual("[clients].[Foo]", tableName);
-        }
-
-        [Test]
-        public void GetTableName_Returns_Properly_Formatted_Name_Without_Schema()
-        {
-            ClassMapper<Foo> mapper = new ClassMapper<Foo>();
-            var tableName = DapperExtensions.SqlGenerator.GetTableName(mapper);
-            Assert.AreEqual("[Foo]", tableName);
-        }
-
-        [Test]
-        public void GetColumnName_Returns_Aliased_Column_When_Mapped_And_IncludeAlias_Is_True()
-        {
-            CustomMapper mapper = new CustomMapper();
-            var columnName = DapperExtensions.SqlGenerator.GetColumnName(mapper, mapper.Properties[1], true);
-            Assert.AreEqual("[Foo].[EmailAddress] AS [Email]", columnName);
-        }
-
-        [Test]
-        public void GetColumnName_Returns_Table_Column_Name_When_Mapped_And_IncludeAlias_Is_False()
-        {
-            CustomMapper mapper = new CustomMapper();
-            var columnName = DapperExtensions.SqlGenerator.GetColumnName(mapper, mapper.Properties[1], false);
-            Assert.AreEqual("[Foo].[EmailAddress]", columnName);
-        }
-
-        [Test]
-        public void GetColumnName_Throws_Exception_When_Invalid_Column_Name_Provided()
-        {
-            CustomMapper mapper = new CustomMapper();
-            Assert.Throws<ArgumentException>(() => DapperExtensions.SqlGenerator.GetColumnName(mapper, "Something", false),
-                          "Could not find 'Something' in Mapping.");
-        }
-
-        [Test]
-        public void GetColumnName_Returns_Correct_Name_When_PropertyName_Provided()
-        {
-            CustomMapper mapper = new CustomMapper();
-            var name = DapperExtensions.SqlGenerator.GetColumnName(mapper, "Bar", false);
-            Assert.AreEqual("[Foo].[Bar]", name);
-        }
-
-        private class Foo
-        {
-            public int Bar { get; set; }
-            public string Baz { get; set; }
-            public string Email { get; set; }
-        }
-
-        private class CustomMapper : ClassMapper<Foo>
-        {
-            public CustomMapper()
+            [SetUp]
+            public void Setup()
             {
-                Map(f => f.Bar).Column("Bar");
-                Map(f => f.Email).Column("EmailAddress");
+                Dialect = new Mock<ISqlDialect>();
+                ClassMap = new Mock<IClassMapper>();
+
+                Generator = new Mock<SqlGeneratorImpl>(Dialect.Object);
+                Generator.CallBase = true;
+            }            
+        }
+
+        [TestFixture]
+        public class GetMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNoKeys_ThrowsException()
+            {
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap>()).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Get(ClassMap.Object));
+
+                StringAssert.Contains("least one Key column", ex.Message);
+                ClassMap.Verify();
+            }
+
+            [Test]
+            public void GeneratesSql()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> {property.Object}).Verifiable();
+
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("COLUMNS").Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TABLENAME").Verifiable();
+                Generator.Setup(g => g.BuildWhere(ClassMap.Object)).Returns("WHERECLAUSE").Verifiable();
+
+                var result = Generator.Object.Get(ClassMap.Object);
+                Assert.AreEqual("SELECT COLUMNS FROM TABLENAME WHERE WHERECLAUSE", result);
+                ClassMap.Verify();
+                property.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class InsertMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithMultipleIdentities_Throws_Exception()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Insert(ClassMap.Object, false));
+                StringAssert.Contains("1 property to Identity", ex.Message);
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+            }
+
+            [Test]
+            public void WithNoMappedColumns_Throws_Exception()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Insert(ClassMap.Object, false));
+                StringAssert.Contains("columns were mapped", ex.Message);
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+            }
+
+            [Test]
+            public void WithIdentityAndBatchTrue_GeneratesSql()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.SetupGet(p => p.Name).Returns("Name2").Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.SetupGet(p => p.Name).Returns("Name3").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(true).Verifiable();
+                Dialect.SetupGet(d => d.BatchSeperator).Returns(";").Verifiable();
+                Dialect.Setup(d => d.GetIdentitySql("TableName")).Returns("IdentitySQL").Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, false)).Returns("Column2").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column3").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Insert(ClassMap.Object, true);
+                Assert.AreEqual("INSERT INTO TableName (Column2, Column3) VALUES (@Name2, @Name3);IdentitySQL", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property1.VerifyGet(p => p.Name, Times.Never());
+                property2.Verify();
+                property3.Verify();
+                Generator.Verify();
+                Dialect.Verify();
+            }
+
+            [Test]
+            public void WithIdentityAndBatchFalse_GeneratesSqlWithOutIdentity()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.SetupGet(p => p.Name).Returns("Name2").Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.SetupGet(p => p.Name).Returns("Name3").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, false)).Returns("Column2").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column3").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Insert(ClassMap.Object, true);
+                Assert.AreEqual("INSERT INTO TableName (Column2, Column3) VALUES (@Name2, @Name3)", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property1.VerifyGet(p => p.Name, Times.Never());
+                property2.Verify();
+                Generator.Verify();
+                Dialect.Verify();
+                Dialect.VerifyGet(d => d.BatchSeperator, Times.Never());
+                Dialect.Verify(d => d.GetIdentitySql("TableName"), Times.Never());
+            }
+
+            [Test]
+            public void WithIdentityAndBatchTrueAndReturnIdentityFalse_GeneratesSqlWithOutIdentity()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.SetupGet(p => p.Name).Returns("Name2").Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.SetupGet(p => p.Name).Returns("Name3").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(true).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, false)).Returns("Column2").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column3").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Insert(ClassMap.Object, false);
+                Assert.AreEqual("INSERT INTO TableName (Column2, Column3) VALUES (@Name2, @Name3)", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+                Generator.Verify();
+                Dialect.Verify();
+                Dialect.VerifyGet(d => d.BatchSeperator, Times.Never());
+                Dialect.Verify(d => d.GetIdentitySql("TableName"), Times.Never());
+            }
+
+            [Test]
+            public void DoesNotGenerateIgnoredColumns()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.Ignored).Returns(true).Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.Setup(p => p.Name).Returns("Name").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                var result = Generator.Object.Insert(ClassMap.Object, true);
+                Assert.AreEqual("INSERT INTO TableName (Column) VALUES (@Name)", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+                property2.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property1.Object, false), Times.Never());
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property2.Object, false), Times.Never());
+            }
+
+            [Test]
+            public void DoesNotGenerateReadonlyColumns()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.Setup(p => p.Name).Returns("Name").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                var result = Generator.Object.Insert(ClassMap.Object, true);
+                Assert.AreEqual("INSERT INTO TableName (Column) VALUES (@Name)", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+                property2.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property1.Object, false), Times.Never());
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property2.Object, false), Times.Never());
+            }
+        }
+
+        [TestFixture]
+        public class UpdateMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNoKey_Throws_Exception()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object));
+                StringAssert.Contains("least one Key column", ex.Message);
+                property1.Verify();
+                ClassMap.Verify();
+            }
+
+            [Test]
+            public void WithNoMappedColumns_Throws_Exception()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object));
+                StringAssert.Contains("columns were mapped", ex.Message);
+                property1.Verify();
+                property2.Verify();
+                ClassMap.Verify();
+            }
+
+            [Test]
+            public void DoesNotGenerateIgnoredColumns()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                property1.Setup(p => p.Name).Returns("KeyName").Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.Ignored).Returns(true).Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.Setup(p => p.Name).Returns("Name").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, false)).Returns("KeyColumn").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                var result = Generator.Object.Update(ClassMap.Object);
+                Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE KeyColumn = @KeyName", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property2.Object, false), Times.Never());
+            }
+
+            [Test]
+            public void DoesNotGenerateReadonlyColumns()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                property1.Setup(p => p.Name).Returns("KeyName").Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.Setup(p => p.Name).Returns("Name").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, false)).Returns("KeyColumn").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                var result = Generator.Object.Update(ClassMap.Object);
+                Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE KeyColumn = @KeyName", result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+                property2.VerifyGet(p => p.Name, Times.Never());
+
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property2.Object, false), Times.Never());
+            }
+
+            [Test]
+            public void GeneratesSql()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                property1.Setup(p => p.Name).Returns("KeyName").Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.Setup(p => p.Name).Returns("Name1").Verifiable();
+
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property3.Setup(p => p.Name).Returns("Name2").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object,
+                                                        property3.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, false)).Returns("KeyColumn").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, false)).Returns("Column1").
+                    Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column2").
+                    Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(false).Verifiable();
+
+                var result = Generator.Object.Update(ClassMap.Object);
+                Assert.AreEqual("UPDATE TableName SET Column1 = @Name1, Column2 = @Name2 WHERE KeyColumn = @KeyName",
+                                result);
+
+                ClassMap.Verify();
+                property1.Verify();
+                property2.Verify();
+                property3.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class DeleteMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNoKey_Throws_Exception()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Delete(ClassMap.Object));
+                StringAssert.Contains("least one Key column", ex.Message);
+                property1.Verify();
+                ClassMap.Verify();
+            }
+
+            [Test]
+            public void GeneratesSql()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> { property.Object }).Verifiable();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildWhere(ClassMap.Object)).Returns("WhereClause").Verifiable();
+
+                var result = Generator.Object.Delete(ClassMap.Object);
+                Assert.AreEqual("DELETE FROM TableName WHERE WhereClause", result);
+                ClassMap.Verify();
+                property.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class DeleteWithPredicateMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNullPredicate_ThrowsException()
+            {
+                Sort sort = new Sort();
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.Delete(ClassMap.Object, null, new Dictionary<string, object>()));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Predicate", ex.ParamName);
+            }
+
+            [Test]
+            public void WithNullParameters_ThrowsException()
+            {
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                Sort sort = new Sort();
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.Delete(ClassMap.Object, predicate.Object, null));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Parameters", ex.ParamName);
+            }
+
+            [Test]
+            public void GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Delete(ClassMap.Object, predicate.Object, parameters);
+                Assert.AreEqual("DELETE FROM TableName WHERE PredicateWhere", result);
+                ClassMap.Verify();
+                predicate.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class GetListMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNullParameters_ThrowsException()
+            {
+                Sort sort = new Sort();
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.GetList(ClassMap.Object, null, null, null));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Parameters", ex.ParamName);
+            }
+
+            [Test]
+            public void WithoutPredicateAndSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+
+                var result = Generator.Object.GetList(ClassMap.Object, null, null, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName", result);
+                ClassMap.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void WithPredicate_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+
+                var result = Generator.Object.GetList(ClassMap.Object, predicate.Object, null, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName WHERE PredicateWhere", result);
+                ClassMap.Verify();
+                predicate.Verify();
+                Generator.Verify();
+                predicate.Verify();
+            }
+
+            [Test]
+            public void WithSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                var result = Generator.Object.GetList(ClassMap.Object, null, sort, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName ORDER BY SortColumn ASC", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void WithPredicateAndSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                var result = Generator.Object.GetList(ClassMap.Object, predicate.Object, sort, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                predicate.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class GetPageMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNoSort_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.GetPage(ClassMap.Object, null, null, 0, 1, new Dictionary<string, object>()));
+                StringAssert.Contains("null or empty", ex.Message);
+            }
+
+            [Test]
+            public void WithEmptySort_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.GetPage(ClassMap.Object, null, new List<ISort>(), 0, 1, new Dictionary<string, object>()));
+                StringAssert.Contains("null or empty", ex.Message);
+                Assert.AreEqual("Sort", ex.ParamName);
+            }
+
+            [Test]
+            public void WithNullParameters_ThrowsException()
+            {
+                Sort sort = new Sort();
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.GetPage(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Parameters", ex.ParamName);
+            }
+
+            [Test]
+            public void WithSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                Dialect.Setup(d => d.GetPagingSql("SELECT Columns FROM TableName ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
+
+                var result = Generator.Object.GetPage(ClassMap.Object, null, sort, 2, 10, parameters);
+                Assert.AreEqual("PagedSQL", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                Generator.Verify();
+                Dialect.Verify();
+            }
+
+            [Test]
+            public void WithPredicateAndSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                Dialect.Setup(d => d.GetPagingSql("SELECT Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
+
+                var result = Generator.Object.GetPage(ClassMap.Object, predicate.Object, sort, 2, 10, parameters);
+                Assert.AreEqual("PagedSQL", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                predicate.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class CountMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNullParameters_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Count(ClassMap.Object, null, null));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Parameters", ex.ParamName);
+            }
+
+            [Test]
+            public void WithoutPredicate_ThrowsException()
+            {
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Count(ClassMap.Object, null, new Dictionary<string, object>());
+                Assert.AreEqual("SELECT COUNT(*) AS [Total] FROM TableName", result);
+                Generator.Verify();
+            }
+
+            [Test]
+            public void WithPredicate_ThrowsException()
+            {
+                var parameters = new Dictionary<string, object>();
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere").Verifiable();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+
+                var result = Generator.Object.Count(ClassMap.Object, predicate.Object, parameters);
+                Assert.AreEqual("SELECT COUNT(*) AS [Total] FROM TableName WHERE PredicateWhere", result);
+                Generator.Verify();
+                predicate.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class IdentitySqlMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void CallsDialect()
+            {
+                Dialect.Setup(d => d.GetIdentitySql("TableName")).Returns("IdentitySql").Verifiable();
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                var result = Generator.Object.IdentitySql(ClassMap.Object);
+                Assert.AreEqual("IdentitySql", result);
+                Generator.Verify();
+                Dialect.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class GetTableNameMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void CallsDialect()
+            {
+                ClassMap.SetupGet(c => c.SchemaName).Returns("SchemaName").Verifiable();
+                ClassMap.SetupGet(c => c.TableName).Returns("TableName").Verifiable();
+                Dialect.Setup(d => d.GetTableName("SchemaName", "TableName", null)).Returns("FullTableName").Verifiable();
+                var result = Generator.Object.GetTableName(ClassMap.Object);
+                Assert.AreEqual("FullTableName", result);
+                Dialect.Verify();
+                ClassMap.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class GetColumnNameMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void DoesNotIncludeAliasWhenParameterIsFalse()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
+                property.SetupGet(p => p.Name).Returns("Name").Verifiable();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Dialect.Setup(d => d.GetColumnName("TableName", "Column", null)).Returns("FullColumnName").Verifiable();
+                var result = Generator.Object.GetColumnName(ClassMap.Object, property.Object, false);
+                Assert.AreEqual("FullColumnName", result);
+                property.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void DoesNotIncludeAliasWhenColumnAndNameAreSame()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
+                property.SetupGet(p => p.Name).Returns("Column").Verifiable();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Dialect.Setup(d => d.GetColumnName("TableName", "Column", null)).Returns("FullColumnName").Verifiable();
+                var result = Generator.Object.GetColumnName(ClassMap.Object, property.Object, true);
+                Assert.AreEqual("FullColumnName", result);
+                property.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void IncludesAliasWhenColumnAndNameAreDifferent()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
+                property.SetupGet(p => p.Name).Returns("Name").Verifiable();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Dialect.Setup(d => d.GetColumnName("TableName", "Column", "Name")).Returns("FullColumnName").Verifiable();
+                var result = Generator.Object.GetColumnName(ClassMap.Object, property.Object, true);
+                Assert.AreEqual("FullColumnName", result);
+                property.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class GetColumnNameUsingStirngMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void ThrowsExceptionWhenDoesNotFindProperty()
+            {
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap>()).Verifiable();
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.GetColumnName(ClassMap.Object, "property", true));
+                StringAssert.Contains("Could not find 'property'", ex.Message);
+                ClassMap.Verify();
+            }
+
+            [Test]
+            public void CallsGetColumnNameWithProperty()
+            {
+                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                property.Setup(p => p.Name).Returns("property").Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> { property.Object }).Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property.Object, true)).Returns("ColumnName").Verifiable();
+                var result = Generator.Object.GetColumnName(ClassMap.Object, "property", true);
+                Assert.AreEqual("ColumnName", result);
+                ClassMap.Verify();
+                property.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class RunInsertAsBatchMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void CallsDialect()
+            {
+                Dialect.SetupGet(d => d.RunIdentityInsertAsBatch).Returns(true).Verifiable();
+                var result = Generator.Object.RunInsertAsBatch();
+                Assert.IsTrue(result);
+                Dialect.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class BuildSelectColumnsMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void GeneratesSql()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                var properties = new List<IPropertyMap>
+                                     {
+                                         property1.Object,
+                                         property2.Object
+                                     };
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, true)).Returns("Column1").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, true)).Returns("Column2").Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var result = Generator.Object.BuildSelectColumns(ClassMap.Object);
+                Assert.AreEqual("Column1, Column2", result);
+                ClassMap.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void DoesNotIncludeIgnoredColumns()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.SetupGet(p => p.Ignored).Returns(true).Verifiable();
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                var properties = new List<IPropertyMap>
+                                     {
+                                         property1.Object,
+                                         property2.Object
+                                     };
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, true)).Returns("Column2").Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var result = Generator.Object.BuildSelectColumns(ClassMap.Object);
+                Assert.AreEqual("Column2", result);
+                ClassMap.Verify();
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property1.Object, true), Times.Never());
+                property1.Verify();
+            }
+        }
+
+        [TestFixture]
+        public class BuildWhereMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void GeneratesSql()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.SetupGet(p => p.Name).Returns("Name1").Verifiable();
+                property1.SetupGet(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.SetupGet(p => p.Name).Returns("Name2").Verifiable();
+                property2.SetupGet(p => p.KeyType).Returns(KeyType.Guid).Verifiable();
+                Mock<IPropertyMap> property3 = new Mock<IPropertyMap>();
+                property3.SetupGet(p => p.Name).Returns("Name3").Verifiable();
+                property3.SetupGet(p => p.KeyType).Returns(KeyType.Assigned).Verifiable();
+                var properties = new List<IPropertyMap>
+                                     {
+                                         property1.Object,
+                                         property2.Object,
+                                         property3.Object
+                                     };
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, false)).Returns("Column1").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, false)).Returns("Column2").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property3.Object, false)).Returns("Column3").Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var result = Generator.Object.BuildWhere(ClassMap.Object);
+                Assert.AreEqual("Column1 = @Name1 AND Column2 = @Name2 AND Column3 = @Name3", result);
+                ClassMap.Verify();
+                Generator.Verify();
+                property1.Verify();
+                property2.Verify();
+                property3.Verify();
+            }
+
+            [Test]
+            public void DoesNotIncludeNonKeyProperties()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.SetupGet(p => p.Name).Returns("Name1").Verifiable();
+                property1.SetupGet(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.SetupGet(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                var properties = new List<IPropertyMap>
+                                     {
+                                         property1.Object,
+                                         property2.Object
+                                     };
+
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, property1.Object, false)).Returns("Column1").Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+
+                var result = Generator.Object.BuildWhere(ClassMap.Object);
+                Assert.AreEqual("Column1 = @Name1", result);
+                ClassMap.Verify();
+                Generator.Verify();
+                Generator.Verify(g => g.GetColumnName(ClassMap.Object, property2.Object, false), Times.Never());
+                property1.Verify();
+                property2.Verify();
+                property2.Verify(p => p.Name, Times.Never());
             }
         }
     }
