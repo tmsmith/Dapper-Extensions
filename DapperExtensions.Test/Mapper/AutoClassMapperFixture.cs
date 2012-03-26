@@ -10,6 +10,7 @@ namespace DapperExtensions.Test.Mapper
     [TestFixture]
     public class AutoClassMapperFixture
     {
+        [TestFixture]
         public class AutoClassMapperTableName
         {
             [Test]
@@ -33,6 +34,7 @@ namespace DapperExtensions.Test.Mapper
             }
         }
 
+        [TestFixture]
         public class CustomAutoMapperTableName
         {
             [Test]

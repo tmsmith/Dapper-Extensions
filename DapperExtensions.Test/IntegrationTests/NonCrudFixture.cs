@@ -11,6 +11,7 @@ namespace DapperExtensions.Test.IntegrationTests
     [TestFixture]
     public class NonCrudFixture
     {
+        [TestFixture]
         public class GetNextGuidMethod
         {
             [Test]
@@ -26,6 +27,7 @@ namespace DapperExtensions.Test.IntegrationTests
             }
         }
 
+        [TestFixture]
         public class GetMapMethod
         {
             [Test]

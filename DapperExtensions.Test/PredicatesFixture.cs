@@ -8,6 +8,7 @@ namespace DapperExtensions.Test
     [TestFixture]
     public class PredicatesFixture
     {
+        [TestFixture]
         public class PredicatesTests
         {
             [Test]
@@ -80,6 +81,7 @@ namespace DapperExtensions.Test
             }
         }
 
+        [TestFixture]
         public class FieldPredicateTests
         {
             [Test]
@@ -412,6 +414,7 @@ namespace DapperExtensions.Test
             }
         }
 
+        [TestFixture]
         public class GroupPredicateTests
         {
             [Test]
@@ -460,6 +463,7 @@ namespace DapperExtensions.Test
             }
         }
 
+        [TestFixture]
         public class PropertyPredicateTests
         {
             [Test]
@@ -633,6 +637,7 @@ namespace DapperExtensions.Test
             }
         }
 
+        [TestFixture]
         public class ExistsPredicateTests
         {
             [Test]
@@ -681,6 +686,7 @@ namespace DapperExtensions.Test
             }
         }
 
+        [TestFixture]
         public class BetweenPredicateTests
         {
             [Test]

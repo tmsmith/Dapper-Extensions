@@ -11,6 +11,7 @@ namespace DapperExtensions.Test.Mapper
     [TestFixture]
     public class ClassMapperFixture
     {
+        [TestFixture]
         public class AutoMapIdTests
         {
             [Test]

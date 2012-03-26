@@ -9,6 +9,7 @@ namespace DapperExtensions.Test.IntegrationTests
     [TestFixture]
     public class CrudFixture
     {
+        [TestFixture]
         public class InsertMethod : IntegrationBaseFixture
         {
             [Test]
@@ -66,6 +67,7 @@ namespace DapperExtensions.Test.IntegrationTests
             }
         }
 
+        [TestFixture]
         public class GetMethod : IntegrationBaseFixture
         {
             [Test]
@@ -105,6 +107,7 @@ namespace DapperExtensions.Test.IntegrationTests
             }
         }
 
+        [TestFixture]
         public class DeleteMethod : IntegrationBaseFixture
         {
             [Test]
@@ -167,6 +170,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
         }
 
+        [TestFixture]
         public class UpdateMethod : IntegrationBaseFixture
         {
             [Test]
@@ -217,6 +221,7 @@ namespace DapperExtensions.Test.IntegrationTests
             }
         }
 
+        [TestFixture]
         public class GetListMethod : IntegrationBaseFixture
         {
             [Test]
@@ -252,6 +257,7 @@ namespace DapperExtensions.Test.IntegrationTests
                             }
         }
 
+        [TestFixture]
         public class GetPageMethod : IntegrationBaseFixture
         {
             [Test]
@@ -324,6 +330,7 @@ namespace DapperExtensions.Test.IntegrationTests
             }
         }
 
+        [TestFixture]
         public class CountMethod : IntegrationBaseFixture
         {
             [Test]
