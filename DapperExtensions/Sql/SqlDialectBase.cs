@@ -33,7 +33,7 @@ namespace DapperExtensions.Sql
 
         public virtual string BatchSeperator
         {
-            get { return Environment.NewLine + ";"; }
+            get { return ";" + Environment.NewLine; }
         }
 
         public virtual bool RunIdentityInsertAsBatch
@@ -45,7 +45,7 @@ namespace DapperExtensions.Sql
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
-                throw new ArgumentNullException(tableName, "tableName cannot be null or empty.");
+                throw new ArgumentNullException("TableName", "tableName cannot be null or empty.");
             }
 
             StringBuilder result = new StringBuilder();
@@ -67,7 +67,7 @@ namespace DapperExtensions.Sql
         {
             if (string.IsNullOrWhiteSpace(columnName))
             {
-                throw new ArgumentNullException(columnName, "columnName cannot be null or empty.");
+                throw new ArgumentNullException("ColumnName", "columnName cannot be null or empty.");
             }
 
             StringBuilder result = new StringBuilder();

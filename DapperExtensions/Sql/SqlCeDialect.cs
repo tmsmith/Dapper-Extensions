@@ -24,6 +24,11 @@ namespace DapperExtensions.Sql
 
         public override string GetTableName(string schemaName, string tableName, string alias)
         {
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentNullException("TableName");
+            }
+
             StringBuilder result = new StringBuilder();
             result.Append(OpenQuote);
             if (!string.IsNullOrWhiteSpace(schemaName))
