@@ -21,7 +21,7 @@
 			* Add Automap Identity support for byte, sbyte, short, ushort, int, uint, long, ulong, BigInteger (including Nullable).
 		1.3.2
 			* Increased speed of Inserts
-			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended
+			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended. SqlCe and SqlServer were working differently
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
