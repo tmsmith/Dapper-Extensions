@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Car.cs" />
     <Compile Include="Helpers\Protected.cs" />
     <Compile Include="IntegrationTests\CrudFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Data\Person.cs" />
     <Compile Include="IntegrationTests\IntegrationBaseFixture.cs" />
     <Compile Include="IntegrationTests\NonCrudFixture.cs" />
+    <Compile Include="IntegrationTests\TimerFixture.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
@@ -116,6 +118,15 @@
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateMultikeyTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateCarTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateCarTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

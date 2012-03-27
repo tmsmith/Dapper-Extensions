@@ -66,13 +66,7 @@ namespace DapperExtensions.Test.IntegrationTests
                        {
                            Connection = connection,
                            Dialect = new SqlServerDialect(),
-                           SetupFiles = new List<string>
-                                            {
-                                                ReadScriptFile("SqlServer.CreateAnimalTable"),
-                                                ReadScriptFile("SqlServer.CreateFooTable"),
-                                                ReadScriptFile("SqlServer.CreateMultikeyTable"),
-                                                ReadScriptFile("SqlServer.CreatePersonTable")
-                                            }
+                           SetupFiles = GetSetupFiles("SqlServer")
                        };
         }
 
@@ -100,13 +94,7 @@ namespace DapperExtensions.Test.IntegrationTests
                        {
                            Connection = connection,
                            Dialect = new SqlCeDialect(),
-                           SetupFiles = new List<string>
-                                            {
-                                                ReadScriptFile("SqlCe.CreateAnimalTable"),
-                                                ReadScriptFile("SqlCe.CreateFooTable"),
-                                                ReadScriptFile("SqlCe.CreateMultikeyTable"),
-                                                ReadScriptFile("SqlCe.CreatePersonTable")
-                                            }
+                           SetupFiles = GetSetupFiles("SqlCe")
                        };
         }
 
@@ -118,13 +106,19 @@ namespace DapperExtensions.Test.IntegrationTests
                        {
                            Connection = connection,
                            Dialect = new MySqlDialect(),
-                           SetupFiles = new List<string>
-                                            {
-                                                ReadScriptFile("MySql.CreateAnimalTable"),
-                                                ReadScriptFile("MySql.CreateFooTable"),
-                                                ReadScriptFile("MySql.CreateMultikeyTable"),
-                                                ReadScriptFile("MySql.CreatePersonTable")
-                                            }
+                           SetupFiles = GetSetupFiles("MySql")
+                       };
+        }
+
+        protected List<string> GetSetupFiles(string prefix)
+        {
+            return new List<string>()
+                       {
+                           ReadScriptFile(prefix + ".CreateAnimalTable"),
+                           ReadScriptFile(prefix + ".CreateFooTable"),
+                           ReadScriptFile(prefix + ".CreateMultikeyTable"),
+                           ReadScriptFile(prefix + ".CreatePersonTable"),
+                           ReadScriptFile(prefix + ".CreateCarTable")
                        };
         }
 
