@@ -23,6 +23,7 @@
 			* Increased speed of Inserts
 			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended. SqlCe and SqlServer were working differently.
 			* Added ability to search other assemlies for mappings if not found in same assembly as poco class.
+			* Added ability to add a global property ignore using a callback on AutoMap
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
