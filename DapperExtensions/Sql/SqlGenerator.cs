@@ -8,6 +8,8 @@ namespace DapperExtensions.Sql
 {
     public interface ISqlGenerator
     {
+        ISqlDialect Dialect { get; }
+
         string Get(IClassMapper classMap);
         string Insert(IClassMapper classMap, bool returnIdentity);
         string Update(IClassMapper classMap);

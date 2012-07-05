@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Dapper;
 using DapperExtensions.Sql;
@@ -16,10 +17,10 @@ namespace DapperExtensions
         private readonly static object _lock = new object();
 
         private static Type _defaultMapper;
-        private static Func<Type, ISqlGenerator, IDapperExtensionsImpl> _instanceFactory;
+        private static Func<Type, ISqlGenerator, IList<Assembly>, IDapperExtensionsImpl> _instanceFactory;
         private static IDapperExtensionsImpl _instance;
-        private static ISqlDialect _sqlDialect;
         private static ISqlGenerator _sqlGenerator;
+        private static IList<Assembly> _mappingAssemblies;
         
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
@@ -45,13 +46,12 @@ namespace DapperExtensions
         {
             get
             {
-                return _sqlDialect;
+                return _sqlGenerator.Dialect;
             }
 
             set
             {
                 _instance = null;
-                _sqlDialect = value;
                 _sqlGenerator = new SqlGeneratorImpl(value);
             }
         }
@@ -63,17 +63,17 @@ namespace DapperExtensions
         {
             get { return _sqlGenerator; }
         }
-
+        
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>
-        public static Func<Type, ISqlGenerator, IDapperExtensionsImpl> InstanceFactory
+        public static Func<Type, ISqlGenerator, IList<Assembly>, IDapperExtensionsImpl> InstanceFactory
         {
             get
             {
                 if (_instanceFactory == null)
                 {
-                    _instanceFactory = (dm, sg) => new DapperExtensionsImpl(dm, sg);
+                    _instanceFactory = (dm, sg, ma) => new DapperExtensionsImpl(dm, sg, ma);
                 }
 
                 return _instanceFactory;
@@ -98,7 +98,7 @@ namespace DapperExtensions
                     {
                         if (_instance == null)
                         {
-                            _instance = InstanceFactory(DefaultMapper, _sqlGenerator);
+                            _instance = InstanceFactory(DefaultMapper, _sqlGenerator, _mappingAssemblies);
                         }
                     }
                 }
@@ -111,7 +111,26 @@ namespace DapperExtensions
         {
             DefaultMapper = typeof(AutoClassMapper<>);
             SqlDialect = new SqlServerDialect();
+            _mappingAssemblies = new List<Assembly>();
         }
+
+        public static void SetMappingAssemblies(IList<Assembly> assemblies)
+        {
+            _mappingAssemblies = assemblies;
+            _instance = null;
+        }
+
+        //public static void AddMappingAssembly(Assembly assembly)
+        //{
+        //    _instance = null;
+        //    _mappingAssemblies.Add(assembly);
+        //}
+
+        //public static void RemoveMappingAssembly(Assembly assembly)
+        //{
+        //    _instance = null;
+        //    _mappingAssemblies.Remove(assembly);
+        //}
 
         /// <summary>
         /// Executes a query for the specified id, returning the data typed as per T
@@ -236,13 +255,15 @@ namespace DapperExtensions
         {
             private readonly Type _defaultMapper;
             private readonly ISqlGenerator _sqlGenerator;
+            private readonly IList<Assembly> _mappingAssemblies;
             private readonly List<Type> _simpleTypes;
             private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
-
-            public DapperExtensionsImpl(Type defaultMapper, ISqlGenerator sqlGenerator)
+            
+            public DapperExtensionsImpl(Type defaultMapper, ISqlGenerator sqlGenerator, IList<Assembly> mappingAssemblies)
             {
                 _defaultMapper = defaultMapper;
                 _sqlGenerator = sqlGenerator;
+                _mappingAssemblies = mappingAssemblies ?? new List<Assembly>();
                 _simpleTypes = new List<Type>
                                {
                                    typeof(byte),
@@ -445,12 +466,7 @@ namespace DapperExtensions
                 IClassMapper map;
                 if (!_classMaps.TryGetValue(entityType, out map))
                 {
-                    Type[] types = entityType.Assembly.GetTypes();
-                    Type mapType = (from type in types
-                                    let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
-                                    where interfaceType != null && interfaceType.GetGenericArguments()[0] == entityType
-                                    select type).SingleOrDefault();
-
+                    Type mapType = GetMapType(entityType);
                     if (mapType == null)
                     {
                         mapType = _defaultMapper.MakeGenericType(typeof(T));
@@ -482,6 +498,37 @@ namespace DapperExtensions
                 Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
                 Array.Copy(bytes2, bytes2.Length - 4, b, b.Length - 4, 4);
                 return new Guid(b);
+            }
+
+            protected virtual Type GetMapType(Type entityType)
+            {
+                Func<Assembly, Type> getType = a =>
+                                                   {
+                                                       Type[] types = a.GetTypes();
+                                                       return (from type in types
+                                                               let interfaceType = type.GetInterface(typeof (IClassMapper<>).FullName)
+                                                               where
+                                                                   interfaceType != null &&
+                                                                   interfaceType.GetGenericArguments()[0] == entityType
+                                                               select type).SingleOrDefault();
+                                                   };
+
+                Type result = getType(entityType.Assembly);
+                if (result != null)
+                {
+                    return result;
+                }
+
+                foreach (var mappingAssembly in _mappingAssemblies)
+                {
+                    result = getType(mappingAssembly);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+
+                return getType(entityType.Assembly);
             }
 
             private bool IsSimpleType(Type type)

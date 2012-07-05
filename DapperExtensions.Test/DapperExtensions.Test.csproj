@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.8\lib\net40\Dapper.dll</HintPath>
+    <Reference Include="Dapper, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.10\lib\net40\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
@@ -92,6 +93,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj">
+      <Project>{DAFAEFFC-0E56-4FA5-923C-DE47E91B51D8}</Project>
+      <Name>DapperExtensions.Test.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj">
+      <Project>{87220EF9-8EE4-4EB0-829C-31C51BD7B750}</Project>
+      <Name>DapperExtensions.Test.Maps</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj">
       <Project>{4C1A2C6C-A469-4C87-98D1-F1D517FA1ACF}</Project>
       <Name>DapperExtensions</Name>
