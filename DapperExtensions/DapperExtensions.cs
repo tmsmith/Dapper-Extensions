@@ -114,23 +114,15 @@ namespace DapperExtensions
             _mappingAssemblies = new List<Assembly>();
         }
 
+        /// <summary>
+        /// Add other assemblies that Dapper Extensions will search if a mapping is not found in the same assembly of the POCO.
+        /// </summary>
+        /// <param name="assemblies"></param>
         public static void SetMappingAssemblies(IList<Assembly> assemblies)
         {
             _mappingAssemblies = assemblies;
             _instance = null;
         }
-
-        //public static void AddMappingAssembly(Assembly assembly)
-        //{
-        //    _instance = null;
-        //    _mappingAssemblies.Add(assembly);
-        //}
-
-        //public static void RemoveMappingAssembly(Assembly assembly)
-        //{
-        //    _instance = null;
-        //    _mappingAssemblies.Remove(assembly);
-        //}
 
         /// <summary>
         /// Executes a query for the specified id, returning the data typed as per T
@@ -256,7 +248,6 @@ namespace DapperExtensions
             private readonly Type _defaultMapper;
             private readonly ISqlGenerator _sqlGenerator;
             private readonly IList<Assembly> _mappingAssemblies;
-            private readonly List<Type> _simpleTypes;
             private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
             
             public DapperExtensionsImpl(Type defaultMapper, ISqlGenerator sqlGenerator, IList<Assembly> mappingAssemblies)
@@ -264,34 +255,13 @@ namespace DapperExtensions
                 _defaultMapper = defaultMapper;
                 _sqlGenerator = sqlGenerator;
                 _mappingAssemblies = mappingAssemblies ?? new List<Assembly>();
-                _simpleTypes = new List<Type>
-                               {
-                                   typeof(byte),
-                                   typeof(sbyte),
-                                   typeof(short),
-                                   typeof(ushort),
-                                   typeof(int),
-                                   typeof(uint),
-                                   typeof(long),
-                                   typeof(ulong),
-                                   typeof(float),
-                                   typeof(double),
-                                   typeof(decimal),
-                                   typeof(bool),
-                                   typeof(string),
-                                   typeof(char),
-                                   typeof(Guid),
-                                   typeof(DateTime),
-                                   typeof(DateTimeOffset),
-                                   typeof(byte[])
-                               };
             }
 
             public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
             {
                 IClassMapper classMap = GetMap<T>();
                 string sql = _sqlGenerator.Get(classMap);
-                bool isSimpleType = IsSimpleType(id.GetType());
+                bool isSimpleType = ReflectionHelper.IsSimpleType(id.GetType());
                 IDictionary<string, object> paramValues = null;
                 if (!isSimpleType)
                 {
@@ -529,17 +499,6 @@ namespace DapperExtensions
                 }
 
                 return getType(entityType.Assembly);
-            }
-
-            private bool IsSimpleType(Type type)
-            {
-                Type actualType = type;
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    actualType = type.GetGenericArguments()[0];
-                }
-
-                return _simpleTypes.Contains(actualType);
             }
         }
     }

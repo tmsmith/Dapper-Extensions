@@ -74,11 +74,21 @@ namespace DapperExtensions.Mapper
 
         protected virtual void AutoMap()
         {
+            AutoMap(null);
+        }
+
+        protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
+        {
             Type type = typeof(T);
             bool keyFound = Properties.Any(p => p.KeyType != KeyType.NotAKey);
             foreach (var propertyInfo in type.GetProperties())
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    continue;
+                }
+
+                if ((canMap != null && !canMap(type, propertyInfo)))
                 {
                     continue;
                 }
@@ -92,7 +102,7 @@ namespace DapperExtensions.Mapper
                                 : KeyType.Assigned);
                     keyFound = true;
                 }
-            }
+            }            
         }
 
         /// <summary>

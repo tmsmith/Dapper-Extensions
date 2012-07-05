@@ -9,6 +9,28 @@ namespace DapperExtensions
 {
     internal static class ReflectionHelper
     {
+        private static List<Type> _simpleTypes = new List<Type>
+                               {
+                                   typeof(byte),
+                                   typeof(sbyte),
+                                   typeof(short),
+                                   typeof(ushort),
+                                   typeof(int),
+                                   typeof(uint),
+                                   typeof(long),
+                                   typeof(ulong),
+                                   typeof(float),
+                                   typeof(double),
+                                   typeof(decimal),
+                                   typeof(bool),
+                                   typeof(string),
+                                   typeof(char),
+                                   typeof(Guid),
+                                   typeof(DateTime),
+                                   typeof(DateTimeOffset),
+                                   typeof(byte[])
+                               };
+        
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;
@@ -62,6 +84,17 @@ namespace DapperExtensions
                 new StringBuilder(),
                 (sb, s) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(s),
                 sb => sb.ToString());
+        }
+
+        public static bool IsSimpleType(Type type)
+        {
+            Type actualType = type;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                actualType = type.GetGenericArguments()[0];
+            }
+
+            return _simpleTypes.Contains(actualType);
         }
 
     }

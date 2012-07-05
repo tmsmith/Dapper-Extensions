@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Reflection;
 using DapperExtensions.Mapper;
 using DapperExtensions.Test.Helpers;
 using Moq;
@@ -246,6 +247,15 @@ namespace DapperExtensions.Test.Mapper
                 mapper.Map(m => m.List).Ignore();
                 mapper.Protected().RunMethod("AutoMap");
                 Assert.AreEqual(2, mapper.Properties.Count);
+            }
+
+            [Test]
+            public void DoesNotMapPropertyWhenCanMapIsFalse()
+            {
+                var mapper = new TestMapper<Foo>();
+                Func<Type, PropertyInfo, bool> canMap = (t, p) => ReflectionHelper.IsSimpleType(p.PropertyType);
+                mapper.Protected().RunMethod("AutoMap", canMap);
+                Assert.AreEqual(1, mapper.Properties.Count);                
             }
         }
 
