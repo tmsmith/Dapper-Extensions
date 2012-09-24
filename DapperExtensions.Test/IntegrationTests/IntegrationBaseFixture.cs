@@ -23,7 +23,7 @@ namespace DapperExtensions.Test.IntegrationTests
         {
             Databases.Add(GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
             Databases.Add(GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
-            //Databases.Add(GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=acsdev123!"));
+            //Databases.Add(GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!"));
 
             foreach (var database in Databases)
             {
