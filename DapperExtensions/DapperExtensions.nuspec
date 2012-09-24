@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -24,6 +24,10 @@
 			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended. SqlCe and SqlServer were working differently.
 			* Added ability to search other assemlies for mappings if not found in same assembly as poco class.
 			* Added ability to add a global property ignore using a callback on AutoMap
+		1.3.3
+			* SqlServerDialect now uses SCOPE_IDENTITY instead of IDENT_CURRENT.
+			* PluralizedAutoClassMapper correctly handles words containing an F or FE
+			* ***BREAKNG CHANGE*** Now sets "Id" property as Key if it exists before searching for a property ending in "Id"
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>

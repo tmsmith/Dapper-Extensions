@@ -19,7 +19,7 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return string.Format("SELECT CAST(IDENT_CURRENT('{0}') AS INT) AS [Id]", tableName);
+            return string.Format("SELECT CAST(SCOPE_IDENTITY()  AS INT) AS [Id]");
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)

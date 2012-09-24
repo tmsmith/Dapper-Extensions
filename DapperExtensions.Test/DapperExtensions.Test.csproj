@@ -119,20 +119,20 @@
     <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateFooTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateMultikeyTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateMultikeyTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateCarTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />

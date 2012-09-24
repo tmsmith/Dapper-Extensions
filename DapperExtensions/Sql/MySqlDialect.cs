@@ -19,7 +19,7 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return "SELECT LAST_INSERT_ID()";
+            return "SELECT LAST_INSERT_ID() AS Id";
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)

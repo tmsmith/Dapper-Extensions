@@ -28,6 +28,30 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual("Barz", m.TableName);
             }
 
+            [Test]
+            public void Sets_IdPropertyToKeyWhenFirstProperty()
+            {
+                AutoClassMapper<IdIsFirst> m = GetMapper<IdIsFirst>();
+                var map = m.Properties.Single(p => p.KeyType == KeyType.Guid);
+                Assert.IsTrue(map.ColumnName == "Id");
+            }
+
+            [Test]
+            public void Sets_IdPropertyToKeyWhenFoundInClass()
+            {
+                AutoClassMapper<IdIsSecond> m = GetMapper<IdIsSecond>();
+                var map = m.Properties.Single(p => p.KeyType == KeyType.Guid);
+                Assert.IsTrue(map.ColumnName == "Id");
+            }
+
+            [Test]
+            public void Sets_IdFirstPropertyEndingInIdWhenNoIdPropertyFound()
+            {
+                AutoClassMapper<IdDoesNotExist> m = GetMapper<IdDoesNotExist>();
+                var map = m.Properties.Single(p => p.KeyType == KeyType.Guid);
+                Assert.IsTrue(map.ColumnName == "SomeId");
+            }
+            
             private AutoClassMapper<T> GetMapper<T>() where T : class
             {
                 return new AutoClassMapper<T>();
@@ -74,10 +98,33 @@ namespace DapperExtensions.Test.Mapper
 
         private class Foo
         {
+            public Guid Id { get; set; }
+            public Guid ParentId { get; set; }
         }
 
         private class Foo2
         {
+            public Guid ParentId { get; set; }
+            public Guid Id { get; set; }
+        }
+
+
+        private class IdIsFirst
+        {
+            public Guid Id { get; set; }
+            public Guid ParentId { get; set; }
+        }
+
+        private class IdIsSecond
+        {
+            public Guid ParentId { get; set; }
+            public Guid Id { get; set; }
+        }
+
+        private class IdDoesNotExist
+        {
+            public Guid SomeId { get; set; }
+            public Guid ParentId { get; set; }
         }
     }
 }

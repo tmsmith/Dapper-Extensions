@@ -80,7 +80,8 @@ namespace DapperExtensions.Mapper
         protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
         {
             Type type = typeof(T);
-            bool keyFound = Properties.Any(p => p.KeyType != KeyType.NotAKey);
+            bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
+            PropertyMap keyMap = null;
             foreach (var propertyInfo in type.GetProperties())
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
@@ -94,15 +95,26 @@ namespace DapperExtensions.Mapper
                 }
 
                 PropertyMap map = Map(propertyInfo);
-
-                if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                if (!hasDefinedKey)
                 {
-                    map.Key(_propertyTypeKeyTypeMapping.ContainsKey(map.PropertyInfo.PropertyType)
-                                ? _propertyTypeKeyTypeMapping[map.PropertyInfo.PropertyType]
-                                : KeyType.Assigned);
-                    keyFound = true;
+                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        keyMap = map;
+                    }
+
+                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                    {
+                        keyMap = map;
+                    }
                 }
-            }            
+            }
+
+            if (keyMap != null)
+            {
+                keyMap.Key(_propertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
+                    ? _propertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+                    : KeyType.Assigned);
+            }
         }
 
         /// <summary>
