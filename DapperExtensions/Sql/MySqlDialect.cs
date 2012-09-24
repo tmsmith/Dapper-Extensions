@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace DapperExtensions.Sql
 {
+    [Obsolete("Not ready from primetime - use at your own risk", false)]
     public class MySqlDialect : SqlDialectBase
     {
         public override char OpenQuote
