@@ -4,8 +4,7 @@ using System.Linq;
 
 namespace DapperExtensions.Sql
 {
-    [Obsolete("Not ready from primetime - use at your own risk", false)]
-    internal class MySqlDialect : SqlDialectBase
+    public class MySqlDialect : SqlDialectBase
     {
         public override char OpenQuote
         {
@@ -19,7 +18,7 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return "SELECT LAST_INSERT_ID()";
+            return "SELECT LAST_INSERT_ID() AS Id";
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
