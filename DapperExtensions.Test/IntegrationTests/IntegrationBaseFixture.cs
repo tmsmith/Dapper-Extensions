@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SQLite;
 using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 using System.IO;
@@ -23,8 +24,9 @@ namespace DapperExtensions.Test.IntegrationTests
         {
             Databases.Add(GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
             Databases.Add(GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
+            //Databases.Add(GetSqliteConnecton("Data Source=.\\dapperTest.sqlite"));
             //Databases.Add(GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!"));
-
+            
             foreach (var database in Databases)
             {
                 foreach (var setupFile in database.SetupFiles)
@@ -107,6 +109,29 @@ namespace DapperExtensions.Test.IntegrationTests
                            Connection = connection,
                            Dialect = new MySqlDialect(),
                            SetupFiles = GetSetupFiles("MySql")
+                       };
+        }
+
+        protected virtual Database GetSqliteConnecton(string connectionString)
+        {
+            string[] connectionParts = connectionString.Split(';');
+            string file = connectionParts
+                .ToDictionary(k => k.Split('=')[0], v => v.Split('=')[1])
+                .Where(d => d.Key.Equals("Data Source", StringComparison.OrdinalIgnoreCase))
+                .Select(k => k.Value).Single();
+
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
+
+            SQLiteConnection connection = new SQLiteConnection(connectionString);
+            connection.Open();
+            return new Database
+                       {
+                           Connection = connection,
+                           Dialect = new SqliteDialect(),
+                           SetupFiles = GetSetupFiles("Sqlite")
                        };
         }
 

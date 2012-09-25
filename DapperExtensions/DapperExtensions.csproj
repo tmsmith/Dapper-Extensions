@@ -53,6 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlCeDialect.cs" />
     <Compile Include="Sql\SqlDialectBase.cs" />
     <Compile Include="Sql\SqlGenerator.cs" />

@@ -54,6 +54,13 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\SqlServerCompact.4.0.8482.1\lib\System.Data.SqlServerCe.dll</HintPath>
@@ -136,6 +143,19 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateAnimalTable.sql" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

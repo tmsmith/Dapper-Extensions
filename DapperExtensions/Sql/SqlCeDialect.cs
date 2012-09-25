@@ -49,7 +49,7 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return "SELECT CAST(@@IDENTITY AS INT) AS [Id]";
+            return "SELECT CAST(@@IDENTITY AS BIGINT) AS [Id]";
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)

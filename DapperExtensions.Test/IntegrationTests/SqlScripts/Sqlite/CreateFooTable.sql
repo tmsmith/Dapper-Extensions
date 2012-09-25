@@ -1,0 +1,6 @@
+﻿CREATE TABLE FooTable (
+    FooId INTEGER PRIMARY KEY AUTOINCREMENT,
+    [First] NVARCHAR(50),
+    [Last] NVARCHAR(50),
+    BirthDate DATETIME
+)

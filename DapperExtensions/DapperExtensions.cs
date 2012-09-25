@@ -326,21 +326,22 @@ namespace DapperExtensions
                 string sql = _sqlGenerator.Insert(classMap, true);
                 if (identityColumn != null)
                 {
-                    IEnumerable<int> result;
+                    IEnumerable<long> result;
                     if (_sqlGenerator.RunInsertAsBatch())
                     {
-                        result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                        result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                     }
                     else
                     {
                         connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                         sql = _sqlGenerator.IdentitySql(classMap);
-                        result = connection.Query<int>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                        result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                     }
 
-                    int identityValue = result.First();
-                    keyValues.Add(identityColumn.Name, identityValue);
-                    identityColumn.PropertyInfo.SetValue(entity, identityValue, null);
+                    long identityValue = result.First();
+                    int identityInt = Convert.ToInt32(identityValue);
+                    keyValues.Add(identityColumn.Name, identityInt);
+                    identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
                 }
                 else
                 {

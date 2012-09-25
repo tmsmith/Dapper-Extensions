@@ -103,5 +103,10 @@ namespace DapperExtensions.Sql
         {
             return IsQuoted(value) ? value : string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
         }
+
+        public virtual string UnQuoteString(string value)
+        {
+            return IsQuoted(value) ? value.Substring(1, value.Length - 2) : value;
+        }
     }
 }

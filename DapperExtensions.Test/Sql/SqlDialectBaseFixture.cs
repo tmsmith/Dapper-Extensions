@@ -84,6 +84,34 @@ namespace DapperExtensions.Test.Sql
         }
 
         [TestFixture]
+        public class UnQuoteStringMethod : SqlDialectBaseFixtureBase
+        {
+            [Test]
+            public void WithNoQuotes_AddsQuotes()
+            {
+                Assert.AreEqual("foo", Dialect.UnQuoteString("foo"));
+            }
+
+            [Test]
+            public void WithStartQuote_AddsQuotes()
+            {
+                Assert.AreEqual("\"foo", Dialect.UnQuoteString("\"foo"));
+            }
+
+            [Test]
+            public void WithCloseQuote_AddsQuotes()
+            {
+                Assert.AreEqual("foo\"", Dialect.UnQuoteString("foo\""));
+            }
+
+            [Test]
+            public void WithBothQuote_DoesNotAddQuotes()
+            {
+                Assert.AreEqual("foo", Dialect.UnQuoteString("\"foo\""));
+            }
+        }
+
+        [TestFixture]
         public class GetTableNameMethod : SqlDialectBaseFixtureBase
         {
             [Test]
