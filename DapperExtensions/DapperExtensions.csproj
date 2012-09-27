@@ -55,6 +55,7 @@
     <Compile Include="Sql\SqlDialectBase.cs" />
     <Compile Include="Sql\SqlGenerator.cs" />
     <Compile Include="Sql\MySqlDialect.cs" />
+    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>

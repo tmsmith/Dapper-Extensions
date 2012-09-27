@@ -70,7 +70,10 @@ namespace DapperExtensions.Mapper
 
                 if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                 {
-                    if (map.PropertyInfo.PropertyType == typeof(int) || map.PropertyInfo.PropertyType == typeof(int?))
+                    if (map.PropertyInfo.PropertyType == typeof(int) || 
+                        map.PropertyInfo.PropertyType == typeof(int?) || 
+                        map.PropertyInfo.PropertyType == typeof(long) || // SQLite stores all integers as Int64, IDs must follow suit
+                        map.PropertyInfo.PropertyType == typeof(long?))
                     {
                         map.Key(KeyType.Identity);
                     }

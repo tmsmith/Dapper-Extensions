@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlServerCe;
+using System.Data.SQLite;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using DapperExtensions.Sql;
 
@@ -12,13 +10,13 @@ namespace DapperExtensions.Test.Helpers
     {
         public static SqlGeneratorImpl GetGenerator()
         {
-            return new SqlGeneratorImpl(new SqlCeDialect());
+            return new SqlGeneratorImpl(new SqliteDialect());
         }
 
-        public static SqlCeConnection GetConnection(string databaseName)
+        public static SQLiteConnection GetConnection(string databaseName)
         {
-            string connectionString = "Data Source=" + databaseName;
-            SqlCeConnection connection = new SqlCeConnection(connectionString);
+            var connectionString = "Data Source=" + databaseName;
+            var connection = new SQLiteConnection(connectionString);
             connection.Open();
             return connection;
         }
@@ -29,31 +27,27 @@ namespace DapperExtensions.Test.Helpers
             {
                 File.Delete(databaseName);
             }
-
-            string connectionString = "Data Source=" + databaseName;
-            using (SqlCeEngine ce = new SqlCeEngine(connectionString))
+            
+            SQLiteConnection.CreateFile(databaseName);
+            
+            using (var connection = GetConnection(databaseName))
             {
-                ce.CreateDatabase();
-            }
-
-            using (SqlCeConnection connection = GetConnection(databaseName))
-            {
-                using (SqlCeCommand cmd = new SqlCeCommand(ReadScriptFile("CreatePersonTable"), connection))
+                using (var cmd = new SQLiteCommand(ReadScriptFile("CreatePersonTable"), connection))
                 {
                     cmd.ExecuteNonQuery();
                 }
 
-                using (SqlCeCommand cmd = new SqlCeCommand(ReadScriptFile("CreateMultikeyTable"), connection))
+                using (var cmd = new SQLiteCommand(ReadScriptFile("CreateMultikeyTable"), connection))
                 {
                     cmd.ExecuteNonQuery();
                 }
 
-                using (SqlCeCommand cmd = new SqlCeCommand(ReadScriptFile("CreateAnimalTable"), connection))
+                using (var cmd = new SQLiteCommand(ReadScriptFile("CreateAnimalTable"), connection))
                 {
                     cmd.ExecuteNonQuery();
                 }
 
-                using (SqlCeCommand cmd = new SqlCeCommand(ReadScriptFile("CreateFooTable"), connection))
+                using (var cmd = new SQLiteCommand(ReadScriptFile("CreateFooTable"), connection))
                 {
                     cmd.ExecuteNonQuery();
                 }
@@ -114,8 +108,9 @@ namespace DapperExtensions.Test.Helpers
 
         public static string ReadScriptFile(string name)
         {
-            using (Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("DapperExtensions.Test.SqlScripts." + name + ".sql"))
-            using (StreamReader sr = new StreamReader(s))
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            using (var s = assembly.GetManifestResourceStream(string.Format("DapperExtensions.Test.SqlScripts.{0}.sql", name)))
+            using (var sr = new StreamReader(s))
             {
                 return sr.ReadToEnd();
             }
