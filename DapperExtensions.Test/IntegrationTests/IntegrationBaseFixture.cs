@@ -21,9 +21,9 @@ namespace DapperExtensions.Test.IntegrationTests
         [SetUp]
         public virtual void Setup()
         {
-            Databases.Add(TestHelpers.GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
-            Databases.Add(TestHelpers.GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
-            //Databases.Add(TestHelpers.GetSqliteConnecton("Data Source=.\\dapperTest.sqlite"));
+            //Databases.Add(TestHelpers.GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
+            //Databases.Add(TestHelpers.GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
+            Databases.Add(TestHelpers.GetSqliteConnecton("Data Source=.\\dapperTest.sqlite"));
             //Databases.Add(TestHelpers.GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!"));
             TestHelpers.LoadDatabases(Databases);
             DapperExtensions.DefaultMapper = typeof(AutoClassMapper<>);
