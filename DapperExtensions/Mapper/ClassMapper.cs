@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -65,7 +64,10 @@ namespace DapperExtensions.Mapper
                 {
                     continue;
                 }
-
+                if (propertyInfo.GetCustomAttributes(typeof(IgnoreAttribute), true).Length > 0)
+                {
+                    continue;
+                }
                 PropertyMap map = Map(propertyInfo);
 
                 if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))

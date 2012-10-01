@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Dapper;
 using DapperExtensions.Sql;
@@ -336,18 +338,19 @@ namespace DapperExtensions
 
                 foreach (var column in classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey))
                 {
+                    var propertyInfo = column.PropertyInfo;
                     if (column.KeyType == KeyType.Identity)
                     {
-                        string identitySql = _sqlGenerator.IdentitySql(classMap);
+                        var identitySql = _sqlGenerator.IdentitySql(classMap);
                         var identityId = connection.Query(identitySql, null, transaction, true, commandTimeout, CommandType.Text);
-                        int id = (int)identityId.First().Id;
-                        keyValues.Add(column.Name, id);
-                        column.PropertyInfo.SetValue(entity, id, null);
+                        var id = propertyInfo.PropertyType == typeof(int) || propertyInfo.PropertyType == typeof(int?) ? (int)identityId.First().Id : (long)identityId.First().Id;
+                        keyValues.Add(column.Name, id);   
+                        propertyInfo.SetValue(entity, id, null);
                     }
 
                     if (column.KeyType == KeyType.Guid || column.KeyType == KeyType.Assigned)
                     {
-                        keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
+                        keyValues.Add(column.Name, propertyInfo.GetValue(entity, null));
                     }
                 }
 
