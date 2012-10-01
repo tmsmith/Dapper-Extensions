@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using NUnit.Framework;
@@ -16,7 +14,7 @@ namespace DapperExtensions.Test.Helpers
         [SetUp]
         public virtual void Setup()
         {
-            string databaseName = "db_" + Guid.NewGuid().ToString() + ".sdf";
+            string databaseName = string.Format("db_{0}.s3db", Guid.NewGuid().ToString());
             TestHelpers.LoadDatabase(databaseName);
             Connection = TestHelpers.GetConnection(databaseName);
             Impl = new DapperExtensions.DapperExtensionsImpl(typeof(AutoClassMapper<>), TestHelpers.GetGenerator());
