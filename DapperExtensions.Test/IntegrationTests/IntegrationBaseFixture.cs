@@ -6,10 +6,9 @@ using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 using System.IO;
 using System.Linq;
-using Dapper;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
-using MySql.Data.MySqlClient;
+using DapperExtensions.Test.Helpers;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests
@@ -22,19 +21,11 @@ namespace DapperExtensions.Test.IntegrationTests
         [SetUp]
         public virtual void Setup()
         {
-            Databases.Add(GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
-            Databases.Add(GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
-            //Databases.Add(GetSqliteConnecton("Data Source=.\\dapperTest.sqlite"));
-            //Databases.Add(GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!"));
-            
-            foreach (var database in Databases)
-            {
-                foreach (var setupFile in database.SetupFiles)
-                {
-                    database.Connection.Execute(setupFile);
-                }
-            }
-
+            Databases.Add(TestHelpers.GetSqlConnection("Data Source=.;Initial Catalog=dapperTest;Integrated security=True;"));
+            Databases.Add(TestHelpers.GetSqlCeConnection("Data Source=.\\dapperTest.sdf"));
+            //Databases.Add(TestHelpers.GetSqliteConnecton("Data Source=.\\dapperTest.sqlite"));
+            //Databases.Add(TestHelpers.GetMySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!"));
+            TestHelpers.LoadDatabases(Databases);
             DapperExtensions.DefaultMapper = typeof(AutoClassMapper<>);
         }
 
@@ -43,8 +34,13 @@ namespace DapperExtensions.Test.IntegrationTests
         {
             foreach (var database in Databases)
             {
+                string databaseName = database.Connection.Database;
                 database.Connection.Close();
                 database.Connection.Dispose();
+                if (database.Dialect.GetType() == typeof(SqlCeDialect) || database.Dialect.GetType() == typeof(SqliteDialect))
+                {
+                    TestHelpers.DeleteDatabase(databaseName);
+                }
             }
 
             Databases.Clear();
@@ -58,109 +54,6 @@ namespace DapperExtensions.Test.IntegrationTests
                 DapperExtensions.SqlDialect = database.Dialect;
                 action(database.Connection);
             }
-        }
-
-        protected virtual Database GetSqlConnection(string connectionString)
-        {
-            var connection = new SqlConnection(connectionString);
-            connection.Open();
-            return new Database
-                       {
-                           Connection = connection,
-                           Dialect = new SqlServerDialect(),
-                           SetupFiles = GetSetupFiles("SqlServer")
-                       };
-        }
-
-        protected virtual Database GetSqlCeConnection(string connectionString)
-        {
-            string[] connectionParts = connectionString.Split(';');
-            string file = connectionParts
-                .ToDictionary(k => k.Split('=')[0], v => v.Split('=')[1])
-                .Where(d => d.Key.Equals("Data Source", StringComparison.OrdinalIgnoreCase))
-                .Select(k => k.Value).Single();
-
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
-
-            using (SqlCeEngine ce = new SqlCeEngine(connectionString))
-            {
-                ce.CreateDatabase();
-            }
-
-            SqlCeConnection connection = new SqlCeConnection(connectionString);
-            connection.Open();
-            return new Database
-                       {
-                           Connection = connection,
-                           Dialect = new SqlCeDialect(),
-                           SetupFiles = GetSetupFiles("SqlCe")
-                       };
-        }
-
-        protected virtual Database GetMySqlConnection(string connectionString)
-        {
-            MySqlConnection connection = new MySqlConnection(connectionString);
-            connection.Open();
-            return new Database
-                       {
-                           Connection = connection,
-                           Dialect = new MySqlDialect(),
-                           SetupFiles = GetSetupFiles("MySql")
-                       };
-        }
-
-        protected virtual Database GetSqliteConnecton(string connectionString)
-        {
-            string[] connectionParts = connectionString.Split(';');
-            string file = connectionParts
-                .ToDictionary(k => k.Split('=')[0], v => v.Split('=')[1])
-                .Where(d => d.Key.Equals("Data Source", StringComparison.OrdinalIgnoreCase))
-                .Select(k => k.Value).Single();
-
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
-
-            SQLiteConnection connection = new SQLiteConnection(connectionString);
-            connection.Open();
-            return new Database
-                       {
-                           Connection = connection,
-                           Dialect = new SqliteDialect(),
-                           SetupFiles = GetSetupFiles("Sqlite")
-                       };
-        }
-
-        protected List<string> GetSetupFiles(string prefix)
-        {
-            return new List<string>()
-                       {
-                           ReadScriptFile(prefix + ".CreateAnimalTable"),
-                           ReadScriptFile(prefix + ".CreateFooTable"),
-                           ReadScriptFile(prefix + ".CreateMultikeyTable"),
-                           ReadScriptFile(prefix + ".CreatePersonTable"),
-                           ReadScriptFile(prefix + ".CreateCarTable")
-                       };
-        }
-
-        protected virtual string ReadScriptFile(string name)
-        {
-            using (Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("DapperExtensions.Test.IntegrationTests.SqlScripts." + name + ".sql"))
-            using (StreamReader sr = new StreamReader(s))
-            {
-                return sr.ReadToEnd();
-            }
-        }
-
-        protected class Database
-        {
-            public IDbConnection Connection { get; set; }
-            public ISqlDialect Dialect { get; set; }
-            public IList<string> SetupFiles { get; set; }
         }
     }
 }

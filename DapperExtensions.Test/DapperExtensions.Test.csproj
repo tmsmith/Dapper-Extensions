@@ -54,8 +54,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="System.Data.SQLite">
       <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.Linq">
@@ -74,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Car.cs" />
+    <Compile Include="Helpers\Database.cs" />
     <Compile Include="Helpers\Protected.cs" />
     <Compile Include="IntegrationTests\CrudFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
@@ -90,6 +90,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="Sql\SqliteDialectFixture.cs" />
     <Compile Include="Sql\SqlCeDialectFixture.cs" />
     <Compile Include="Sql\SqlDialectBaseFixture.cs" />
     <Compile Include="Sql\SqlGeneratorFixture.cs" />
@@ -114,18 +115,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreatePersonTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateMultikeyTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateFooTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateFooTable.sql" />
@@ -142,14 +131,18 @@
     <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateAnimalTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreatePersonTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

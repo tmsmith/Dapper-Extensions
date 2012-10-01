@@ -12,6 +12,8 @@
     <AssemblyName>DapperExtensions</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\basis\src\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,16 +50,17 @@
     <Compile Include="Mapper\AutoClassMapper.cs" />
     <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
+    <Compile Include="Mapper\IgnoreAttribute.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlCeDialect.cs" />
     <Compile Include="Sql\SqlDialectBase.cs" />
     <Compile Include="Sql\SqlGenerator.cs" />
     <Compile Include="Sql\MySqlDialect.cs" />
+    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>

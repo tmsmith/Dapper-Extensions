@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Dapper;
@@ -19,6 +20,7 @@ namespace DapperExtensions
         private static Type _defaultMapper;
         private static Func<Type, ISqlGenerator, IList<Assembly>, IDapperExtensionsImpl> _instanceFactory;
         private static IDapperExtensionsImpl _instance;
+        private static ISqlDialect _sqlDialect;
         private static ISqlGenerator _sqlGenerator;
         private static IList<Assembly> _mappingAssemblies;
         
