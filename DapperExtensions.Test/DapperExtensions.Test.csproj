@@ -31,9 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapper, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Dapper.1.10\lib\net40\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.1.12.1\lib\net40\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
@@ -73,16 +73,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Car.cs" />
-    <Compile Include="Helpers\Database.cs" />
+    <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="IntegrationTests\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
+    <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="Data\Animal.cs" />
     <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
-    <Compile Include="IntegrationTests\IntegrationBaseFixture.cs" />
     <Compile Include="IntegrationTests\NonCrudFixture.cs" />
-    <Compile Include="IntegrationTests\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\SqlCeBaseFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlServerBaseFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\TimerFixture.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
@@ -115,34 +124,34 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlCe\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\MySql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\Sqlite\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlScripts\SqlServer\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

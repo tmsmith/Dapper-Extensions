@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Dynamic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Dapper;
 using DapperExtensions.Sql;
 using DapperExtensions.Mapper;
 
@@ -17,80 +13,69 @@ namespace DapperExtensions
     {
         private readonly static object _lock = new object();
 
-        private static Type _defaultMapper;
-        private static Func<Type, ISqlGenerator, IList<Assembly>, IDapperExtensionsImpl> _instanceFactory;
-        private static IDapperExtensionsImpl _instance;
-        private static ISqlDialect _sqlDialect;
-        private static ISqlGenerator _sqlGenerator;
-        private static IList<Assembly> _mappingAssemblies;
+        private static Func<IDapperExtensionsConfiguration, IDapperImplementor> _instanceFactory;
+        private static IDapperImplementor _instance;
+        private static IDapperExtensionsConfiguration _configuration;
         
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
+        /// DapperExtensions.Setup(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
         /// </summary>
         public static Type DefaultMapper
         {
             get
             {
-                return _defaultMapper;
+                return _configuration.DefaultMapper;
             }
 
             set
             {
-                _instance = null;
-                _defaultMapper = value;
+                Setup(value, _configuration.MappingAssemblies, _configuration.Dialect);
             }
         }
 
         /// <summary>
         /// Gets or sets the type of sql to be generated.
+        /// DapperExtensions.Setup(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
         /// </summary>
         public static ISqlDialect SqlDialect
         {
             get
             {
-                return _sqlGenerator.Dialect;
+                return _configuration.Dialect;
             }
 
             set
             {
-                _instance = null;
-                _sqlGenerator = new SqlGeneratorImpl(value);
+                Setup(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
             }
-        }
-
-        /// <summary>
-        /// Gets the currently setup generator
-        /// </summary>
-        internal static ISqlGenerator SqlGenerator
-        {
-            get { return _sqlGenerator; }
         }
         
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>
-        public static Func<Type, ISqlGenerator, IList<Assembly>, IDapperExtensionsImpl> InstanceFactory
+        public static Func<IDapperExtensionsConfiguration, IDapperImplementor> InstanceFactory
         {
             get
             {
                 if (_instanceFactory == null)
                 {
-                    _instanceFactory = (dm, sg, ma) => new DapperExtensionsImpl(dm, sg, ma);
+                    _instanceFactory = config => new DapperImplementor(new SqlGeneratorImpl(config));
                 }
 
                 return _instanceFactory;
             }
             set
             {
-                _instance = null;
                 _instanceFactory = value;
+                Setup(_configuration.DefaultMapper, _configuration.MappingAssemblies, _configuration.Dialect);
             }
         }
 
         /// <summary>
         /// Gets the Dapper Extensions Implementation
         /// </summary>
-        private static IDapperExtensionsImpl Instance
+        private static IDapperImplementor Instance
         {
             get
             {
@@ -100,7 +85,7 @@ namespace DapperExtensions
                     {
                         if (_instance == null)
                         {
-                            _instance = InstanceFactory(DefaultMapper, _sqlGenerator, _mappingAssemblies);
+                            _instance = InstanceFactory(_configuration);
                         }
                     }
                 }
@@ -111,9 +96,7 @@ namespace DapperExtensions
 
         static DapperExtensions()
         {
-            DefaultMapper = typeof(AutoClassMapper<>);
-            SqlDialect = new SqlServerDialect();
-            _mappingAssemblies = new List<Assembly>();
+            Setup(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect());
         }
 
         /// <summary>
@@ -122,8 +105,19 @@ namespace DapperExtensions
         /// <param name="assemblies"></param>
         public static void SetMappingAssemblies(IList<Assembly> assemblies)
         {
-            _mappingAssemblies = assemblies;
+            Setup(_configuration.DefaultMapper, assemblies, _configuration.Dialect);
+        }
+
+        /// <summary>
+        /// Configure DapperExtensions extension methods.
+        /// </summary>
+        /// <param name="defaultMapper"></param>
+        /// <param name="mappingAssemblies"></param>
+        /// <param name="sqlDialect"></param>
+        public static void Setup(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
+        {
             _instance = null;
+            _configuration = new DapperExtensionsConfiguration(defaultMapper, mappingAssemblies, sqlDialect);
         }
 
         /// <summary>
@@ -209,7 +203,7 @@ namespace DapperExtensions
         /// </summary>
         public static IClassMapper GetMap<T>() where T : class
         {
-            return Instance.GetMap<T>();
+            return Instance.SqlGenerator.Configuration.GetMap<T>();
         }
 
         /// <summary>
@@ -217,7 +211,7 @@ namespace DapperExtensions
         /// </summary>
         public static void ClearCache()
         {
-            Instance.ClearCache();
+            Instance.SqlGenerator.Configuration.ClearCache();
         }
 
         /// <summary>
@@ -226,283 +220,7 @@ namespace DapperExtensions
         /// </summary>
         public static Guid GetNextGuid()
         {
-            return Instance.GetNextGuid();
-        }
-
-        public interface IDapperExtensionsImpl
-        {
-            T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
-            void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
-            dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-            bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-            bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-            bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
-            IEnumerable<T> GetList<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
-            IEnumerable<T> GetPage<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
-            int Count<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
-            IClassMapper GetMap<T>() where T : class;
-            void ClearCache();
-            Guid GetNextGuid();
-        }
-
-        internal class DapperExtensionsImpl : IDapperExtensionsImpl
-        {
-            private readonly Type _defaultMapper;
-            private readonly ISqlGenerator _sqlGenerator;
-            private readonly IList<Assembly> _mappingAssemblies;
-            private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
-            
-            public DapperExtensionsImpl(Type defaultMapper, ISqlGenerator sqlGenerator, IList<Assembly> mappingAssemblies)
-            {
-                _defaultMapper = defaultMapper;
-                _sqlGenerator = sqlGenerator;
-                _mappingAssemblies = mappingAssemblies ?? new List<Assembly>();
-            }
-
-            public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                string sql = _sqlGenerator.Get(classMap);
-                bool isSimpleType = ReflectionHelper.IsSimpleType(id.GetType());
-                IDictionary<string, object> paramValues = null;
-                if (!isSimpleType)
-                {
-                    paramValues = ReflectionHelper.GetObjectValues(id);
-                }
-
-                DynamicParameters parameters = new DynamicParameters();
-                var keys = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
-                foreach (var key in keys)
-                {
-                    object value = id;
-                    if (!isSimpleType)
-                    {
-                        value = paramValues[key.Name];
-                    }
-
-                    parameters.Add("@" + key.Name, value);
-                }
-
-
-                T result = connection.Query<T>(sql, parameters, transaction, true, commandTimeout, CommandType.Text).SingleOrDefault();
-                return result;
-            }
-
-            public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
-
-                foreach (var e in entities)
-                {
-                    foreach (var column in properties)
-                    {
-                        if (column.KeyType == KeyType.Guid)
-                        {
-                            Guid comb = GetNextGuid();
-                            column.PropertyInfo.SetValue(e, comb, null);
-                        }
-                    }
-                }
-
-                string sql = _sqlGenerator.Insert(classMap, false);
-
-                connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
-            }
-
-            public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
-                var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
-                foreach (var column in nonIdentityKeyProperties)
-                {
-                    if (column.KeyType == KeyType.Guid)
-                    {
-                        Guid comb = GetNextGuid();
-                        column.PropertyInfo.SetValue(entity, comb, null);
-                    }
-                }
-
-                IDictionary<string, object> keyValues = new ExpandoObject();
-                string sql = _sqlGenerator.Insert(classMap, true);
-                if (identityColumn != null)
-                {
-                    IEnumerable<long> result;
-                    if (_sqlGenerator.RunInsertAsBatch())
-                    {
-                        result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
-                    }
-                    else
-                    {
-                        connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
-                        sql = _sqlGenerator.IdentitySql(classMap);
-                        result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
-                    }
-
-                    long identityValue = result.First();
-                    int identityInt = Convert.ToInt32(identityValue);
-                    keyValues.Add(identityColumn.Name, identityInt);
-                    identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
-                }
-                else
-                {
-                    connection.Execute(sql, entity, transaction,  commandTimeout, CommandType.Text);
-                }
-
-                foreach (var column in nonIdentityKeyProperties)
-                {
-                    keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
-                }
-
-                if (keyValues.Count == 1)
-                {
-                    return keyValues.First().Value;
-                }
-
-                return keyValues;
-            }
-
-            public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                string sql = _sqlGenerator.Update(classMap);
-                return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
-            }
-
-            public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                string sql = _sqlGenerator.Delete(classMap);
-                return connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text) > 0;
-            }
-
-            public bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = _sqlGenerator.Delete(classMap, predicate, parameters);
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                foreach (var parameter in parameters)
-                {
-                    dynamicParameters.Add(parameter.Key, parameter.Value);
-                }
-
-                return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
-            }
-            
-            public IEnumerable<T> GetList<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = _sqlGenerator.GetList(classMap, predicate, sort, parameters);
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                foreach (var parameter in parameters)
-                {
-                    dynamicParameters.Add(parameter.Key, parameter.Value);
-                }
-
-                return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
-            }
-
-            public IEnumerable<T> GetPage<T>(IDbConnection connection, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = _sqlGenerator.GetPage(classMap, predicate, sort, page, resultsPerPage, parameters);
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                foreach (var parameter in parameters)
-                {
-                    dynamicParameters.Add(parameter.Key, parameter.Value);
-                }
-
-                return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
-            }
-
-            public int Count<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
-            {
-                IClassMapper classMap = GetMap<T>();
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string sql = _sqlGenerator.Count(classMap, predicate, parameters);
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                foreach (var parameter in parameters)
-                {
-                    dynamicParameters.Add(parameter.Key, parameter.Value);
-                }
-
-                return (int)connection.Query(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text).Single().Total;
-            }
-
-            public IClassMapper GetMap<T>() where T : class
-            {
-                Type entityType = typeof(T);
-                IClassMapper map;
-                if (!_classMaps.TryGetValue(entityType, out map))
-                {
-                    Type mapType = GetMapType(entityType);
-                    if (mapType == null)
-                    {
-                        mapType = _defaultMapper.MakeGenericType(typeof(T));
-                    }
-
-                    map = Activator.CreateInstance(mapType) as IClassMapper;
-                    _classMaps[entityType] = map;
-                }
-
-                return map;
-            }
-
-            public void ClearCache()
-            {
-                _classMaps.Clear();
-            }
-
-            public Guid GetNextGuid()
-            {
-                byte[] b = Guid.NewGuid().ToByteArray();
-                DateTime dateTime = new DateTime(1900, 1, 1);
-                DateTime now = DateTime.Now;
-                TimeSpan timeSpan = new TimeSpan(now.Ticks - dateTime.Ticks);
-                TimeSpan timeOfDay = now.TimeOfDay;
-                byte[] bytes1 = BitConverter.GetBytes(timeSpan.Days);
-                byte[] bytes2 = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
-                Array.Reverse(bytes1);
-                Array.Reverse(bytes2);
-                Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
-                Array.Copy(bytes2, bytes2.Length - 4, b, b.Length - 4, 4);
-                return new Guid(b);
-            }
-
-            protected virtual Type GetMapType(Type entityType)
-            {
-                Func<Assembly, Type> getType = a =>
-                                                   {
-                                                       Type[] types = a.GetTypes();
-                                                       return (from type in types
-                                                               let interfaceType = type.GetInterface(typeof (IClassMapper<>).FullName)
-                                                               where
-                                                                   interfaceType != null &&
-                                                                   interfaceType.GetGenericArguments()[0] == entityType
-                                                               select type).SingleOrDefault();
-                                                   };
-
-                Type result = getType(entityType.Assembly);
-                if (result != null)
-                {
-                    return result;
-                }
-
-                foreach (var mappingAssembly in _mappingAssemblies)
-                {
-                    result = getType(mappingAssembly);
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                }
-
-                return getType(entityType.Assembly);
-            }
+            return Instance.SqlGenerator.Configuration.GetNextGuid();
         }
     }
 }

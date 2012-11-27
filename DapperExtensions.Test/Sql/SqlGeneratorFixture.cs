@@ -13,6 +13,8 @@ namespace DapperExtensions.Test.Sql
     {
         public abstract class SqlGeneratorFixtureBase
         {
+            protected Mock<IDapperExtensionsConfiguration> Configuration;
+
             protected Mock<SqlGeneratorImpl> Generator;
             protected Mock<ISqlDialect> Dialect;
             protected Mock<IClassMapper> ClassMap;
@@ -20,12 +22,15 @@ namespace DapperExtensions.Test.Sql
             [SetUp]
             public void Setup()
             {
+                Configuration = new Mock<IDapperExtensionsConfiguration>();
                 Dialect = new Mock<ISqlDialect>();
                 ClassMap = new Mock<IClassMapper>();
 
-                Generator = new Mock<SqlGeneratorImpl>(Dialect.Object);
+                Configuration.SetupGet(c => c.Dialect).Returns(Dialect.Object).Verifiable();
+
+                Generator = new Mock<SqlGeneratorImpl>(Configuration.Object);
                 Generator.CallBase = true;
-            }            
+            }
         }
 
         [TestFixture]
@@ -48,7 +53,7 @@ namespace DapperExtensions.Test.Sql
                 Mock<IPropertyMap> property = new Mock<IPropertyMap>();
                 property.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> {property.Object}).Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> { property.Object }).Verifiable();
 
                 Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("COLUMNS").Verifiable();
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TABLENAME").Verifiable();
@@ -582,7 +587,7 @@ namespace DapperExtensions.Test.Sql
             {
                 IDictionary<string, object> parameters = new Dictionary<string, object>();
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
 
@@ -626,7 +631,7 @@ namespace DapperExtensions.Test.Sql
             {
                 IDictionary<string, object> parameters = new Dictionary<string, object>();
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
                 Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
@@ -675,7 +680,7 @@ namespace DapperExtensions.Test.Sql
                                        };
 
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
                 Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
@@ -759,7 +764,7 @@ namespace DapperExtensions.Test.Sql
                                        };
 
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere");
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
                 Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
@@ -791,10 +796,13 @@ namespace DapperExtensions.Test.Sql
             public void WithoutPredicate_ThrowsException()
             {
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-
+                Dialect.SetupGet(d => d.OpenQuote).Returns('!').Verifiable();
+                Dialect.SetupGet(d => d.CloseQuote).Returns('^').Verifiable();
+                
                 var result = Generator.Object.Count(ClassMap.Object, null, new Dictionary<string, object>());
-                Assert.AreEqual("SELECT COUNT(*) AS [Total] FROM TableName", result);
+                Assert.AreEqual("SELECT COUNT(*) AS !Total^ FROM TableName", result);
                 Generator.Verify();
+                Dialect.Verify();
             }
 
             [Test]
@@ -802,14 +810,17 @@ namespace DapperExtensions.Test.Sql
             {
                 var parameters = new Dictionary<string, object>();
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                predicate.Setup(p => p.GetSql(parameters)).Returns("PredicateWhere").Verifiable();
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere").Verifiable();
+                Dialect.SetupGet(d => d.OpenQuote).Returns('!').Verifiable();
+                Dialect.SetupGet(d => d.CloseQuote).Returns('^').Verifiable();
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
 
                 var result = Generator.Object.Count(ClassMap.Object, predicate.Object, parameters);
-                Assert.AreEqual("SELECT COUNT(*) AS [Total] FROM TableName WHERE PredicateWhere", result);
+                Assert.AreEqual("SELECT COUNT(*) AS !Total^ FROM TableName WHERE PredicateWhere", result);
                 Generator.Verify();
                 predicate.Verify();
+                Dialect.Verify();
             }
         }
 

@@ -1,6 +1,0 @@
-﻿DROP TABLE IF EXISTS Animal;
-
-CREATE TABLE Animal (
-    Id NVARCHAR(36) PRIMARY KEY,
-    Name NVARCHAR(50)
-)

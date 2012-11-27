@@ -8,8 +8,8 @@ namespace DapperExtensions.Sql
 {
     public interface ISqlGenerator
     {
-        ISqlDialect Dialect { get; }
-
+        IDapperExtensionsConfiguration Configuration { get; }
+        
         string Get(IClassMapper classMap);
         string Insert(IClassMapper classMap, bool returnIdentity);
         string Update(IClassMapper classMap);
@@ -27,12 +27,12 @@ namespace DapperExtensions.Sql
 
     public class SqlGeneratorImpl : ISqlGenerator
     {
-        public SqlGeneratorImpl(ISqlDialect dialect)
+        public SqlGeneratorImpl(IDapperExtensionsConfiguration configuration)
         {
-            Dialect = dialect;
+            Configuration = configuration;
         }
 
-        public ISqlDialect Dialect { get; private set; }
+        public IDapperExtensionsConfiguration Configuration { get; private set; }
 
         public virtual string Get(IClassMapper classMap)
         {
@@ -68,9 +68,9 @@ namespace DapperExtensions.Sql
                                        GetTableName(classMap),
                                        columnNames.AppendStrings(),
                                        parameters.AppendStrings());
-            if (identityCount == 1 && Dialect.RunIdentityInsertAsBatch && returnIdentity)
+            if (identityCount == 1 && Configuration.Dialect.RunIdentityInsertAsBatch && returnIdentity)
             {
-                sql += Dialect.BatchSeperator + IdentitySql(classMap);
+                sql += Configuration.Dialect.BatchSeperator + IdentitySql(classMap);
             }
 
             return sql;
@@ -124,7 +124,7 @@ namespace DapperExtensions.Sql
             if (predicate != null)
             {
                 sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             return sql.ToString();
@@ -143,7 +143,7 @@ namespace DapperExtensions.Sql
             if (predicate != null)
             {
                 sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             if (sort != null && sort.Any())
@@ -173,13 +173,13 @@ namespace DapperExtensions.Sql
             if (predicate != null)
             {
                 innerSql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
             innerSql.Append(" ORDER BY " + orderBy);
 
-            string sql = Dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
+            string sql = Configuration.Dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
             return sql;
         }
 
@@ -190,12 +190,14 @@ namespace DapperExtensions.Sql
                 throw new ArgumentNullException("Parameters");
             }
 
-            StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS [Total] FROM {0}",
+            StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS {0}Total{1} FROM {2}",
+                                Configuration.Dialect.OpenQuote,
+                                Configuration.Dialect.CloseQuote,
                                 GetTableName(classMap)));
             if (predicate != null)
             {
                 sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             return sql.ToString();
@@ -203,12 +205,12 @@ namespace DapperExtensions.Sql
 
         public virtual string IdentitySql(IClassMapper classMap)
         {
-            return Dialect.GetIdentitySql(GetTableName(classMap));
+            return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));
         }
 
         public virtual string GetTableName(IClassMapper map)
         {
-            return Dialect.GetTableName(map.SchemaName, map.TableName, null);
+            return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
         }
 
         public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
@@ -219,7 +221,7 @@ namespace DapperExtensions.Sql
                 alias = property.Name;
             }
 
-            return Dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
+            return Configuration.Dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
         }
 
         public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
@@ -235,7 +237,7 @@ namespace DapperExtensions.Sql
 
         public virtual bool RunInsertAsBatch()
         {
-            return Dialect.RunIdentityInsertAsBatch;
+            return Configuration.Dialect.RunIdentityInsertAsBatch;
         }
 
         public virtual string BuildSelectColumns(IClassMapper classMap)

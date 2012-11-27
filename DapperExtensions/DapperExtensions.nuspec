@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -11,14 +11,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
-		1.3.0
-			* Switched to DLL.
-			* Added ability to create other Sql Dialects (Currently supports SQL Server 2005, 2008 and CE)
-			* Reorganized ClassMappers to DapperExtensions.Mapper
-			* Reorganized Sql generation to DapperExtensions.Sql
-		1.3.1
-			* CLS Compliant
-			* Add Automap Identity support for byte, sbyte, short, ushort, int, uint, long, ulong, BigInteger (including Nullable).
 		1.3.2
 			* Increased speed of Inserts
 			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended. SqlCe and SqlServer were working differently.
@@ -28,6 +20,11 @@
 			* SqlServerDialect now uses SCOPE_IDENTITY instead of IDENT_CURRENT.
 			* PluralizedAutoClassMapper correctly handles words containing an F or FE
 			* ***BREAKNG CHANGE*** Now sets "Id" property as Key if it exists before searching for a property ending in "Id"
+		1.4.0
+			* Add Database Class inorder to have multiple connections with different dialects. (Extension methods are still available)
+			* Errors with Predicate not using proper SqlDialect
+			* ***BREAKNG CHANGE*** Changed DapperExtensions.IDapperExtensionsImpl to IDapperImplementor
+			* MySql and Sqlite dialects are ready.
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>

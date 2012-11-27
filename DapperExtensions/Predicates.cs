@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
@@ -119,7 +120,7 @@ namespace DapperExtensions
 
     public interface IPredicate
     {
-        string GetSql(IDictionary<string, object> parameters);
+        string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters);
     }
 
     public interface IBasePredicate : IPredicate
@@ -129,12 +130,12 @@ namespace DapperExtensions
 
     public abstract class BasePredicate : IBasePredicate
     {
-        public abstract string GetSql(IDictionary<string, object> parameters);
+        public abstract string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters);
         public string PropertyName { get; set; }
 
-        protected string GetColumnName<T>(string propertyName) where T : class
+        protected string GetColumnName<T>(ISqlGenerator sqlGenerator, string propertyName) where T : class
         {
-            IClassMapper map = DapperExtensions.GetMap<T>();
+            IClassMapper map = sqlGenerator.Configuration.GetMap<T>();
             if (map == null)
             {
                 throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));
@@ -146,7 +147,7 @@ namespace DapperExtensions
                 throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, typeof(T)));
             }
 
-            return DapperExtensions.SqlGenerator.GetColumnName(map, propertyMap, false);
+            return sqlGenerator.GetColumnName(map, propertyMap, false);
         }
     }
 
@@ -190,9 +191,9 @@ namespace DapperExtensions
     {
         public object Value { get; set; }
 
-        public override string GetSql(IDictionary<string, object> parameters)
+        public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(PropertyName);
+            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
             if (Value == null)
             {
                 return string.Format("({0} IS {1}NULL)", columnName, Not ? "NOT " : string.Empty);
@@ -234,10 +235,10 @@ namespace DapperExtensions
     {
         public string PropertyName2 { get; set; }
 
-        public override string GetSql(IDictionary<string, object> parameters)
+        public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(PropertyName);
-            string columnName2 = GetColumnName<T2>(PropertyName2);
+            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
+            string columnName2 = GetColumnName<T2>(sqlGenerator, PropertyName2);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), columnName2);
         }
     }
@@ -259,9 +260,9 @@ namespace DapperExtensions
     public class BetweenPredicate<T> : BasePredicate, IBetweenPredicate
         where T : class
     {
-        public override string GetSql(IDictionary<string, object> parameters)
+        public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(PropertyName);
+            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
             string propertyName1 = string.Format("@{0}_{1}", PropertyName, parameters.Count);
             string propertyName2 = string.Format("@{0}_{1}", PropertyName, parameters.Count + 1);
 
@@ -324,11 +325,11 @@ namespace DapperExtensions
     {
         public GroupOperator Operator { get; set; }
         public IList<IPredicate> Predicates { get; set; }
-        public string GetSql(IDictionary<string, object> parameters)
+        public string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
             string seperator = Operator == GroupOperator.And ? " AND " : " OR ";
             return "(" + Predicates.Aggregate(new StringBuilder(),
-                                        (sb, p) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(p.GetSql(parameters)),
+                                        (sb, p) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(p.GetSql(sqlGenerator, parameters)),
                                         sb => sb.ToString()) + ")";
         }
     }
@@ -345,19 +346,19 @@ namespace DapperExtensions
         public IPredicate Predicate { get; set; }
         public bool Not { get; set; }
 
-        public string GetSql(IDictionary<string, object> parameters)
+        public string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            IClassMapper mapSub = GetClassMapper<TSub>();
+            IClassMapper mapSub = GetClassMapper<TSub>(sqlGenerator.Configuration);
             string sql = string.Format("({0}EXISTS (SELECT 1 FROM {1} WHERE {2}))",
                 Not ? "NOT " : string.Empty,
-                DapperExtensions.SqlGenerator.GetTableName(mapSub),
-                Predicate.GetSql(parameters));
+                sqlGenerator.GetTableName(mapSub),
+                Predicate.GetSql(sqlGenerator, parameters));
             return sql;
         }
 
-        protected IClassMapper GetClassMapper<T>() where T : class
+        protected IClassMapper GetClassMapper<T>(IDapperExtensionsConfiguration configuration) where T : class
         {
-            IClassMapper map = DapperExtensions.GetMap<T>();
+            IClassMapper map = configuration.GetMap<T>();
             if (map == null)
             {
                 throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));

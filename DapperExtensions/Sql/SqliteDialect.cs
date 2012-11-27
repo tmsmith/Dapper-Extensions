@@ -4,7 +4,6 @@ using System.Text;
 
 namespace DapperExtensions.Sql
 {
-    [Obsolete("Not ready from primetime - use at your own risk", false)]
     public class SqliteDialect : SqlDialectBase
     {
         public override string GetIdentitySql(string tableName)
