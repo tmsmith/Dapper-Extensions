@@ -19,7 +19,7 @@ namespace DapperExtensions
         
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
-        /// DapperExtensions.Setup(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
+        /// DapperExtensions.Configure(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
         /// </summary>
         public static Type DefaultMapper
         {
@@ -30,13 +30,13 @@ namespace DapperExtensions
 
             set
             {
-                Setup(value, _configuration.MappingAssemblies, _configuration.Dialect);
+                Configure(value, _configuration.MappingAssemblies, _configuration.Dialect);
             }
         }
 
         /// <summary>
         /// Gets or sets the type of sql to be generated.
-        /// DapperExtensions.Setup(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
+        /// DapperExtensions.Configure(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
         /// </summary>
         public static ISqlDialect SqlDialect
         {
@@ -47,7 +47,7 @@ namespace DapperExtensions
 
             set
             {
-                Setup(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
+                Configure(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
             }
         }
         
@@ -68,7 +68,7 @@ namespace DapperExtensions
             set
             {
                 _instanceFactory = value;
-                Setup(_configuration.DefaultMapper, _configuration.MappingAssemblies, _configuration.Dialect);
+                Configure(_configuration.DefaultMapper, _configuration.MappingAssemblies, _configuration.Dialect);
             }
         }
 
@@ -96,7 +96,7 @@ namespace DapperExtensions
 
         static DapperExtensions()
         {
-            Setup(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect());
+            Configure(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect());
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace DapperExtensions
         /// <param name="assemblies"></param>
         public static void SetMappingAssemblies(IList<Assembly> assemblies)
         {
-            Setup(_configuration.DefaultMapper, assemblies, _configuration.Dialect);
+            Configure(_configuration.DefaultMapper, assemblies, _configuration.Dialect);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace DapperExtensions
         /// <param name="defaultMapper"></param>
         /// <param name="mappingAssemblies"></param>
         /// <param name="sqlDialect"></param>
-        public static void Setup(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
+        public static void Configure(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
         {
             _instance = null;
             _configuration = new DapperExtensionsConfiguration(defaultMapper, mappingAssemblies, sqlDialect);
