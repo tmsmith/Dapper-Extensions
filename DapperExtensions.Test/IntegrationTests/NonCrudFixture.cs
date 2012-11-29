@@ -98,6 +98,8 @@ namespace DapperExtensions.Test.IntegrationTests
                 public string SchemaName { get; private set; }
                 public string TableName { get; private set; }
                 public IList<IPropertyMap> Properties { get; private set; }
+                public Type EntityType { get; private set; }
+
                 public PropertyMap Map(Expression<Func<EntityWithInterfaceMapper, object>> expression)
                 {
                     throw new NotImplementedException();

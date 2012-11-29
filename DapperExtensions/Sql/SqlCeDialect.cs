@@ -17,7 +17,7 @@ namespace DapperExtensions.Sql
             get { return ']'; }
         }
 
-        public override bool RunIdentityInsertAsBatch
+        public override bool SupportsMultipleStatements
         {
             get { return false; }
         }

@@ -216,6 +216,20 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "a" || p.FirstName == "c"));
             }
+
+            [Test]
+            public void UsingObject_ReturnsMatching()
+            {
+                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
+                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
+                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
+                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+
+                var predicate = new { Active = true, FirstName = "c" };
+                IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
+                Assert.AreEqual(1, list.Count());
+                Assert.IsTrue(list.All(p => p.FirstName == "c"));
+            }
         }
 
         [TestFixture]
@@ -280,6 +294,26 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(id4, list.First().Id);
                 Assert.AreEqual(id3, list.Skip(1).First().Id);
             }
+
+            [Test]
+            public void UsingObject_ReturnsMatching()
+            {
+                var id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+                var id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+                var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
+                var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+
+                var predicate = new { Active = true };
+                IList<ISort> sort = new List<ISort>
+                                    {
+                                        Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Sort<Person>(p => p.FirstName)
+                                    };
+
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                Assert.AreEqual(2, list.Count());
+                Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
+            }
         }
 
         [TestFixture]
@@ -308,6 +342,50 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
+            }
+
+            [Test]
+            public void UsingObject_Returns_Count()
+            {
+                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
+                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+
+                var predicate = new { FirstName = new[] { "b", "d" } };
+                int count = Db.Count<Person>(predicate);
+                Assert.AreEqual(2, count);
+            }
+        }
+
+        [TestFixture]
+        public class GetMultipleMethod : MySqlBaseFixture
+        {
+            [Test]
+            public void ReturnsItems()
+            {
+                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
+                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+
+                Db.Insert(new Animal { Name = "Foo" });
+                Db.Insert(new Animal { Name = "Bar" });
+                Db.Insert(new Animal { Name = "Baz" });
+
+                GetMultiplePredicate predicate = new GetMultiplePredicate();
+                predicate.Add<Person>(null);
+                predicate.Add<Animal>(Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
+                predicate.Add<Person>(Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
+
+                var result = Db.GetMultiple(predicate);
+                var people = result.Read<Person>().ToList();
+                var animals = result.Read<Animal>().ToList();
+                var people2 = result.Read<Person>().ToList();
+
+                Assert.AreEqual(4, people.Count);
+                Assert.AreEqual(2, animals.Count);
+                Assert.AreEqual(1, people2.Count);
             }
         }
     }

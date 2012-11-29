@@ -97,5 +97,16 @@ namespace DapperExtensions
             return _simpleTypes.Contains(actualType);
         }
 
+        public static string GetParameterName(this IDictionary<string, object> parameters, string parameterName)
+        {
+            return string.Format("@{0}_{1}", parameterName, parameters.Count);
+        }
+
+        public static string SetParameterName(this IDictionary<string, object> parameters, string parameterName, object value)
+        {
+            string name = parameters.GetParameterName(parameterName);
+            parameters.Add(name, value);
+            return name;
+        }
     }
 }

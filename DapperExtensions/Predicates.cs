@@ -154,6 +154,7 @@ namespace DapperExtensions
     public interface IComparePredicate : IBasePredicate
     {
         Operator Operator { get; set; }
+        bool Not { get; set; }
     }
 
     public abstract class ComparePredicate : BasePredicate
@@ -209,8 +210,7 @@ namespace DapperExtensions
                 List<string> @params = new List<string>();
                 foreach (var value in (IEnumerable)Value)
                 {
-                    string valueParameterName = string.Format("@{0}_{1}", PropertyName, parameters.Count);
-                    parameters.Add(valueParameterName, value);
+                    string valueParameterName = parameters.SetParameterName(PropertyName, value);
                     @params.Add(valueParameterName);
                 }
 
@@ -218,8 +218,7 @@ namespace DapperExtensions
                 return string.Format("({0} {1}IN ({2}))", columnName, Not ? "NOT " : string.Empty, paramStrings);
             }
 
-            string parameterName = string.Format("@{0}_{1}", PropertyName, parameters.Count);
-            parameters.Add(parameterName, Value);
+            string parameterName = parameters.SetParameterName(PropertyName, Value);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), parameterName);
         }
     }
@@ -263,11 +262,8 @@ namespace DapperExtensions
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
             string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
-            string propertyName1 = string.Format("@{0}_{1}", PropertyName, parameters.Count);
-            string propertyName2 = string.Format("@{0}_{1}", PropertyName, parameters.Count + 1);
-
-            parameters.Add(propertyName1, Value.Value1);
-            parameters.Add(propertyName2, Value.Value2);
+            string propertyName1 = parameters.SetParameterName(PropertyName, Value.Value1);
+            string propertyName2 = parameters.SetParameterName(PropertyName, Value.Value2);
             return string.Format("({0} {1}BETWEEN {2} AND {3})", columnName, Not ? "NOT " : string.Empty, propertyName1, propertyName2);
         }
 

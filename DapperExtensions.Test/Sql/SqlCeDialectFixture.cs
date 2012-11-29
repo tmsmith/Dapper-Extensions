@@ -28,7 +28,7 @@ namespace DapperExtensions.Test.Sql
                 Assert.AreEqual('[', Dialect.OpenQuote);
                 Assert.AreEqual(']', Dialect.CloseQuote);
                 Assert.AreEqual(";" + Environment.NewLine, Dialect.BatchSeperator);
-                Assert.IsFalse(Dialect.RunIdentityInsertAsBatch);
+                Assert.IsFalse(Dialect.SupportsMultipleStatements);
             }
         }
 

@@ -50,6 +50,8 @@
     <Compile Include="DapperExtensionsConfiguration.cs" />
     <Compile Include="DapperImplementor.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="GetMultiplePredicate.cs" />
+    <Compile Include="GetMultipleResult.cs" />
     <Compile Include="Mapper\AutoClassMapper.cs" />
     <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />

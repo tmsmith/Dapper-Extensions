@@ -13,6 +13,7 @@ namespace DapperExtensions.Mapper
         string SchemaName { get; }
         string TableName { get; }
         IList<IPropertyMap> Properties { get; }
+        Type EntityType { get; }
     }
 
     public interface IClassMapper<T> : IClassMapper where T : class
@@ -40,6 +41,11 @@ namespace DapperExtensions.Mapper
         /// A collection of properties that will map to columns in the database table.
         /// </summary>
         public IList<IPropertyMap> Properties { get; private set; }
+
+        public Type EntityType
+        {
+            get { return typeof(T); }
+        }
 
         public ClassMapper()
         {
