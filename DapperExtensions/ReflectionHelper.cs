@@ -67,11 +67,6 @@ namespace DapperExtensions
             {
                 string name = propertyInfo.Name;
                 object value = propertyInfo.GetValue(obj, null);
-                if (value == null)
-                {
-                    continue;
-                }
-
                 result[name] = value;
             }
 

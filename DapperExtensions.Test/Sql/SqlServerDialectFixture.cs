@@ -101,21 +101,21 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void NoOrderBy_Returns()
             {
-                var result = Dialect.Protected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table");
+                var result = Dialect.TestProtected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table");
                 Assert.IsNull(result);
             }
 
             [Test]
             public void OrderBy_ReturnsItemsAfterClause()
             {
-                var result = Dialect.Protected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table ORDER BY Column1 ASC, Column2 DESC");
+                var result = Dialect.TestProtected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table ORDER BY Column1 ASC, Column2 DESC");
                 Assert.AreEqual("ORDER BY Column1 ASC, Column2 DESC", result);
             }
 
             [Test]
             public void OrderByWithWhere_ReturnsOnlyOrderBy()
             {
-                var result = Dialect.Protected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table ORDER BY Column1 ASC, Column2 DESC WHERE Column1 = 'value'");
+                var result = Dialect.TestProtected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table ORDER BY Column1 ASC, Column2 DESC WHERE Column1 = 'value'");
                 Assert.AreEqual("ORDER BY Column1 ASC, Column2 DESC", result);
             }
         }

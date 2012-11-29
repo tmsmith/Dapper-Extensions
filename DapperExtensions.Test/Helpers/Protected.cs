@@ -29,28 +29,43 @@ namespace DapperExtensions.Test.Helpers
 
         public void RunMethod(string name, params object[] parameters)
         {
-            InvokeMethod(name, parameters);
+            InvokeMethod(name, null, parameters);
         }
 
         public T RunMethod<T>(string name, params object[] parameters)
         {
-            return (T)InvokeMethod(name, parameters);
+            return (T)InvokeMethod(name, null, parameters);
         }
 
-        protected object InvokeMethod(string name, params object[] parameters)
+        public void RunGenericMethod(string name, Type[] genericTypes, params object[] parameters)
+        {
+            InvokeMethod(name, genericTypes, parameters);
+        }
+
+        public TResult RunGenericMethod<TResult>(string name, Type[] genericTypes, params object[] parameters)
+        {
+            return (TResult)InvokeMethod(name, genericTypes, parameters);
+        }
+
+        public object InvokeMethod(string name, Type[] genericTypes, object[] parameters)
         {
             object[] pa = parameters.Select(p =>
-                                               {
-                                                   if (p is ConstantExpression)
-                                                   {
-                                                       return null;
-                                                   }
+            {
+                if (p is ConstantExpression)
+                {
+                    return null;
+                }
 
-                                                   return p;
-                                               }).ToArray();
+                return p;
+            }).ToArray();
             MethodInfo method = GetMethod(name, parameters);
             try
             {
+                if (genericTypes != null && genericTypes.Any())
+                {
+                    method = method.MakeGenericMethod(genericTypes);
+                }
+
                 return method.Invoke(_obj, pa);
             }
             catch (TargetInvocationException ex)
@@ -59,17 +74,17 @@ namespace DapperExtensions.Test.Helpers
             }
         }
 
-        protected MethodInfo GetMethod(string name, params object[] parameters)
+        public MethodInfo GetMethod(string name, object[] parameters)
         {
             Type[] types = parameters.Select(p =>
-                                                 {
-                                                     if (p is ConstantExpression)
-                                                     {
-                                                         return (Type)((ConstantExpression)p).Value;
-                                                     }
+            {
+                if (p is ConstantExpression)
+                {
+                    return (Type)((ConstantExpression)p).Value;
+                }
 
-                                                     return p.GetType();
-                                                 }).ToArray();
+                return p.GetType();
+            }).ToArray();
             MethodInfo method = _obj.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, types, null);
             if (method == null)
             {

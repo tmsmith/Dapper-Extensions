@@ -16,7 +16,7 @@ namespace DapperExtensions.Test.Helpers
 {
     public static class TestHelpers
     {
-        public static Protected Protected(this object obj)
+        public static Protected TestProtected(this object obj)
         {
             return new Protected(obj);
         }

@@ -83,7 +83,7 @@ namespace DapperExtensions
             if (identityColumn != null)
             {
                 IEnumerable<long> result;
-                if (SqlGenerator.RunInsertAsBatch())
+                if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
                     result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
@@ -184,7 +184,7 @@ namespace DapperExtensions
 
         public IMultipleResultReader GetMultiple(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
         {
-            if (SqlGenerator.Configuration.Dialect.SupportsMultipleStatements)
+            if (SqlGenerator.SupportsMultipleStatements())
             {
                 return GetMultipleByBatch(connection, predicate, transaction, commandTimeout);
             }

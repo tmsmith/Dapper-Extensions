@@ -133,18 +133,18 @@ namespace DapperExtensions
         public abstract string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters);
         public string PropertyName { get; set; }
 
-        protected string GetColumnName<T>(ISqlGenerator sqlGenerator, string propertyName) where T : class
+        protected virtual string GetColumnName(Type entityType, ISqlGenerator sqlGenerator, string propertyName)
         {
-            IClassMapper map = sqlGenerator.Configuration.GetMap<T>();
+            IClassMapper map = sqlGenerator.Configuration.GetMap(entityType);
             if (map == null)
             {
-                throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));
+                throw new NullReferenceException(string.Format("Map was not found for {0}", entityType));
             }
 
-            IPropertyMap propertyMap = map.Properties.Single(p => p.Name == propertyName);
-            if (map == null)
+            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            if (propertyMap == null)
             {
-                throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, typeof(T)));
+                throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, entityType));
             }
 
             return sqlGenerator.GetColumnName(map, propertyMap, false);
@@ -162,7 +162,7 @@ namespace DapperExtensions
         public Operator Operator { get; set; }
         public bool Not { get; set; }
 
-        public string GetOperatorString()
+        public virtual string GetOperatorString()
         {
             switch (Operator)
             {
@@ -194,7 +194,7 @@ namespace DapperExtensions
 
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
+            string columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
             if (Value == null)
             {
                 return string.Format("({0} IS {1}NULL)", columnName, Not ? "NOT " : string.Empty);
@@ -236,8 +236,8 @@ namespace DapperExtensions
 
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
-            string columnName2 = GetColumnName<T2>(sqlGenerator, PropertyName2);
+            string columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
+            string columnName2 = GetColumnName(typeof(T2), sqlGenerator, PropertyName2);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), columnName2);
         }
     }
@@ -261,7 +261,7 @@ namespace DapperExtensions
     {
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            string columnName = GetColumnName<T>(sqlGenerator, PropertyName);
+            string columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
             string propertyName1 = parameters.SetParameterName(PropertyName, Value.Value1);
             string propertyName2 = parameters.SetParameterName(PropertyName, Value.Value2);
             return string.Format("({0} {1}BETWEEN {2} AND {3})", columnName, Not ? "NOT " : string.Empty, propertyName1, propertyName2);
@@ -344,7 +344,7 @@ namespace DapperExtensions
 
         public string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
-            IClassMapper mapSub = GetClassMapper<TSub>(sqlGenerator.Configuration);
+            IClassMapper mapSub = GetClassMapper(typeof(TSub), sqlGenerator.Configuration);
             string sql = string.Format("({0}EXISTS (SELECT 1 FROM {1} WHERE {2}))",
                 Not ? "NOT " : string.Empty,
                 sqlGenerator.GetTableName(mapSub),
@@ -352,12 +352,12 @@ namespace DapperExtensions
             return sql;
         }
 
-        protected IClassMapper GetClassMapper<T>(IDapperExtensionsConfiguration configuration) where T : class
+        protected virtual IClassMapper GetClassMapper(Type type, IDapperExtensionsConfiguration configuration)
         {
-            IClassMapper map = configuration.GetMap<T>();
+            IClassMapper map = configuration.GetMap(type);
             if (map == null)
             {
-                throw new NullReferenceException(string.Format("Map was not found for {0}", typeof(T)));
+                throw new NullReferenceException(string.Format("Map was not found for {0}", type));
             }
 
             return map;

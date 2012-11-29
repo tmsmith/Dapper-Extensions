@@ -22,7 +22,7 @@ namespace DapperExtensions.Sql
         string GetTableName(IClassMapper map);
         string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
-        bool RunInsertAsBatch();
+        bool SupportsMultipleStatements();
     }
 
     public class SqlGeneratorImpl : ISqlGenerator
@@ -200,7 +200,7 @@ namespace DapperExtensions.Sql
             return GetColumnName(map, propertyMap, includeAlias);
         }
 
-        public virtual bool RunInsertAsBatch()
+        public virtual bool SupportsMultipleStatements()
         {
             return Configuration.Dialect.SupportsMultipleStatements;
         }

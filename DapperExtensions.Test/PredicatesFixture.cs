@@ -3,33 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
+using DapperExtensions.Test.Helpers;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace DapperExtensions.Test
 {
     [TestFixture]
-    [Ignore] //TODO: tms
     public class PredicatesFixture
     {
         public abstract class PredicatesFixtureBase
         {
             protected Mock<ISqlGenerator> Generator;
             protected Mock<IDapperExtensionsConfiguration> Configuration;
-            protected Mock<IClassMapper<PredicateTestEntity>> PredicateMapper;
-            protected Mock<IClassMapper<PredicateTestEntity2>> PredicateMapper2;
                 
             [SetUp]
             public void Setup()
             {
                 Generator = new Mock<ISqlGenerator>();
                 Configuration = new Mock<IDapperExtensionsConfiguration>();
-                PredicateMapper = new Mock<IClassMapper<PredicateTestEntity>>();
-                PredicateMapper2 = new Mock<IClassMapper<PredicateTestEntity2>>();
 
                 Generator.SetupGet(c => c.Configuration).Returns(Configuration.Object);
-                Configuration.Setup(c => c.GetMap<PredicateTestEntity>()).Returns(PredicateMapper.Object);
-                Configuration.Setup(c => c.GetMap<PredicateTestEntity2>()).Returns(PredicateMapper2.Object);
             }
         }
 
@@ -39,70 +34,149 @@ namespace DapperExtensions.Test
             [Test]
             public void Field_ReturnsSetupPredicate()
             {
-                var pred = Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Eq, "Lead");
-                Dictionary<string, object> parameters = new Dictionary<string, object>
-                                                        {
-                                                            { "Field", "123" }
-                                                        };
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] = @Name_1)", result);
-                Assert.AreEqual("Lead", parameters["@Name_1"]);
-            }
-
-            [Test]
-            public void Group_ReturnsSetupPredicate()
-            {
-                var pred = Predicates.Group(GroupOperator.And,
-                    Predicates.Field<PredicateTestEntity>(f => f.Id, Operator.Gt, 5),
-                    Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Eq, "foo"));
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("(([PredicateTestEntity].[Id] > @Id_0) AND ([PredicateTestEntity].[Name] = @Name_1))", result);
-                Assert.AreEqual(5, parameters["@Id_0"]);
-                Assert.AreEqual("foo", parameters["@Name_1"]);
+                var predicate = Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Like, "Lead", true);
+                Assert.AreEqual("Name", predicate.PropertyName);
+                Assert.AreEqual(Operator.Like, predicate.Operator);
+                Assert.AreEqual("Lead", predicate.Value);
+                Assert.AreEqual(true, predicate.Not);
             }
 
             [Test]
             public void Property_ReturnsSetupPredicate()
             {
-                var pred = Predicates.Property<PredicateTestEntity, PredicateTestEntity2>(f => f.Name, Operator.Eq, f => f.Value);
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] = [PredicateTestEntity2].[Value])", result);
-                Assert.AreEqual(0, parameters.Count);
+                var predicate = Predicates.Property<PredicateTestEntity, PredicateTestEntity2>(f => f.Name, Operator.Le, f => f.Value, true);
+                Assert.AreEqual("Name", predicate.PropertyName);
+                Assert.AreEqual(Operator.Le, predicate.Operator);
+                Assert.AreEqual("Value", predicate.PropertyName2);
+                Assert.AreEqual(true, predicate.Not);
+            }
+
+            [Test]
+            public void Group_ReturnsSetupPredicate()
+            {
+                Mock<IPredicate> subPredicate = new Mock<IPredicate>();
+                var predicate = Predicates.Group(GroupOperator.Or, subPredicate.Object);
+                Assert.AreEqual(GroupOperator.Or, predicate.Operator);
+                Assert.AreEqual(1, predicate.Predicates.Count);
+                Assert.AreEqual(subPredicate.Object, predicate.Predicates[0]);
             }
 
             [Test]
             public void Exists_ReturnsSetupPredicate()
             {
-                var subPred = Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Eq, "Lead");
-                var pred = Predicates.Exists<PredicateTestEntity2>(subPred, true);
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("(NOT EXISTS (SELECT 1 FROM [PredicateTestEntity2] WHERE ([PredicateTestEntity].[Name] = @Name_0)))", result);
-                Assert.AreEqual(1, parameters.Count);
-                Assert.AreEqual("Lead", parameters["@Name_0"]);
+                Mock<IPredicate> subPredicate = new Mock<IPredicate>();
+                var predicate = Predicates.Exists<PredicateTestEntity2>(subPredicate.Object, true);
+                Assert.AreEqual(subPredicate.Object, predicate.Predicate);
+                Assert.AreEqual(true, predicate.Not);
             }
 
             [Test]
             public void Between_ReturnsSetupPredicate()
             {
-                BetweenValues values = new BetweenValues { Value1 = 12, Value2 = 24 };
-                var pred = Predicates.Between<PredicateTestEntity>(f => f.Id, values, true);
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] NOT BETWEEN @Id_0 AND @Id_1)", result);
-                Assert.AreEqual(12, parameters["@Id_0"]);
-                Assert.AreEqual(24, parameters["@Id_1"]);
+                BetweenValues values = new BetweenValues();
+                var predicate = Predicates.Between<PredicateTestEntity>(f => f.Name, values, true);
+                Assert.AreEqual("Name", predicate.PropertyName);
+                Assert.AreEqual(values, predicate.Value);
+                Assert.AreEqual(true, predicate.Not);
             }
 
             [Test]
-            public void Sort_ReturnsSetupPredicate()
+            public void Sort__ReturnsSetupPredicate()
             {
-                var sort = Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
-                Assert.AreEqual("Name", sort.PropertyName);
-                Assert.IsFalse(sort.Ascending);
+                var predicate = Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
+                Assert.AreEqual("Name", predicate.PropertyName);
+                Assert.AreEqual(false, predicate.Ascending);
+            }            
+        }
+
+        [TestFixture]
+        public class BasePredicateTests : PredicatesFixtureBase
+        {
+            [Test]
+            public void GetColumnName_WhenMapNotFound_ThrowsException()
+            {
+                Mock<BasePredicate> predicate = new Mock<BasePredicate>();
+                predicate.CallBase = true;
+                Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(() => null).Verifiable();
+
+                var ex = Assert.Throws<NullReferenceException>(() => predicate.Object.TestProtected().RunMethod<string>("GetColumnName", typeof(PredicateTestEntity), Generator.Object, "Name"));
+
+                Configuration.Verify();
+
+                StringAssert.StartsWith("Map was not found", ex.Message);
+            }
+
+            [Test]
+            public void GetColumnName_WhenPropertyNotFound_ThrowsException()
+            {
+                Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
+                Mock<BasePredicate> predicate = new Mock<BasePredicate>();
+                List<IPropertyMap> propertyMaps = new List<IPropertyMap>();
+                predicate.CallBase = true;
+
+                Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();
+                classMapper.SetupGet(c => c.Properties).Returns(propertyMaps).Verifiable();
+
+                var ex = Assert.Throws<NullReferenceException>(() => predicate.Object.TestProtected().RunMethod<string>("GetColumnName", typeof(PredicateTestEntity), Generator.Object, "Name"));
+
+                Configuration.Verify();
+                classMapper.Verify();
+
+                StringAssert.StartsWith("Name was not found", ex.Message);
+            }
+
+            [Test]
+            public void GetColumnName_GetsColumnName()
+            {
+                Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
+                Mock<BasePredicate> predicate = new Mock<BasePredicate>();
+                Mock<IPropertyMap> propertyMap = new Mock<IPropertyMap>();
+                List<IPropertyMap> propertyMaps = new List<IPropertyMap> { propertyMap.Object };
+                predicate.CallBase = true;
+
+                Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();
+                classMapper.SetupGet(c => c.Properties).Returns(propertyMaps).Verifiable();
+                propertyMap.SetupGet(p => p.Name).Returns("Name").Verifiable();
+                Generator.Setup(g => g.GetColumnName(classMapper.Object, propertyMap.Object, false)).Returns("foo").Verifiable();
+
+                var result = predicate.Object.TestProtected().RunMethod<string>("GetColumnName", typeof (PredicateTestEntity), Generator.Object, "Name");
+
+                Configuration.Verify();
+                classMapper.Verify();
+                propertyMap.Verify();
+                Generator.Verify();
+
+                StringAssert.StartsWith("foo", result);
+            }
+        }
+
+        [TestFixture]
+        public class ComparePredicateTests : PredicatesFixtureBase
+        {
+            [Test]
+            public void GetOperatorString_ReturnsOperatorStrings()
+            {
+                Assert.AreEqual("=", Setup(Operator.Eq, false).Object.GetOperatorString());
+                Assert.AreEqual("<>", Setup(Operator.Eq, true).Object.GetOperatorString());
+                Assert.AreEqual(">", Setup(Operator.Gt, false).Object.GetOperatorString());
+                Assert.AreEqual("<=", Setup(Operator.Gt, true).Object.GetOperatorString());
+                Assert.AreEqual(">=", Setup(Operator.Ge, false).Object.GetOperatorString());
+                Assert.AreEqual("<", Setup(Operator.Ge, true).Object.GetOperatorString());
+                Assert.AreEqual("<", Setup(Operator.Lt, false).Object.GetOperatorString());
+                Assert.AreEqual(">=", Setup(Operator.Lt, true).Object.GetOperatorString());
+                Assert.AreEqual("<=", Setup(Operator.Le, false).Object.GetOperatorString());
+                Assert.AreEqual(">", Setup(Operator.Le, true).Object.GetOperatorString());
+                Assert.AreEqual("LIKE", Setup(Operator.Like, false).Object.GetOperatorString());
+                Assert.AreEqual("NOT LIKE", Setup(Operator.Like, true).Object.GetOperatorString());
+            }
+
+            protected Mock<ComparePredicate> Setup(Operator op, bool not)
+            {
+                Mock<ComparePredicate> predicate = new Mock<ComparePredicate>();
+                predicate.Object.Operator = op;
+                predicate.Object.Not = not;
+                predicate.CallBase = true;
+                return predicate;
             }
         }
 
@@ -110,604 +184,138 @@ namespace DapperExtensions.Test
         public class FieldPredicateTests : PredicatesFixtureBase
         {
             [Test]
-            public void Eq_ReturnsProperSql()
+            public void GetSql_NullValue_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = false,
-                                   Operator = Operator.Eq
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, null, false);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] = @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
 
-            [Test]
-            public void Eq_ReturnsProperSqlWhenString()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = "Foo",
-                                   Not = false,
-                                   Operator = Operator.Eq
-                               };
+                predicate.Verify();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] = @Id_0)", result);
-                Assert.AreEqual("Foo", parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void Eq_ReturnsProperSqlWhenEnumerableOf_tring()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = new[] { "Alpha", "Beta", "Gamma", "Delta" },
-                                   Not = false,
-                                   Operator = Operator.Eq
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Id_0, @Id_1, @Id_2, @Id_3))", result);
-                Assert.AreEqual("Alpha", parameters["@Id_0"]);
-                Assert.AreEqual("Beta", parameters["@Id_1"]);
-                Assert.AreEqual("Gamma", parameters["@Id_2"]);
-                Assert.AreEqual("Delta", parameters["@Id_3"]);
-            }
-
-            [Test]
-            public void EqWithNot_ReturnsProperSql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = true,
-                                   Operator = Operator.Eq
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <> @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void Eq_EnumerableReturnsProperSql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = new[] { 3, 4, 5 },
-                                   Not = false,
-                                   Operator = Operator.Eq
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] IN (@Id_0, @Id_1, @Id_2))", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-                Assert.AreEqual(4, parameters["@Id_1"]);
-                Assert.AreEqual(5, parameters["@Id_2"]);
-            }
-
-            [Test]
-            public void EqWithNot_EnumerableReturns_Proper_Sql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = new[] { 3, 4, 5 },
-                                   Not = true,
-                                   Operator = Operator.Eq
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] NOT IN (@Id_0, @Id_1, @Id_2))", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-                Assert.AreEqual(4, parameters["@Id_1"]);
-                Assert.AreEqual(5, parameters["@Id_2"]);
-            }
-
-            [Test]
-            public void EnumerableThrowsException_If_Operator_Not_Eq()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = new[] { 3, 4, 5 },
-                                   Not = false,
-                                   Operator = Operator.Ge
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                var ex = Assert.Throws<ArgumentException>(() => pred.GetSql(Generator.Object, parameters));
-                Assert.AreEqual("Operator must be set to Eq for Enumerable types", ex.Message);
-            }
-
-            [Test]
-            public void EqWithNull_ReturnsPropertySql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                {
-                    PropertyName = "Name",
-                    Value = null,
-                    Not = false,
-                    Operator = Operator.Eq
-                };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] IS NULL)", result);
                 Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(fooCol IS NULL)", sql);
             }
 
             [Test]
-            public void EqWithNullAndNot_ReturnsProperSql()
+            public void GetSql_NullValue_Not_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                {
-                    PropertyName = "Name",
-                    Value = null,
-                    Not = true,
-                    Operator = Operator.Eq
-                };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, null, true);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] IS NOT NULL)", result);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
                 Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(fooCol IS NOT NULL)", sql);
             }
 
             [Test]
-            public void Gt_ReturnsProperSql()
+            public void GetSql_Enumerable_NotEqOperator_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = false,
-                                   Operator = Operator.Gt
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Le, new[] { "foo", "bar" }, false);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] > @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
+                var ex = Assert.Throws<ArgumentException>(() => predicate.Object.GetSql(Generator.Object, parameters));
+
+                predicate.Verify();
+
+                StringAssert.StartsWith("Operator must be set to Eq for Enumerable types", ex.Message);
             }
 
             [Test]
-            public void GtWithNot_ReturnsProper_Sql()
+            public void GetSql_Enumerable_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = true,
-                                   Operator = Operator.Gt
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, new[] { "foo", "bar" }, false);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <= @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
+                Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual("foo", parameters["@Name_0"]);
+                Assert.AreEqual("bar", parameters["@Name_1"]);
+                Assert.AreEqual("(fooCol IN (@Name_0, @Name_1))", sql);
             }
 
             [Test]
-            public void Ge_ReturnsProperSql()
+            public void GetSql_Enumerable_Not_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = false,
-                                   Operator = Operator.Ge
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, new[] { "foo", "bar" }, true);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] >= @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
+                Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual("foo", parameters["@Name_0"]);
+                Assert.AreEqual("bar", parameters["@Name_1"]);
+                Assert.AreEqual("(fooCol NOT IN (@Name_0, @Name_1))", sql);
             }
 
             [Test]
-            public void GeWithNot_ReturnsProperSql()
+            public void GetSql_ReturnsProperSql()
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = true,
-                                   Operator = Operator.Ge
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, 12, true);
+                predicate.Setup(p => p.GetOperatorString()).Returns("**").Verifiable();
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] < @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
+                Assert.AreEqual(1, parameters.Count);
+                Assert.AreEqual(12, parameters["@Name_0"]);
+                Assert.AreEqual("(fooCol ** @Name_0)", sql);
             }
-
-            [Test]
-            public void Lt_ReturnsProperSql()
+            
+            protected Mock<FieldPredicate<T>> Setup<T>(string propertyName, Operator op, object value, bool not) where T : class
             {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = false,
-                                   Operator = Operator.Lt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] < @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void LtWithNot_ReturnsProperSql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = true,
-                                   Operator = Operator.Lt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] >= @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void Le_ReturnsProperSql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = false,
-                                   Operator = Operator.Le
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <= @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void LeWithNot_ReturnsProperSql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = 3,
-                                   Not = true,
-                                   Operator = Operator.Le
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] > @Id_0)", result);
-                Assert.AreEqual(3, parameters["@Id_0"]);
-            }
-
-            [Test]
-            public void Like_ReturnsPropertySql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Name",
-                                   Value = "%foo",
-                                   Not = false,
-                                   Operator = Operator.Like
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] LIKE @Name_0)", result);
-                Assert.AreEqual("%foo", parameters["@Name_0"]);
-            }
-
-            [Test]
-            public void LikeWithNot_ReturnsPropertySql()
-            {
-                var pred = new FieldPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Name",
-                                   Value = "%foo",
-                                   Not = true,
-                                   Operator = Operator.Like
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Name] NOT LIKE @Name_0)", result);
-                Assert.AreEqual("%foo", parameters["@Name_0"]);
-            }
-        }
-
-        [TestFixture]
-        public class GroupPredicateTests : PredicatesFixtureBase
-        {
-            [Test]
-            public void GroupPredicate_IncludesAllPredicates()
-            {
-                var pred = new PredicateGroup
-                               {
-                                   Operator = GroupOperator.And,
-                                   Predicates = new List<IPredicate>
-                                                    {
-                                                        new TestPredicate("one"),
-                                                        new TestPredicate("two")
-                                                    }
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                var result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("(one AND two)", result);
-            }
-
-            [Test]
-            public void GroupPredicate_IncludesAllSubPredicateGroup()
-            {
-                var pred = new PredicateGroup
-                               {
-                                   Operator = GroupOperator.And,
-                                   Predicates = new List<IPredicate>
-                                                    {
-                                                        new TestPredicate("one"),
-                                                        new TestPredicate("two"),
-                                                        new PredicateGroup
-                                                            {
-                                                                Operator = GroupOperator.Or,
-                                                                Predicates = new List<IPredicate>
-                                                                                 {
-                                                                                     new TestPredicate("three"),
-                                                                                     new TestPredicate("four"),
-                                                                                 }
-                                                            }
-                                                    }
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                var result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("(one AND two AND (three OR four))", result);
+                Mock<FieldPredicate<T>> predicate = new Mock<FieldPredicate<T>>();
+                predicate.Object.PropertyName = propertyName;
+                predicate.Object.Operator = op;
+                predicate.Object.Not = not;
+                predicate.Object.Value = value;
+                predicate.CallBase = true;
+                predicate.Protected().Setup<string>("GetColumnName", typeof(T), Generator.Object, propertyName).Returns("fooCol").Verifiable();
+                return predicate;
             }
         }
 
         [TestFixture]
         public class PropertyPredicateTests : PredicatesFixtureBase
-        {
+        {           
             [Test]
-            public void Eq_ReturnsProperSql()
+            public void GetSql_ReturnsProperSql()
             {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = false,
-                                   Operator = Operator.Eq
-                               };
+                var predicate = Setup<PredicateTestEntity, PredicateTestEntity2>("Name", Operator.Eq, "Value", false);
+                predicate.Setup(p => p.GetOperatorString()).Returns("**").Verifiable();
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])", result);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
                 Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(fooCol ** fooCol2)", sql);
             }
 
-            [Test]
-            public void EqWithNot_ReturnsProperSql()
+            protected Mock<PropertyPredicate<T, T2>> Setup<T, T2>(string propertyName, Operator op, string propertyName2, bool not)
+                where T : class
+                where T2 : class
             {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = true,
-                                   Operator = Operator.Eq
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <> [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void Gt_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = false,
-                                   Operator = Operator.Gt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] > [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void GtWithNot_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = true,
-                                   Operator = Operator.Gt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <= [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void Ge_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = false,
-                                   Operator = Operator.Ge
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] >= [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void GeWithNot_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = true,
-                                   Operator = Operator.Ge
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] < [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void Lt_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = false,
-                                   Operator = Operator.Lt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] < [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void LtWithNot_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = true,
-                                   Operator = Operator.Lt
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] >= [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void Le_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = false,
-                                   Operator = Operator.Le
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] <= [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void LeWithNot_ReturnsProperSql()
-            {
-                var pred = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                               {
-                                   PropertyName = "Id",
-                                   PropertyName2 = "Key",
-                                   Not = true,
-                                   Operator = Operator.Le
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] > [PredicateTestEntity2].[Key])", result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-        }
-
-        [TestFixture]
-        public class ExistsPredicateTests : PredicatesFixtureBase
-        {
-            [Test]
-            public void ExistsPredicate_ReturnsProperSql()
-            {
-                var pred = new ExistsPredicate<PredicateTestEntity2>
-                               {
-                                   Predicate = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                                                   {
-                                                       PropertyName = "Id",
-                                                       PropertyName2 = "Key",
-                                                       Not = false,
-                                                       Operator = Operator.Eq
-                                                   }
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual(
-                    "(EXISTS (SELECT 1 FROM [PredicateTestEntity2] WHERE ([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])))",
-                    result);
-                Assert.AreEqual(0, parameters.Count);
-            }
-
-            [Test]
-            public void ExistsPredicateWithNot_ReturnsProperSql()
-            {
-                var pred = new ExistsPredicate<PredicateTestEntity2>
-                               {
-                                   Not = true,
-                                   Predicate = new PropertyPredicate<PredicateTestEntity, PredicateTestEntity2>
-                                                   {
-                                                       PropertyName = "Id",
-                                                       PropertyName2 = "Key",
-                                                       Not = false,
-                                                       Operator = Operator.Eq
-                                                   }
-                               };
-
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual(
-                    "(NOT EXISTS (SELECT 1 FROM [PredicateTestEntity2] WHERE ([PredicateTestEntity].[Id] = [PredicateTestEntity2].[Key])))",
-                    result);
-                Assert.AreEqual(0, parameters.Count);
+                Mock<PropertyPredicate<T, T2>> predicate = new Mock<PropertyPredicate<T, T2>>();
+                predicate.Object.PropertyName = propertyName;
+                predicate.Object.PropertyName2 = propertyName2;
+                predicate.Object.Operator = op;
+                predicate.Object.Not = not;
+                predicate.CallBase = true;
+                predicate.Protected().Setup<string>("GetColumnName", typeof(T), Generator.Object, propertyName).Returns("fooCol").Verifiable();
+                predicate.Protected().Setup<string>("GetColumnName", typeof(T2), Generator.Object, propertyName2).Returns("fooCol2").Verifiable();
+                return predicate;
             }
         }
 
@@ -715,34 +323,183 @@ namespace DapperExtensions.Test
         public class BetweenPredicateTests : PredicatesFixtureBase
         {
             [Test]
-            public void BetweenPredicate_ReturnsProperSql()
+            public void GetSql_ReturnsProperSql()
             {
-                var pred = new BetweenPredicate<PredicateTestEntity>
-                               {
-                                   PropertyName = "Id",
-                                   Value = new BetweenValues { Value1 = 1, Value2 = 10 }
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, 12, 20, false);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] BETWEEN @Id_0 AND @Id_1)", result);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
                 Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual(12, parameters["@Name_0"]);
+                Assert.AreEqual(20, parameters["@Name_1"]);
+                Assert.AreEqual("(fooCol BETWEEN @Name_0 AND @Name_1)", sql);
             }
 
             [Test]
-            public void BetweenPredicateWithNot_ReturnsProperSql()
+            public void GetSql_Not_ReturnsProperSql()
             {
-                var pred = new BetweenPredicate<PredicateTestEntity>
-                               {
-                                   Not = true,
-                                   PropertyName = "Id",
-                                   Value = new BetweenValues { Value1 = 1, Value2 = 10 }
-                               };
+                var predicate = Setup<PredicateTestEntity>("Name", Operator.Eq, 12, 20, true);
+                var parameters = new Dictionary<string, object>();
 
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                string result = pred.GetSql(Generator.Object, parameters);
-                Assert.AreEqual("([PredicateTestEntity].[Id] NOT BETWEEN @Id_0 AND @Id_1)", result);
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+
                 Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual(12, parameters["@Name_0"]);
+                Assert.AreEqual(20, parameters["@Name_1"]);
+                Assert.AreEqual("(fooCol NOT BETWEEN @Name_0 AND @Name_1)", sql);
+            }
+
+            protected Mock<BetweenPredicate<T>> Setup<T>(string propertyName, Operator op, object value1, object value2, bool not)
+                where T : class
+            {
+                Mock<BetweenPredicate<T>> predicate = new Mock<BetweenPredicate<T>>();
+                predicate.Object.PropertyName = propertyName;
+                predicate.Object.Value = new BetweenValues { Value1 = value1, Value2 = value2 };
+                predicate.Object.Not = not;
+                predicate.CallBase = true;
+                predicate.Protected().Setup<string>("GetColumnName", typeof(T), Generator.Object, propertyName).Returns("fooCol").Verifiable();
+                return predicate;
+            }
+        }
+
+        [TestFixture]
+        public class PredicateGroupTests : PredicatesFixtureBase
+        {
+            [Test]
+            public void GetSql_And_ReturnsProperSql()
+            {
+                Mock<IPredicate> subPredicate1 = new Mock<IPredicate>();
+                var subPredicates = new List<IPredicate> { subPredicate1.Object, subPredicate1.Object };
+                var predicate = Setup(GroupOperator.And, subPredicates);
+                var parameters = new Dictionary<string, object>();
+
+                subPredicate1.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("subSql").Verifiable();
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+                subPredicate1.Verify(s => s.GetSql(Generator.Object, parameters), Times.AtMost(2));
+
+                Assert.AreEqual(0, parameters.Count);                
+                Assert.AreEqual("(subSql AND subSql)", sql);
+            }
+
+            [Test]
+            public void GetSql_Or_ReturnsProperSql()
+            {
+                Mock<IPredicate> subPredicate1 = new Mock<IPredicate>();
+                var subPredicates = new List<IPredicate> { subPredicate1.Object, subPredicate1.Object };
+                var predicate = Setup(GroupOperator.Or, subPredicates);
+                var parameters = new Dictionary<string, object>();
+
+                subPredicate1.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("subSql").Verifiable();
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+                subPredicate1.Verify(s => s.GetSql(Generator.Object, parameters), Times.AtMost(2));
+
+                Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(subSql OR subSql)", sql);
+            }
+
+            protected Mock<PredicateGroup> Setup(GroupOperator op, IList<IPredicate> predicates)
+            {
+                Mock<PredicateGroup> predicate = new Mock<PredicateGroup>();
+                predicate.Object.Operator = op;
+                predicate.Object.Predicates = predicates;
+                predicate.CallBase = true;
+                return predicate;
+            }
+        }
+
+        [TestFixture]
+        public class ExistsPredicateTests : PredicatesFixtureBase
+        {
+            [Test]
+            public void GetSql_WithoutNot_ReturnsProperSql()
+            {
+                Mock<IPredicate> subPredicate = new Mock<IPredicate>();
+                Mock<IClassMapper> subMap = new Mock<IClassMapper>();
+                var predicate = Setup<PredicateTestEntity2>(subPredicate.Object, subMap.Object, false);
+                Generator.Setup(g => g.GetTableName(subMap.Object)).Returns("subTable").Verifiable();
+                
+                var parameters = new Dictionary<string, object>();
+
+                subPredicate.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("subSql").Verifiable();
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+                subPredicate.Verify();
+                Generator.Verify();
+
+                Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(EXISTS (SELECT 1 FROM subTable WHERE subSql))", sql);
+            }
+
+            [Test]
+            public void GetSql_WithNot_ReturnsProperSql()
+            {
+                Mock<IPredicate> subPredicate = new Mock<IPredicate>();
+                Mock<IClassMapper> subMap = new Mock<IClassMapper>();
+                var predicate = Setup<PredicateTestEntity2>(subPredicate.Object, subMap.Object, true);
+                Generator.Setup(g => g.GetTableName(subMap.Object)).Returns("subTable").Verifiable();
+
+                var parameters = new Dictionary<string, object>();
+
+                subPredicate.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("subSql").Verifiable();
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+                subPredicate.Verify();
+                Generator.Verify();
+
+                Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(NOT EXISTS (SELECT 1 FROM subTable WHERE subSql))", sql);
+            }
+
+            [Test]
+            public void GetClassMapper_NoMapFound_ThrowsException()
+            {
+                var predicate = new Mock<ExistsPredicate<PredicateTestEntity>>();
+                predicate.CallBase = true;
+
+                Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity2))).Returns(() => null).Verifiable();
+
+                var ex = Assert.Throws<NullReferenceException>(() => predicate.Object.TestProtected().RunMethod<IClassMapper>("GetClassMapper", typeof(PredicateTestEntity2), Configuration.Object));
+
+                Configuration.Verify();
+
+                StringAssert.StartsWith("Map was not found", ex.Message);
+            }
+
+            [Test]
+            public void GetClassMapper_ReturnsMap()
+            {
+                Mock<IClassMapper> classMap = new Mock<IClassMapper>();
+                var predicate = new Mock<ExistsPredicate<PredicateTestEntity>>();
+                predicate.CallBase = true;
+
+                Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity2))).Returns(classMap.Object).Verifiable();
+
+                var result = predicate.Object.TestProtected().RunMethod<IClassMapper>("GetClassMapper", typeof(PredicateTestEntity2), Configuration.Object);
+
+                Configuration.Verify();
+
+                Assert.AreEqual(classMap.Object, result);
+            }
+
+            protected Mock<ExistsPredicate<T>> Setup<T>(IPredicate predicate, IClassMapper classMap, bool not) where T : class
+            {
+                Mock<ExistsPredicate<T>> result = new Mock<ExistsPredicate<T>>();
+                result.Object.Predicate = predicate;
+                result.Object.Not = not;
+                result.Protected().Setup<IClassMapper>("GetClassMapper", typeof (T), Configuration.Object).Returns(classMap).Verifiable();
+                result.CallBase = true;
+                return result;
             }
         }
 
@@ -756,21 +513,6 @@ namespace DapperExtensions.Test
         {
             public int Key { get; set; }
             public string Value { get; set; }
-        }
-
-        public class TestPredicate : IPredicate
-        {
-            private string _value;
-
-            public TestPredicate(string value)
-            {
-                _value = value;
-            }
-
-            public string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
-            {
-                return _value;
-            }
         }
     }
 }
