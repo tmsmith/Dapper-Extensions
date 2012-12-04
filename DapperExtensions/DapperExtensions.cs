@@ -114,10 +114,21 @@ namespace DapperExtensions
         /// <param name="defaultMapper"></param>
         /// <param name="mappingAssemblies"></param>
         /// <param name="sqlDialect"></param>
-        public static void Configure(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
+        public static void Configure(IDapperExtensionsConfiguration configuration)
         {
             _instance = null;
-            _configuration = new DapperExtensionsConfiguration(defaultMapper, mappingAssemblies, sqlDialect);
+            _configuration = configuration;
+        }
+
+        /// <summary>
+        /// Configure DapperExtensions extension methods.
+        /// </summary>
+        /// <param name="defaultMapper"></param>
+        /// <param name="mappingAssemblies"></param>
+        /// <param name="sqlDialect"></param>
+        public static void Configure(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
+        {
+            Configure(new DapperExtensionsConfiguration(defaultMapper, mappingAssemblies, sqlDialect));
         }
 
         /// <summary>
@@ -167,7 +178,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a delete query using the specified predicate.
         /// </summary>
-        public static bool Delete<T>(this IDbConnection connection, IPredicate predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static bool Delete<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return Instance.Delete<T>(connection, predicate, transaction, commandTimeout);
         }
@@ -204,7 +215,6 @@ namespace DapperExtensions
         {
             return Instance.GetMultiple(connection, predicate, transaction, commandTimeout);
         }
-
 
         /// <summary>
         /// Gets the appropriate mapper for the specified type T. 

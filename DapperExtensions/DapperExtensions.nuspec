@@ -12,13 +12,13 @@
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
 		1.4.0
-			* Add Database Class inorder to have multiple connections with different dialects. (Extension methods are still available)
+			* Add Database Class in order to have multiple connections with different dialects. (Extension methods are still available)
 			* Errors with Predicate not using proper SqlDialect
 			* MySql and Sqlite dialects are ready.
 			* ***BREAKNG CHANGE*** Renamed DapperExtensions.IDapperExtensionsImpl to IDapperImplementor
 			* ***BREAKNG CHANGE*** Renamed ISqlDialect.RunIdentityInsertAsBatch  to ISqlDialect.SupportsMultipleStatements
 			* Added GetMultiple method
-			* GetList, GetPage, Count will now accept an object as the Predicate for Equals predicates.
+			* GetList, GetPage, Count, Delete will now accept an object as the Predicate for Equals predicates.
 		1.3.3
 			* SqlServerDialect now uses SCOPE_IDENTITY instead of IDENT_CURRENT.
 			* PluralizedAutoClassMapper correctly handles words containing an F or FE

@@ -141,6 +141,26 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
                 list = Db.GetList<Person>();
                 Assert.AreEqual(1, list.Count());
             }
+
+            [Test]
+            public void UsingObject_DeletesRows()
+            {
+                Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+                Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+                Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
+                Db.Insert(p1);
+                Db.Insert(p2);
+                Db.Insert(p3);
+
+                var list = Db.GetList<Person>();
+                Assert.AreEqual(3, list.Count());
+
+                var result = Db.Delete<Person>(new { LastName = "Bar" });
+                Assert.IsTrue(result);
+
+                list = Db.GetList<Person>();
+                Assert.AreEqual(1, list.Count());
+            }
         }
 
         [TestFixture]

@@ -18,7 +18,7 @@ namespace DapperExtensions
         dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
+        bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
         IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;        
         IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         int Count<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
@@ -37,7 +37,7 @@ namespace DapperExtensions
         public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate predicate = GetIdPredicate(typeof(T), classMap, id);
+            IPredicate predicate = GetIdPredicate(classMap, id);
             T result = GetList<T>(connection, classMap, predicate, null, transaction, commandTimeout, true).SingleOrDefault();
             return result;
         }
@@ -147,10 +147,11 @@ namespace DapperExtensions
             return Delete<T>(connection, classMap, predicate, transaction, commandTimeout);
         }
 
-        public bool Delete<T>(IDbConnection connection, IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            return Delete<T>(connection, classMap, predicate, transaction, commandTimeout);
+            IPredicate wherePredicate = GetPredicate(classMap, predicate);
+            return Delete<T>(connection, classMap, wherePredicate, transaction, commandTimeout);
         }
 
         public IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
@@ -242,7 +243,7 @@ namespace DapperExtensions
             return wherePredicate;
         }
 
-        protected IPredicate GetIdPredicate(Type type, IClassMapper classMap, object id)
+        protected IPredicate GetIdPredicate(IClassMapper classMap, object id)
         {
             bool isSimpleType = ReflectionHelper.IsSimpleType(id.GetType());
             var keys = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
@@ -261,7 +262,7 @@ namespace DapperExtensions
                     value = paramValues[key.Name];
                 }
 
-                Type predicateType = typeof(FieldPredicate<>).MakeGenericType(type);
+                Type predicateType = typeof(FieldPredicate<>).MakeGenericType(classMap.EntityType);
 
                 IFieldPredicate fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
                 fieldPredicate.Not = false;
@@ -339,7 +340,7 @@ namespace DapperExtensions
                 IPredicate itemPredicate = item.Value as IPredicate;
                 if (itemPredicate == null && item.Value != null)
                 {
-                    itemPredicate = GetIdPredicate(item.Type, classMap, item.Value);
+                    itemPredicate = GetPredicate(classMap, item.Value);
                 }
 
                 sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters) + SqlGenerator.Configuration.Dialect.BatchSeperator);
@@ -365,7 +366,7 @@ namespace DapperExtensions
                 IPredicate itemPredicate = item.Value as IPredicate;
                 if (itemPredicate == null && item.Value != null)
                 {
-                    itemPredicate = GetIdPredicate(item.Type, classMap, item.Value);
+                    itemPredicate = GetPredicate(classMap, item.Value);
                 }
 
                 string sql = SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters);

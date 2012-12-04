@@ -27,8 +27,8 @@ namespace DapperExtensions
         bool Update<T>(T entity, int? commandTimeout = null) where T : class;
         bool Delete<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         bool Delete<T>(T entity, int? commandTimeout = null) where T : class;
-        bool Delete<T>(IPredicate predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
-        bool Delete<T>(IPredicate predicate, int? commandTimeout = null) where T : class;
+        bool Delete<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
+        bool Delete<T>(object predicate, int? commandTimeout = null) where T : class;
         IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
@@ -188,12 +188,12 @@ namespace DapperExtensions
             return _dapper.Delete(Connection, entity, _transaction, commandTimeout);
         }
 
-        public bool Delete<T>(IPredicate predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Delete<T>(object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             return _dapper.Delete<T>(Connection, predicate, transaction, commandTimeout);
         }
 
-        public bool Delete<T>(IPredicate predicate, int? commandTimeout) where T : class
+        public bool Delete<T>(object predicate, int? commandTimeout) where T : class
         {
             return _dapper.Delete<T>(Connection, predicate, _transaction, commandTimeout);
         }
