@@ -19,23 +19,33 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return string.Format("SELECT IDENT_CURRENT('{0}') AS [Id]", tableName);
+            return string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [Id]");
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
+            if (string.IsNullOrEmpty(sql))
+            {
+                throw new ArgumentNullException("SQL");
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
+            }
+
             int selectIndex = GetSelectEnd(sql) + 1;
             string orderByClause = GetOrderByClause(sql);
             if (orderByClause == null)
             {
-                orderByClause = " ORDER BY CURRENT_TIMESTAMP";
+                orderByClause = "ORDER BY CURRENT_TIMESTAMP";
             }
 
 
             string projectedColumns = GetColumnNames(sql).Aggregate(new StringBuilder(), (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(GetColumnName("_proj", s, null)), sb => sb.ToString());
             string newSql = sql
-                .Replace(orderByClause, string.Empty)
-                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(10), GetColumnName(null, "_row_number", null)));
+                .Replace(" " + orderByClause, string.Empty)
+                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(9), GetColumnName(null, "_row_number", null)));
 
             string result = string.Format("SELECT TOP({0}) {1} FROM ({2}) [_proj] WHERE {3} >= @_pageStartRow ORDER BY {3}",
                 resultsPerPage, projectedColumns.Trim(), newSql, GetColumnName("_proj", "_row_number", null));
@@ -48,12 +58,20 @@ namespace DapperExtensions.Sql
         protected string GetOrderByClause(string sql)
         {
             int orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
-            if (orderByIndex > 0)
+            if (orderByIndex == -1)
             {
-                return sql.Substring(orderByIndex);
+                return null;
             }
 
-            return null;
+            string result = sql.Substring(orderByIndex).Trim();
+
+            int whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
+            if (whereIndex == -1)
+            {
+                return result;
+            }
+
+            return result.Substring(0, whereIndex).Trim();
         }
 
         protected int GetFromStart(string sql)
@@ -83,7 +101,7 @@ namespace DapperExtensions.Sql
             return fromIndex;
         }
 
-        protected int GetSelectEnd(string sql)
+        protected virtual int GetSelectEnd(string sql)
         {
             if (sql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -98,7 +116,7 @@ namespace DapperExtensions.Sql
             throw new ArgumentException("SQL must be a SELECT statement.", "sql");
         }
 
-        protected IList<string> GetColumnNames(string sql)
+        protected virtual IList<string> GetColumnNames(string sql)
         {
             int start = GetSelectEnd(sql);
             int stop = GetFromStart(sql);

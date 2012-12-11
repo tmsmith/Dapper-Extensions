@@ -12,6 +12,8 @@
     <AssemblyName>DapperExtensions</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\basis\src\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,11 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper">
-      <HintPath>..\packages\Dapper.1.8\lib\net40\Dapper.dll</HintPath>
+    <Reference Include="Dapper, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.12.1\lib\net40\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,6 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DapperExtensionsConfiguration.cs" />
+    <Compile Include="DapperImplementor.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="GetMultiplePredicate.cs" />
+    <Compile Include="GetMultipleResult.cs" />
     <Compile Include="Mapper\AutoClassMapper.cs" />
     <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
@@ -55,6 +64,7 @@
     <Compile Include="Sql\SqlDialectBase.cs" />
     <Compile Include="Sql\SqlGenerator.cs" />
     <Compile Include="Sql\MySqlDialect.cs" />
+    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>

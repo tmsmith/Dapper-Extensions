@@ -1,0 +1,11 @@
+﻿IF (OBJECT_ID('Multikey') IS NOT NULL)
+BEGIN
+    DROP TABLE Multikey
+END
+
+CREATE TABLE Multikey (
+    Key1 INT IDENTITY(1, 1) NOT NULL,
+    Key2 NVARCHAR(50) NOT NULL,
+    Value NVARCHAR(50),
+    PRIMARY KEY(Key1, Key2)
+)

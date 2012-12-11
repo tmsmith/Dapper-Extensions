@@ -17,8 +17,18 @@ namespace DapperExtensions.Sql
             get { return ']'; }
         }
 
+        public override bool SupportsMultipleStatements
+        {
+            get { return false; }
+        }
+
         public override string GetTableName(string schemaName, string tableName, string alias)
         {
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentNullException("TableName");
+            }
+
             StringBuilder result = new StringBuilder();
             result.Append(OpenQuote);
             if (!string.IsNullOrWhiteSpace(schemaName))
@@ -39,13 +49,13 @@ namespace DapperExtensions.Sql
 
         public override string GetIdentitySql(string tableName)
         {
-            return "SELECT @@IDENTITY AS [Id]";
+            return "SELECT CAST(@@IDENTITY AS BIGINT) AS [Id]";
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
             string result = string.Format("{0} OFFSET @pageStartRowNbr ROWS FETCH NEXT @resultsPerPage ROWS ONLY", sql);
-            int startValue = ((page - 1) * resultsPerPage);
+            int startValue = (page * resultsPerPage);
             parameters.Add("@pageStartRowNbr", startValue);
             parameters.Add("@resultsPerPage", resultsPerPage);
             return result;

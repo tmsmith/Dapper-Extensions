@@ -9,6 +9,8 @@ namespace DapperExtensions.Sql
     {
         char OpenQuote { get; }
         char CloseQuote { get; }
+        string BatchSeperator { get; }
+        bool SupportsMultipleStatements { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
@@ -29,11 +31,21 @@ namespace DapperExtensions.Sql
             get { return '"'; }
         }
 
+        public virtual string BatchSeperator
+        {
+            get { return ";" + Environment.NewLine; }
+        }
+
+        public virtual bool SupportsMultipleStatements
+        {
+            get { return true; }
+        }
+
         public virtual string GetTableName(string schemaName, string tableName, string alias)
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
-                throw new ArgumentNullException(tableName, "tableName cannot be null or empty.");
+                throw new ArgumentNullException("TableName", "tableName cannot be null or empty.");
             }
 
             StringBuilder result = new StringBuilder();
@@ -55,7 +67,7 @@ namespace DapperExtensions.Sql
         {
             if (string.IsNullOrWhiteSpace(columnName))
             {
-                throw new ArgumentNullException(columnName, "columnName cannot be null or empty.");
+                throw new ArgumentNullException("ColumnName", "columnName cannot be null or empty.");
             }
 
             StringBuilder result = new StringBuilder();
@@ -90,6 +102,11 @@ namespace DapperExtensions.Sql
         public virtual string QuoteString(string value)
         {
             return IsQuoted(value) ? value : string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
+        }
+
+        public virtual string UnQuoteString(string value)
+        {
+            return IsQuoted(value) ? value.Substring(1, value.Length - 2) : value;
         }
     }
 }

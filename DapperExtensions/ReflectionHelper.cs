@@ -9,6 +9,28 @@ namespace DapperExtensions
 {
     internal static class ReflectionHelper
     {
+        private static List<Type> _simpleTypes = new List<Type>
+                               {
+                                   typeof(byte),
+                                   typeof(sbyte),
+                                   typeof(short),
+                                   typeof(ushort),
+                                   typeof(int),
+                                   typeof(uint),
+                                   typeof(long),
+                                   typeof(ulong),
+                                   typeof(float),
+                                   typeof(double),
+                                   typeof(decimal),
+                                   typeof(bool),
+                                   typeof(string),
+                                   typeof(char),
+                                   typeof(Guid),
+                                   typeof(DateTime),
+                                   typeof(DateTimeOffset),
+                                   typeof(byte[])
+                               };
+        
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;
@@ -45,11 +67,6 @@ namespace DapperExtensions
             {
                 string name = propertyInfo.Name;
                 object value = propertyInfo.GetValue(obj, null);
-                if (value == null)
-                {
-                    continue;
-                }
-
                 result[name] = value;
             }
 
@@ -64,5 +81,27 @@ namespace DapperExtensions
                 sb => sb.ToString());
         }
 
+        public static bool IsSimpleType(Type type)
+        {
+            Type actualType = type;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                actualType = type.GetGenericArguments()[0];
+            }
+
+            return _simpleTypes.Contains(actualType);
+        }
+
+        public static string GetParameterName(this IDictionary<string, object> parameters, string parameterName)
+        {
+            return string.Format("@{0}_{1}", parameterName, parameters.Count);
+        }
+
+        public static string SetParameterName(this IDictionary<string, object> parameters, string parameterName, object value)
+        {
+            string name = parameters.GetParameterName(parameterName);
+            parameters.Add(name, value);
+            return name;
+        }
     }
 }

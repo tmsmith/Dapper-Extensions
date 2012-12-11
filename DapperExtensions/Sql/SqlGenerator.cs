@@ -8,107 +8,46 @@ namespace DapperExtensions.Sql
 {
     public interface ISqlGenerator
     {
-        string Get(IClassMapper classMap);
-        string Insert(IClassMapper classMap);
-        string Update(IClassMapper classMap);
-        string Delete(IClassMapper classMap);
-        string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
-        string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
-        string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        IDapperExtensionsConfiguration Configuration { get; }
+        
+        string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
+        string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+
+        string Insert(IClassMapper classMap);
+        string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+        string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+
         string IdentitySql(IClassMapper classMap);
         string GetTableName(IClassMapper map);
         string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
+        bool SupportsMultipleStatements();
     }
 
     public class SqlGeneratorImpl : ISqlGenerator
     {
-        private readonly ISqlDialect _dialect;
-
-        public SqlGeneratorImpl(ISqlDialect dialect)
+        public SqlGeneratorImpl(IDapperExtensionsConfiguration configuration)
         {
-            _dialect = dialect;
+            Configuration = configuration;
         }
 
-        public string Get(IClassMapper classMap)
+        public IDapperExtensionsConfiguration Configuration { get; private set; }
+
+        public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
         {
-            if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
+            if (parameters == null)
             {
-                throw new ArgumentException("At least one Key column must be defined.");
+                throw new ArgumentNullException("Parameters");
             }
 
-            return string.Format("SELECT {0} FROM {1} WHERE {2}",
-                BuildSelectColumns(classMap),
-                GetTableName(classMap),
-                BuildWhere(classMap));
-        }
-
-        public string Insert(IClassMapper classMap)
-        {
-            if (classMap.Properties.Count(c => c.KeyType == KeyType.Identity) > 1)
-            {
-                throw new ArgumentException("Can only set 1 property to Identity.");
-            }
-
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
-            var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
-            var parameters = columns.Select(p => "@" + p.Name);
-
-            return string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
-                                 GetTableName(classMap),
-                                 columnNames.AppendStrings(),
-                                 parameters.AppendStrings());
-        }
-
-        public string Update(IClassMapper classMap)
-        {
-            if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
-            {
-                throw new ArgumentException("At least one Key column must be defined.");
-            }
-
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
-            var setSql = columns.Select(p => GetColumnName(classMap, p, false) + " = @" + p.Name);
-            return string.Format("UPDATE {0} SET {1} WHERE {2}",
-                GetTableName(classMap),
-                setSql.AppendStrings(),
-                BuildWhere(classMap));
-        }
-
-        public string Delete(IClassMapper classMap)
-        {
-            if (!classMap.Properties.Any(c => c.KeyType != KeyType.NotAKey))
-            {
-                throw new ArgumentException("At least one Key column must be defined.");
-            }
-
-            return string.Format("DELETE FROM {0} WHERE {1}",
-                GetTableName(classMap),
-                BuildWhere(classMap));
-        }
-
-        public string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
-        {
-            StringBuilder sql = new StringBuilder(string.Format("DELETE FROM {0}", GetTableName(classMap)));
-            if (predicate != null)
-            {
-                sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
-            }
-
-            return sql.ToString();
-        }
-
-        public string GetList(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
-        {
             StringBuilder sql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
                 BuildSelectColumns(classMap),
                 GetTableName(classMap)));
             if (predicate != null)
             {
                 sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             if (sort != null && sort.Any())
@@ -120,11 +59,16 @@ namespace DapperExtensions.Sql
             return sql.ToString();
         }
 
-        public string GetPage(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public virtual string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
             if (sort == null || !sort.Any())
             {
-                throw new ArgumentException("Sort must be supplied for GetPage.");
+                throw new ArgumentNullException("Sort", "Sort cannot be null or empty.");
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
             }
 
             StringBuilder innerSql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
@@ -133,40 +77,108 @@ namespace DapperExtensions.Sql
             if (predicate != null)
             {
                 innerSql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             string orderBy = sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings();
             innerSql.Append(" ORDER BY " + orderBy);
 
-            string sql = _dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
+            string sql = Configuration.Dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters);
             return sql;
         }
 
-        public string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+        public virtual string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
         {
-            StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS [Total] FROM {0}",
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
+            }
+
+            StringBuilder sql = new StringBuilder(string.Format("SELECT COUNT(*) AS {0}Total{1} FROM {2}",
+                                Configuration.Dialect.OpenQuote,
+                                Configuration.Dialect.CloseQuote,
                                 GetTableName(classMap)));
             if (predicate != null)
             {
                 sql.Append(" WHERE ")
-                    .Append(predicate.GetSql(parameters));
+                    .Append(predicate.GetSql(this, parameters));
             }
 
             return sql.ToString();
         }
-
-        public string IdentitySql(IClassMapper classMap)
+        
+        public virtual string Insert(IClassMapper classMap)
         {
-            return _dialect.GetIdentitySql(GetTableName(classMap));
+            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            if (!columns.Any())
+            {
+                throw new ArgumentException("No columns were mapped.");
+            }
+
+            var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
+            var parameters = columns.Select(p => "@" + p.Name);
+
+            string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
+                                       GetTableName(classMap),
+                                       columnNames.AppendStrings(),
+                                       parameters.AppendStrings());
+
+            return sql;
         }
 
-        public string GetTableName(IClassMapper map)
+        public virtual string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
         {
-            return _dialect.GetTableName(map.SchemaName, map.TableName, null);
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("Predicate");
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
+            }
+
+            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            if (!columns.Any())
+            {
+                throw new ArgumentException("No columns were mapped.");
+            }
+
+            var setSql = columns.Select(p => GetColumnName(classMap, p, false) + " = @" + p.Name);
+            return string.Format("UPDATE {0} SET {1} WHERE {2}",
+                GetTableName(classMap),
+                setSql.AppendStrings(),
+                predicate.GetSql(this, parameters));
+        }
+        
+        public virtual string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+        {
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("Predicate");
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
+            }
+
+            StringBuilder sql = new StringBuilder(string.Format("DELETE FROM {0}", GetTableName(classMap)));
+            sql.Append(" WHERE ").Append(predicate.GetSql(this, parameters));
+            return sql.ToString();
+        }
+        
+        public virtual string IdentitySql(IClassMapper classMap)
+        {
+            return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));
         }
 
-        public string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+        public virtual string GetTableName(IClassMapper map)
+        {
+            return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
+        }
+
+        public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
         {
             string alias = null;
             if (property.ColumnName != property.Name && includeAlias)
@@ -174,10 +186,10 @@ namespace DapperExtensions.Sql
                 alias = property.Name;
             }
 
-            return _dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
+            return Configuration.Dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
         }
 
-        public string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
+        public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
         {
             IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
             if (propertyMap == null)
@@ -188,18 +200,17 @@ namespace DapperExtensions.Sql
             return GetColumnName(map, propertyMap, includeAlias);
         }
 
-        private string BuildSelectColumns(IClassMapper classMap)
+        public virtual bool SupportsMultipleStatements()
         {
-            var columns = classMap.Properties.Where(p => !p.Ignored).Select(p => GetColumnName(classMap, p, true));
-            return columns.AppendStrings();
+            return Configuration.Dialect.SupportsMultipleStatements;
         }
 
-        private string BuildWhere(IClassMapper classMap)
+        public virtual string BuildSelectColumns(IClassMapper classMap)
         {
-            var where = classMap.Properties
-                .Where(p => p.KeyType != KeyType.NotAKey)
-                .Select(p => GetColumnName(classMap, p, false) + " = @" + p.Name);
-            return where.AppendStrings(" AND ");
+            var columns = classMap.Properties
+                .Where(p => !p.Ignored)
+                .Select(p => GetColumnName(classMap, p, true));
+            return columns.AppendStrings();
         }
     }
 }

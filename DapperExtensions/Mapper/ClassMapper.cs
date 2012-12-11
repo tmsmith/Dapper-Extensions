@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using System.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +13,7 @@ namespace DapperExtensions.Mapper
         string SchemaName { get; }
         string TableName { get; }
         IList<IPropertyMap> Properties { get; }
+        Type EntityType { get; }
     }
 
     public interface IClassMapper<T> : IClassMapper where T : class
@@ -24,6 +25,8 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        private readonly Dictionary<Type, KeyType> _propertyTypeKeyTypeMapping;
+
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>
@@ -39,8 +42,27 @@ namespace DapperExtensions.Mapper
         /// </summary>
         public IList<IPropertyMap> Properties { get; private set; }
 
+        public Type EntityType
+        {
+            get { return typeof(T); }
+        }
+
         public ClassMapper()
         {
+            _propertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
+                                             {
+                                                 { typeof(byte), KeyType.Identity }, { typeof(byte?), KeyType.Identity },
+                                                 { typeof(sbyte), KeyType.Identity }, { typeof(sbyte?), KeyType.Identity },
+                                                 { typeof(short), KeyType.Identity }, { typeof(short?), KeyType.Identity },
+                                                 { typeof(ushort), KeyType.Identity }, { typeof(ushort?), KeyType.Identity },
+                                                 { typeof(int), KeyType.Identity }, { typeof(int?), KeyType.Identity },
+                                                 { typeof(uint), KeyType.Identity}, { typeof(uint?), KeyType.Identity },
+                                                 { typeof(long), KeyType.Identity }, { typeof(long?), KeyType.Identity },
+                                                 { typeof(ulong), KeyType.Identity }, { typeof(ulong?), KeyType.Identity },
+                                                 { typeof(BigInteger), KeyType.Identity }, { typeof(BigInteger?), KeyType.Identity },
+                                                 { typeof(Guid), KeyType.Guid }, { typeof(Guid?), KeyType.Guid },
+                                             };
+
             Properties = new List<IPropertyMap>();
             Table(typeof(T).Name);
         }
@@ -57,8 +79,14 @@ namespace DapperExtensions.Mapper
 
         protected virtual void AutoMap()
         {
+            AutoMap(null);
+        }
+
+        protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
+        {
             Type type = typeof(T);
-            bool keyFound = Properties.Any(p => p.KeyType != KeyType.NotAKey);
+            bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
+            PropertyMap keyMap = null;
             foreach (var propertyInfo in type.GetProperties())
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
@@ -66,25 +94,31 @@ namespace DapperExtensions.Mapper
                     continue;
                 }
 
-                PropertyMap map = Map(propertyInfo);
-
-                if (!keyFound && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                if ((canMap != null && !canMap(type, propertyInfo)))
                 {
-                    if (map.PropertyInfo.PropertyType == typeof(int) || map.PropertyInfo.PropertyType == typeof(int?))
+                    continue;
+                }
+
+                PropertyMap map = Map(propertyInfo);
+                if (!hasDefinedKey)
+                {
+                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        map.Key(KeyType.Identity);
-                    }
-                    else if (map.PropertyInfo.PropertyType == typeof(Guid) || map.PropertyInfo.PropertyType == typeof(Guid?))
-                    {
-                        map.Key(KeyType.Guid);
-                    }
-                    else
-                    {
-                        map.Key(KeyType.Assigned);
+                        keyMap = map;
                     }
 
-                    keyFound = true;
+                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                    {
+                        keyMap = map;
+                    }
                 }
+            }
+
+            if (keyMap != null)
+            {
+                keyMap.Key(_propertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
+                    ? _propertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+                    : KeyType.Assigned);
             }
         }
 

@@ -31,8 +31,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.12.1\lib\net40\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.6.5.4\lib\net40\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -47,10 +54,17 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\SqlServerCompact.4.0.8482.1\lib\System.Data.SqlServerCe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,21 +72,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyFixture.cs" />
-    <Compile Include="IntegrationTests\DapperExtensionsImpFixture.cs" />
+    <Compile Include="Data\Car.cs" />
+    <Compile Include="Helpers\DatabaseInfo.cs" />
+    <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
+    <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
     <Compile Include="Data\CustomMapper.cs" />
     <Compile Include="Data\Animal.cs" />
     <Compile Include="Data\Multikey.cs" />
     <Compile Include="Data\Person.cs" />
-    <Compile Include="Helpers\DatabaseConnection.cs" />
+    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\SqlCeBaseFixture.cs" />
+    <Compile Include="IntegrationTests\SqlCe\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlServerBaseFixture.cs" />
+    <Compile Include="IntegrationTests\SqlServer\TimerFixture.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
-    <Compile Include="IntegrationTests\DatabaseTestsFixture.cs" />
     <Compile Include="PredicatesFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="Sql\SqliteDialectFixture.cs" />
+    <Compile Include="Sql\SqlCeDialectFixture.cs" />
     <Compile Include="Sql\SqlDialectBaseFixture.cs" />
     <Compile Include="Sql\SqlGeneratorFixture.cs" />
     <Compile Include="Helpers\TestHelpers.cs" />
@@ -82,22 +110,54 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj">
+      <Project>{DAFAEFFC-0E56-4FA5-923C-DE47E91B51D8}</Project>
+      <Name>DapperExtensions.Test.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj">
+      <Project>{87220EF9-8EE4-4EB0-829C-31C51BD7B750}</Project>
+      <Name>DapperExtensions.Test.Maps</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj">
       <Project>{4C1A2C6C-A469-4C87-98D1-F1D517FA1ACF}</Project>
       <Name>DapperExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SqlScripts\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
