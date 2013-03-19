@@ -15,15 +15,19 @@ namespace DapperExtensions.Test
     {
         public abstract class PredicatesFixtureBase
         {
+            protected Mock<ISqlDialect> @SqlDialect;
             protected Mock<ISqlGenerator> Generator;
             protected Mock<IDapperExtensionsConfiguration> Configuration;
                 
             [SetUp]
             public void Setup()
             {
+                @SqlDialect = new Mock<ISqlDialect>();
                 Generator = new Mock<ISqlGenerator>();
                 Configuration = new Mock<IDapperExtensionsConfiguration>();
 
+                @SqlDialect.SetupGet(c => c.ParameterPrefix).Returns('@');
+                Configuration.SetupGet(c => c.Dialect).Returns(@SqlDialect.Object);
                 Generator.SetupGet(c => c.Configuration).Returns(Configuration.Object);
             }
         }

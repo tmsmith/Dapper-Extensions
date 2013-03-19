@@ -26,6 +26,7 @@ namespace DapperExtensions.Test.Sql
                 Dialect = new Mock<ISqlDialect>();
                 ClassMap = new Mock<IClassMapper>();
 
+                Dialect.SetupGet(c => c.ParameterPrefix).Returns('@');
                 Configuration.SetupGet(c => c.Dialect).Returns(Dialect.Object).Verifiable();
 
                 Generator = new Mock<SqlGeneratorImpl>(Configuration.Object);

@@ -11,6 +11,7 @@ namespace DapperExtensions.Sql
         char CloseQuote { get; }
         string BatchSeperator { get; }
         bool SupportsMultipleStatements { get; }
+        char ParameterPrefix { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
@@ -39,6 +40,14 @@ namespace DapperExtensions.Sql
         public virtual bool SupportsMultipleStatements
         {
             get { return true; }
+        }
+
+        public virtual char ParameterPrefix
+        {
+            get
+            {
+                return '@';
+            }
         }
 
         public virtual string GetTableName(string schemaName, string tableName, string alias)
