@@ -12,3 +12,6 @@
 *.dotCover
 _ReSharper.*
 StyleCop.*
+
+# Nuget
+packages
