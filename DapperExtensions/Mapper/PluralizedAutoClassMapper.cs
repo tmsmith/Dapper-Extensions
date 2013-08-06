@@ -19,7 +19,7 @@ namespace DapperExtensions.Mapper
         }
         
         // Adapted from: http://mattgrande.wordpress.com/2009/10/28/pluralization-helper-for-c/
-        private static class Formatting
+        public static class Formatting
         {
             private static readonly IList<string> Unpluralizables = new List<string> { "equipment", "information", "rice", "money", "species", "series", "fish", "sheep", "deer" };
             private static readonly IDictionary<string, string> Pluralizations = new Dictionary<string, string>
