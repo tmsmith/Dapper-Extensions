@@ -14,6 +14,11 @@
             Purge the query cache 
             </summary>
         </member>
+        <member name="M:Dapper.SqlMapper.AddTypeMap(System.Type,System.Data.DbType)">
+            <summary>
+            Configire the specified type to be mapped to a given db-type
+            </summary>
+        </member>
         <member name="M:Dapper.SqlMapper.Execute(System.Data.IDbConnection,System.String,System.Object)">
             <summary>
             Execute parameterized SQL  
@@ -204,12 +209,17 @@
             Internal use only
             </summary>
         </member>
+        <member name="M:Dapper.SqlMapper.FindOrAddParameter(System.Data.IDataParameterCollection,System.Data.IDbCommand,System.String)">
+            <summary>
+            Internal use only
+            </summary>
+        </member>
         <member name="M:Dapper.SqlMapper.PackListParameters(System.Data.IDbCommand,System.String,System.Object)">
             <summary>
             Internal use only
             </summary>
         </member>
-        <member name="M:Dapper.SqlMapper.CreateParamInfoGenerator(Dapper.SqlMapper.Identity)">
+        <member name="M:Dapper.SqlMapper.CreateParamInfoGenerator(Dapper.SqlMapper.Identity,System.Boolean)">
             <summary>
             Internal use only
             </summary>
@@ -251,6 +261,14 @@
             Called if the query cache is purged via PurgeQueryCache
             </summary>
         </member>
+        <member name="P:Dapper.SqlMapper.ConnectionStringComparer">
+            <summary>
+            How should connection strings be compared for equivalence? Defaults to StringComparer.Ordinal.
+            Providing a custom implementation can be useful for allowing multi-tenancy databases with identical
+            schema to share startegies. Note that usual equivalence rules apply: any equivalent connection strings
+            <b>MUST</b> yield the same hash-code.
+            </summary>
+        </member>
         <member name="T:Dapper.SqlMapper.IDynamicParameters">
             <summary>
             Implement this interface to pass an arbitrary db specific set of parameters to Dapper
@@ -262,6 +280,18 @@
             </summary>
             <param name="command">The raw command prior to execution</param>
             <param name="identity">Information about the query</param>
+        </member>
+        <member name="T:Dapper.SqlMapper.ICustomQueryParameter">
+            <summary>
+            Implement this interface to pass an arbitrary db specific parameter to Dapper
+            </summary>
+        </member>
+        <member name="M:Dapper.SqlMapper.ICustomQueryParameter.AddParameter(System.Data.IDbCommand,System.String)">
+            <summary>
+            Add the parameter needed to the command before it executes
+            </summary>
+            <param name="command">The raw command prior to execution</param>
+            <param name="name">Parameter name</param>
         </member>
         <member name="T:Dapper.SqlMapper.ITypeMap">
             <summary>
@@ -405,41 +435,40 @@
             Read the next grid of results
             </summary>
         </member>
+        <member name="M:Dapper.SqlMapper.GridReader.Read``1(System.Boolean)">
+            <summary>
+            Read the next grid of results
+            </summary>
+        </member>
         <member name="M:Dapper.SqlMapper.GridReader.Read``3(System.Func{``0,``1,``2},System.String)">
             <summary>
             Read multiple objects from a single recordset on the grid
             </summary>
-            <typeparam name="TFirst"></typeparam>
-            <typeparam name="TSecond"></typeparam>
-            <typeparam name="TReturn"></typeparam>
-            <param name="func"></param>
-            <param name="splitOn"></param>
-            <returns></returns>
+        </member>
+        <member name="M:Dapper.SqlMapper.GridReader.Read``3(System.Func{``0,``1,``2},System.String,System.Boolean)">
+            <summary>
+            Read multiple objects from a single recordset on the grid
+            </summary>
         </member>
         <member name="M:Dapper.SqlMapper.GridReader.Read``4(System.Func{``0,``1,``2,``3},System.String)">
             <summary>
             Read multiple objects from a single recordset on the grid
             </summary>
-            <typeparam name="TFirst"></typeparam>
-            <typeparam name="TSecond"></typeparam>
-            <typeparam name="TThird"></typeparam>
-            <typeparam name="TReturn"></typeparam>
-            <param name="func"></param>
-            <param name="splitOn"></param>
-            <returns></returns>
+        </member>
+        <member name="M:Dapper.SqlMapper.GridReader.Read``4(System.Func{``0,``1,``2,``3},System.String,System.Boolean)">
+            <summary>
+            Read multiple objects from a single recordset on the grid
+            </summary>
         </member>
         <member name="M:Dapper.SqlMapper.GridReader.Read``5(System.Func{``0,``1,``2,``3,``4},System.String)">
             <summary>
             Read multiple objects from a single record set on the grid
             </summary>
-            <typeparam name="TFirst"></typeparam>
-            <typeparam name="TSecond"></typeparam>
-            <typeparam name="TThird"></typeparam>
-            <typeparam name="TFourth"></typeparam>
-            <typeparam name="TReturn"></typeparam>
-            <param name="func"></param>
-            <param name="splitOn"></param>
-            <returns></returns>
+        </member>
+        <member name="M:Dapper.SqlMapper.GridReader.Read``5(System.Func{``0,``1,``2,``3,``4},System.String,System.Boolean)">
+            <summary>
+            Read multiple objects from a single record set on the grid
+            </summary>
         </member>
         <member name="M:Dapper.SqlMapper.GridReader.Dispose">
             <summary>

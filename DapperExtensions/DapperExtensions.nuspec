@@ -11,6 +11,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
+    1.4.2
+      * Initial Release of PostgreSqlDialect
     1.4.1
       * Paramater Prefix added to SqlDialect
       * Error when Column and Property key name were different while performing an update.
