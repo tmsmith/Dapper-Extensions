@@ -25,8 +25,6 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
-        private readonly Dictionary<Type, KeyType> _propertyTypeKeyTypeMapping;
-
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>
@@ -49,7 +47,7 @@ namespace DapperExtensions.Mapper
 
         public ClassMapper()
         {
-            _propertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
+            PropertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
                                              {
                                                  { typeof(byte), KeyType.Identity }, { typeof(byte?), KeyType.Identity },
                                                  { typeof(sbyte), KeyType.Identity }, { typeof(sbyte?), KeyType.Identity },
@@ -66,6 +64,8 @@ namespace DapperExtensions.Mapper
             Properties = new List<IPropertyMap>();
             Table(typeof(T).Name);
         }
+
+        protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; private set; }
 
         public virtual void Schema(string schemaName)
         {
@@ -116,8 +116,8 @@ namespace DapperExtensions.Mapper
 
             if (keyMap != null)
             {
-                keyMap.Key(_propertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                    ? _propertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
+                    ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
                     : KeyType.Assigned);
             }
         }
