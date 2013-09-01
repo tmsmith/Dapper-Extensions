@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Dapper;
 using DapperExtensions.Mapper;
@@ -44,12 +45,21 @@ namespace DapperExtensions
 
         public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
         {
+            IEnumerable<PropertyInfo> properties = null;
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+            var notKeyProperties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+            var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
+
+            var parameters = new List<DynamicParameters>();
+            if (triggerIdentityColumn != null)
+            {
+                properties = typeof (T).GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.Name != triggerIdentityColumn.PropertyInfo.Name);
+            }
 
             foreach (var e in entities)
             {
-                foreach (var column in properties)
+                foreach (var column in notKeyProperties)
                 {
                     if (column.KeyType == KeyType.Guid)
                     {
@@ -57,11 +67,33 @@ namespace DapperExtensions
                         column.PropertyInfo.SetValue(e, comb, null);
                     }
                 }
+
+                if (triggerIdentityColumn != null)
+                {
+                    var dynamicParameters = new DynamicParameters();
+                    foreach (var prop in properties)
+                    {
+                        dynamicParameters.Add(prop.Name, prop.GetValue(e, null));
+                    }
+
+                    // defaultValue need for identify type of parameter
+                    var defaultValue = typeof(T).GetProperty(triggerIdentityColumn.PropertyInfo.Name).GetValue(e, null);
+                    dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
+
+                    parameters.Add(dynamicParameters);
+                }
             }
 
             string sql = SqlGenerator.Insert(classMap);
 
-            connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
+            if (triggerIdentityColumn == null)
+            {
+                connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
+            }
+            else
+            {
+                connection.Execute(sql, parameters, transaction, commandTimeout, CommandType.Text);
+            }
         }
 
         public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
@@ -69,6 +101,7 @@ namespace DapperExtensions
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
             List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
+            var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
             foreach (var column in nonIdentityKeyProperties)
             {
                 if (column.KeyType == KeyType.Guid)
@@ -99,6 +132,25 @@ namespace DapperExtensions
                 int identityInt = Convert.ToInt32(identityValue);
                 keyValues.Add(identityColumn.Name, identityInt);
                 identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+            }
+            else if (triggerIdentityColumn != null)
+            {
+                var dynamicParameters = new DynamicParameters();
+                foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.Name != triggerIdentityColumn.PropertyInfo.Name))
+                {
+                    dynamicParameters.Add(prop.Name, prop.GetValue(entity, null));
+                }
+
+                // defaultValue need for identify type of parameter
+                var defaultValue = entity.GetType().GetProperty(triggerIdentityColumn.PropertyInfo.Name).GetValue(entity, null);
+                dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
+
+                connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
+
+                var value = dynamicParameters.Get<object>(SqlGenerator.Configuration.Dialect.ParameterPrefix + "IdOutParam");
+                keyValues.Add(triggerIdentityColumn.Name, value);
+                triggerIdentityColumn.PropertyInfo.SetValue(entity, value, null);
             }
             else
             {

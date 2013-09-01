@@ -49,6 +49,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
     </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\packages\odp.net.managed.121.1.1\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
     <Reference Include="pnunit.framework">
       <HintPath>..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
     </Reference>
@@ -78,6 +81,12 @@
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
     <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
     <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Animal.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Car.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Person.cs" />
+    <Compile Include="IntegrationTests\Oracle\OracleBaseFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\TimerFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
@@ -152,6 +161,9 @@
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
