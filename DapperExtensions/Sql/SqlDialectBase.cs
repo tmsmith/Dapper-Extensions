@@ -12,6 +12,7 @@ namespace DapperExtensions.Sql
         string BatchSeperator { get; }
         bool SupportsMultipleStatements { get; }
         char ParameterPrefix { get; }
+        string EmptyExpression { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
@@ -47,6 +48,14 @@ namespace DapperExtensions.Sql
             get
             {
                 return '@';
+            }
+        }
+
+        public string EmptyExpression
+        {
+            get
+            {
+                return "1=1";
             }
         }
 
