@@ -219,6 +219,11 @@ namespace DapperExtensions.Test.Sql
             {
                 throw new NotImplementedException();
             }
+
+            public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
