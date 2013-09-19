@@ -137,8 +137,17 @@ namespace DapperExtensions.Mapper
         protected PropertyMap Map(PropertyInfo propertyInfo)
         {
             PropertyMap result = new PropertyMap(propertyInfo);
+            this.GuardForDuplicatePropertyMap(result);
             Properties.Add(result);
             return result;
+        }
+
+        private void GuardForDuplicatePropertyMap(PropertyMap result)
+        {
+            if (Properties.Any(p => p.Name.Equals(result.Name)))
+            {
+                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.",result.Name));
+            }
         }
     }
 }
