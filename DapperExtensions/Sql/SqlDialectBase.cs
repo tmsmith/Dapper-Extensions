@@ -17,6 +17,7 @@ namespace DapperExtensions.Sql
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
         string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
         bool IsQuoted(string value);
         string QuoteString(string value);
     }
@@ -106,6 +107,7 @@ namespace DapperExtensions.Sql
 
         public abstract string GetIdentitySql(string tableName);
         public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
 
         public virtual bool IsQuoted(string value)
         {
