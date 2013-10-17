@@ -127,9 +127,10 @@ namespace DapperExtensions
             DynamicParameters dynamicParameters = new DynamicParameters();
 
             var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
-            foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
+            foreach (var property in ReflectionHelper.GetObjectValues(entity, columns))
             {
-                dynamicParameters.Add(property.Key, property.Value);
+                DbType type = columns.Where(column => column.Name == property.Key).Select(column => column.Type).First();
+                dynamicParameters.Add(property.Key, property.Value, dbType: type);
             }
 
             foreach (var parameter in parameters)
@@ -251,7 +252,7 @@ namespace DapperExtensions
             IList<IPredicate> predicates = new List<IPredicate>();
             if (!isSimpleType)
             {
-                paramValues = ReflectionHelper.GetObjectValues(id);
+                paramValues = ReflectionHelper.GetObjectValues(id, classMap.Properties);
             }
 
             foreach (var key in keys)
@@ -311,7 +312,7 @@ namespace DapperExtensions
         {
             Type predicateType = typeof(FieldPredicate<>).MakeGenericType(classMap.EntityType);
             IList<IPredicate> predicates = new List<IPredicate>();
-            foreach (var kvp in ReflectionHelper.GetObjectValues(entity))
+            foreach (var kvp in ReflectionHelper.GetObjectValues(entity, classMap.Properties))
             {
                 IFieldPredicate fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
                 fieldPredicate.Not = false;
