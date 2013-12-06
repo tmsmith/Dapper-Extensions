@@ -52,7 +52,7 @@ namespace DapperExtensions
             {
                 foreach (var column in properties)
                 {
-                    if (column.KeyType == KeyType.Guid)
+                    if (column.KeyType == KeyType.Guid && (Guid)column.PropertyInfo.GetValue(e, null) == Guid.Empty)
                     {
                         Guid comb = SqlGenerator.Configuration.GetNextGuid();
                         column.PropertyInfo.SetValue(e, comb, null);
@@ -72,7 +72,7 @@ namespace DapperExtensions
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
             foreach (var column in nonIdentityKeyProperties)
             {
-                if (column.KeyType == KeyType.Guid)
+                if (column.KeyType == KeyType.Guid && (Guid)column.PropertyInfo.GetValue(entity, null) == Guid.Empty)
                 {
                     Guid comb = SqlGenerator.Configuration.GetNextGuid();
                     column.PropertyInfo.SetValue(entity, comb, null);
