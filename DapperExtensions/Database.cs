@@ -8,7 +8,7 @@ using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
-    public interface IDatabase
+    public interface IDatabase : IDisposable
     {
         bool HasActiveTransaction { get; }
         IDbConnection Connection { get; }
@@ -44,7 +44,7 @@ namespace DapperExtensions
         IClassMapper GetMap<T>() where T : class;
     }
 
-    public class Database : IDatabase, IDisposable
+    public class Database : IDatabase
     {
         private readonly IDapperImplementor _dapper;
 
