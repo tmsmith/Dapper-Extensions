@@ -14,8 +14,10 @@ namespace DapperExtensions
         Type DefaultMapper { get; }
         IList<Assembly> MappingAssemblies { get; }
         ISqlDialect Dialect { get; }
-        IClassMapper GetMap(Type entityType);
+	    IClassMapper GetMap(Type entityType);
+        IClassMapper GetMap(Type entityType, string tableName);
         IClassMapper GetMap<T>() where T : class;
+		IClassMapper GetMap<T>(string tableName) where T : class;
         void ClearCache();
         Guid GetNextGuid();
     }
@@ -41,7 +43,12 @@ namespace DapperExtensions
         public IList<Assembly> MappingAssemblies { get; private set; }
         public ISqlDialect Dialect { get; private set; }
 
-        public IClassMapper GetMap(Type entityType)
+	    public IClassMapper GetMap(Type entityType)
+	    {
+		    return GetMap(entityType, null);
+	    }
+
+	    public IClassMapper GetMap(Type entityType, string tableName)
         {
             IClassMapper map;
             if (!_classMaps.TryGetValue(entityType, out map))
@@ -52,16 +59,21 @@ namespace DapperExtensions
                     mapType = DefaultMapper.MakeGenericType(entityType);
                 }
 
-                map = Activator.CreateInstance(mapType) as IClassMapper;
+                map = Activator.CreateInstance(mapType, tableName) as IClassMapper;
                 _classMaps[entityType] = map;
             }
 
             return map;
         }
 
-        public IClassMapper GetMap<T>() where T : class
+	    public IClassMapper GetMap<T>() where T : class
+	    {
+		    return GetMap<T>(null);
+	    }
+
+	    public IClassMapper GetMap<T>(string tableName) where T : class
         {
-            return GetMap(typeof (T));
+            return GetMap(typeof (T), tableName);
         }
 
         public void ClearCache()
