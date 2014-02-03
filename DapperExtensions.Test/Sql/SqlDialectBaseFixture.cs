@@ -149,7 +149,7 @@ namespace DapperExtensions.Test.Sql
             public void DatabaseAndTable_ReturnsProperlyQuoted()
             {
               string result = Dialect.GetTableName( "db", null, "foo", null );
-              Assert.AreEqual( "\"bar\".\"foo\"", result );
+              Assert.AreEqual( "\"db\"..\"foo\"", result );
             }
 
             [Test]
