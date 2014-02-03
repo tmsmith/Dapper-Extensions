@@ -13,7 +13,7 @@ namespace DapperExtensions.Sql
         bool SupportsMultipleStatements { get; }
         char ParameterPrefix { get; }
         string EmptyExpression { get; }
-        string GetTableName(string schemaName, string tableName, string alias);
+        string GetTableName(string databaseName, string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
         string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
@@ -60,7 +60,7 @@ namespace DapperExtensions.Sql
             }
         }
 
-        public virtual string GetTableName(string schemaName, string tableName, string alias)
+        public virtual string GetTableName(string databaseName, string schemaName, string tableName, string alias)
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
@@ -68,7 +68,15 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder result = new StringBuilder();
-            if (!string.IsNullOrWhiteSpace(schemaName))
+            if (!string.IsNullOrWhiteSpace(databaseName) && !string.IsNullOrWhiteSpace(schemaName))
+            {
+                result.AppendFormat(QuoteString(databaseName) + "." + QuoteString(schemaName) + ".");
+            }
+            else if (!string.IsNullOrWhiteSpace(databaseName))
+            {
+                result.AppendFormat(QuoteString(databaseName) + "..");
+            }
+            else if (!string.IsNullOrWhiteSpace(schemaName))
             {
                 result.AppendFormat(QuoteString(schemaName) + ".");
             }

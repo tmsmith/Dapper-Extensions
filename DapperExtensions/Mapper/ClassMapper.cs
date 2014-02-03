@@ -10,6 +10,7 @@ namespace DapperExtensions.Mapper
 {
     public interface IClassMapper
     {
+        string DatabaseName { get; }
         string SchemaName { get; }
         string TableName { get; }
         IList<IPropertyMap> Properties { get; }
@@ -25,6 +26,11 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        /// <summary>
+        /// Gets or sets the database to use when referring to the corresponding table name in the database.
+        /// </summary>
+        public string DatabaseName { get; protected set; }
+
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>

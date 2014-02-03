@@ -210,7 +210,7 @@ namespace DapperExtensions.Sql
 
         public virtual string GetTableName(IClassMapper map)
         {
-            return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
+            return Configuration.Dialect.GetTableName(map.DatabaseName, map.SchemaName, map.TableName, null);
         }
 
         public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
