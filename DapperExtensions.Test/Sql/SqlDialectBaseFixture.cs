@@ -118,7 +118,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void NullTableName_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, null, null));
+              var ex = Assert.Throws<ArgumentNullException>( () => Dialect.GetTableName( null, null, null, null ) );
                 Assert.AreEqual("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
@@ -126,7 +126,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void EmptyTableName_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, string.Empty, null));
+              var ex = Assert.Throws<ArgumentNullException>( () => Dialect.GetTableName( null, null, string.Empty, null ) );
                 Assert.AreEqual("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
@@ -134,28 +134,35 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void TableNameOnly_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName(null, "foo", null);
+              string result = Dialect.GetTableName( null, null, "foo", null );
                 Assert.AreEqual("\"foo\"", result);
             }
 
             [Test]
             public void SchemaAndTable_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", null);
+              string result = Dialect.GetTableName( null, "null, bar", "foo", null );
                 Assert.AreEqual("\"bar\".\"foo\"", result);
+            }
+
+            [Test]
+            public void DatabaseAndTable_ReturnsProperlyQuoted()
+            {
+              string result = Dialect.GetTableName( "db", null, "foo", null );
+              Assert.AreEqual( "\"bar\".\"foo\"", result );
             }
 
             [Test]
             public void AllParams_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", "al");
-                Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
+              string result = Dialect.GetTableName( "db", "bar", "foo", "al" );
+              Assert.AreEqual( "\"db\".\"bar\".\"foo\" AS \"al\"", result );
             }
 
             [Test]
             public void ContainsQuotes_DoesNotAddExtraQuotes()
             {
-                string result = Dialect.GetTableName("\"bar\"", "\"foo\"", "\"al\"");
+              string result = Dialect.GetTableName( null, "\"bar\"", "\"foo\"", "\"al\"" );
                 Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
             }
         }

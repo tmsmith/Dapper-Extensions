@@ -73,6 +73,11 @@ namespace DapperExtensions.Mapper
 
         protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; private set; }
 
+        public virtual void Database( string databaseName )
+        {
+          DatabaseName = databaseName;
+        }
+
         public virtual void Schema(string schemaName)
         {
             SchemaName = schemaName;

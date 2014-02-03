@@ -31,9 +31,9 @@ namespace DapperExtensions.Sql
             return base.GetColumnName(null, columnName, alias).ToLower();
         }
 
-        public override string GetTableName(string schemaName, string tableName, string alias)
+        public override string GetTableName(string databaseName, string schemaName, string tableName, string alias)
         {
-            return base.GetTableName(schemaName, tableName, alias).ToLower();
+            return base.GetTableName( databaseName, schemaName, tableName, alias ).ToLower();
         }
     }
 

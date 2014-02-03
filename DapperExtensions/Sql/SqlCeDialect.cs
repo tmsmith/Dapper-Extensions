@@ -22,11 +22,17 @@ namespace DapperExtensions.Sql
             get { return false; }
         }
 
-        public override string GetTableName(string schemaName, string tableName, string alias)
+        public override string GetTableName(string databaseName, string schemaName, string tableName, string alias)
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
                 throw new ArgumentNullException("TableName");
+            }
+
+            // SqlCe doesn't support database names within the table identifier so throw an exception if this is attempted
+            if ( !string.IsNullOrWhiteSpace( databaseName ) )
+            {
+              throw new ArgumentNullException( "SqlCe does not support the database name identifier" );
             }
 
             StringBuilder result = new StringBuilder();

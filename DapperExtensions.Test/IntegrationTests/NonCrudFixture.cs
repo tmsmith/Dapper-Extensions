@@ -95,6 +95,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
             private class EntityWithInterfaceMapperMapper : IClassMapper<EntityWithInterfaceMapper>
             {
+                public string DatabaseName { get; private set; }
                 public string SchemaName { get; private set; }
                 public string TableName { get; private set; }
                 public IList<IPropertyMap> Properties { get; private set; }
