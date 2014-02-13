@@ -139,6 +139,12 @@ namespace DapperExtensions.Mapper
             PropertyMap result = new PropertyMap(propertyInfo);
             this.GuardForDuplicatePropertyMap(result);
             Properties.Add(result);
+
+            // Ignore properties with 'XmlIgnoreAttribute' in CRUD operations
+            if (Attribute.GetCustomAttribute(propertyInfo, typeof(System.Xml.Serialization.XmlIgnoreAttribute))!=null)
+            {
+                result.Ignore();
+            }
             return result;
         }
 
