@@ -7,7 +7,7 @@ using System.Text;
 
 namespace DapperExtensions
 {
-    internal static class ReflectionHelper
+    public static class ReflectionHelper
     {
         private static List<Type> _simpleTypes = new List<Type>
                                {

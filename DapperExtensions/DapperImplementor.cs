@@ -26,7 +26,7 @@ namespace DapperExtensions
         IMultipleResultReader GetMultiple(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout);
     }
 
-    internal class DapperImplementor : IDapperImplementor
+    public class DapperImplementor : IDapperImplementor
     {
         public DapperImplementor(ISqlGenerator sqlGenerator)
         {
