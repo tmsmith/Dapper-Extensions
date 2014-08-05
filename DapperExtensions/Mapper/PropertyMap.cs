@@ -83,7 +83,7 @@ namespace DapperExtensions.Mapper
                 throw new ArgumentException(string.Format("'{0}' is ignored and cannot be made a key field. ", Name));
             }
 
-            if (Ignored)
+            if (IsReadOnly)
             {
                 throw new ArgumentException(string.Format("'{0}' is readonly and cannot be made a key field. ", Name));
             }
