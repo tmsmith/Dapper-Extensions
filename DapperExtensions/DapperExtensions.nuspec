@@ -44,7 +44,10 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
+  	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
     <file src="bin\Release\DapperExtensions.pdb" target="lib\net40" />
+
+    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.dll" target="lib\net45" />
+    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.pdb" target="lib\net45" />
   </files>  
 </package>
