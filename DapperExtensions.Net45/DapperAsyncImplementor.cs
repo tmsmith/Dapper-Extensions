@@ -11,9 +11,8 @@ namespace DapperExtensions
     /// <summary>
     /// 
     /// </summary>
-    public interface IDapperAsyncImplementor
+    public interface IDapperAsyncImplementor : IDapperImplementor
     {
-        ISqlGenerator SqlGenerator { get; }
         /// <summary>
         /// The asynchronous counterpart to <see cref="IDapperImplementor.Get{T}"/>.
         /// </summary>
