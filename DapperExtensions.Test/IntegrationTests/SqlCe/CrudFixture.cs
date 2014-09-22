@@ -54,6 +54,16 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
             }
+
+            [Test]
+            public void AddsEntityToDatabase_ReturnsGeneratedPrimaryKeyForDynamic()
+            {
+                var d1 = new Dyno {Name = "Dyno"};
+                Db.Insert(d1);
+
+                Assert.IsInstanceOf(typeof(Int32), d1.Id);
+                Assert.True(d1.Id > 0);
+            }
         }
 
         [TestFixture]

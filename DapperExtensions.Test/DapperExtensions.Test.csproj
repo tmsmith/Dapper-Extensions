@@ -31,9 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.12.1.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Dapper, Version=1.34.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Dapper.1.13\lib\net40\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.1.34\lib\net40\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Car.cs" />
+    <Compile Include="Data\Dyno.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
@@ -152,6 +153,9 @@
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateDynoTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateDynoTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateDynoTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
