@@ -22,7 +22,7 @@ namespace DapperExtensions.Sql
         {
             string result = string.Format("{0} LIMIT @firstResult OFFSET @pageStartRowNbr", sql);            
             parameters.Add("@firstResult", firstResult);
-            parameters.Add("@maxResults", maxResults);
+            parameters.Add("@pageStartRowNbr", maxResults);
             return result;
         }
 
