@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DapperExtensions.Attributes;
 
 namespace DapperExtensions.Mapper
 {
@@ -100,6 +101,7 @@ namespace DapperExtensions.Mapper
                 }
 
                 PropertyMap map = Map(propertyInfo);
+
                 if (!hasDefinedKey)
                 {
                     if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
@@ -138,6 +140,7 @@ namespace DapperExtensions.Mapper
         {
             PropertyMap result = new PropertyMap(propertyInfo);
             this.GuardForDuplicatePropertyMap(result);
+            this.CheckForIgnore(result, propertyInfo);
             Properties.Add(result);
             return result;
         }
@@ -147,6 +150,15 @@ namespace DapperExtensions.Mapper
             if (Properties.Any(p => p.Name.Equals(result.Name)))
             {
                 throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.",result.Name));
+            }
+        }
+
+        private void CheckForIgnore(PropertyMap result, PropertyInfo property)
+        {
+            var ignore = property.GetCustomAttributes(typeof (DapperIgnoreAttribute), false);
+            if (ignore.Any())
+            {
+                result.Ignore();
             }
         }
     }
