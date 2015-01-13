@@ -86,41 +86,21 @@ namespace DapperExtensions.Mapper
         protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
         {
             Type type = typeof(T);
-            bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
-            PropertyMap keyMap = null;
+
             foreach (var propertyInfo in type.GetProperties())
             {
-                if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    continue;
-                }
-
-                if ((canMap != null && !canMap(type, propertyInfo)))
+                if (AlreadyHasProperty(propertyInfo.Name) || 
+                    (canMap != null && !canMap(type, propertyInfo)))
                 {
                     continue;
                 }
 
                 PropertyMap map = Map(propertyInfo);
 
-                if (!hasDefinedKey)
-                {
-                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        keyMap = map;
-                    }
-
-                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
-                    {
-                        keyMap = map;
-                    }
-                }
-            }
-
-            if (keyMap != null)
-            {
-                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                    ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
-                    : KeyType.Assigned);
+                var propertyAttributes = propertyInfo.GetCustomAttributes(typeof(DapperPropertyAttribute), false);
+                CheckForIgnore(map, propertyAttributes);
+                CheckForReadOnly(map, propertyAttributes);
+                CheckForKey(map, propertyAttributes);
             }
         }
 
@@ -140,7 +120,6 @@ namespace DapperExtensions.Mapper
         {
             PropertyMap result = new PropertyMap(propertyInfo);
             this.GuardForDuplicatePropertyMap(result);
-            this.CheckForIgnore(result, propertyInfo);
             Properties.Add(result);
             return result;
         }
@@ -153,13 +132,54 @@ namespace DapperExtensions.Mapper
             }
         }
 
-        private void CheckForIgnore(PropertyMap result, PropertyInfo property)
+        private void CheckForReadOnly(PropertyMap map, IEnumerable<object> propertyAttributes)
         {
-            var ignore = property.GetCustomAttributes(typeof (DapperIgnoreAttribute), false);
-            if (ignore.Any())
+            if (propertyAttributes.OfType<DapperReadOnlyAttribute>().Any())
             {
-                result.Ignore();
+                map.ReadOnly();
             }
+        }
+
+        private void CheckForIgnore(PropertyMap map, IEnumerable<object> propertyAttributes)
+        {
+            if (propertyAttributes.OfType<DapperIgnoreAttribute>().Any())
+            {
+                map.Ignore();
+            }
+        }
+
+        private bool AlreadyHasProperty(string name)
+        {
+            return Properties.Any(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private void CheckForKey(PropertyMap map, IEnumerable<object> propertyAttributes)
+        {
+            var keyAttributes = propertyAttributes.OfType<DapperPropertyKeyTypeAttribute>().ToList();
+
+            if (keyAttributes.Any())
+            {
+                map.Key(keyAttributes[0].KeyType);
+            }
+            else if (ThereIsNoKeyPropertyYet() && ColumnCanBeKey(map.PropertyInfo.Name))
+            {
+                map.Key(PropertyTypeKeyTypeMapping.ContainsKey(map.PropertyInfo.PropertyType)
+                    ? PropertyTypeKeyTypeMapping[map.PropertyInfo.PropertyType]
+                    : KeyType.Assigned);
+            }
+        }
+
+        private const string IdColumnName = "id";
+        private bool ColumnCanBeKey(string name)
+        {
+            return
+                string.Equals(name, IdColumnName, StringComparison.InvariantCultureIgnoreCase) ||
+                name.EndsWith(IdColumnName, true, CultureInfo.InvariantCulture);
+        }
+
+        private bool ThereIsNoKeyPropertyYet()
+        {
+            return Properties.All(x => x.KeyType == KeyType.NotAKey);
         }
     }
 }

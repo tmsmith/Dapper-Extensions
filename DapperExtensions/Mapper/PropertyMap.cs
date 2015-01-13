@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace DapperExtensions.Mapper
@@ -25,6 +23,7 @@ namespace DapperExtensions.Mapper
     {
         public PropertyMap(PropertyInfo propertyInfo)
         {
+            KeyType = KeyType.NotAKey;
             PropertyInfo = propertyInfo;
             ColumnName = PropertyInfo.Name;
         }

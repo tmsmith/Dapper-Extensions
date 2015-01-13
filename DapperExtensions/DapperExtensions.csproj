@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DapperIgnoreAttribute.cs" />
+    <Compile Include="Attributes\DapperPropertyAttribute.cs" />
+    <Compile Include="Attributes\DapperReadOnlyAttribute.cs" />
+    <Compile Include="Attributes\DapperPropertyKeyTypeAttribute.cs" />
     <Compile Include="DapperExtensionsConfiguration.cs" />
     <Compile Include="DapperImplementor.cs" />
     <Compile Include="Database.cs" />
