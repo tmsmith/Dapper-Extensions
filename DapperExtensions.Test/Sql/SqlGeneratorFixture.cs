@@ -217,6 +217,102 @@ namespace DapperExtensions.Test.Sql
         }
 
         [TestFixture]
+        public class SelectTopMethod : SqlGeneratorFixtureBase
+        {
+            [Test]
+            public void WithNullParameters_ThrowsException()
+            {
+                Sort sort = new Sort();
+                var ex = Assert.Throws<ArgumentNullException>(
+                    () => Generator.Object.Select(ClassMap.Object, null, null, null));
+                StringAssert.Contains("cannot be null", ex.Message);
+                Assert.AreEqual("Parameters", ex.ParamName);
+            }
+
+            [Test]
+            public void WithoutPredicateAndSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+
+                var result = Generator.Object.Select(ClassMap.Object, null, null, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName", result);
+                ClassMap.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void WithPredicate_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+
+                var result = Generator.Object.Select(ClassMap.Object, predicate.Object, null, parameters);
+                Assert.AreEqual("SELECT Columns FROM TableName WHERE PredicateWhere", result);
+                ClassMap.Verify();
+                predicate.Verify();
+                Generator.Verify();
+                predicate.Verify();
+            }
+
+            [Test]
+            public void WithSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                var result = Generator.Object.SelectTopN(ClassMap.Object, null, sort, 1, parameters);
+                Assert.AreEqual("SELECT TOP 1 Columns FROM TableName ORDER BY SortColumn ASC", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                Generator.Verify();
+            }
+
+            [Test]
+            public void WithPredicateAndSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Mock<IPredicate> predicate = new Mock<IPredicate>();
+                predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
+                var result = Generator.Object.SelectTopN(ClassMap.Object, predicate.Object, sort, 2, parameters);
+                Assert.AreEqual("SELECT TOP 2 Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", result);
+                ClassMap.Verify();
+                sortField.Verify();
+                predicate.Verify();
+                Generator.Verify();
+            }
+        }
+
+        [TestFixture]
         public class CountMethod : SqlGeneratorFixtureBase
         {
             [Test]

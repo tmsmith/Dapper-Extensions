@@ -108,7 +108,7 @@ namespace DapperExtensions.Sql
             return sql.ToString();
         }
 
-        public string SelectTopN(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, , int topRecords, IDictionary<string, object> parameters)
+        public string SelectTopN(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int topRecords, IDictionary<string, object> parameters)
         {
             if (parameters == null)
             {
