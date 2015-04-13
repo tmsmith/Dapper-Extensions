@@ -13,6 +13,7 @@ namespace DapperExtensions.Sql
         string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
         string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
+        string SelectTopN(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int topRecords, IDictionary<string, object> parameters);
 
         string Insert(IClassMapper classMap);
         string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
@@ -102,6 +103,32 @@ namespace DapperExtensions.Sql
             {
                 sql.Append(" WHERE ")
                     .Append(predicate.GetSql(this, parameters));
+            }
+
+            return sql.ToString();
+        }
+
+        public string SelectTopN(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, , int topRecords, IDictionary<string, object> parameters)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException("Parameters");
+            }
+            //we may need to move TOP to dialect?
+            StringBuilder sql = new StringBuilder(string.Format("SELECT TOP {2} {0} FROM {1}",
+                BuildSelectColumns(classMap),
+                GetTableName(classMap), 
+                topRecords));
+            if (predicate != null)
+            {
+                sql.Append(" WHERE ")
+                    .Append(predicate.GetSql(this, parameters));
+            }
+
+            if (sort != null && sort.Any())
+            {
+                sql.Append(" ORDER BY ")
+                    .Append(sort.Select(s => GetColumnName(classMap, s.PropertyName, false) + (s.Ascending ? " ASC" : " DESC")).AppendStrings());
             }
 
             return sql.ToString();
