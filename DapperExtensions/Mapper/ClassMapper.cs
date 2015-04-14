@@ -12,7 +12,7 @@ namespace DapperExtensions.Mapper
     {
         string SchemaName { get; }
         string TableName { get; }
-        IList<IPropertyMap> Properties { get; }
+        IList<IMemberMap> Properties { get; }
         Type EntityType { get; }
     }
 
@@ -38,7 +38,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// A collection of properties that will map to columns in the database table.
         /// </summary>
-        public IList<IPropertyMap> Properties { get; private set; }
+        public IList<IMemberMap> Properties { get; private set; }
 
         public Type EntityType
         {
@@ -61,7 +61,7 @@ namespace DapperExtensions.Mapper
                                                  { typeof(Guid), KeyType.Guid }, { typeof(Guid?), KeyType.Guid },
                                              };
 
-            Properties = new List<IPropertyMap>();
+            Properties = new List<IMemberMap>();
             Table(typeof(T).Name);
         }
 
@@ -86,7 +86,7 @@ namespace DapperExtensions.Mapper
         {
             Type type = typeof(T);
             bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
-            PropertyMap keyMap = null;
+            MemberMap keyMap = null;
             foreach (var propertyInfo in type.GetProperties())
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
@@ -99,15 +99,15 @@ namespace DapperExtensions.Mapper
                     continue;
                 }
 
-                PropertyMap map = Map(propertyInfo);
+                MemberMap map = Map(propertyInfo);
                 if (!hasDefinedKey)
                 {
-                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(map.MemberInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
                     {
                         keyMap = map;
                     }
 
-                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                    if (keyMap == null && map.MemberInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                     {
                         keyMap = map;
                     }
@@ -116,8 +116,8 @@ namespace DapperExtensions.Mapper
 
             if (keyMap != null)
             {
-                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                    ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.MemberType)
+                    ? PropertyTypeKeyTypeMapping[keyMap.MemberType]
                     : KeyType.Assigned);
             }
         }
@@ -125,7 +125,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected PropertyMap Map(Expression<Func<T, object>> expression)
+        protected MemberMap Map(Expression<Func<T, object>> expression)
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return Map(propertyInfo);
@@ -134,15 +134,15 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected PropertyMap Map(PropertyInfo propertyInfo)
+        protected MemberMap Map(PropertyInfo propertyInfo)
         {
-            PropertyMap result = new PropertyMap(propertyInfo);
+            MemberMap result = new MemberMap(propertyInfo);
             this.GuardForDuplicatePropertyMap(result);
             Properties.Add(result);
             return result;
         }
 
-        private void GuardForDuplicatePropertyMap(PropertyMap result)
+        private void GuardForDuplicatePropertyMap(MemberMap result)
         {
             if (Properties.Any(p => p.Name.Equals(result.Name)))
             {

@@ -6,35 +6,44 @@ using System.Reflection;
 namespace DapperExtensions.Mapper
 {
     /// <summary>
-    /// Maps an entity property to its corresponding column in the database.
+    /// Maps an entity property / field to its corresponding column in the database.
     /// </summary>
-    public interface IPropertyMap
+    public interface IMemberMap
     {
         string Name { get; }
         string ColumnName { get; }
         bool Ignored { get; }
         bool IsReadOnly { get; }
         KeyType KeyType { get; }
-        PropertyInfo PropertyInfo { get; }
+		MemberInfo MemberInfo { get; }
+		object GetValue(object obj);
+		void SetValue(object obj, object value);
+		Type MemberType { get; }
     }
 
     /// <summary>
     /// Maps an entity property to its corresponding column in the database.
     /// </summary>
-    public class PropertyMap : IPropertyMap
+    public class MemberMap : IMemberMap
     {
-        public PropertyMap(PropertyInfo propertyInfo)
-        {
-            PropertyInfo = propertyInfo;
-            ColumnName = PropertyInfo.Name;
-        }
+		public MemberMap(PropertyInfo memberInfo)
+		{
+			MemberInfo = memberInfo;
+			ColumnName = MemberInfo.Name;
+		}
+
+		public MemberMap(FieldInfo memberInfo)
+		{
+			MemberInfo = memberInfo;
+			ColumnName = MemberInfo.Name;
+		}
 
         /// <summary>
         /// Gets the name of the property by using the specified propertyInfo.
         /// </summary>
         public string Name
         {
-            get { return PropertyInfo.Name; }
+            get { return MemberInfo.Name; }
         }
 
         /// <summary>
@@ -60,13 +69,13 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Gets the property info for the current property.
         /// </summary>
-        public PropertyInfo PropertyInfo { get; private set; }
+		public MemberInfo MemberInfo { get; private set; }
 
         /// <summary>
         /// Fluently sets the column name for the property.
         /// </summary>
         /// <param name="columnName">The column name as it exists in the database.</param>
-        public PropertyMap Column(string columnName)
+        public MemberMap Column(string columnName)
         {
             ColumnName = columnName;
             return this;
@@ -76,7 +85,7 @@ namespace DapperExtensions.Mapper
         /// Fluently sets the key type of the property.
         /// </summary>
         /// <param name="columnName">The column name as it exists in the database.</param>
-        public PropertyMap Key(KeyType keyType)
+        public MemberMap Key(KeyType keyType)
         {
             if (Ignored)
             {
@@ -95,7 +104,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently sets the ignore status of the property.
         /// </summary>
-        public PropertyMap Ignore()
+        public MemberMap Ignore()
         {
             if (KeyType != KeyType.NotAKey)
             {
@@ -109,7 +118,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently sets the read-only status of the property.
         /// </summary>
-        public PropertyMap ReadOnly()
+        public MemberMap ReadOnly()
         {
             if (KeyType != KeyType.NotAKey)
             {
@@ -119,6 +128,45 @@ namespace DapperExtensions.Mapper
             IsReadOnly = true;
             return this;
         }
+
+		public object GetValue(object obj)
+		{
+			if (MemberInfo is FieldInfo)
+			{
+				return ((FieldInfo)MemberInfo).GetValue(obj);
+			}
+			else
+			{
+				return ((PropertyInfo) MemberInfo).GetValue(obj, null);
+			}
+		}
+
+		public void SetValue(object obj, object value)
+		{
+			if (MemberInfo is FieldInfo)
+			{
+				((FieldInfo) MemberInfo).SetValue(obj, value);
+			}
+			else
+			{
+				((PropertyInfo) MemberInfo).SetValue(obj, value, null);
+			}
+		}
+
+		public Type MemberType
+		{
+			get
+			{
+				if (MemberInfo is FieldInfo)
+				{
+					return ((FieldInfo) MemberInfo).FieldType;
+				}
+				else
+				{
+					return ((PropertyInfo) MemberInfo).PropertyType;
+				}
+			}
+		}
     }
 
     /// <summary>

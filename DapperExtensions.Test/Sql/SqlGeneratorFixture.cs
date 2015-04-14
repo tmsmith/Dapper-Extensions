@@ -351,13 +351,13 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void WithNoMappedColumns_Throws_Exception()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -377,14 +377,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateIdentityColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -412,14 +412,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateIgnoredColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.Ignored).Returns(true).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -447,14 +447,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateReadonlyColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -503,13 +503,13 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void WithNoMappedColumns_Throws_Exception()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -531,14 +531,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateIdentityColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -572,14 +572,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateIgnoredColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.Ignored).Returns(true).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -613,14 +613,14 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotGenerateReadonlyColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.Setup(p => p.Name).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object
@@ -726,7 +726,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotIncludeAliasWhenParameterIsFalse()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
                 property.SetupGet(p => p.Name).Returns("Name").Verifiable();
 
@@ -741,7 +741,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotIncludeAliasWhenColumnAndNameAreSame()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
                 property.SetupGet(p => p.Name).Returns("Column").Verifiable();
 
@@ -756,7 +756,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void IncludesAliasWhenColumnAndNameAreDifferent()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.SetupGet(p => p.ColumnName).Returns("Column").Verifiable();
                 property.SetupGet(p => p.Name).Returns("Name").Verifiable();
 
@@ -775,7 +775,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void ThrowsExceptionWhenDoesNotFindProperty()
             {
-                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap>()).Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IMemberMap>()).Verifiable();
                 var ex = Assert.Throws<ArgumentException>(() => Generator.Object.GetColumnName(ClassMap.Object, "property", true));
                 StringAssert.Contains("Could not find 'property'", ex.Message);
                 ClassMap.Verify();
@@ -784,9 +784,9 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void CallsGetColumnNameWithProperty()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.Setup(p => p.Name).Returns("property").Verifiable();
-                ClassMap.SetupGet(c => c.Properties).Returns(new List<IPropertyMap> { property.Object }).Verifiable();
+                ClassMap.SetupGet(c => c.Properties).Returns(new List<IMemberMap> { property.Object }).Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, property.Object, true)).Returns("ColumnName").Verifiable();
                 var result = Generator.Object.GetColumnName(ClassMap.Object, "property", true);
                 Assert.AreEqual("ColumnName", result);
@@ -815,9 +815,9 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void GeneratesSql()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
-                var properties = new List<IPropertyMap>
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
+                var properties = new List<IMemberMap>
                                      {
                                          property1.Object,
                                          property2.Object
@@ -836,10 +836,10 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotIncludeIgnoredColumns()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.SetupGet(p => p.Ignored).Returns(true).Verifiable();
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
-                var properties = new List<IPropertyMap>
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
+                var properties = new List<IMemberMap>
                                      {
                                          property1.Object,
                                          property2.Object

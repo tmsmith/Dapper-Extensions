@@ -58,7 +58,7 @@
     <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Mapper\PropertyMap.cs" />
+    <Compile Include="Mapper\MemberMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Sql\PostgreSqlDialect.cs" />
     <Compile Include="Sql\SqlCeDialect.cs" />

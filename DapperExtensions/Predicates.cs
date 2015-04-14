@@ -141,7 +141,7 @@ namespace DapperExtensions
                 throw new NullReferenceException(string.Format("Map was not found for {0}", entityType));
             }
 
-            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
             if (propertyMap == null)
             {
                 throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, entityType));

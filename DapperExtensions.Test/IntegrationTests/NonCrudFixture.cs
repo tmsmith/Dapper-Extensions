@@ -97,15 +97,15 @@ namespace DapperExtensions.Test.IntegrationTests
             {
                 public string SchemaName { get; private set; }
                 public string TableName { get; private set; }
-                public IList<IPropertyMap> Properties { get; private set; }
+                public IList<IMemberMap> Properties { get; private set; }
                 public Type EntityType { get; private set; }
 
-                public PropertyMap Map(Expression<Func<EntityWithInterfaceMapper, object>> expression)
+                public MemberMap Map(Expression<Func<EntityWithInterfaceMapper, object>> expression)
                 {
                     throw new NotImplementedException();
                 }
 
-                public PropertyMap Map(PropertyInfo propertyInfo)
+                public MemberMap Map(PropertyInfo propertyInfo)
                 {
                     throw new NotImplementedException();
                 }

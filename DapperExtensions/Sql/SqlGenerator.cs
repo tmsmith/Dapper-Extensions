@@ -21,7 +21,7 @@ namespace DapperExtensions.Sql
 
         string IdentitySql(IClassMapper classMap);
         string GetTableName(IClassMapper map);
-        string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
+        string GetColumnName(IClassMapper map, IMemberMap property, bool includeAlias);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
         bool SupportsMultipleStatements();
     }
@@ -213,7 +213,7 @@ namespace DapperExtensions.Sql
             return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
         }
 
-        public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+        public virtual string GetColumnName(IClassMapper map, IMemberMap property, bool includeAlias)
         {
             string alias = null;
             if (property.ColumnName != property.Name && includeAlias)
@@ -226,7 +226,7 @@ namespace DapperExtensions.Sql
 
         public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
         {
-            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
             if (propertyMap == null)
             {
                 throw new ArgumentException(string.Format("Could not find '{0}' in Mapping.", propertyName));

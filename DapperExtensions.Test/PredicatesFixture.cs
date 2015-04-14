@@ -115,7 +115,7 @@ namespace DapperExtensions.Test
             {
                 Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
                 Mock<BasePredicate> predicate = new Mock<BasePredicate>();
-                List<IPropertyMap> propertyMaps = new List<IPropertyMap>();
+                List<IMemberMap> propertyMaps = new List<IMemberMap>();
                 predicate.CallBase = true;
 
                 Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();
@@ -134,8 +134,8 @@ namespace DapperExtensions.Test
             {
                 Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
                 Mock<BasePredicate> predicate = new Mock<BasePredicate>();
-                Mock<IPropertyMap> propertyMap = new Mock<IPropertyMap>();
-                List<IPropertyMap> propertyMaps = new List<IPropertyMap> { propertyMap.Object };
+                Mock<IMemberMap> propertyMap = new Mock<IMemberMap>();
+                List<IMemberMap> propertyMaps = new List<IMemberMap> { propertyMap.Object };
                 predicate.CallBase = true;
 
                 Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();

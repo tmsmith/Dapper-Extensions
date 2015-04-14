@@ -219,7 +219,7 @@ namespace DapperExtensions.Test.Mapper
             [Test]
             public void DoesNotMapAlreadyMappedProperties()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.SetupGet(p => p.Name).Returns("FooId");
                 property.SetupGet(p => p.KeyType).Returns(KeyType.Assigned);
 
@@ -288,7 +288,7 @@ namespace DapperExtensions.Test.Mapper
 
         public class TestMapper<T> : ClassMapper<T> where T : class
         {
-            public PropertyMap Map(Expression<Func<T, object>> expression)
+            public MemberMap Map(Expression<Func<T, object>> expression)
             {
                 return base.Map(expression);
             }

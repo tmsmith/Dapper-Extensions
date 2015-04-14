@@ -55,7 +55,7 @@ namespace DapperExtensions
                     if (column.KeyType == KeyType.Guid)
                     {
                         Guid comb = SqlGenerator.Configuration.GetNextGuid();
-                        column.PropertyInfo.SetValue(e, comb, null);
+                        column.SetValue(e, comb);
                     }
                 }
             }
@@ -68,14 +68,14 @@ namespace DapperExtensions
         public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
+            List<IMemberMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
             foreach (var column in nonIdentityKeyProperties)
             {
                 if (column.KeyType == KeyType.Guid)
                 {
                     Guid comb = SqlGenerator.Configuration.GetNextGuid();
-                    column.PropertyInfo.SetValue(entity, comb, null);
+                    column.SetValue(entity, comb);
                 }
             }
 
@@ -99,7 +99,7 @@ namespace DapperExtensions
                 long identityValue = result.First();
                 int identityInt = Convert.ToInt32(identityValue);
                 keyValues.Add(identityColumn.Name, identityInt);
-                identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+                identityColumn.SetValue(entity, identityInt);
             }
             else
             {
@@ -108,7 +108,7 @@ namespace DapperExtensions
 
             foreach (var column in nonIdentityKeyProperties)
             {
-                keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
+                keyValues.Add(column.Name, column.GetValue(entity));
             }
 
             if (keyValues.Count == 1)
@@ -316,7 +316,7 @@ namespace DapperExtensions
                                                            Not = false,
                                                            Operator = Operator.Eq,
                                                            PropertyName = field.Name,
-                                                           Value = field.PropertyInfo.GetValue(entity, null)
+                                                           Value = field.GetValue(entity)
                                                        }).Cast<IPredicate>().ToList();
 
             return predicates.Count == 1
