@@ -62,17 +62,17 @@ namespace DapperExtensions.Mapper
                                              };
 
             Properties = new List<IMemberMap>();
-            Table(typeof(T).Name);
+            SetTableName(typeof(T).Name);
         }
 
         protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; private set; }
 
-        public virtual void Schema(string schemaName)
+        public virtual void SetSchemaName(string schemaName)
         {
             SchemaName = schemaName;
         }
 
-        public virtual void Table(string tableName)
+        public virtual void SetTableName(string tableName)
         {
             TableName = tableName;
         }

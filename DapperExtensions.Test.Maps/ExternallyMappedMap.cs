@@ -13,7 +13,7 @@ namespace DapperExtensions.Test.Maps
         {
             public ExternallyMappedMapper()
             {
-                Table("External");
+                SetTableName("External");
                 Map(x => x.Id).Column("ExternalId");
                 AutoMap();
             }

@@ -8,7 +8,7 @@ namespace DapperExtensions.Test.Data
     {
         public CustomMapper()
         {
-            Table("FooTable");
+            SetTableName("FooTable");
             Map(f => f.Id).Column("FooId").Key(KeyType.Identity);
             Map(f => f.DateOfBirth).Column("BirthDate");
             Map(f => f.FirstName).Column("First");

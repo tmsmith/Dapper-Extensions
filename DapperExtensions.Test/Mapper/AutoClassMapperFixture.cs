@@ -24,7 +24,7 @@ namespace DapperExtensions.Test.Mapper
             public void SettingTableName_ReturnsProperName()
             {
                 AutoClassMapper<Foo> m = GetMapper<Foo>();
-                m.Table("Barz");
+                m.SetTableName("Barz");
                 Assert.AreEqual("Barz", m.TableName);
             }
 
@@ -82,7 +82,7 @@ namespace DapperExtensions.Test.Mapper
 
             public class CustomAutoMapper<T> : AutoClassMapper<T> where T : class
             {
-                public override void Table(string tableName)
+                public override void SetTableName(string tableName)
                 {
                     if (tableName.Equals("Foo2", StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -90,7 +90,7 @@ namespace DapperExtensions.Test.Mapper
                     }
                     else
                     {
-                        base.Table(tableName);
+                        base.SetTableName(tableName);
                     }
                 }
             }
