@@ -1,1 +1,1 @@
-nuget pack DapperExtensions.nuspec /o ..\nuget
+nuget pack DapperExtensionsNext.nuspec /o ..\nuget
