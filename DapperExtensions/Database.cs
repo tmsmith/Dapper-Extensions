@@ -200,12 +200,12 @@ namespace DapperExtensions
 
         public IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
         {
-            return _dapper.GetList<T>(Connection, predicate, sort, transaction, commandTimeout, buffered);
+            return _dapper.GetList<T>(Connection, predicate, sort, transaction, commandTimeout, buffered, null);
         }
 
         public IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, int? commandTimeout, bool buffered) where T : class
         {
-            return _dapper.GetList<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered);
+            return _dapper.GetList<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered, null);
         }
 
         public IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
