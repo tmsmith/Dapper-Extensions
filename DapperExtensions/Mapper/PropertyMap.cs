@@ -96,8 +96,7 @@ namespace DapperExtensions.Mapper
                 return (DbType)(-1);
             }
 
-
-            throw new NotSupportedException(string.Format("The member {0} of type {1} cannot be used as a parameter value", name, type));
+            return DbType.Object;
         }
 
         /// <summary>
