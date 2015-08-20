@@ -13,6 +13,12 @@ namespace DapperExtensions.Sql
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
+            int startValue = page * resultsPerPage;
+            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+        }
+
+        public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
+        {
             if (string.IsNullOrEmpty(sql))
             {
                 throw new ArgumentNullException("SQL");
@@ -24,9 +30,8 @@ namespace DapperExtensions.Sql
             }
 
             var result = string.Format("{0} LIMIT @Offset, @Count", sql);
-            int startValue = page * resultsPerPage;
-            parameters.Add("@Offset", startValue);
-            parameters.Add("@Count", resultsPerPage);
+            parameters.Add("@Offset", firstResult);
+            parameters.Add("@Count", maxResults);
             return result;
         }
 

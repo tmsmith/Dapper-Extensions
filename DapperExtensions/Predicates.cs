@@ -326,7 +326,13 @@ namespace DapperExtensions
             string seperator = Operator == GroupOperator.And ? " AND " : " OR ";
             return "(" + Predicates.Aggregate(new StringBuilder(),
                                         (sb, p) => (sb.Length == 0 ? sb : sb.Append(seperator)).Append(p.GetSql(sqlGenerator, parameters)),
-                                        sb => sb.ToString()) + ")";
+                sb =>
+                {
+                    var s = sb.ToString();
+                    if (s.Length == 0) return sqlGenerator.Configuration.Dialect.EmptyExpression; 
+                    return s;
+                }
+                                        ) + ")";
         }
     }
 

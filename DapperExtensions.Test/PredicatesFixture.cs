@@ -375,6 +375,27 @@ namespace DapperExtensions.Test
         public class PredicateGroupTests : PredicatesFixtureBase
         {
             [Test]
+            public void EmptyPredicate__CreatesNoOp_And_ReturnsProperSql()
+            {
+                Mock<IPredicate> subPredicate1 = new Mock<IPredicate>();
+                @SqlDialect.SetupGet(s => s.EmptyExpression).Returns("1=1").Verifiable();
+
+                var subPredicates = new List<IPredicate> { subPredicate1.Object, subPredicate1.Object };
+                var predicate = Setup(GroupOperator.And, subPredicates);
+                var parameters = new Dictionary<string, object>();
+
+                subPredicate1.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("").Verifiable();
+                var sql = predicate.Object.GetSql(Generator.Object, parameters);
+
+                predicate.Verify();
+                @SqlDialect.Verify();
+                subPredicate1.Verify(s => s.GetSql(Generator.Object, parameters), Times.AtMost(2));
+
+                Assert.AreEqual(0, parameters.Count);
+                Assert.AreEqual("(1=1)", sql); 
+            }
+
+            [Test]
             public void GetSql_And_ReturnsProperSql()
             {
                 Mock<IPredicate> subPredicate1 = new Mock<IPredicate>();
