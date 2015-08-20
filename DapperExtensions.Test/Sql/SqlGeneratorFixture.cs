@@ -339,6 +339,24 @@ namespace DapperExtensions.Test.Sql
                     () => Generator.Object.SelectSet(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
+}
+
+            [Test]
+            public void WithSort_GeneratesSql()
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                Mock<ISort> sortField = new Mock<ISort>();
+                sortField.SetupGet(s => s.PropertyName).Returns("SortProperty").Verifiable();
+                sortField.SetupGet(s => s.Ascending).Returns(true).Verifiable();
+                List<ISort> sort = new List<ISort>
+                                       {
+                                           sortField.Object
+                                       };
+
+                Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
+
                 Dialect.Setup(d => d.GetSetSql("SELECT Columns FROM TableName ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
 
                 var result = Generator.Object.SelectSet(ClassMap.Object, null, sort, 2, 10, parameters);
