@@ -2,14 +2,16 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>DapperExtensionsNext</id>
-        <version>2.1</version>
+        <version>2.2</version>
         <authors>Thad Smith,Page Brooks,Lukas Tines</authors>
         <owners>Thad Smith,Page Brooks,Lukas Tines</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
         <projectUrl>https://github.com/ltines/Dapper-Extensions</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
-        <releaseNotes>2.1
+        <releaseNotes>2.2
+      * Sync with upstream
+2.1
       * Bug fixes
 2.0.2
       * Bug fixes
