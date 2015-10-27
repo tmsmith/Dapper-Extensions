@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata schemaVersion="2">
+    <id>Dapper.Extensions.Linq</id>
+    <version>1.0.0</version>
+    <authors>Thad Smith, Page Brooks, Ryan Watson</authors>
+    <owners>Ryan Watson</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/ryanwatson/Dapper.Extensions.Linq</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper.Extensions.Linq allows the use of Linq.</description>
+    <releaseNotes>
+	</releaseNotes>
+    <tags>orm sql micro-orm Data Dapper</tags>
+	<dependencies>
+      <dependency id="Dapper" version="1.12" />
+	  <dependency id="Castle.Windsor" version="3.3.0" />
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Core"/>
+      <frameworkAssembly assemblyName="System"/>
+      <frameworkAssembly assemblyName="System.Data"/>
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+	<file src="bin\Release\Dapper.Extensions.Linq.dll" target="lib\net40" />
+    <file src="bin\Release\Dapper.Extensions.Linq.pdb" target="lib\net40" />
+  </files>  
+</package>
