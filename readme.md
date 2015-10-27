@@ -31,7 +31,7 @@ Naming Conventions
 
 For more information, please view our [Getting Started](https://github.com/tmsmith/Dapper-Extensions/wiki/Getting-Started) guide.
 
-http://nuget.org/List/Packages/DapperExtensions
+http://nuget.org/List/Packages/Linq.Dapper.Extensions
 
 ```
 PM> Install-Package DapperExtensions
