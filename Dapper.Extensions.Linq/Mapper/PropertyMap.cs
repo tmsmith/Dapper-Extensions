@@ -1,30 +1,88 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 
 namespace Dapper.Extensions.Linq.Mapper
 {
-    /// <summary>
-    /// Maps an entity property to its corresponding column in the database.
-    /// </summary>
-    public interface IPropertyMap
-    {
-        string Name { get; }
-        string ColumnName { get; }
-        bool Ignored { get; }
-        bool IsReadOnly { get; }
-        KeyType KeyType { get; }
-        PropertyInfo PropertyInfo { get; }
-    }
 
     /// <summary>
     /// Maps an entity property to its corresponding column in the database.
     /// </summary>
     public class PropertyMap : IPropertyMap
     {
+        static readonly Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>(){
+            {typeof(byte), DbType.Byte},
+            {typeof(sbyte), DbType.SByte},
+            {typeof(short), DbType.Int16},
+            {typeof(ushort), DbType.UInt16},
+            {typeof(int), DbType.Int32},
+            {typeof(uint), DbType.UInt32},
+            {typeof(long), DbType.Int64},
+            {typeof(ulong), DbType.UInt64},
+            {typeof(float), DbType.Single},
+            {typeof(double), DbType.Double},
+            {typeof(decimal), DbType.Decimal},
+            {typeof(bool), DbType.Boolean},
+            {typeof(string), DbType.String},
+            {typeof(char), DbType.StringFixedLength},
+            {typeof(Guid), DbType.Guid},
+            {typeof(DateTime), DbType.DateTime},
+            {typeof(DateTimeOffset), DbType.DateTimeOffset},
+            {typeof(TimeSpan), DbType.Time},
+            {typeof(byte[]), DbType.Binary},
+            {typeof(byte?), DbType.Byte},
+            {typeof(sbyte?), DbType.SByte},
+            {typeof(short?), DbType.Int16},
+            {typeof(ushort?), DbType.UInt16},
+            {typeof(int?), DbType.Int32},
+            {typeof(uint?), DbType.UInt32},
+            {typeof(long?), DbType.Int64},
+            {typeof(ulong?), DbType.UInt64},
+            {typeof(float?), DbType.Single},
+            {typeof(double?), DbType.Double},
+            {typeof(decimal?), DbType.Decimal},
+            {typeof(bool?), DbType.Boolean},
+            {typeof(char?), DbType.StringFixedLength},
+            {typeof(Guid?), DbType.Guid},
+            {typeof(DateTime?), DbType.DateTime},
+            {typeof(DateTimeOffset?), DbType.DateTimeOffset},
+            {typeof(TimeSpan?), DbType.Time},
+            {typeof(Object), DbType.Object}
+        };
+
         public PropertyMap(PropertyInfo propertyInfo)
         {
             PropertyInfo = propertyInfo;
             ColumnName = PropertyInfo.Name;
+            Type = LookupDbType(propertyInfo.PropertyType, propertyInfo.Name);
+        }
+
+        internal const string LinqBinary = "System.Data.Linq.Binary";
+        private static DbType LookupDbType(Type type, string name)
+        {
+            DbType dbType;
+            var nullUnderlyingType = Nullable.GetUnderlyingType(type);
+            if (nullUnderlyingType != null) type = nullUnderlyingType;
+            if (type.IsEnum && !typeMap.ContainsKey(type))
+            {
+                type = Enum.GetUnderlyingType(type);
+            }
+            if (typeMap.TryGetValue(type, out dbType))
+            {
+                return dbType;
+            }
+            if (type.FullName == LinqBinary)
+            {
+                return DbType.Binary;
+            }
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return (DbType)(-1);
+            }
+
+            return DbType.Object;
         }
 
         /// <summary>
@@ -59,6 +117,8 @@ namespace Dapper.Extensions.Linq.Mapper
         /// Gets the property info for the current property.
         /// </summary>
         public PropertyInfo PropertyInfo { get; private set; }
+
+        public DbType Type { get; private set; }
 
         /// <summary>
         /// Fluently sets the column name for the property.
@@ -117,31 +177,10 @@ namespace Dapper.Extensions.Linq.Mapper
             IsReadOnly = true;
             return this;
         }
-    }
 
-    /// <summary>
-    /// Used by ClassMapper to determine which entity property represents the key.
-    /// </summary>
-    public enum KeyType
-    {
-        /// <summary>
-        /// The property is not a key and is not automatically managed.
-        /// </summary>
-        NotAKey,
-
-        /// <summary>
-        /// The property is an integery-based identity generated from the database.
-        /// </summary>
-        Identity,
-
-        /// <summary>
-        /// The property is a Guid identity which is automatically managed.
-        /// </summary>
-        Guid,
-
-        /// <summary>
-        /// The property is a key that is not automatically managed.
-        /// </summary>
-        Assigned
+        public void SetType(DbType type)
+        {
+            Type = type;
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Dapper.Extensions.Linq.Test
         {
             Foo f = new Foo { Bar = 3, Baz = "Yum" };
 
-            var dictionary = ReflectionHelper.GetObjectValues(f);
+            var dictionary = ReflectionHelper.GetObjectValues(f, null);
             Assert.AreEqual(3, dictionary["Bar"]);
             Assert.AreEqual("Yum", dictionary["Baz"]);
         }
@@ -34,7 +34,7 @@ namespace Dapper.Extensions.Linq.Test
         [Test]
         public void GetObjectValues_Returns_Empty_Dictionary_When_Null_Object_Provided()
         {
-            var dictionary = ReflectionHelper.GetObjectValues(null);
+            var dictionary = ReflectionHelper.GetObjectValues(null, null);
             Assert.AreEqual(0, dictionary.Count);
         }
     }

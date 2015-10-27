@@ -184,9 +184,9 @@ namespace Dapper.Extensions.Linq
         /// <summary>
         /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
         /// </summary>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, int? topRecords = null) where T : class
         {
-            return Instance.GetList<T>(connection, predicate, sort, transaction, commandTimeout, buffered);
+            return Instance.GetList<T>(connection, predicate, sort, transaction, commandTimeout, buffered, topRecords);
         }
 
         /// <summary>

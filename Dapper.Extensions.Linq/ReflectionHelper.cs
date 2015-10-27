@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Dapper.Extensions.Linq.Mapper;
 
 namespace Dapper.Extensions.Linq
 {
@@ -54,7 +55,7 @@ namespace Dapper.Extensions.Linq
             }
         }
 
-        public static IDictionary<string, object> GetObjectValues(object obj)
+        public static IDictionary<string, object> GetObjectValues(object obj, IEnumerable<IPropertyMap> mappedColumns)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
             if (obj == null)
@@ -66,8 +67,11 @@ namespace Dapper.Extensions.Linq
             foreach (var propertyInfo in obj.GetType().GetProperties())
             {
                 string name = propertyInfo.Name;
-                object value = propertyInfo.GetValue(obj, null);
-                result[name] = value;
+                if (mappedColumns == null || mappedColumns.Any(property => property.Name == name))
+                {
+                    object value = propertyInfo.GetValue(obj, null);
+                    result[name] = value;
+                }
             }
 
             return result;
