@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Dapper.Extensions.Linq.Core.Context;
+using Dapper.Extensions.Linq.Core.Attributes;
 
 namespace Dapper.Extensions.Linq.Core.Sessions
 {
@@ -79,13 +79,6 @@ namespace Dapper.Extensions.Linq.Core.Sessions
             _sessionDictionary = null;
         }
 
-
-        public IEnumerable<IDapperSession> BoundedSessions
-        {
-            get
-            {
-                return _sessionDictionary == null ? new List<IDapperSession>() : _sessionDictionary.Values.ToList();
-            }
-        }
+        public IEnumerable<IDapperSession> BoundedSessions => _sessionDictionary?.Values.ToList() ?? new List<IDapperSession>();
     }
 }

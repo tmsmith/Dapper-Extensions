@@ -8,18 +8,6 @@ using System.Reflection;
 
 namespace Dapper.Extensions.Linq.Mapper
 {
-    public interface IClassMapper
-    {
-        string SchemaName { get; }
-        string TableName { get; }
-        IList<IPropertyMap> Properties { get; }
-        Type EntityType { get; }
-    }
-
-    public interface IClassMapper<T> : IClassMapper where T : class
-    {
-    }
-
     /// <summary>
     /// Maps an entity to a table through a collection of property maps.
     /// </summary>
@@ -40,10 +28,7 @@ namespace Dapper.Extensions.Linq.Mapper
         /// </summary>
         public IList<IPropertyMap> Properties { get; private set; }
 
-        public Type EntityType
-        {
-            get { return typeof(T); }
-        }
+        public Type EntityType => typeof(T);
 
         public ClassMapper()
         {
@@ -77,7 +62,7 @@ namespace Dapper.Extensions.Linq.Mapper
             TableName = tableName;
         }
 
-        protected virtual void AutoMap()
+        protected void AutoMap()
         {
             AutoMap(null);
         }
@@ -114,12 +99,9 @@ namespace Dapper.Extensions.Linq.Mapper
                 }
             }
 
-            if (keyMap != null)
-            {
-                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                    ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
-                    : KeyType.Assigned);
-            }
+            keyMap?.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
+                ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
+                : KeyType.Assigned);
         }
 
         /// <summary>
@@ -146,7 +128,7 @@ namespace Dapper.Extensions.Linq.Mapper
         {
             if (Properties.Any(p => p.Name.Equals(result.Name)))
             {
-                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.",result.Name));
+                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
             }
         }
     }

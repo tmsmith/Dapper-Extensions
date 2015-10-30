@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Castle.MicroKernel;
-using Dapper.Extensions.Linq.Core.Context;
+using Dapper.Extensions.Linq.Core.Attributes;
 
 namespace Dapper.Extensions.Linq.Core.Sessions
 {

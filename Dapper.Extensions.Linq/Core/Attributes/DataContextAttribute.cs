@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dapper.Extensions.Linq.Core.Context
+namespace Dapper.Extensions.Linq.Core.Attributes
 {
     public class DataContextAttribute : Attribute
     {
