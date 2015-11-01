@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
 
 namespace Dapper.Extensions.Linq.Mapper
 {

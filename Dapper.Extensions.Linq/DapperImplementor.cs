@@ -4,28 +4,17 @@ using System.Data;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
-using Dapper;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Implementor;
+using Dapper.Extensions.Linq.Core.Mapper;
+using Dapper.Extensions.Linq.Core.Predicates;
+using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Mapper;
+using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Sql;
 
 namespace Dapper.Extensions.Linq
 {
-    public interface IDapperImplementor
-    {
-        ISqlGenerator SqlGenerator { get; }
-        T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
-        void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
-        dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
-        IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, int? topRecords) where T : class;
-        IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
-        IEnumerable<T> GetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
-        int Count<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
-        IMultipleResultReader GetMultiple(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout);
-    }
-
     public class DapperImplementor : IDapperImplementor
     {
         public DapperImplementor(ISqlGenerator sqlGenerator)
@@ -193,7 +182,7 @@ namespace Dapper.Extensions.Linq
             return (int)connection.Query(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text).Single().Total;
         }
 
-        public IMultipleResultReader GetMultiple(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
+        public IMultipleResultReader GetMultiple(IDbConnection connection, IGetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
         {
             if (SqlGenerator.SupportsMultipleStatements())
             {
@@ -357,7 +346,7 @@ namespace Dapper.Extensions.Linq
                        };
         }
 
-        protected GridReaderResultReader GetMultipleByBatch(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
+        protected GridReaderResultReader GetMultipleByBatch(IDbConnection connection, IGetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             StringBuilder sql = new StringBuilder();
@@ -367,7 +356,7 @@ namespace Dapper.Extensions.Linq
                 IPredicate itemPredicate = item.Value as IPredicate;
                 if (itemPredicate == null && item.Value != null)
                 {
-                    itemPredicate = GetPredicate(classMap, item.Value);
+                    itemPredicate =  GetPredicate(classMap, item.Value);
                 }
 
                 sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters) + SqlGenerator.Configuration.Dialect.BatchSeperator);
@@ -383,7 +372,7 @@ namespace Dapper.Extensions.Linq
             return new GridReaderResultReader(grid);
         }
 
-        protected SequenceReaderResultReader GetMultipleBySequence(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
+        protected SequenceReaderResultReader GetMultipleBySequence(IDbConnection connection, IGetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
         {
             IList<SqlMapper.GridReader> items = new List<SqlMapper.GridReader>();
             foreach (var item in predicate.Items)

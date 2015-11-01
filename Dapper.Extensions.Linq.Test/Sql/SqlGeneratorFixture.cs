@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
+using Dapper.Extensions.Linq.Core.Predicates;
+using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Mapper;
+using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Sql;
 using Moq;
 using NUnit.Framework;

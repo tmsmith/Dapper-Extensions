@@ -5,6 +5,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
 
 namespace Dapper.Extensions.Linq.Mapper
 {

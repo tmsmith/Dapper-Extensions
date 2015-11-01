@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dapper.Extensions.Linq.Core.Enums;
 using Dapper.Extensions.Linq.Mapper;
 
 namespace Dapper.Extensions.Linq.Test.Data

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using DapperExtensions.Test.Maps;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Test.Entities;
+using Dapper.Extensions.Linq.Test.Maps;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests

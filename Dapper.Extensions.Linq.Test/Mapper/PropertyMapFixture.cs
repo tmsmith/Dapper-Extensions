@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Enums;
 using Dapper.Extensions.Linq.Mapper;
 using NUnit.Framework;
 

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Dapper.Extensions.Linq.Mapper;
+﻿using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Test.Entities;
 
-namespace DapperExtensions.Test.Maps
+namespace Dapper.Extensions.Linq.Test.Maps
 {
     public class ExternallyMappedMap
     {

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using Dapper;
+using Dapper.Extensions.Linq.Core.Database;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Sql;
 using MySql.Data.MySqlClient;

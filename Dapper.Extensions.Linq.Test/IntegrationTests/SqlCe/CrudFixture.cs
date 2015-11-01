@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Predicates;
+using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Test.Data;
 using NUnit.Framework;
 
@@ -133,7 +136,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 var list = Db.GetList<Person>();
                 Assert.AreEqual(3, list.Count());
 
-                IPredicate pred = Predicates.Field<Person>(p => p.LastName, Operator.Eq, "Bar");
+                IPredicate pred = Predicates.Predicates.Field<Person>(p => p.LastName, Operator.Eq, "Bar");
                 var result = Db.Delete<Person>(pred);
                 Assert.IsTrue(result);
 
@@ -230,7 +233,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
                 Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
 
-                var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+                var predicate = Predicates.Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "a" || p.FirstName == "c"));
@@ -264,8 +267,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
 
                 IList<ISort> sort = new List<ISort>
                                     {
-                                        Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 0, 2);
@@ -282,11 +285,11 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
                 var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
 
-                var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
+                var predicate = Predicates.Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 IList<ISort> sort = new List<ISort>
                                     {
-                                        Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
@@ -304,8 +307,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
 
                 IList<ISort> sort = new List<ISort>
                                     {
-                                        Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 1, 2);
@@ -325,8 +328,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 var predicate = new { Active = true };
                 IList<ISort> sort = new List<ISort>
                                     {
-                                        Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Predicates.Sort<Person>(p => p.LastName),
+                                        Predicates.Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
@@ -358,7 +361,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
                 Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
 
-                var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
+                var predicate = Predicates.Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
             }
@@ -394,8 +397,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
 
                 GetMultiplePredicate predicate = new GetMultiplePredicate();
                 predicate.Add<Person>(null);
-                predicate.Add<Animal>(Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
-                predicate.Add<Person>(Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
+                predicate.Add<Animal>(Predicates.Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
+                predicate.Add<Person>(Predicates.Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
 
                 var result = Db.GetMultiple(predicate);
                 var people = result.Read<Person>().ToList();

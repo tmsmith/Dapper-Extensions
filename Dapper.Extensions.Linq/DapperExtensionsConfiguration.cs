@@ -3,31 +3,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Mapper;
+using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Sql;
 
 namespace Dapper.Extensions.Linq
 {
-    public interface IDapperExtensionsConfiguration
-    {
-        Type DefaultMapper { get; }
-        IList<Assembly> MappingAssemblies { get; }
-        ISqlDialect Dialect { get; }
-        IClassMapper GetMap(Type entityType);
-        IClassMapper GetMap<T>() where T : class;
-        void ClearCache();
-        Guid GetNextGuid();
-    }
-
     public class DapperExtensionsConfiguration : IDapperExtensionsConfiguration
     {
         private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
 
-        public DapperExtensionsConfiguration()
-            : this(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect())
-        {
-        }
-
+        public DapperExtensionsConfiguration() : this(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect()) { }
 
         public DapperExtensionsConfiguration(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
         {
@@ -60,7 +48,7 @@ namespace Dapper.Extensions.Linq
 
         public IClassMapper GetMap<T>() where T : class
         {
-            return GetMap(typeof (T));
+            return GetMap(typeof(T));
         }
 
         public void ClearCache()

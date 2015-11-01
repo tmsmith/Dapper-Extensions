@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Castle.Core.Internal;
 using Dapper.Extensions.Linq.Core.Attributes;
 
 namespace Dapper.Extensions.Linq.Mapper
@@ -30,7 +29,7 @@ namespace Dapper.Extensions.Linq.Mapper
                 {
                     Map(propertyInfo)
                         .Column(Attribute.IsDefined(propertyInfo, typeof(MapToAttribute))
-                        ? propertyInfo.GetAttribute<MapToAttribute>().DatabaseColumn
+                        ? ((MapToAttribute)propertyInfo.GetCustomAttribute(typeof(MapToAttribute))).DatabaseColumn
                         : propertyInfo.Name);
                 }
             }

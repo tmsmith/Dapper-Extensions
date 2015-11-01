@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Dapper;
+using Dapper.Extensions.Linq.Core.Database;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Sql;
 using NUnit.Framework;

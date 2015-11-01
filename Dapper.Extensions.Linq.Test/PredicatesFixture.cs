@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
+using Dapper.Extensions.Linq.Core.Predicates;
+using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Mapper;
+using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Sql;
 using Dapper.Extensions.Linq.Test.Helpers;
 using Moq;
@@ -37,7 +43,7 @@ namespace Dapper.Extensions.Linq.Test
             [Test]
             public void Field_ReturnsSetupPredicate()
             {
-                var predicate = Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Like, "Lead", true);
+                var predicate = Predicates.Predicates.Field<PredicateTestEntity>(f => f.Name, Operator.Like, "Lead", true);
                 Assert.AreEqual("Name", predicate.PropertyName);
                 Assert.AreEqual(Operator.Like, predicate.Operator);
                 Assert.AreEqual("Lead", predicate.Value);
@@ -47,7 +53,7 @@ namespace Dapper.Extensions.Linq.Test
             [Test]
             public void Property_ReturnsSetupPredicate()
             {
-                var predicate = Predicates.Property<PredicateTestEntity, PredicateTestEntity2>(f => f.Name, Operator.Le, f => f.Value, true);
+                var predicate = Predicates.Predicates.Property<PredicateTestEntity, PredicateTestEntity2>(f => f.Name, Operator.Le, f => f.Value, true);
                 Assert.AreEqual("Name", predicate.PropertyName);
                 Assert.AreEqual(Operator.Le, predicate.Operator);
                 Assert.AreEqual("Value", predicate.PropertyName2);
@@ -58,7 +64,7 @@ namespace Dapper.Extensions.Linq.Test
             public void Group_ReturnsSetupPredicate()
             {
                 Mock<IPredicate> subPredicate = new Mock<IPredicate>();
-                var predicate = Predicates.Group(GroupOperator.Or, subPredicate.Object);
+                var predicate = Predicates.Predicates.Group(GroupOperator.Or, subPredicate.Object);
                 Assert.AreEqual(GroupOperator.Or, predicate.Operator);
                 Assert.AreEqual(1, predicate.Predicates.Count);
                 Assert.AreEqual(subPredicate.Object, predicate.Predicates[0]);
@@ -68,7 +74,7 @@ namespace Dapper.Extensions.Linq.Test
             public void Exists_ReturnsSetupPredicate()
             {
                 Mock<IPredicate> subPredicate = new Mock<IPredicate>();
-                var predicate = Predicates.Exists<PredicateTestEntity2>(subPredicate.Object, true);
+                var predicate = Predicates.Predicates.Exists<PredicateTestEntity2>(subPredicate.Object, true);
                 Assert.AreEqual(subPredicate.Object, predicate.Predicate);
                 Assert.AreEqual(true, predicate.Not);
             }
@@ -77,7 +83,7 @@ namespace Dapper.Extensions.Linq.Test
             public void Between_ReturnsSetupPredicate()
             {
                 BetweenValues values = new BetweenValues();
-                var predicate = Predicates.Between<PredicateTestEntity>(f => f.Name, values, true);
+                var predicate = Predicates.Predicates.Between<PredicateTestEntity>(f => f.Name, values, true);
                 Assert.AreEqual("Name", predicate.PropertyName);
                 Assert.AreEqual(values, predicate.Value);
                 Assert.AreEqual(true, predicate.Not);
@@ -86,7 +92,7 @@ namespace Dapper.Extensions.Linq.Test
             [Test]
             public void Sort__ReturnsSetupPredicate()
             {
-                var predicate = Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
+                var predicate = Predicates.Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
                 Assert.AreEqual("Name", predicate.PropertyName);
                 Assert.AreEqual(false, predicate.Ascending);
             }            

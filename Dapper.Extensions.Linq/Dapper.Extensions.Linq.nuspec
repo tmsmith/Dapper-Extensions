@@ -14,7 +14,6 @@
     <tags>orm sql micro-orm Data Dapper</tags>
     <dependencies>
       <dependency id="Dapper" version="1.12" />
-      <dependency id="Castle.Windsor" version="3.3.0" />
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Core"/>

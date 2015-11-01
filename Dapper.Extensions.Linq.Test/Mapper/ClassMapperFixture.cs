@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Test.Helpers;
 using Moq;

@@ -1,4 +1,5 @@
-﻿using Dapper.Extensions.Linq.Mapper;
+﻿using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Mapper;
 
 namespace Dapper.Extensions.Linq.Test.Data
 {

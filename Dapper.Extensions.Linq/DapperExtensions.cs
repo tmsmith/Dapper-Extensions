@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Implementor;
+using Dapper.Extensions.Linq.Core.Mapper;
+using Dapper.Extensions.Linq.Core.Predicates;
+using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Mapper;
+using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Sql;
 
 namespace Dapper.Extensions.Linq
@@ -17,7 +23,7 @@ namespace Dapper.Extensions.Linq
         
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
-        /// DapperExtensions.Configure(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
+        /// DapperExtensions.Configure(Type, IList<Assembly/>, ISqlDialect) can be used instead to set all values at once
         /// </summary>
         public static Type DefaultMapper
         {
