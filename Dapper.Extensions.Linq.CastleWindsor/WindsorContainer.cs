@@ -1,7 +1,9 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Core.Sessions;
+using Dapper.Extensions.Linq.Repositories;
 
 namespace Dapper.Extensions.Linq.CastleWindsor
 {
@@ -14,17 +16,26 @@ namespace Dapper.Extensions.Linq.CastleWindsor
             if (success == false) throw new NullReferenceException("ExistingContainer not found");
 
             var windsorContainer = (Castle.Windsor.WindsorContainer)container;
-            var registration = Component.For<IDapperSessionContext>()
-                .ImplementedBy<DapperSessionContext>();
+            var sessionContext = Component.For<IDapperSessionContext>()
+                .ImplementedBy<DapperSessionContext>()
+                .LifestylePerThread();
 
-            //session context
-            registration = registration.LifestylePerThread();
+            foreach (var assembly in configuration.Assemblies)
+            {
+                windsorContainer.Register(Component.For(typeof(IRepository<>))
+                    .ImplementedBy(typeof(DapperRepository<>))
+                    .LifestylePerThread());
 
-            //session factory
+                windsorContainer.Register(
+                    Classes.FromAssembly(assembly)
+                    .BasedOn(typeof(DapperRepository<>))
+                    .LifestylePerThread());
+            }
+
             windsorContainer.Register(Component.For<IDapperSessionFactory>()
                 .ImplementedBy<DapperSessionFactory>()
                 .DependsOn(Dependency.OnValue<DapperConfiguration>(configuration)),
-                registration);
+                sessionContext);
         }
     }
 }

@@ -10,11 +10,11 @@ using Dapper.Extensions.Linq.Core.Sessions;
 
 namespace Dapper.Extensions.Linq.Repositories
 {
-    public class SimpleRepository<T> : IRepository<T> where T : class, IEntity
+    public class DapperRepository<T> : IRepository<T> where T : class, IEntity
     {
-        protected IDapperSessionContext SessionContext { get; }
+        private IDapperSessionContext SessionContext { get; }
 
-        public SimpleRepository(IDapperSessionContext sessionContext)
+        public DapperRepository(IDapperSessionContext sessionContext)
         {
             SessionContext = sessionContext;
         }
@@ -45,7 +45,7 @@ namespace Dapper.Extensions.Linq.Repositories
         {
             return new EntityBuilder<T>(() =>
             {
-                var session = GetCurrentSession();
+                IDapperSession session = GetCurrentSession();
                 return session.GetList<T>(QueryBuilder<T>.FromExpression(predicate), null, session.Transaction);
             });
         }

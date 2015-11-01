@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Dapper.Extensions.Linq.CastleWindsor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("The CastleWindsor Container for the Dapper.Extensions.Linq.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Dapper.Extensions.Linq.CastleWindsor")]

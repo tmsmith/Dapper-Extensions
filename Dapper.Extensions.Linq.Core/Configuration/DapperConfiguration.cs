@@ -9,7 +9,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
     public class DapperConfiguration : IDapperConfigurationContainer
     {
         internal readonly Dictionary<string, IConnectionStringProvider> Providers;
-        internal List<Assembly> Assemblies;
+        public List<Assembly> Assemblies;
         private IContainer _container;
 
         public ContainerCustomisations ContainerCustomisations { get; }

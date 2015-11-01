@@ -57,6 +57,10 @@
       <Project>{138ff8c4-3616-4c39-b0d3-f62ce7001f2d}</Project>
       <Name>Dapper.Extensions.Linq.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Dapper.Extensions.Linq\Dapper.Extensions.Linq.csproj">
+      <Project>{4c1a2c6c-a469-4c87-98d1-f1d517fa1acf}</Project>
+      <Name>Dapper.Extensions.Linq</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

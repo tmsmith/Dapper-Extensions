@@ -6,7 +6,7 @@ using Dapper.Extensions.Linq.Core.Builder;
 
 namespace Dapper.Extensions.Linq.Builder
 {
-    class EntityBuilder<T> : IEntityBuilder<T> where T : class, IEntity
+    sealed class EntityBuilder<T> : IEntityBuilder<T> where T : class, IEntity
     {
         private readonly Func<IEnumerable<T>> _entityResolver;
         private IEnumerable<T> _items;
@@ -16,34 +16,42 @@ namespace Dapper.Extensions.Linq.Builder
             _entityResolver = entityResolver;
         }
 
-        private IEnumerable<T> ResolveEnities() { return _items ?? (_items = _entityResolver()); }
+        private IEnumerable<T> ResolveEnities()
+        {
+            return _items ?? (_items = _entityResolver());
+        }
 
-        public virtual IEnumerable<T> AsEnumerable()
+        public IEnumerable<T> AsEnumerable()
         {
             return ResolveEnities();
         }
 
-        public virtual bool Any()
+        public bool Any()
         {
             return ResolveEnities().Any();
         }
 
-        public virtual IList<T> ToList() { return AsEnumerable().ToList(); }
+        public IList<T> ToList()
+        {
+            return AsEnumerable().ToList();
+        }
+
         public int Count()
         {
             return ResolveEnities().Count();
         }
 
-        public virtual T Single()
+        public T Single()
         {
             return ResolveEnities().Single();
         }
 
-        public virtual T SingleOrDefault()
+        public T SingleOrDefault()
         {
             return ResolveEnities().SingleOrDefault();
         }
-        public virtual T FirstOrDefault()
+
+        public T FirstOrDefault()
         {
             return ResolveEnities().FirstOrDefault();
         }

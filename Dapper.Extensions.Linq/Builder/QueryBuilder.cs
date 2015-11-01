@@ -62,7 +62,7 @@ namespace Dapper.Extensions.Linq.Builder
 
         public IPredicateGroup GetPredicate() { return _predicateGroup; }
 
-        public static PredicateGroup FromExpression(Expression<Func<T, bool>> predicate)
+        public static IPredicateGroup FromExpression(Expression<Func<T, bool>> predicate)
         {
             return PredicateConverter.Convert(predicate);
         }

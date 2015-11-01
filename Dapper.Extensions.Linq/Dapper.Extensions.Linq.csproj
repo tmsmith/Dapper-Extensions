@@ -79,7 +79,7 @@
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Builder\EntityBuilder.cs" />
     <Compile Include="Builder\QueryBuilder.cs" />
-    <Compile Include="Repositories\SimpleRepository.cs" />
+    <Compile Include="Repositories\DapperRepository.cs" />
     <Compile Include="Predicates\Sort.cs" />
     <Compile Include="Sql\PostgreSqlDialect.cs" />
     <Compile Include="Sql\SqlCeDialect.cs" />
