@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes></releaseNotes>
+    <copyright>Copyright 2015</copyright>
     <tags>orm sql micro-orm Data Dapper</tags>
     <dependencies>
       <dependency id="Dapper" version="1.12" />
