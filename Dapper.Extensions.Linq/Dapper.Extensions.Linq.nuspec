@@ -7,7 +7,6 @@
     <owners>Ryan Watson</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>https://github.com/ryanwatson/Dapper.Extensions.Linq</projectUrl>
-    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes></releaseNotes>
@@ -15,6 +14,7 @@
     <tags>orm sql micro-orm Data Dapper</tags>
     <dependencies>
       <dependency id="Dapper" version="1.12" />
+      <dependency id="Dapper.Extensions.Linq.Core" version="1.0.0" />
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Core"/>
@@ -23,7 +23,4 @@
       <frameworkAssembly assemblyName="Microsoft.CSharp" />
     </frameworkAssemblies>
   </metadata>
-  <files>
-    <file src="bin\Release\Dapper.Extensions.Linq.dll" target="lib\net40" />
-  </files>  
 </package>

@@ -14,7 +14,9 @@
     <copyright>Copyright 2015</copyright>
     <tags>orm sql micro-orm Data Dapper</tags>
     <dependencies>
-      <dependency id="Dapper.Extensions.Linq" version="1.1.0" />
+      <dependency id="Castle.Core" version="3.3.3" />
+      <dependency id="Castle.Windsor" version="3.3.0" />
+      <dependency id="Dapper.Extensions.Linq" version="1.1.1" />
       <dependency id="Dapper.Extensions.Linq.Core" version="1.0.0" />
     </dependencies>
   </metadata>

@@ -51,7 +51,6 @@
     <Compile Include="Configuration\ContainerCustomisations.cs" />
     <Compile Include="Configuration\DapperConfiguration.cs" />
     <Compile Include="Configuration\IContainer.cs" />
-    <Compile Include="Configuration\IDapperConfiguration.cs" />
     <Compile Include="Configuration\IDapperConfigurationContainer.cs" />
     <Compile Include="Implementor\IDapperImplementor.cs" />
     <Compile Include="Mapper\IClassMapper.cs" />
