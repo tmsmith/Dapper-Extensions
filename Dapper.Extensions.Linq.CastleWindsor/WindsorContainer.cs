@@ -20,12 +20,12 @@ namespace Dapper.Extensions.Linq.CastleWindsor
                 .ImplementedBy<DapperSessionContext>()
                 .LifestylePerThread();
 
+            windsorContainer.Register(Component.For(typeof(IRepository<>))
+                .ImplementedBy(typeof(DapperRepository<>))
+                .LifestylePerThread());
+
             foreach (var assembly in configuration.Assemblies)
             {
-                windsorContainer.Register(Component.For(typeof(IRepository<>))
-                    .ImplementedBy(typeof(DapperRepository<>))
-                    .LifestylePerThread());
-
                 windsorContainer.Register(
                     Classes.FromAssembly(assembly)
                     .BasedOn(typeof(DapperRepository<>))

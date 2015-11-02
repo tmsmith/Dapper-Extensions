@@ -9,7 +9,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
     public class DapperConfiguration : IDapperConfigurationContainer
     {
         internal readonly Dictionary<string, IConnectionStringProvider> Providers;
-        public List<Assembly> Assemblies;
+        public readonly List<Assembly> Assemblies;
         private IContainer _container;
 
         public ContainerCustomisations ContainerCustomisations { get; }
@@ -83,12 +83,6 @@ namespace Dapper.Extensions.Linq.Core.Configuration
 
         public void Build()
         {
-            if (Assemblies.Any() == false)
-                Assemblies = AppDomain
-                    .CurrentDomain
-                    .GetAssemblies()
-                    .ToList();
-
             _container.Build(this);
         }
     }
