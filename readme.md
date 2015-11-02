@@ -1,47 +1,56 @@
 # Introduction
 
-Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
-
-Customized mappings are achieved through [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper). 
-
-**Important**: This library is a separate effort from Dapper.Contrib (a sub-system of the [Dapper](https://github.com/SamSaffron/dapper-dot-net) project).
+Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this providing advanced DB access through Linq queries.
 
 Features
 --------
-* Zero configuration out of the box.
-* Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
-* GetList, Count methods for more advanced scenarios.
-* GetPage for returning paged result sets.
-* Automatic support for Guid and Integer [primary keys](https://github.com/tmsmith/Dapper-Extensions/wiki/KeyTypes) (Includes manual support for other key types).
-* Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper) (_Attribute Free!_).
-* Customized entity-table mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
-* Composite Primary Key support.
-* Singular and Pluralized table name support (Singular by default).
-* Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
-* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId_0)
-* Unit test coverage (150+ Unit Tests)
+* Simplistic fluid configuration
+* Automatic mapping of Entities 
+* Sql generation with Linq
+* Customisable entity mapping with [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
+* Entites can be manipulated with attributes
+* Custom IoC containers
+* Multiple connection providers
+
+Attributes 
+---------
+* DataContext - Which connection provider to use, defaults to **__Default**
+
+Property Attributes
+-------------------------
+* Ignore - This property will not be mapped
+* MapTo - Assign a property to a different database column
 
 Naming Conventions
 ------------------
-* POCO names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
-* POCO property names should match each column name in the table.
+* Entity names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
+* Entity properties should match the column name in the table.
 * By convention, the primary key should be named Id. Using another name is supported through custom mappings.
 
 # Installation
 
-For more information, please view our [Getting Started](https://github.com/tmsmith/Dapper-Extensions/wiki/Getting-Started) guide.
-
 http://nuget.org/List/Packages/Dapper.Extensions.Linq
 
 ```
-PM> Install-Package DapperExtensions
+PM> Install-Package Dapper.Extensions.Linq
+```
+
+# Configuration
+Basic configuration and setup:
+
+```c#
+DapperConfiguration
+    .Use()
+    .UseClassMapper(typeof(AutoClassMapper<>))
+    .UseContainer<Dapper.Extensions.Linq.CastleWindsor.WindsorContainer>(c => c.UseExisting(_container))
+    .Build();
 ```
 
 # Examples
-The following examples will use a Person POCO defined as:
+The following examples will use a Person Entity
 
 ```c#
-public class Person
+public class Person : IEntity
 {
     public int Id { get; set; }
     public string FirstName { get; set; }
@@ -51,137 +60,48 @@ public class Person
 }
 ```
 
-
-## Get Operation
-
-```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    int personId = 1;
-    Person person = cn.Get<Person>(personId);	
-    cn.Close();
-}
-```
-
-## Simple Insert Operation
+## Get
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Person person = new Person { FirstName = "Foo", LastName = "Bar" };
-    int id = cn.Insert(person);
-    cn.Close();
-}
+_dapperRepository.Get(Id) //Using a get
+_dapperRepository.Query(e => e.Id == Id) //Using linq by id
+_dapperRepository.Query(e => e.FirstName == "Gary").SingleOrDefault() //Using linq by first name
+
 ```
 
-## Advanced Insert Operation (Composite Key)
+## Insert
 
 ```c#
-public class Car
-{
-    public int ModelId { get; set; }
-    public int Year { get; set; }
-    public string Color { get; set; }
-}
-
-...
-
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Car car = new Car { Color = "Red" };
-    var multiKey = cn.Insert(car);
-    cn.Close();
-
-    int modelId = multiKey.ModelId;
-    int year = multiKey.Year;
-}
+var person = new Person { FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.Now };
+_dapperRepository.Insert(person);
 ```
 
-## Simple Update Operation
+## Update
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    int personId = 1;
-    Person person = _connection.Get<Person>(personId);
-    person.LastName = "Baz";
-    cn.Update(person);
-    cn.Close();
-}
+Person person = _dapperRepository.Get(PersonId);
+person.LastName = "Rwar";
+_dapperRepository.Update(person);
 ```
 
-
-## Simple Delete Operation
+## Delete
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Person person = _connection.Get<Person>(1);
-    cn.Delete(person);
-    cn.Close();
-}
+Person person = _dapperRepository.Get(PersonId);
+_dapperRepository.Delete(person);
 ```
 
-## GetList Operation (with Predicates)
+## Lists with Linq
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
-    IEnumerable<Person> list = cn.GetList<Person>(predicate);
-    cn.Close();
-}
+List<Person> people = _dapperRepository
+                       .Query(e => e.Active && e.DateCreated > DateTime.AddDays(-5))
+                       .ToList();
 ```
-
-Generated SQL
-
-```
-SELECT 
-   [Person].[Id]
- , [Person].[FirstName]
- , [Person].[LastName]
- , [Person].[Active]
- , [Person].[DateCreated] 
-FROM [Person] 
-WHERE ([Person].[Active] = @Active_0)
-```
-
-More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
-
-
-## Count Operation (with Predicates)
-
-```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
-    int count = cn.Count<Person>(predicate);
-    cn.Close();
-}            
-```
-
-Generated SQL
-
-```
-SELECT 
-   COUNT(*) Total 
-FROM [Person] 
-WHERE ([Person].[DateCreated] < @DateCreated_0)
-```
-
-More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
-
 
 # License
 
-Copyright 2011 Thad Smith, Page Brooks and contributors
+Copyright 2011 Thad Smith, Page Brooks, Ryan Watson and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
