@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Dapper.Extensions.Linq")]
-[assembly: AssemblyDescription("A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper.Extensions.Linq allows the use of Linq.")]
+[assembly: AssemblyDescription("Dapper, DapperExtensions and Linq Queries.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ryan Watson")]
 [assembly: AssemblyProduct("Dapper.Extensions.Linq")]
