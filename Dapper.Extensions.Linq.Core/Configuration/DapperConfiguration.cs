@@ -19,6 +19,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
             ContainerCustomisations = new ContainerCustomisations();
             Providers = new Dictionary<string, IConnectionStringProvider>();
             Assemblies = new List<Assembly>();
+
             UsingConnectionProvider<StaticConnectionStringProvider>(DapperSessionFactory.DefaultConnectionStringProviderName);
         }
 

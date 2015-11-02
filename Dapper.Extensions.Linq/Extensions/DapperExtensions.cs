@@ -1,7 +1,6 @@
 ﻿using System;
 using Dapper.Extensions.Linq.Core.Configuration;
 using Dapper.Extensions.Linq.Core.Mapper;
-using Dapper.Extensions.Linq.Mapper;
 
 namespace Dapper.Extensions.Linq.Extensions
 {
