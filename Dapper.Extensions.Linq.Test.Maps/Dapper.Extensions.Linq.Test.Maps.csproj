@@ -42,6 +42,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Dapper.Extensions.Linq.Core\Dapper.Extensions.Linq.Core.csproj">
+      <Project>{138ff8c4-3616-4c39-b0d3-f62ce7001f2d}</Project>
+      <Name>Dapper.Extensions.Linq.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Dapper.Extensions.Linq.Test.Entities\Dapper.Extensions.Linq.Test.Entities.csproj">
       <Project>{DAFAEFFC-0E56-4FA5-923C-DE47E91B51D8}</Project>
       <Name>Dapper.Extensions.Linq.Test.Entities</Name>

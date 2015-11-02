@@ -1,8 +1,10 @@
-﻿using Dapper.Extensions.Linq.CastleWindsor;
+﻿using Castle.MicroKernel;
+using Dapper.Extensions.Linq.CastleWindsor;
 using Dapper.Extensions.Linq.Core.Configuration;
 using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Test.Entities;
+using Dapper.Extensions.Linq.Core.Repositories;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.Configuration
@@ -26,9 +28,16 @@ namespace Dapper.Extensions.Linq.Test.Configuration
         }
 
         [Test]
-        public void Automapping_Found()
+        public void Automapping_For_Repository_Found()
         {
-            Assert.That(_container.Resolve<AutomaticMap>(), Has.Count.EqualTo(1));
+            object entity = _container.Resolve<IRepository<AutomaticMap>>();
+            Assert.NotNull(entity);
+        }
+
+        [Test]
+        public void Automapping_Not_Found()
+        {
+            Assert.Throws<ComponentNotFoundException>(() => _container.Resolve<AutomaticMap>());
         }
     }
 }
