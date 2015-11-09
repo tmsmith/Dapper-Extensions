@@ -42,7 +42,6 @@
     <Compile Include="Builder\IEntityBuilder.cs" />
     <Compile Include="Builder\IQueryBuilder.cs" />
     <Compile Include="Configuration\IDapperExtensionsConfiguration.cs" />
-    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Enums\GroupOperator.cs" />
     <Compile Include="Mapper\IPropertyMap.cs" />
     <Compile Include="Enums\KeyType.cs" />

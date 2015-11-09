@@ -1,47 +1,39 @@
 ﻿using System;
-using Dapper.Extensions.Linq.Core.Enums;
-using Dapper.Extensions.Linq.Test.Data;
+using System.Linq;
+using Dapper.Extensions.Linq.Core.Repositories;
+using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 {
-    public class Count : SqlServerTests
+    public class Count : SqlServerBase
     {
         [Test]
-        public void UsingNullPredicate_Returns_Count()
+        public void Returns_Count_All()
         {
-            Database.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
-            Database.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+            var personRepository = Container.Resolve<IRepository<Person>>();
 
-            int count = Database.Count<Person>(null);
+            personRepository.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            personRepository.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            personRepository.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
+            personRepository.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+
+            int count = personRepository.GetList().Count;
             Assert.AreEqual(4, count);
         }
 
         [Test]
-        public void UsingPredicate_Returns_Count()
+        public void Returns_Count_Filtered()
         {
-            Database.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
-            Database.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+            var personRepository = Container.Resolve<IRepository<Person>>();
 
-            var predicate = Predicates.Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
-            int count = Database.Count<Person>(predicate);
-            Assert.AreEqual(2, count);
-        }
+            personRepository.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            personRepository.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+            personRepository.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
+            personRepository.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+            var filterBy = new[] { "a", "b" };
 
-        [Test]
-        public void UsingObject_Returns_Count()
-        {
-            Database.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-            Database.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
-            Database.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
-
-            var predicate = new { FirstName = new[] { "b", "d" } };
-            int count = Database.Count<Person>(predicate);
+            int count = personRepository.Query(e => filterBy.Contains(e.FirstName)).Count();
             Assert.AreEqual(2, count);
         }
     }

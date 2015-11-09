@@ -1,16 +1,8 @@
 ﻿using Dapper.Extensions.Linq.Core.Enums;
 using Dapper.Extensions.Linq.Mapper;
 
-namespace Dapper.Extensions.Linq.Test.Data
+namespace Dapper.Extensions.Linq.Test.Entities
 {
-    public class Multikey
-    {
-        public int Key1 { get; set; } 
-        public string Key2 { get; set; }
-        public string Value { get; set; }
-        //public DateTime Date { get; set; }
-    }
-
     public class MultikeyMapper : ClassMapper<Multikey>
     {
         public MultikeyMapper()

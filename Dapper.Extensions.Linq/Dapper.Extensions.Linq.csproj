@@ -56,7 +56,6 @@
     <Compile Include="Predicates\ComparePredicate.cs" />
     <Compile Include="DapperExtensionsConfiguration.cs" />
     <Compile Include="DapperImplementor.cs" />
-    <Compile Include="Database.cs" />
     <Compile Include="Predicates\ExistsPredicate.cs" />
     <Compile Include="Extensions\DapperExtensions.cs" />
     <Compile Include="Predicates\FieldPredicate.cs" />

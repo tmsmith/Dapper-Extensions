@@ -7,8 +7,9 @@ namespace Dapper.Extensions.Linq.Core.Repositories
 {
     public interface IRepository<T> where T : class, IEntity
     {
+        T Get(Guid id);
         T Get(int id);
-        int Insert(T item);
+        dynamic Insert(T item);
         bool Update(T item);
         bool Delete(T item);
         IList<T> GetList();

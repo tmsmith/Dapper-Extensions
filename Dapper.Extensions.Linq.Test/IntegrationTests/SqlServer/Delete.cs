@@ -1,81 +1,43 @@
 ﻿using System;
-using System.Linq;
-using Dapper.Extensions.Linq.Core.Enums;
-using Dapper.Extensions.Linq.Core.Predicates;
-using Dapper.Extensions.Linq.Test.Data;
+using System.Collections.Generic;
+using System.Data.Entity;
+using Dapper.Extensions.Linq.Core.Repositories;
+using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 {
-    public class Delete : SqlServerTests
+    public class Delete : SqlServerBase
     {
         [Test]
         public void UsingKey_DeletesFrom_database()
         {
-            Person p1 = new Person
-            {
-                Active = true,
-                FirstName = "Foo",
-                LastName = "Bar",
-                DateCreated = DateTime.UtcNow
-            };
-            int id = Database.Insert(p1);
+            var personRepository = Container.Resolve<IRepository<Person>>();
 
-            Person p2 = Database.Get<Person>(id);
-            Database.Delete(p2);
-            Assert.IsNull(Database.Get<Person>(id));
+            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            int id = personRepository.Insert(p1);
+            bool deleted = personRepository.Delete(p1);
+            Assert.IsTrue(deleted);
+            Assert.IsNull(personRepository.Get(id));
         }
 
         [Test]
         public void UsingCompositeKey_DeletesFrom_database()
         {
-            Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
-            var key = Database.Insert(m1);
+            var multiKeyRepository = Container.Resolve<IRepository<Multikey>>();
 
-            Multikey m2 = Database.Get<Multikey>(new { key.Key1, key.Key2 });
-            Database.Delete(m2);
-            Assert.IsNull(Database.Get<Multikey>(new { key.Key1, key.Key2 }));
-        }
+            var m1 = new Multikey { Key2 = "key", Value = "bar" };
+            dynamic key = multiKeyRepository.Insert(m1);
+            int key1 = key.Key1;
+            string key2 = key.Key2;
 
-        [Test]
-        public void UsingPredicate_DeletesRows()
-        {
-            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
-            Database.Insert(p1);
-            Database.Insert(p2);
-            Database.Insert(p3);
+            Multikey m2 = multiKeyRepository
+                .Query(e => e.Key1 == key1 && e.Key2 == key2)
+                .Single();
 
-            var list = Database.GetList<Person>();
-            Assert.AreEqual(3, list.Count());
+            bool success = multiKeyRepository.Delete(m2);
 
-            IPredicate pred = Predicates.Predicates.Field<Person>(p => p.LastName, Operator.Eq, "Bar");
-            var result = Database.Delete<Person>(pred);
-            Assert.IsTrue(result);
-
-            list = Database.GetList<Person>();
-            Assert.AreEqual(1, list.Count());
-        }
-
-        [Test]
-        public void UsingObject_DeletesRows()
-        {
-            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-            Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
-            Database.Insert(p1);
-            Database.Insert(p2);
-            Database.Insert(p3);
-
-            var list = Database.GetList<Person>();
-            Assert.AreEqual(3, list.Count());
-
-            var result = Database.Delete<Person>(new { LastName = "Bar" });
-            Assert.IsTrue(result);
-
-            list = Database.GetList<Person>();
-            Assert.AreEqual(1, list.Count());
+            Assert.IsTrue(success);
         }
     }
 }

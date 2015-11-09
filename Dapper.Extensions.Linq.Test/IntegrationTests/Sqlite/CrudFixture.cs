@@ -5,6 +5,7 @@ using Dapper.Extensions.Linq.Core.Enums;
 using Dapper.Extensions.Linq.Core.Predicates;
 using Dapper.Extensions.Linq.Predicates;
 using Dapper.Extensions.Linq.Test.Data;
+using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.Sqlite

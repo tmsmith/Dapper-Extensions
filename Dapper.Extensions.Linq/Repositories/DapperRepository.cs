@@ -24,7 +24,12 @@ namespace Dapper.Extensions.Linq.Repositories
             return GetCurrentSession().Get<T>(id, GetCurrentSession().Transaction);
         }
 
-        public virtual int Insert(T item)
+        public virtual T Get(Guid id)
+        {
+            return GetCurrentSession().Get<T>(id, GetCurrentSession().Transaction);
+        }
+
+        public virtual dynamic Insert(T item)
         {
             return GetCurrentSession().Insert(item, GetCurrentSession().Transaction);
         }

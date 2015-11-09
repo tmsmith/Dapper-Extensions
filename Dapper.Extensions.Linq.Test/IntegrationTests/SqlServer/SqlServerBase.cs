@@ -1,24 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
-using Dapper.Extensions.Linq.Core.Database;
+using Dapper.Extensions.Linq.CastleWindsor;
+using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Mapper;
-using Dapper.Extensions.Linq.Sql;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 {
     [SetUpFixture]
-    public class SqlServerTests
+    public class SqlServerBase
     {
         const string DatabaseName = "dapperTest";
-        protected IDatabase Database;
+        protected Castle.Windsor.WindsorContainer Container;
 
         [SetUp]
         public void RunBeforeAnyTests()
         {
-            using(var sqlConnection = new SqlConnection("Data Source=.;Integrated security=True;"))
+            using (var sqlConnection = new SqlConnection("Data Source=.;Integrated security=True;"))
             {
                 const string sqlCreateDatabase = @"
                 IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '{0}')
@@ -29,24 +31,24 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
                 sqlConnection.Execute(string.Format(sqlCreateDatabase, DatabaseName));
             }
 
-            var connection = new SqlConnection(string.Format("Data Source=.;Initial Catalog={0};Integrated security=True;", DatabaseName));
-            var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect());
+            Container = new Castle.Windsor.WindsorContainer();
 
-            //DapperConfiguration
-            //    .Use()
-            //    .UseClassMapper(typeof(AutoClassMapper<>))
-            //    .Build();
+            DapperConfiguration
+                .Use()
+                .UseClassMapper(typeof(AutoClassMapper<>))
+                .UseContainer<WindsorContainer>(cfg => cfg.UseExisting(Container))
+                .FromAssembly("Dapper.Extensions.Linq.Test")
+                .Build();
 
-            var sqlGenerator = new SqlGeneratorImpl(config);
-            Database = new Database(connection, sqlGenerator);
+            var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["__Default"].ConnectionString);
             var files = new List<string>
-                {
-                    ReadScriptFile("CreateAnimalTable"),
-                    ReadScriptFile("CreateFooTable"),
-                    ReadScriptFile("CreateMultikeyTable"),
-                    ReadScriptFile("CreatePersonTable"),
-                    ReadScriptFile("CreateCarTable")
-                };
+            {
+                ReadScriptFile("CreateAnimalTable"),
+                ReadScriptFile("CreateFooTable"),
+                ReadScriptFile("CreateMultikeyTable"),
+                ReadScriptFile("CreatePersonTable"),
+                ReadScriptFile("CreateCarTable")
+            };
 
             foreach (var setupFile in files)
             {
@@ -55,9 +57,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
         }
 
         [TearDown]
-        public void RunAfterAnyTests()
-        {
-        }
+        public void RunAfterAnyTests() { }
 
         private string ReadScriptFile(string name)
         {

@@ -70,6 +70,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite, Version=1.0.98.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.98.1\lib\net46\System.Data.SQLite.dll</HintPath>
@@ -85,32 +86,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Container.cs" />
-    <Compile Include="Data\Car.cs" />
+    <Compile Include="Entities\Car.cs" />
+    <Compile Include="Entities\MultikeyMapper.cs" />
+    <Compile Include="Entities\PersonMapper.cs" />
+    <Compile Include="Entities\Phone.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
-    <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
-    <Compile Include="Data\CustomMapper.cs" />
-    <Compile Include="Data\Animal.cs" />
-    <Compile Include="Data\Multikey.cs" />
-    <Compile Include="Data\Person.cs" />
+    <Compile Include="Entities\CustomMapper.cs" />
+    <Compile Include="Entities\Animal.cs" />
+    <Compile Include="Entities\Multikey.cs" />
+    <Compile Include="Entities\Person.cs" />
     <Compile Include="IntegrationTests\NonCrudFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\SqlCeBaseFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\TimerFixture.cs" />
     <Compile Include="IntegrationTests\SqlServer\Count.cs" />
-    <Compile Include="IntegrationTests\SqlServer\GetMultiple.cs" />
-    <Compile Include="IntegrationTests\SqlServer\GetPage.cs" />
     <Compile Include="IntegrationTests\SqlServer\GetList.cs" />
     <Compile Include="IntegrationTests\SqlServer\Delete.cs" />
     <Compile Include="IntegrationTests\SqlServer\Get.cs" />
     <Compile Include="IntegrationTests\SqlServer\Update.cs" />
     <Compile Include="IntegrationTests\SqlServer\Insert.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Setup.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlServerBase.cs" />
     <Compile Include="IntegrationTests\SqlServer\MassInsert.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
@@ -155,34 +148,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

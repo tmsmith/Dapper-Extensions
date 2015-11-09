@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dapper.Extensions.Linq.Test.Data;
+using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe

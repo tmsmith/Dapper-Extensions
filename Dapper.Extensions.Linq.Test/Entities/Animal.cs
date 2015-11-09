@@ -1,8 +1,9 @@
 ﻿using System;
+using Dapper.Extensions.Linq.Core;
 
-namespace Dapper.Extensions.Linq.Test.Data
+namespace Dapper.Extensions.Linq.Test.Entities
 {
-    class Animal
+    class Animal : IEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
