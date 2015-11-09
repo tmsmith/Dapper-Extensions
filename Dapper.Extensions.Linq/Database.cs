@@ -6,9 +6,6 @@ using Dapper.Extensions.Linq.Core.Implementor;
 using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Core.Predicates;
 using Dapper.Extensions.Linq.Core.Sql;
-using Dapper.Extensions.Linq.Mapper;
-using Dapper.Extensions.Linq.Predicates;
-using Dapper.Extensions.Linq.Sql;
 
 namespace Dapper.Extensions.Linq
 {
@@ -29,27 +26,15 @@ namespace Dapper.Extensions.Linq
             }
         }
 
-        public bool HasActiveTransaction
-        {
-            get
-            {
-                return _transaction != null;
-            }
-        }
+        public bool HasActiveTransaction => _transaction != null;
 
         public IDbConnection Connection { get; private set; }
 
         public void Dispose()
         {
-            if (Connection.State != ConnectionState.Closed)
-            {
-                if (_transaction != null)
-                {
-                    _transaction.Rollback();
-                }
-
-                Connection.Close();
-            }
+            if (Connection.State == ConnectionState.Closed) return;
+            _transaction?.Rollback();
+            Connection.Close();
         }
 
         public void BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
