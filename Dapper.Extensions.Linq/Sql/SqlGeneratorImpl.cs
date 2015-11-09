@@ -10,7 +10,7 @@ using Dapper.Extensions.Linq.Core.Sql;
 
 namespace Dapper.Extensions.Linq.Sql
 {
-    public sealed class SqlGeneratorImpl : ISqlGenerator
+    public class SqlGeneratorImpl : ISqlGenerator
     {
         public SqlGeneratorImpl(IDapperExtensionsConfiguration configuration)
         {
@@ -218,12 +218,12 @@ namespace Dapper.Extensions.Linq.Sql
             return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));
         }
 
-        public string GetTableName(IClassMapper map)
+        public virtual string GetTableName(IClassMapper map)
         {
             return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
         }
 
-        public string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+        public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
         {
             string alias = null;
             if (property.ColumnName != property.Name && includeAlias)
@@ -234,7 +234,7 @@ namespace Dapper.Extensions.Linq.Sql
             return Configuration.Dialect.GetColumnName(GetTableName(map), property.ColumnName, alias);
         }
 
-        public string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
+        public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
         {
             IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
             if (propertyMap == null)
@@ -250,7 +250,7 @@ namespace Dapper.Extensions.Linq.Sql
             return Configuration.Dialect.SupportsMultipleStatements;
         }
 
-        public string BuildSelectColumns(IClassMapper classMap)
+        public virtual string BuildSelectColumns(IClassMapper classMap)
         {
             var columns = classMap.Properties
                 .Where(p => !p.Ignored)
