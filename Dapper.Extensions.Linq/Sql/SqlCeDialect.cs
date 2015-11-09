@@ -58,7 +58,8 @@ namespace Dapper.Extensions.Linq.Sql
 
         public override string SelectLimit(string sql, int limit)
         {
-            return sql.Insert(sql.IndexOf("SELECT ", StringComparison.OrdinalIgnoreCase), string.Format("TOP ({0}) ", limit));
+            const string searchFor = "SELECT ";
+            return sql.Insert(sql.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase) + searchFor.Length, string.Format("TOP ({0}) ", limit));
         }
     }
 }

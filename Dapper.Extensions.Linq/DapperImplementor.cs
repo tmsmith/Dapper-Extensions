@@ -149,7 +149,7 @@ namespace Dapper.Extensions.Linq
             IPredicate wherePredicate = GetPredicate(classMap, predicate);
             return GetList<T>(connection, classMap, wherePredicate, sort, transaction, commandTimeout, buffered, topRecords);
         }
-        
+
 
         public IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
         {
@@ -289,10 +289,10 @@ namespace Dapper.Extensions.Linq
             return predicates.Count == 1
                        ? predicates[0]
                        : new PredicateGroup
-                             {
-                                 Operator = GroupOperator.And,
-                                 Predicates = predicates
-                             };
+                       {
+                           Operator = GroupOperator.And,
+                           Predicates = predicates
+                       };
         }
 
         protected IPredicate GetKeyPredicate<T>(IClassMapper classMap, T entity) where T : class
@@ -305,20 +305,20 @@ namespace Dapper.Extensions.Linq
 
             IList<IPredicate> predicates = (from field in whereFields
                                             select new FieldPredicate<T>
-                                                       {
-                                                           Not = false,
-                                                           Operator = Operator.Eq,
-                                                           PropertyName = field.Name,
-                                                           Value = field.PropertyInfo.GetValue(entity, null)
-                                                       }).Cast<IPredicate>().ToList();
+                                            {
+                                                Not = false,
+                                                Operator = Operator.Eq,
+                                                PropertyName = field.Name,
+                                                Value = field.PropertyInfo.GetValue(entity, null)
+                                            }).Cast<IPredicate>().ToList();
 
             return predicates.Count == 1
                        ? predicates[0]
                        : new PredicateGroup
-                             {
-                                 Operator = GroupOperator.And,
-                                 Predicates = predicates
-                             };
+                       {
+                           Operator = GroupOperator.And,
+                           Predicates = predicates
+                       };
         }
 
         protected IPredicate GetEntityPredicate(IClassMapper classMap, object entity)
@@ -354,7 +354,7 @@ namespace Dapper.Extensions.Linq
                 IPredicate itemPredicate = item.Value as IPredicate;
                 if (itemPredicate == null && item.Value != null)
                 {
-                    itemPredicate =  GetPredicate(classMap, item.Value);
+                    itemPredicate = GetPredicate(classMap, item.Value);
                 }
 
                 sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters) + SqlGenerator.Configuration.Dialect.BatchSeperator);
