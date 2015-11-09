@@ -26,5 +26,10 @@ namespace Dapper.Extensions.Linq.Sql
             parameters.Add("@maxResults", maxResults);
             return result;
         }
+
+        public override string SelectLimit(string sql, int limit)
+        {
+            return string.Format("{0} LIMIT {1}", sql, limit);
+        }
     }
 }

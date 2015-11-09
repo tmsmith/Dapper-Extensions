@@ -6,20 +6,11 @@ namespace Dapper.Extensions.Linq.Sql
 {
     public class SqlCeDialect : SqlDialectBase
     {
-        public override char OpenQuote
-        {
-            get { return '['; }
-        }
+        public override char OpenQuote => '[';
 
-        public override char CloseQuote
-        {
-            get { return ']'; }
-        }
+        public override char CloseQuote => ']';
 
-        public override bool SupportsMultipleStatements
-        {
-            get { return false; }
-        }
+        public override bool SupportsMultipleStatements => false;
 
         public override string GetTableName(string schemaName, string tableName, string alias)
         {
@@ -63,6 +54,11 @@ namespace Dapper.Extensions.Linq.Sql
             parameters.Add("@firstResult", firstResult);
             parameters.Add("@maxResults", maxResults);
             return result;            
+        }
+
+        public override string SelectLimit(string sql, int limit)
+        {
+            return sql.Insert(sql.IndexOf("SELECT ", StringComparison.OrdinalIgnoreCase), string.Format("TOP ({0}) ", limit));
         }
     }
 }

@@ -223,6 +223,11 @@ namespace Dapper.Extensions.Linq.Test.Sql
             {
                 throw new NotImplementedException();
             }
+
+            public override string SelectLimit(string sql, int limit)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

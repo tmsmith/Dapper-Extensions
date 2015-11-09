@@ -15,6 +15,7 @@ namespace Dapper.Extensions.Linq.Core.Sql
         string GetIdentitySql(string tableName);
         string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
+        string SelectLimit(string sql, int limit);
         bool IsQuoted(string value);
         string QuoteString(string value);
     }

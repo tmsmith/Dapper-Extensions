@@ -142,5 +142,10 @@ namespace Dapper.Extensions.Linq.Sql
 
             return result;
         }
+
+        public override string SelectLimit(string sql, int limit)
+        {
+            return sql.Insert(sql.IndexOf("SELECT ", StringComparison.OrdinalIgnoreCase), string.Format("TOP ({0}) ", limit));
+        }
     }
 }

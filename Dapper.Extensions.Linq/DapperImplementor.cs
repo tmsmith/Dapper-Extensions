@@ -9,9 +9,7 @@ using Dapper.Extensions.Linq.Core.Implementor;
 using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Core.Predicates;
 using Dapper.Extensions.Linq.Core.Sql;
-using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Predicates;
-using Dapper.Extensions.Linq.Sql;
 
 namespace Dapper.Extensions.Linq
 {
@@ -22,7 +20,7 @@ namespace Dapper.Extensions.Linq
             SqlGenerator = sqlGenerator;
         }
 
-        public ISqlGenerator SqlGenerator { get; private set; }
+        public ISqlGenerator SqlGenerator { get; }
 
         public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
         {
@@ -195,11 +193,11 @@ namespace Dapper.Extensions.Linq
         protected IEnumerable<T> GetList<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, int? topRecords) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql ;
-            if(topRecords.HasValue)
-                sql = SqlGenerator.SelectTopN(classMap, predicate, sort, topRecords.Value, parameters);
-            else
-                sql = SqlGenerator.Select(classMap, predicate, sort, parameters);
+            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters);
+
+            if (topRecords.HasValue)
+                sql = SqlGenerator.Configuration.Dialect.SelectLimit(sql, topRecords.Value);
+
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
             {

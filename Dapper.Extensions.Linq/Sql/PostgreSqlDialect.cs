@@ -32,6 +32,11 @@ namespace Dapper.Extensions.Linq.Sql
         {
             return base.GetTableName(schemaName, tableName, alias).ToLower();
         }
+
+        public override string SelectLimit(string sql, int limit)
+        {
+            return string.Format("{0} LIMIT {1}", sql, limit);
+        }
     }
 
 }

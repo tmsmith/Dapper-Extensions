@@ -8,41 +8,17 @@ namespace Dapper.Extensions.Linq.Sql
 {
     public abstract class SqlDialectBase : ISqlDialect
     {
-        public virtual char OpenQuote
-        {
-            get { return '"'; }
-        }
+        public virtual char OpenQuote => '"';
 
-        public virtual char CloseQuote
-        {
-            get { return '"'; }
-        }
+        public virtual char CloseQuote => '"';
 
-        public virtual string BatchSeperator
-        {
-            get { return ";" + Environment.NewLine; }
-        }
+        public virtual string BatchSeperator => ";" + Environment.NewLine;
 
-        public virtual bool SupportsMultipleStatements
-        {
-            get { return true; }
-        }
+        public virtual bool SupportsMultipleStatements => true;
 
-        public virtual char ParameterPrefix
-        {
-            get
-            {
-                return '@';
-            }
-        }
+        public virtual char ParameterPrefix => '@';
 
-        public string EmptyExpression
-        {
-            get
-            {
-                return "1=1";
-            }
-        }
+        public string EmptyExpression => "1=1";
 
         public virtual string GetTableName(string schemaName, string tableName, string alias)
         {
@@ -92,6 +68,7 @@ namespace Dapper.Extensions.Linq.Sql
         public abstract string GetIdentitySql(string tableName);
         public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
         public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
+        public abstract string SelectLimit(string sql, int limit);
 
         public virtual bool IsQuoted(string value)
         {

@@ -22,7 +22,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
                                    DateCreated = DateTime.Now,
                                    Active = true
                                };
-                Db.Insert(p);
+                Database.Insert(p);
                 DateTime start = DateTime.Now;
                 List<int> ids = new List<int>();
                 for (int i = 0; i < cnt; i++)
@@ -34,7 +34,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
                                         DateCreated = DateTime.Now,
                                         Active = true
                                     };
-                    Db.Insert(p2);
+                    Database.Insert(p2);
                     ids.Add(p2.Id);
                 }
 
@@ -53,7 +53,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
                                    DateCreated = DateTime.Now,
                                    Active = true
                                };
-                Db.Insert(p);
+                Database.Insert(p);
                 DateTime start = DateTime.Now;
                 List<int> ids = new List<int>();
                 for (int i = 0; i < cnt; i++)
@@ -65,7 +65,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
                                         DateCreated = DateTime.Now,
                                         Active = true
                                     };
-                    var id = Db.Insert(p2);
+                    var id = Database.Insert(p2);
                     ids.Add(id);
                 }
 
@@ -78,13 +78,13 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
             public void GuidKey_UsingEntity()
             {
                 Animal a = new Animal { Name = "Name" };
-                Db.Insert(a);
+                Database.Insert(a);
                 DateTime start = DateTime.Now;
                 List<Guid> ids = new List<Guid>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Animal a2 = new Animal { Name = "Name" + i };
-                    Db.Insert(a2);
+                    Database.Insert(a2);
                     ids.Add(a2.Id);
                 }
 
@@ -97,13 +97,13 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
             public void GuidKey_UsingReturnValue()
             {
                 Animal a = new Animal { Name = "Name" };
-                Db.Insert(a);
+                Database.Insert(a);
                 DateTime start = DateTime.Now;
                 List<Guid> ids = new List<Guid>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Animal a2 = new Animal { Name = "Name" + i };
-                    var id = Db.Insert(a2);
+                    var id = Database.Insert(a2);
                     ids.Add(id);
                 }
 
@@ -116,14 +116,14 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
             public void AssignKey_UsingEntity()
             {
                 Car ca = new Car { Id = string.Empty.PadLeft(15, '0'), Name = "Name" };
-                Db.Insert(ca);
+                Database.Insert(ca);
                 DateTime start = DateTime.Now;
                 List<string> ids = new List<string>();
                 for (int i = 0; i < cnt; i++)
                 {
                     var key = (i + 1).ToString().PadLeft(15, '0');
                     Car ca2 = new Car { Id = key, Name = "Name" + i };
-                    Db.Insert(ca2);
+                    Database.Insert(ca2);
                     ids.Add(ca2.Id);
                 }
 
@@ -136,14 +136,14 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
             public void AssignKey_UsingReturnValue()
             {
                 Car ca = new Car { Id = string.Empty.PadLeft(15, '0'), Name = "Name" };
-                Db.Insert(ca);
+                Database.Insert(ca);
                 DateTime start = DateTime.Now;
                 List<string> ids = new List<string>();
                 for (int i = 0; i < cnt; i++)
                 {
                     var key = (i + 1).ToString().PadLeft(15, '0');
                     Car ca2 = new Car { Id = key, Name = "Name" + i };
-                    var id = Db.Insert(ca2);
+                    var id = Database.Insert(ca2);
                     ids.Add(id);
                 }
 
