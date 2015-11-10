@@ -54,17 +54,15 @@
     <Compile Include="Predicates\BetweenValues.cs" />
     <Compile Include="Builder\QueryFunctions.cs" />
     <Compile Include="Predicates\ComparePredicate.cs" />
-    <Compile Include="DapperExtensionsConfiguration.cs" />
-    <Compile Include="DapperImplementor.cs" />
+    <Compile Include="Implementor\DapperImplementor.cs" />
     <Compile Include="Predicates\ExistsPredicate.cs" />
-    <Compile Include="Extensions\DapperExtensions.cs" />
     <Compile Include="Predicates\FieldPredicate.cs" />
     <Compile Include="Predicates\GetMultiplePredicate.cs" />
     <Compile Include="Predicates\GetMultiplePredicateItem.cs" />
     <Compile Include="Predicates\SequenceReaderResultReader.cs" />
     <Compile Include="Mapper\AutoClassMapper.cs" />
     <Compile Include="Mapper\ClassMapper.cs" />
-    <Compile Include="DapperExtensions.cs" />
+    <Compile Include="Extensions\DapperExtensions.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates\GridReaderResultReader.cs" />
     <Compile Include="Predicates\IBetweenPredicate.cs" />
@@ -95,6 +93,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

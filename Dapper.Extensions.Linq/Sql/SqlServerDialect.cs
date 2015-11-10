@@ -7,15 +7,9 @@ namespace Dapper.Extensions.Linq.Sql
 {
     public class SqlServerDialect : SqlDialectBase
     {
-        public override char OpenQuote
-        {
-            get { return '['; }
-        }
+        public override char OpenQuote => '[';
 
-        public override char CloseQuote
-        {
-            get { return ']'; }
-        }
+        public override char CloseQuote => ']';
 
         public override string GetIdentitySql(string tableName)
         {

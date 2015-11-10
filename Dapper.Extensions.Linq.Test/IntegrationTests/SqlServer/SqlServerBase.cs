@@ -5,13 +5,12 @@ using System.IO;
 using System.Reflection;
 using Dapper.Extensions.Linq.CastleWindsor;
 using Dapper.Extensions.Linq.Core.Configuration;
-using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Mapper;
+using Dapper.Extensions.Linq.Sql;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 {
-    [SetUpFixture]
     public class SqlServerBase
     {
         const string DatabaseName = "dapperTest";
@@ -37,7 +36,10 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
                 .Use()
                 .UseClassMapper(typeof(AutoClassMapper<>))
                 .UseContainer<WindsorContainer>(cfg => cfg.UseExisting(Container))
+                .UseSqlDialect(new SqlServerDialect())
                 .FromAssembly("Dapper.Extensions.Linq.Test")
+                .FromAssembly("Dapper.Extensions.Linq.Test.Entities")
+                .FromAssembly("Dapper.Extensions.Linq.Test.Maps")
                 .Build();
 
             var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["__Default"].ConnectionString);

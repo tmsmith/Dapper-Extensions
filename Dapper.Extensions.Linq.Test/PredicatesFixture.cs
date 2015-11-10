@@ -22,14 +22,14 @@ namespace Dapper.Extensions.Linq.Test
         {
             protected Mock<ISqlDialect> @SqlDialect;
             protected Mock<ISqlGenerator> Generator;
-            protected Mock<IDapperExtensionsConfiguration> Configuration;
+            protected Mock<IDapperConfiguration> Configuration;
                 
             [SetUp]
             public void Setup()
             {
                 @SqlDialect = new Mock<ISqlDialect>();
                 Generator = new Mock<ISqlGenerator>();
-                Configuration = new Mock<IDapperExtensionsConfiguration>();
+                Configuration = new Mock<IDapperConfiguration>();
 
                 @SqlDialect.SetupGet(c => c.ParameterPrefix).Returns('@');
                 Configuration.SetupGet(c => c.Dialect).Returns(@SqlDialect.Object);

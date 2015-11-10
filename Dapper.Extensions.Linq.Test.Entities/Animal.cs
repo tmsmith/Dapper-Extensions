@@ -3,7 +3,7 @@ using Dapper.Extensions.Linq.Core;
 
 namespace Dapper.Extensions.Linq.Test.Entities
 {
-    class Animal : IEntity
+    public class Animal : IEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

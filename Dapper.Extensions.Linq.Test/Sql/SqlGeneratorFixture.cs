@@ -17,7 +17,7 @@ namespace Dapper.Extensions.Linq.Test.Sql
     {
         public abstract class SqlGeneratorFixtureBase
         {
-            protected Mock<IDapperExtensionsConfiguration> Configuration;
+            private Mock<IDapperConfiguration> _configuration;
 
             protected Mock<SqlGeneratorImpl> Generator;
             protected Mock<ISqlDialect> Dialect;
@@ -26,15 +26,14 @@ namespace Dapper.Extensions.Linq.Test.Sql
             [SetUp]
             public void Setup()
             {
-                Configuration = new Mock<IDapperExtensionsConfiguration>();
+                _configuration = new Mock<IDapperConfiguration>();
                 Dialect = new Mock<ISqlDialect>();
                 ClassMap = new Mock<IClassMapper>();
 
                 Dialect.SetupGet(c => c.ParameterPrefix).Returns('@');
-                Configuration.SetupGet(c => c.Dialect).Returns(Dialect.Object).Verifiable();
+                _configuration.SetupGet(c => c.Dialect).Returns(Dialect.Object).Verifiable();
 
-                Generator = new Mock<SqlGeneratorImpl>(Configuration.Object);
-                Generator.CallBase = true;
+                Generator = new Mock<SqlGeneratorImpl>(_configuration.Object) {CallBase = true};
             }
         }
 
@@ -44,7 +43,6 @@ namespace Dapper.Extensions.Linq.Test.Sql
             [Test]
             public void WithNullParameters_ThrowsException()
             {
-                Sort sort = new Sort();
                 var ex = Assert.Throws<ArgumentNullException>(
                     () => Generator.Object.Select(ClassMap.Object, null, null, null));
                 StringAssert.Contains("cannot be null", ex.Message);
@@ -243,7 +241,6 @@ namespace Dapper.Extensions.Linq.Test.Sql
             [Test]
             public void WithNullParameters_ThrowsException()
             {
-                Sort sort = new Sort();
                 var ex = Assert.Throws<ArgumentNullException>(
                     () => Generator.Object.Select(ClassMap.Object, null, null, null));
                 StringAssert.Contains("cannot be null", ex.Message);

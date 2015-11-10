@@ -51,18 +51,20 @@ namespace Dapper.Extensions.Linq.Core.Sessions
 
             if (_loadedContexts == null)
             {
-                _loadedContexts = _configuration.Assemblies.SelectMany(a =>
-                a.GetTypes()
-                .Where(t => t.IsClass && typeof(IEntity).IsAssignableFrom(t))
-                .Select(t =>
-                {
-                    var attribute = t.GetCustomAttribute<DataContextAttribute>(true);
+                _loadedContexts = _configuration
+                    .Assemblies
+                    .SelectMany(a =>
+                        a.GetTypes()
+                        .Where(t => t.IsClass && typeof(IEntity).IsAssignableFrom(t))
+                        .Select(t =>
+                        {
+                            var attribute = t.GetCustomAttribute<DataContextAttribute>(true);
 
-                    if (attribute == null) return DefaultConnectionStringProviderName;
-                    return attribute.ConnectionStringName;
-                })
-                .Distinct())
-                .ToList();
+                            if (attribute == null) return DefaultConnectionStringProviderName;
+                            return attribute.ConnectionStringName;
+                        }))
+                        .Distinct()
+                        .ToList();
             }
 
             return _loadedContexts;

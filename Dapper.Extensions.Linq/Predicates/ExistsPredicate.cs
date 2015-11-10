@@ -22,7 +22,7 @@ namespace Dapper.Extensions.Linq.Predicates
             return sql;
         }
 
-        protected virtual IClassMapper GetClassMapper(Type type, IDapperExtensionsConfiguration configuration)
+        protected virtual IClassMapper GetClassMapper(Type type, IDapperConfiguration configuration)
         {
             IClassMapper map = configuration.GetMap(type);
             if (map == null)

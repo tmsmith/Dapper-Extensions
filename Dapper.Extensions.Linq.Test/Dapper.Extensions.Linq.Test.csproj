@@ -86,17 +86,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Container.cs" />
-    <Compile Include="Entities\Car.cs" />
-    <Compile Include="Entities\MultikeyMapper.cs" />
-    <Compile Include="Entities\PersonMapper.cs" />
-    <Compile Include="Entities\Phone.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="Entities\CustomMapper.cs" />
-    <Compile Include="Entities\Animal.cs" />
-    <Compile Include="Entities\Multikey.cs" />
-    <Compile Include="Entities\Person.cs" />
-    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
+    <Compile Include="IntegrationTests\Methods\GetMapMethod.cs" />
+    <Compile Include="IntegrationTests\Methods\GetNextGuidMethod.cs" />
     <Compile Include="IntegrationTests\SqlServer\Count.cs" />
     <Compile Include="IntegrationTests\SqlServer\GetList.cs" />
     <Compile Include="IntegrationTests\SqlServer\Delete.cs" />

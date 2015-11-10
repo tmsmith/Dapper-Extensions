@@ -12,7 +12,7 @@ namespace Dapper.Extensions.Linq.CastleWindsor
         public void Build(DapperConfiguration configuration)
         {
             object container;
-            bool success = configuration.ContainerCustomisations.Settings.TryGetValue("ExistingContainer", out container);
+            bool success = configuration.ContainerCustomisations.Settings().TryGetValue("ExistingContainer", out container);
             if (success == false) throw new NullReferenceException("ExistingContainer not found");
 
             var windsorContainer = (Castle.Windsor.WindsorContainer)container;

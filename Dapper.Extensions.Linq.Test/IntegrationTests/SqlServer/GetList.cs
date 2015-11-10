@@ -19,7 +19,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
             personRepository.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
 
             IEnumerable<Person> list = personRepository.GetList();
-            Assert.AreEqual(4, list.Count());
+            Assert.AreEqual(4, list.Count());  
         }
     }
 }

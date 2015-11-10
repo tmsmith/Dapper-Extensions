@@ -38,8 +38,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutomaticMap.cs" />
+    <Compile Include="Animal.cs" />
+    <Compile Include="Car.cs" />
     <Compile Include="ExternallyMapped.cs" />
+    <Compile Include="Multikey.cs" />
+    <Compile Include="Person.cs" />
+    <Compile Include="Phone.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

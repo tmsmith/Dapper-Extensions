@@ -2,8 +2,13 @@
 
 namespace Dapper.Extensions.Linq.Core.Configuration
 {
-    public class ContainerCustomisations
+    public class ContainerCustomisations : IContainerCustomisations
     {
-        public readonly Dictionary<string, object> Settings = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _settings = new Dictionary<string, object>();
+
+        public Dictionary<string, object> Settings()
+        {
+            return _settings;
+        }
     }
 }

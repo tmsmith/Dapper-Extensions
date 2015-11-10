@@ -7,7 +7,7 @@ namespace Dapper.Extensions.Linq.Core.Sql
 {
     public interface ISqlGenerator
     {
-        IDapperExtensionsConfiguration Configuration { get; }
+        IDapperConfiguration Configuration { get; }
         
         string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
         string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);

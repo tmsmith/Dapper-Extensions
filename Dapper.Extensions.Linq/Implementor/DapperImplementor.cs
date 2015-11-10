@@ -11,7 +11,7 @@ using Dapper.Extensions.Linq.Core.Predicates;
 using Dapper.Extensions.Linq.Core.Sql;
 using Dapper.Extensions.Linq.Predicates;
 
-namespace Dapper.Extensions.Linq
+namespace Dapper.Extensions.Linq.Implementor
 {
     public class DapperImplementor : IDapperImplementor
     {

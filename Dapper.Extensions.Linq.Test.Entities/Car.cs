@@ -2,7 +2,7 @@
 
 namespace Dapper.Extensions.Linq.Test.Entities
 {
-    class Car : IEntity
+    public class Car : IEntity
     {
         public string Id { get; set; }
         public string Name { get; set; }

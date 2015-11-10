@@ -7,6 +7,7 @@ using Dapper.Extensions.Linq.Core;
 using Dapper.Extensions.Linq.Core.Builder;
 using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Core.Sessions;
+using Dapper.Extensions.Linq.Extensions;
 
 namespace Dapper.Extensions.Linq.Repositories
 {
