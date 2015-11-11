@@ -1,6 +1,6 @@
 # Introduction
 
-Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this providing advanced DB access through Linq queries.
+Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this providing advanced DB access through Linq queries. The fluid configuration makes setup simplistic and quick.
 
 Features
 --------
@@ -11,10 +11,11 @@ Features
 * Entites can be manipulated with attributes
 * Custom IoC containers
 * Multiple connection providers
+* Support for Sql Server, Postgre Sql, MySql, SqlCe and SQLite
 
 Attributes 
 ---------
-* DataContext - Which connection provider to use, defaults to **__Default**
+* DataContext - Which connection provider to use, defaults to **__Default**, you can additionally override this with fluid configuration.
 
 Property Attributes
 -------------------------
@@ -36,6 +37,8 @@ PM> Install-Package Dapper.Extensions.Linq
 ```
 
 # Configuration
+Note that dapper configuration requires a container in order to build. You can use the nuget package Dapper.Extensions.Linq.CastleWindsor or implement your own. The caslte provides you with dependency injection for the repositories.
+
 Basic configuration and setup:
 
 ```c#
@@ -43,6 +46,8 @@ DapperConfiguration
     .Use()
     .UseClassMapper(typeof(AutoClassMapper<>))
     .UseContainer<Dapper.Extensions.Linq.CastleWindsor.WindsorContainer>(c => c.UseExisting(_container))
+	.UseSqlDialect(new SqlServerDialect())
+    .FromAssembly("Dapper.Entities")
     .Build();
 ```
 
@@ -89,6 +94,16 @@ _dapperRepository.Update(person);
 ```c#
 Person person = _dapperRepository.Get(PersonId);
 _dapperRepository.Delete(person);
+```
+
+## Count
+
+```c#
+int numberOfPeople = _dapperRepository.Count();
+
+or
+
+int numberOfPeople = _dapperRepository.Count(e => e.FirstName == "Foo");
 ```
 
 ## Lists with Linq
