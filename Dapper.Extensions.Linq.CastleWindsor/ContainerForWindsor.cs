@@ -7,7 +7,7 @@ using Dapper.Extensions.Linq.Repositories;
 
 namespace Dapper.Extensions.Linq.CastleWindsor
 {
-    public class WindsorContainer : IContainer
+    public class ContainerForWindsor : IContainer
     {
         public void Build(DapperConfiguration configuration)
         {

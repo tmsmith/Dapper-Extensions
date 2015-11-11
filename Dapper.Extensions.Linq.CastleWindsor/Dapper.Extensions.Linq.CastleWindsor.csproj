@@ -42,7 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WindsorContainer.cs" />
+    <Compile Include="ContainerForWindsor.cs" />
     <Compile Include="WindsorExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -35,7 +35,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
             DapperConfiguration
                 .Use()
                 .UseClassMapper(typeof(AutoClassMapper<>))
-                .UseContainer<WindsorContainer>(cfg => cfg.UseExisting(Container))
+                .UseContainer<ContainerForWindsor>(cfg => cfg.UseExisting(Container))
                 .UseSqlDialect(new SqlServerDialect())
                 .WithDefaultConnectionStringNamed("__DefaultSqlServer")
                 .FromAssembly("Dapper.Extensions.Linq.Test.Entities")

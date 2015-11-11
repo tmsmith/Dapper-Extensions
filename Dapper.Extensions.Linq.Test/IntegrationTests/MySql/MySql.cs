@@ -29,7 +29,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
             DapperConfiguration
                 .Use()
                 .UseClassMapper(typeof(AutoClassMapper<>))
-                .UseContainer<WindsorContainer>(cfg => cfg.UseExisting(Container))
+                .UseContainer<ContainerForWindsor>(cfg => cfg.UseExisting(Container))
                 .UseSqlDialect(new MySqlDialect())
                 .WithDefaultConnectionStringNamed("__DefaultMySql")
                 .FromAssembly("Dapper.Extensions.Linq.Test.Entities")

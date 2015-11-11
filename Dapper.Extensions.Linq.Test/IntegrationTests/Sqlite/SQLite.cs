@@ -36,7 +36,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SQLite
             DapperConfiguration
                 .Use()
                 .UseClassMapper(typeof(AutoClassMapper<>))
-                .UseContainer<WindsorContainer>(cfg => cfg.UseExisting(Container))
+                .UseContainer<ContainerForWindsor>(cfg => cfg.UseExisting(Container))
                 .UseSqlDialect(new SQLiteDialect())
                 .WithDefaultConnectionStringNamed("__DefaultSQLite")
                 .FromAssembly("Dapper.Extensions.Linq.Test.Entities")
