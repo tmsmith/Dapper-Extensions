@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ryan Watson")]
 [assembly: AssemblyProduct("Dapper.Extensions.Linq")]
-[assembly: AssemblyCopyright("Copyright © 2012")]
+[assembly: AssemblyCopyright("Copyright © 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,9 +22,6 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("792b61ca-432b-4db2-a5b3-d2fb5043d0ed")]
-
-[assembly: InternalsVisibleTo("DapperExtensions.Test")]
-[assembly: InternalsVisibleTo("DapperExtensions.Test.SQLite")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -38,4 +35,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: AssemblyInformationalVersion("1.1.1")]
+[assembly: AssemblyInformationalVersion("1.1.2")]

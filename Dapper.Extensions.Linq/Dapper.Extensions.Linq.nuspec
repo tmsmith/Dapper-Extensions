@@ -12,15 +12,5 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>orm sql micro-orm Data Dapper</tags>
-    <dependencies>
-      <dependency id="Dapper" version="1.12" />
-      <dependency id="Dapper.Extensions.Linq.Core" version="1.0.0" />
-    </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Core"/>
-      <frameworkAssembly assemblyName="System"/>
-      <frameworkAssembly assemblyName="System.Data"/>
-      <frameworkAssembly assemblyName="Microsoft.CSharp" />
-    </frameworkAssemblies>
   </metadata>
 </package>
