@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Dapper.Extensions.Linq.SqlCe")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("SqlCe for Dapper.Extensions.Linq")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Ryan Watson")]
 [assembly: AssemblyProduct("Dapper.Extensions.Linq.SqlCe")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
