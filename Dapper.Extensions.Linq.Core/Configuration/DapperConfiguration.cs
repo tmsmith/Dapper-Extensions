@@ -17,6 +17,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
         internal readonly Dictionary<string, IConnectionStringProvider> Providers;
         public readonly List<Assembly> Assemblies;
         public Type DefaultMapper { get; private set; }
+        public string DefaultConnectionStringName { get; private set; }
         public ISqlDialect Dialect { get; private set; }
         public IContainerCustomisations ContainerCustomisations { get; }
         public static IDapperConfiguration Instance { get; private set; }
@@ -26,8 +27,8 @@ namespace Dapper.Extensions.Linq.Core.Configuration
             ContainerCustomisations = new ContainerCustomisations();
             Providers = new Dictionary<string, IConnectionStringProvider>();
             Assemblies = new List<Assembly>();
-
-            UsingConnectionProvider<StaticConnectionStringProvider>(DapperSessionFactory.DefaultConnectionStringProviderName);
+            DefaultConnectionStringName = "__Default";
+            Instance = null;
         }
 
         /// <summary>
@@ -37,6 +38,12 @@ namespace Dapper.Extensions.Linq.Core.Configuration
         public static IDapperConfiguration Use()
         {
             return new DapperConfiguration();
+        }
+
+        public IDapperConfiguration WithDefaultConnectionStringNamed(string name)
+        {
+            DefaultConnectionStringName = name;
+            return this;
         }
 
         public IDapperConfiguration UseContainer<T>(Action<IContainerCustomisations> customisations) where T : IContainer
@@ -125,8 +132,11 @@ namespace Dapper.Extensions.Linq.Core.Configuration
 
         public void Build()
         {
-            if(Dialect == null)
+            if (Dialect == null)
                 throw new NullReferenceException("SqlDialect has not been set. Call UseSqlDialect().");
+
+            if (Providers.Any() == false)
+                UsingConnectionProvider<StaticConnectionStringProvider>(DefaultConnectionStringName);
 
             _container.Build(this);
             Instance = this;

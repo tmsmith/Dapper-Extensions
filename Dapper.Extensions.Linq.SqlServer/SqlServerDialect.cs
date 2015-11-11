@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using Dapper.Extensions.Linq.Core.Sql;
 
-namespace Dapper.Extensions.Linq.Sql
+namespace Dapper.Extensions.Linq.SqlServer
 {
     public class SqlServerDialect : SqlDialectBase
     {

@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlServerCe;
 using System.Text;
+using Dapper.Extensions.Linq.Core.Sql;
 
-namespace Dapper.Extensions.Linq.Sql
+namespace Dapper.Extensions.Linq.SqlCe
 {
     public class SqlCeDialect : SqlDialectBase
     {
+        public override IDbConnection GetConnection(string connectionString)
+        {
+            return new SqlCeConnection(connectionString);
+        }
+
         public override char OpenQuote => '[';
 
         public override char CloseQuote => ']';
@@ -53,7 +61,7 @@ namespace Dapper.Extensions.Linq.Sql
             string result = string.Format("{0} OFFSET @firstResult ROWS FETCH NEXT @maxResults ROWS ONLY", sql);
             parameters.Add("@firstResult", firstResult);
             parameters.Add("@maxResults", maxResults);
-            return result;            
+            return result;
         }
 
         public override string SelectLimit(string sql, int limit)

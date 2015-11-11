@@ -14,23 +14,24 @@ namespace Dapper.Extensions.Linq.Extensions
     {
         private readonly static object Lock = new object();
 
+
         private static IDapperImplementor _instance;
+
         private static IDapperImplementor Instance
         {
             get
             {
-                if (_instance == null)
+                if (DapperConfiguration.Instance == null)
+                    throw new NullReferenceException("DapperConfiguration has not been built.");
+
+
+                if (_instance != null && _instance.SqlGenerator.Configuration == DapperConfiguration.Instance)
+                    return _instance;
+
+                lock (Lock)
                 {
-                    lock (Lock)
-                    {
-                        if (_instance != null) return _instance;
-
-                        if (DapperConfiguration.Instance == null)
-                            throw new NullReferenceException("DapperConfiguration has not been built.");
-
-                        var sqlGeneratorImpl = new SqlGeneratorImpl(DapperConfiguration.Instance);
-                        _instance = new DapperImplementor(sqlGeneratorImpl);
-                    }
+                    var sqlGeneratorImpl = new SqlGeneratorImpl(DapperConfiguration.Instance);
+                    _instance = new DapperImplementor(sqlGeneratorImpl);
                 }
 
                 return _instance;
@@ -82,11 +83,33 @@ namespace Dapper.Extensions.Linq.Extensions
         }
 
         /// <summary>
+        /// Excutes a delete query based on a predicate
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="predicate"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <returns></returns>
+        public static bool Delete<T>(this IDbConnection connection, object predicate = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Delete<T>(connection, predicate, transaction, commandTimeout);
+        }
+
+        /// <summary>
         /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
         /// </summary>
         public static IEnumerable<T> GetList<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, int? topRecords = null) where T : class
         {
             return Instance.GetList<T>(connection, predicate, sort, transaction, commandTimeout, buffered, topRecords);
+        }
+
+        /// <summary>
+        /// Executes a count query using the specified predicate if supplied
+        /// </summary>
+        public static int Count<T>(this IDbConnection connection, object predicate = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return Instance.Count<T>(connection, predicate, transaction, commandTimeout);
         }
 
         /// <summary>

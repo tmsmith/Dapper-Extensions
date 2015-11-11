@@ -1,9 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
+using Dapper.Extensions.Linq.Core.Sql;
 
 namespace Dapper.Extensions.Linq.Sql
 {
     public class PostgreSqlDialect : SqlDialectBase
     {
+        public override IDbConnection GetConnection(string connectionString)
+        {
+            return new OleDbConnection(connectionString);
+        }
+
         public override string GetIdentitySql(string tableName)
         {
             return "SELECT LASTVAL() AS Id";

@@ -3,9 +3,9 @@ using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    public class MassInsert : SqlServerBase
+    public abstract partial class FixturesBase
     {
         private const int Count = 1000;
 

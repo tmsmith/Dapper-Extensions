@@ -3,9 +3,9 @@ using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    public class Update : SqlServerBase
+    public abstract partial class FixturesBase
     {
         [Test]
         public void UsingKey_UpdatesEntity()
@@ -34,7 +34,6 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 
             var m = new Multikey { Key2 = "key", Value = "foo" };
             var key = multiKeyRepository.Insert(m);
-            Assert.AreEqual(1, key.Key1);
             Assert.AreEqual("key", key.Key2);
 
             int key1 = key.Key1;
@@ -51,7 +50,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
                 .Query(e => e.Key1 == key1 && e.Key2 == key2)
                 .Single();
 
-            Assert.AreEqual(1, m3.Key1);
+            Assert.AreEqual(key1, m3.Key1);
             Assert.AreEqual("key", m3.Key2);
             Assert.AreEqual("barz", m3.Value);
         }

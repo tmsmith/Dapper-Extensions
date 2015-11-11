@@ -11,14 +11,14 @@ namespace Dapper.Extensions.Linq.Core.Sessions
 
         public IDbTransaction Transaction
         {
-            get { return _transaction; } set { _transaction = value; } }
+            get { return _transaction; }
+            set { _transaction = value; }
+        }
 
         public DapperSession(IDbConnection connection)
         {
-            this._connection = connection;
+            _connection = connection;
         }
-
-        #region IDbConnection Members
 
         public IDbTransaction BeginTransaction(IsolationLevel il)
         {
@@ -70,15 +70,9 @@ namespace Dapper.Extensions.Linq.Core.Sessions
 
         public ConnectionState State => _connection.State;
 
-        #endregion
-
-        #region IDisposable Members
-
         public void Dispose()
         {
             _connection.Dispose();
         }
-
-        #endregion
     }
 }

@@ -25,6 +25,7 @@ namespace Dapper.Extensions.Linq.Test.Configuration
                 .UseClassMapper(typeof(AutoClassMapper<>))
                 .UseContainer<Dapper.Extensions.Linq.CastleWindsor.WindsorContainer>(c => c.UseExisting(_container))
                 .UseSqlDialect(new SqlServerDialect())
+                .WithDefaultConnectionStringNamed("__DefaultSqlServer")
                 .Build();
         }
 

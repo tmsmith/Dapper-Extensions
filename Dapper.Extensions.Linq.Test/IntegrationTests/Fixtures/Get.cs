@@ -3,9 +3,9 @@ using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    public class Get : SqlServerBase
+    public abstract partial class FixturesBase
     {
         [Test]
         public void UsingKey_ReturnsEntity()
@@ -25,6 +25,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
         public void UsingCompositeKey_ReturnsEntity()
         {
             var multiKeyRepository = Container.Resolve<IRepository<Multikey>>();
+
             var m1 = new Multikey { Key2 = "key", Value = "bar" };
             dynamic key = multiKeyRepository.Insert(m1);
             int key1 = key.Key1;
@@ -34,7 +35,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
                 .Query(e => e.Key1 == key1 && e.Key2 == key2)
                 .Single();
 
-            Assert.AreEqual(1, m2.Key1);
+            Assert.AreEqual(key.Key1, m2.Key1);
             Assert.AreEqual("key", m2.Key2);
             Assert.AreEqual("bar", m2.Value);
         }

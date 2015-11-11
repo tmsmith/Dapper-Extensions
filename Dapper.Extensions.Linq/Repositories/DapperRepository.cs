@@ -56,6 +56,18 @@ namespace Dapper.Extensions.Linq.Repositories
             });
         }
 
+        public virtual int Count(Expression<Func<T, bool>> predicate = null)
+        {
+            IDapperSession session = GetCurrentSession();
+            return session.Count<T>(QueryBuilder<T>.FromExpression(predicate), session.Transaction);
+        }
+
+        public virtual bool Delete(Expression<Func<T, bool>>  predicate = null)
+        {
+            IDapperSession session = GetCurrentSession();
+            return session.Delete<T>(QueryBuilder<T>.FromExpression(predicate), session.Transaction);
+        }
+
         public virtual IEnumerable<T> Query(string sql, object param = null)
         {
             return GetCurrentSession().Query<T>(sql, param, GetCurrentSession().Transaction);

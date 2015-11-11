@@ -3,9 +3,9 @@ using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    public class Delete : SqlServerBase
+    public abstract partial class FixturesBase
     {
         [Test]
         public void UsingKey_DeletesFrom_database()
@@ -36,6 +36,21 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
             bool success = multiKeyRepository.Delete(m2);
 
             Assert.IsTrue(success);
+        }
+
+        [Test]
+        public void Delete_All()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+
+            Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+            personRepository.Insert(p1);
+
+            bool deleted = personRepository.Delete();
+            int count = personRepository.Count();
+
+            Assert.IsTrue(deleted);
+            Assert.AreEqual(count, 0);
         }
     }
 }

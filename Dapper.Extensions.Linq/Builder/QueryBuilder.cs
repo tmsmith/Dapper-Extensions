@@ -64,6 +64,7 @@ namespace Dapper.Extensions.Linq.Builder
 
         public static IPredicateGroup FromExpression(Expression<Func<T, bool>> predicate)
         {
+            if (predicate == null) return null;
             return PredicateConverter.Convert(predicate);
         }
 

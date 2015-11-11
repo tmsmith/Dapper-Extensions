@@ -120,7 +120,7 @@ namespace Dapper.Extensions.Linq.Sql
 
             return sql.ToString();
         }
-        
+
         public string Insert(IClassMapper classMap)
         {
             var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
@@ -169,24 +169,16 @@ namespace Dapper.Extensions.Linq.Sql
                 setSql.AppendStrings(),
                 predicate.GetSql(this, parameters));
         }
-        
-        public string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
+
+        public string Delete(IClassMapper classMap, IPredicate predicate = null, IDictionary<string, object> parameters = null)
         {
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("Predicate");
-            }
-
-            if (parameters == null)
-            {
-                throw new ArgumentNullException("Parameters");
-            }
-
             StringBuilder sql = new StringBuilder(string.Format("DELETE FROM {0}", GetTableName(classMap)));
-            sql.Append(" WHERE ").Append(predicate.GetSql(this, parameters));
+
+            if (predicate != null && parameters != null)
+                sql.Append(" WHERE ").Append(predicate.GetSql(this, parameters));
             return sql.ToString();
         }
-        
+
         public string IdentitySql(IClassMapper classMap)
         {
             return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));

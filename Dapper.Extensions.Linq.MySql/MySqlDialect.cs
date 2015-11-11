@@ -1,9 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using Dapper.Extensions.Linq.Core.Sql;
+using MySql.Data.MySqlClient;
 
-namespace Dapper.Extensions.Linq.Sql
+namespace Dapper.Extensions.Linq.MySql
 {
     public class MySqlDialect : SqlDialectBase
     {
+        public override IDbConnection GetConnection(string connectionString)
+        {
+            return new MySqlConnection(connectionString);
+        }
+
         public override char OpenQuote => '`';
 
         public override char CloseQuote => '`';

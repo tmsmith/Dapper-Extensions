@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dapper.Extensions.Linq.Sql;
+using Dapper.Extensions.Linq.SQLite;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.Sql
@@ -10,12 +10,12 @@ namespace Dapper.Extensions.Linq.Test.Sql
     {
         public abstract class SqliteDialectFixtureBase
         {
-            protected SqliteDialect Dialect;
+            protected SQLiteDialect Dialect;
 
             [SetUp]
             public void Setup()
             {
-                Dialect = new SqliteDialect();
+                Dialect = new SQLiteDialect();
             }
         }
 

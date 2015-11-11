@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using Dapper.Extensions.Linq.Core.Attributes;
@@ -10,7 +9,6 @@ namespace Dapper.Extensions.Linq.Core.Sessions
 {
     public class DapperSessionFactory : IDapperSessionFactory
     {
-        public const string DefaultConnectionStringProviderName = "__Default";
         private readonly DapperConfiguration _configuration;
 
         public DapperSessionFactory(DapperConfiguration configuration)
@@ -25,8 +23,8 @@ namespace Dapper.Extensions.Linq.Core.Sessions
 
             foreach (var conString in conStrings)
             {
-                var provider = GetCsProvider(conString);
-                var connection = new SqlConnection(provider.ConnectionString(conString));
+                IConnectionStringProvider provider = GetCsProvider(conString);
+                var connection = _configuration.Dialect.GetConnection(provider.ConnectionString(conString));
                 connection.Open();
 
                 var session = new DapperSession(connection);
@@ -60,7 +58,7 @@ namespace Dapper.Extensions.Linq.Core.Sessions
                         {
                             var attribute = t.GetCustomAttribute<DataContextAttribute>(true);
 
-                            if (attribute == null) return DefaultConnectionStringProviderName;
+                            if (attribute == null) return _configuration.DefaultConnectionStringName;
                             return attribute.ConnectionStringName;
                         }))
                         .Distinct()

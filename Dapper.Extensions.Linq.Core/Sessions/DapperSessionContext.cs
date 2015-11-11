@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dapper.Extensions.Linq.Core.Attributes;
+using Dapper.Extensions.Linq.Core.Configuration;
 
 namespace Dapper.Extensions.Linq.Core.Sessions
 {
@@ -29,12 +30,9 @@ namespace Dapper.Extensions.Linq.Core.Sessions
                 throw new InvalidOperationException("No sessions bound");
 
             var attribute = entityType.GetCustomAttribute<DataContextAttribute>();
-            string sessionName;
-            if (attribute == null)
-            {
-                sessionName = DapperSessionFactory.DefaultConnectionStringProviderName;
-            }
-            else sessionName = attribute.ConnectionStringName;
+            var sessionName = attribute == null ? 
+                DapperConfiguration.Instance.DefaultConnectionStringName : 
+                attribute.ConnectionStringName;
 
             IDapperSession session;
             if (_sessionDictionary.TryGetValue(sessionName, out session))

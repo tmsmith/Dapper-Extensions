@@ -88,16 +88,17 @@
     <Compile Include="Configuration\Container.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="IntegrationTests\Methods\GetMapMethod.cs" />
-    <Compile Include="IntegrationTests\Methods\GetNextGuidMethod.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Count.cs" />
-    <Compile Include="IntegrationTests\SqlServer\GetList.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Delete.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Get.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Update.cs" />
-    <Compile Include="IntegrationTests\SqlServer\Insert.cs" />
-    <Compile Include="IntegrationTests\SqlServer\SqlServerBase.cs" />
-    <Compile Include="IntegrationTests\SqlServer\MassInsert.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Global.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Methods.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Count.cs" />
+    <Compile Include="IntegrationTests\Fixtures\GetList.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Delete.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Get.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Update.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Insert.cs" />
+    <Compile Include="IntegrationTests\Fixtures\MassInsert.cs" />
+    <Compile Include="IntegrationTests\MySql\MySql.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlServer.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="ReflectionHelperFixture.cs" />
     <Compile Include="Sql\SqliteDialectFixture.cs" />
     <Compile Include="Sql\SqlCeDialectFixture.cs" />
-    <Compile Include="Sql\SqlDialectBaseFixture.cs" />
     <Compile Include="Sql\SqlGeneratorFixture.cs" />
     <Compile Include="Helpers\TestHelpers.cs" />
     <Compile Include="Sql\SqlServerDialectFixture.cs" />
@@ -127,6 +127,18 @@
       <Project>{138ff8c4-3616-4c39-b0d3-f62ce7001f2d}</Project>
       <Name>Dapper.Extensions.Linq.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Dapper.Extensions.Linq.MySql\Dapper.Extensions.Linq.MySql.csproj">
+      <Project>{84d76734-e73f-43e5-a44f-926a49e32d67}</Project>
+      <Name>Dapper.Extensions.Linq.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dapper.Extensions.Linq.SqlCe\Dapper.Extensions.Linq.SqlCe.csproj">
+      <Project>{7f53f1e3-b686-4a9d-aa46-b4c3f380f654}</Project>
+      <Name>Dapper.Extensions.Linq.SqlCe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dapper.Extensions.Linq.SQLite\Dapper.Extensions.Linq.SQLite.csproj">
+      <Project>{c2210064-727a-46fa-ada8-4aeff680596e}</Project>
+      <Name>Dapper.Extensions.Linq.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Dapper.Extensions.Linq.Test.Entities\Dapper.Extensions.Linq.Test.Entities.csproj">
       <Project>{DAFAEFFC-0E56-4FA5-923C-DE47E91B51D8}</Project>
       <Name>Dapper.Extensions.Linq.Test.Entities</Name>
@@ -141,11 +153,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

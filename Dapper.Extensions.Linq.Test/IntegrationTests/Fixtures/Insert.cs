@@ -3,9 +3,9 @@ using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    public class Insert : SqlServerBase
+    public abstract partial class FixturesBase
     {
         [Test]
         public void AddsEntityTo_database_ReturnsKey()
@@ -24,6 +24,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 
             var m = new Multikey { Key2 = "key", Value = "foo" };
             var key = multiKeyRepository.Insert(m);
+
             Assert.AreEqual(1, key.Key1);
             Assert.AreEqual("key", key.Key2);
         }

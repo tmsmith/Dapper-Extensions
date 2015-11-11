@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Data;
 
 namespace Dapper.Extensions.Linq.Core.Sql
 {
     public interface ISqlDialect
     {
+        IDbConnection GetConnection(string connectionString);
         char OpenQuote { get; }
         char CloseQuote { get; }
         string BatchSeperator { get; }

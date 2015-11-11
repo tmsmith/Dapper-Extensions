@@ -77,11 +77,7 @@
     <Compile Include="Repositories\DapperRepository.cs" />
     <Compile Include="Predicates\Sort.cs" />
     <Compile Include="Sql\PostgreSqlDialect.cs" />
-    <Compile Include="Sql\SqlCeDialect.cs" />
-    <Compile Include="Sql\SqlDialectBase.cs" />
     <Compile Include="Sql\SqlGeneratorImpl.cs" />
-    <Compile Include="Sql\MySqlDialect.cs" />
-    <Compile Include="Sql\SqliteDialect.cs" />
     <Compile Include="Sql\SqlServerDialect.cs" />
   </ItemGroup>
   <ItemGroup>

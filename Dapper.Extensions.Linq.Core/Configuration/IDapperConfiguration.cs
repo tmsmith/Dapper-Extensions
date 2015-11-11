@@ -9,6 +9,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
     {
         IDapperConfiguration UseContainer<T>(Action<IContainerCustomisations> customisations) where T : IContainer;
         IDapperConfiguration UsingConnectionProvider<T>(string name) where T : IConnectionStringProvider;
+        IDapperConfiguration WithDefaultConnectionStringNamed(string name);
         IDapperConfiguration FromAssembly(string name);
         IDapperConfiguration FromAssemblyContaining(Type assemblyType);
         IDapperConfiguration UseClassMapper(Type typeOfMapper);
@@ -16,6 +17,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
         void Build();
 
         Type DefaultMapper { get; }
+        string DefaultConnectionStringName { get; }
         ISqlDialect Dialect { get; }
         IClassMapper GetMap(Type entityType);
         IClassMapper GetMap<T>() where T : class;

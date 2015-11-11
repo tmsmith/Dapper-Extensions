@@ -1,5 +1,5 @@
 ﻿using System;
-using Dapper.Extensions.Linq.Sql;
+using Dapper.Extensions.Linq.SqlCe;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.Sql

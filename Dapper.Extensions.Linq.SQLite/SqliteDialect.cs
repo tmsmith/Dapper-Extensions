@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
 using System.Text;
+using Dapper.Extensions.Linq.Core.Sql;
 
-namespace Dapper.Extensions.Linq.Sql
+namespace Dapper.Extensions.Linq.SQLite
 {
-    public class SqliteDialect : SqlDialectBase
+    public class SQLiteDialect : SqlDialectBase
     {
+        public override IDbConnection GetConnection(string connectionString)
+        {
+            return new SQLiteConnection(connectionString);
+        }
+
         public override string GetIdentitySql(string tableName)
         {
             return "SELECT LAST_INSERT_ROWID() AS [Id]";

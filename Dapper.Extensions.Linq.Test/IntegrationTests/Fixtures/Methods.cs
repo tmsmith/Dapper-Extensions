@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -6,14 +6,24 @@ using Dapper.Extensions.Linq.Core.Enums;
 using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Mapper;
-using Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer;
 using NUnit.Framework;
 
-namespace Dapper.Extensions.Linq.Test.IntegrationTests.Methods
+namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
-    [TestFixture]
-    public class GetMapMethod : SqlServerBase
+    public abstract partial class FixturesBase
     {
+        [Test]
+        public void GetMultiple_DoesNotDuplicate()
+        {
+            List<Guid> list = new List<Guid>();
+            for (int i = 0; i < 1000; i++)
+            {
+                Guid id = DapperExtensions.GetNextGuid();
+                Assert.IsFalse(list.Contains(id));
+                list.Add(id);
+            }
+        }
+
         [Test]
         public void NoMappingClass_ReturnsDefaultMapper()
         {

@@ -76,6 +76,7 @@
     <Compile Include="Sessions\StaticConnectionStringProvider.cs" />
     <Compile Include="Sql\ISqlDialect.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
+    <Compile Include="Sql\SqlDialectBase.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
-using Dapper.Extensions.Linq.Core.Sql;
 
-namespace Dapper.Extensions.Linq.Sql
+namespace Dapper.Extensions.Linq.Core.Sql
 {
     public abstract class SqlDialectBase : ISqlDialect
     {
+        public abstract IDbConnection GetConnection(string connectionString);
+        public abstract string GetIdentitySql(string tableName);
+        public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
+        public abstract string SelectLimit(string sql, int limit);
+
         public virtual char OpenQuote => '"';
 
         public virtual char CloseQuote => '"';
@@ -64,11 +70,6 @@ namespace Dapper.Extensions.Linq.Sql
 
             return result.ToString();
         }
-
-        public abstract string GetIdentitySql(string tableName);
-        public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
-        public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
-        public abstract string SelectLimit(string sql, int limit);
 
         public virtual bool IsQuoted(string value)
         {
