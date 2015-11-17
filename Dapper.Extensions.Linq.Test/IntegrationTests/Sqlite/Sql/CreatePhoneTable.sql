@@ -1,0 +1,4 @@
+﻿CREATE TABLE ph_Phone (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    [p_Value] NVARCHAR(50)
+)

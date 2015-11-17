@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -18,7 +17,7 @@ namespace Dapper.Extensions.Linq.Mapper
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>
-        public string SchemaName { get; protected set; }
+        public string SchemaName { get; private set; }
 
         /// <summary>
         /// Gets or sets the table to use in the database.
@@ -28,7 +27,7 @@ namespace Dapper.Extensions.Linq.Mapper
         /// <summary>
         /// A collection of properties that will map to columns in the database table.
         /// </summary>
-        public IList<IPropertyMap> Properties { get; private set; }
+        public IList<IPropertyMap> Properties { get; }
 
         public Type EntityType => typeof(T);
 
@@ -64,74 +63,35 @@ namespace Dapper.Extensions.Linq.Mapper
             TableName = tableName;
         }
 
-        protected void AutoMap()
-        {
-            AutoMap(null);
-        }
-
-        protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
-        {
-            Type type = typeof(T);
-            bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
-            PropertyMap keyMap = null;
-            foreach (var propertyInfo in type.GetProperties())
-            {
-                if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    continue;
-                }
-
-                if ((canMap != null && !canMap(type, propertyInfo)))
-                {
-                    continue;
-                }
-
-                PropertyMap map = Map(propertyInfo);
-                if (!hasDefinedKey)
-                {
-                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        keyMap = map;
-                    }
-
-                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
-                    {
-                        keyMap = map;
-                    }
-                }
-            }
-
-            keyMap?.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.PropertyInfo.PropertyType)
-                ? PropertyTypeKeyTypeMapping[keyMap.PropertyInfo.PropertyType]
-                : KeyType.Assigned);
-        }
-
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected PropertyMap Map(Expression<Func<T, object>> expression)
+        protected PropertyMap Map(Expression<Func<T, object>> expression, bool overwrite = true)
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
-            return Map(propertyInfo);
+            return Map(propertyInfo, overwrite);
         }
 
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected PropertyMap Map(PropertyInfo propertyInfo)
+        /// <param name="propertyInfo"></param>
+        /// <param name="overwrite">If an existing map is present, overwrite it</param>
+        /// <returns></returns>
+        protected PropertyMap Map(PropertyInfo propertyInfo, bool overwrite = true)
         {
             PropertyMap result = new PropertyMap(propertyInfo);
-            this.GuardForDuplicatePropertyMap(result);
+
+            IPropertyMap property = Properties.SingleOrDefault(p => p.Name.Equals(result.Name));
+            if (overwrite && property != null)
+            {
+                Properties.Remove(property);
+            }
+            else if (property != null)
+                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
+
             Properties.Add(result);
             return result;
-        }
-
-        private void GuardForDuplicatePropertyMap(PropertyMap result)
-        {
-            if (Properties.Any(p => p.Name.Equals(result.Name)))
-            {
-                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
-            }
         }
     }
 }

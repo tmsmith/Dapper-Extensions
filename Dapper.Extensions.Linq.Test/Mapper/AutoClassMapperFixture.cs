@@ -43,14 +43,6 @@ namespace Dapper.Extensions.Linq.Test.Mapper
                 Assert.IsTrue(map.ColumnName == "Id");
             }
 
-            [Test]
-            public void Sets_IdFirstPropertyEndingInIdWhenNoIdPropertyFound()
-            {
-                AutoClassMapper<IdDoesNotExist> m = GetMapper<IdDoesNotExist>();
-                var map = m.Properties.Single(p => p.KeyType == KeyType.Guid);
-                Assert.IsTrue(map.ColumnName == "SomeId");
-            }
-            
             private AutoClassMapper<T> GetMapper<T>() where T : class
             {
                 return new AutoClassMapper<T>();
@@ -118,12 +110,6 @@ namespace Dapper.Extensions.Linq.Test.Mapper
         {
             public Guid ParentId { get; set; }
             public Guid Id { get; set; }
-        }
-
-        private class IdDoesNotExist
-        {
-            public Guid SomeId { get; set; }
-            public Guid ParentId { get; set; }
         }
     }
 }

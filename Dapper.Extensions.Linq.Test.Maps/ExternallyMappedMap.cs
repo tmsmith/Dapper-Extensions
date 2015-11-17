@@ -5,13 +5,12 @@ namespace Dapper.Extensions.Linq.Test.Maps
 {
     public class ExternallyMappedMap
     {
-        public class ExternallyMappedMapper : ClassMapper<ExternallyMapped>
+        public class ExternallyMappedMapper : AutoClassMapper<ExternallyMapped>
         {
             public ExternallyMappedMapper()
             {
                 Table("External");
                 Map(x => x.Id).Column("ExternalId");
-                AutoMap();
             }
         } 
     }

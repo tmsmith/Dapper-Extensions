@@ -50,7 +50,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SQLite
                 ReadScriptFile("CreateFooTable"),
                 ReadScriptFile("CreateMultikeyTable"),
                 ReadScriptFile("CreatePersonTable"),
-                ReadScriptFile("CreateCarTable")
+                ReadScriptFile("CreateCarTable"),
+                ReadScriptFile("CreatePhoneTable")
             };
 
             foreach (var setupFile in files)

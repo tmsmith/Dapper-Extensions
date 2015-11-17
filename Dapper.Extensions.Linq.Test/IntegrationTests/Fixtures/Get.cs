@@ -39,5 +39,19 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
             Assert.AreEqual("key", m2.Key2);
             Assert.AreEqual("bar", m2.Value);
         }
+
+        [Test]
+        public void UsingCustomTableAndPropertyNames_ReturnsEntity()
+        {
+            var phoneRepository = Container.Resolve<IRepository<Phone>>();
+
+            var phone = new Phone { Value = "0800123456" };
+            int id = phoneRepository.Insert(phone);
+
+            Phone phone2 = phoneRepository.Get(id);
+
+            Assert.AreEqual(id, phone2.Id);
+            Assert.AreEqual(phone.Value, phone2.Value);
+        }
     }
 }

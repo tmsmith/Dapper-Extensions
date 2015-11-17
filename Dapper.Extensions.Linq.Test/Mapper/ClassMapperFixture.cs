@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Numerics;
-using System.Reflection;
 using Dapper.Extensions.Linq.Core.Enums;
-using Dapper.Extensions.Linq.Core.Mapper;
 using Dapper.Extensions.Linq.Mapper;
-using Dapper.Extensions.Linq.Test.Helpers;
-using Moq;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.Mapper
@@ -22,154 +17,9 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             {
             }
 
-            protected ClassMapper<T> GetMapper<T>() where T : class
+            protected AutoClassMapper<T> GetAutoMapper<T>() where T : class
             {
-                return new ClassMapper<T>();
-            }
-        }
-
-        [TestFixture]
-        public class AutoMapIdTests : ClassMapperFixtureBase
-        {
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenByte()
-            {
-                var mapper = GetMapper<Test1<byte>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<byte?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenSByte()
-            {
-                var mapper = GetMapper<Test1<sbyte>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<sbyte?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenInt16()
-            {
-                var mapper = GetMapper<Test1<short>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<short?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenUnsignedInt16()
-            {
-                var mapper = GetMapper<Test1<ushort>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<ushort?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenInt32()
-            {
-                var mapper = GetMapper<Test1<int>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<int?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenUnsignedInt32()
-            {
-                var mapper = GetMapper<Test1<uint>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<uint?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenInt64()
-            {
-                var mapper = GetMapper<Test1<long>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<long?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenUnsignedInt64()
-            {
-                var mapper = GetMapper<Test1<ulong>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<ulong?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToIdentityWhenBigInteger()
-            {
-                var mapper = GetMapper<Test1<BigInteger>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<BigInteger?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Identity, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToGuidWhenGuid()
-            {
-                var mapper = GetMapper<Test1<Guid>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Guid, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<Guid?>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Guid, mapper2.Properties[0].KeyType);
-            }
-
-            [Test]
-            public void AutoMapSetsFirstIdToAssignedWhenNotKeyType()
-            {
-                var mapper = GetMapper<Test1<string>>();
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Assigned, mapper.Properties[0].KeyType);
-
-                var mapper2 = GetMapper<Test1<bool>>();
-                mapper2.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Assigned, mapper2.Properties[0].KeyType);
-
-                var mapper3 = GetMapper<Test1<bool?>>();
-                mapper3.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(KeyType.Assigned, mapper3.Properties[0].KeyType);
-            }
-
-            private class Test1<T>
-            {
-                public T SomeId { get; set; }
+                return new AutoClassMapper<T>();
             }
         }
 
@@ -179,11 +29,10 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             [Test]
             public void MapsAllProperties()
             {
-                var mapper = GetMapper<FooWithIntId>();
-                mapper.TestProtected().RunMethod("AutoMap");
+                var mapper = GetAutoMapper<FooWithIntId>();
                 Assert.AreEqual(3, mapper.Properties.Count);
-                Assert.AreEqual(mapper.Properties[0].ColumnName, "FooId");
-                Assert.AreEqual(mapper.Properties[0].Name, "FooId");
+                Assert.AreEqual(mapper.Properties[0].ColumnName, "Id");
+                Assert.AreEqual(mapper.Properties[0].Name, "Id");
                 Assert.AreEqual(mapper.Properties[1].ColumnName, "Value");
                 Assert.AreEqual(mapper.Properties[1].Name, "Value");
                 Assert.AreEqual(mapper.Properties[2].ColumnName, "BarId");
@@ -193,8 +42,7 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             [Test]
             public void MakesFirstIntId_AIdentityKey()
             {
-                var mapper = GetMapper<FooWithIntId>();
-                mapper.TestProtected().RunMethod("AutoMap");
+                var mapper = GetAutoMapper<FooWithIntId>();
                 Assert.AreEqual(mapper.Properties[0].KeyType, KeyType.Identity);
                 Assert.AreEqual(mapper.Properties[2].KeyType, KeyType.NotAKey);
             }
@@ -202,8 +50,7 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             [Test]
             public void MakesFirstGuidId_AGuidKey()
             {
-                var mapper = GetMapper<FooWithGuidId>();
-                mapper.TestProtected().RunMethod("AutoMap");
+                var mapper = GetAutoMapper<FooWithGuidId>();
                 Assert.AreEqual(mapper.Properties[0].KeyType, KeyType.Guid);
                 Assert.AreEqual(mapper.Properties[2].KeyType, KeyType.NotAKey);
             }
@@ -211,33 +58,15 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             [Test]
             public void MakesFirstStringId_AAssignedKey()
             {
-                var mapper = GetMapper<FooWithStringId>();
-                mapper.TestProtected().RunMethod("AutoMap");
+                var mapper = GetAutoMapper<FooWithStringId>();
                 Assert.AreEqual(mapper.Properties[0].KeyType, KeyType.Assigned);
-                Assert.AreEqual(mapper.Properties[2].KeyType, KeyType.NotAKey);
-            }
-
-            [Test]
-            public void DoesNotMapAlreadyMappedProperties()
-            {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
-                property.SetupGet(p => p.Name).Returns("FooId");
-                property.SetupGet(p => p.KeyType).Returns(KeyType.Assigned);
-
-                var mapper = GetMapper<FooWithIntId>();
-                mapper.Properties.Add(property.Object);
-                mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(3, mapper.Properties.Count);
-                Assert.AreEqual(mapper.Properties[0], property.Object);
-                Assert.AreEqual(mapper.Properties[1].KeyType, KeyType.NotAKey);
                 Assert.AreEqual(mapper.Properties[2].KeyType, KeyType.NotAKey);
             }
 
             [Test]
             public void EnumerableDoesNotThrowException()
             {
-                var mapper = GetMapper<Foo>();
-                mapper.TestProtected().RunMethod("AutoMap");
+                var mapper = GetAutoMapper<Foo>();
                 Assert.AreEqual(2, mapper.Properties.Count);
             }
 
@@ -246,37 +75,27 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             {
                 var mapper = new TestMapper<Foo>();
                 mapper.Map(m => m.List).Ignore();
-                mapper.TestProtected().RunMethod("AutoMap");
                 Assert.AreEqual(2, mapper.Properties.Count);
-            }
-
-            [Test]
-            public void DoesNotMapPropertyWhenCanMapIsFalse()
-            {
-                var mapper = new TestMapper<Foo>();
-                Func<Type, PropertyInfo, bool> canMap = (t, p) => ReflectionHelper.IsSimpleType(p.PropertyType);
-                mapper.TestProtected().RunMethod("AutoMap", canMap);
-                Assert.AreEqual(1, mapper.Properties.Count);                
             }
         }
 
         public class FooWithIntId
         {
-            public int FooId { get; set; }
+            public int Id { get; set; }
             public string Value { get; set; }
             public int BarId { get; set; }
         }
 
         public class FooWithGuidId
         {
-            public Guid FooId { get; set; }
+            public Guid Id { get; set; }
             public string Value { get; set; }
             public Guid BarId { get; set; }
         }
 
         public class FooWithStringId
         {
-            public string FooId { get; set; }
+            public string Id { get; set; }
             public string Value { get; set; }
             public string BarId { get; set; }
         }
@@ -287,7 +106,7 @@ namespace Dapper.Extensions.Linq.Test.Mapper
             public IEnumerable<string> List { get; set; }
         }
 
-        public class TestMapper<T> : ClassMapper<T> where T : class
+        public class TestMapper<T> : AutoClassMapper<T> where T : class
         {
             public new PropertyMap Map(Expression<Func<T, object>> expression)
             {

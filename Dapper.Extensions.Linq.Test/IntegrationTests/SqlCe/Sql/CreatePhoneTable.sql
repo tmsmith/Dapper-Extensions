@@ -1,0 +1,4 @@
+﻿CREATE TABLE ph_Phone (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    [p_Value] NVARCHAR(50)
+)

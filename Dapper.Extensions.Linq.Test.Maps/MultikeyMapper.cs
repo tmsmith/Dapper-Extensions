@@ -10,8 +10,7 @@ namespace Dapper.Extensions.Linq.Test.Maps
         {
             Map(p => p.Key1).Key(KeyType.Identity);
             Map(p => p.Key2).Key(KeyType.Assigned);
-            //Map(p => p.Date).Ignore();
-            AutoMap();
+            Map(p => p.Value);
         }
     }
 }

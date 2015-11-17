@@ -167,6 +167,18 @@
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePhoneTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SQLite\Sql\CreatePhoneTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePhoneTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePhoneTable.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -8,7 +8,6 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 {
     public abstract partial class FixturesBase
     {
-
         [Test]
         public void Returns_Count_All()
         {

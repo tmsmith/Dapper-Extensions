@@ -57,12 +57,11 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
             public string Value { get; set; }
         }
 
-        private class EntityWithMapperMapper : ClassMapper<EntityWithMapper>
+        private class EntityWithMapperMapper : AutoClassMapper<EntityWithMapper>
         {
             public EntityWithMapperMapper()
             {
                 Map(p => p.Key).Column("EntityKey").Key(KeyType.Assigned);
-                AutoMap();
             }
         }
 
