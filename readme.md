@@ -2,6 +2,15 @@
 
 Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this providing advanced DB access through Linq queries. The fluid configuration makes setup simplistic and quick.
 
+Release Notes
+-------------
+
+### 1.1.4
+* Added new AutoClassMapper attributes TableName and PrefixForColumns.
+* Isolated AutoMap to AutoClassMapper for clarity.
+* Removed an unused reference to EntityFramework on Dapper.Linq.Extensions.SQLite
+
+
 Features
 --------
 * Simplistic fluid configuration
