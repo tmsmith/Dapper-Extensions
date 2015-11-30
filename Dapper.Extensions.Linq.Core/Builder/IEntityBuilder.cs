@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Dapper.Extensions.Linq.Core.Builder
 {
@@ -11,5 +13,7 @@ namespace Dapper.Extensions.Linq.Core.Builder
         T Single();
         T SingleOrDefault();
         T FirstOrDefault();
+        IEntityBuilder<T> OrderBy(Expression<Func<T, object>> expression);
+        IEntityBuilder<T> OrderByDescending(Expression<Func<T, object>> expression);
     }
 }

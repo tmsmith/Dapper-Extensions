@@ -49,11 +49,7 @@ namespace Dapper.Extensions.Linq.Repositories
 
         public virtual IEntityBuilder<T> Query(Expression<Func<T, bool>> predicate)
         {
-            return new EntityBuilder<T>(() =>
-            {
-                IDapperSession session = GetCurrentSession();
-                return session.GetList<T>(QueryBuilder<T>.FromExpression(predicate), null, session.Transaction);
-            });
+            return new EntityBuilder<T>(GetCurrentSession(), predicate);
         }
 
         public virtual int Count(Expression<Func<T, bool>> predicate = null)
