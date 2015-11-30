@@ -17,6 +17,7 @@ namespace Dapper.Extensions.Linq.Builder
         private readonly IDapperSession _session;
         private readonly Expression<Func<T, bool>> _expression;
         private readonly IList<ISort> _sort;
+        private int? _take;
 
         public EntityBuilder(IDapperSession session, Expression<Func<T, bool>> expression)
         {
@@ -28,7 +29,7 @@ namespace Dapper.Extensions.Linq.Builder
         private IEnumerable<T> ResolveEnities()
         {
             IPredicateGroup predicate = QueryBuilder<T>.FromExpression(_expression);
-            return _session.GetList<T>(predicate, _sort, _session.Transaction);
+            return _session.GetList<T>(predicate, _sort, _session.Transaction, null, false, _take);
         }
 
         public IEnumerable<T> AsEnumerable()
@@ -93,6 +94,12 @@ namespace Dapper.Extensions.Linq.Builder
             };
             _sort.Add(sort);
 
+            return this;
+        }
+
+        public IEntityBuilder<T> Take(int number)
+        {
+            _take = number;
             return this;
         }
     }

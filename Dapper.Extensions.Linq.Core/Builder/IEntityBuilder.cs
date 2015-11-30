@@ -13,6 +13,7 @@ namespace Dapper.Extensions.Linq.Core.Builder
         T Single();
         T SingleOrDefault();
         T FirstOrDefault();
+        IEntityBuilder<T> Take(int number);
         IEntityBuilder<T> OrderBy(Expression<Func<T, object>> expression);
         IEntityBuilder<T> OrderByDescending(Expression<Func<T, object>> expression);
     }

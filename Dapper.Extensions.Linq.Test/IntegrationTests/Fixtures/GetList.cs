@@ -66,5 +66,19 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 
             StringAssert.AreEqualIgnoringCase(person.FirstName, "d");
         }
+
+        [Test]
+        public void UsingQuery_Take()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+            personRepository.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
+            personRepository.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
+            personRepository.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
+            personRepository.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+
+            var topPersonsCount = personRepository.Query().Take(2).Count();
+
+            Assert.AreEqual(2, topPersonsCount);;
+        }
     }
 }
