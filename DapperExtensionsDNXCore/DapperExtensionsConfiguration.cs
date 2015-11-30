@@ -91,7 +91,7 @@ namespace DapperExtensions
             {
                 Type[] types = a.GetTypes();
                 return (from type in types
-                        let interfaceType = type.GetInterfaces().Where(x => x.FullName == typeof(IClassMapper<>).FullName).FirstOrDefault()
+                        let interfaceType = type.GetInterfaces().Where(x => x.Name == typeof(IClassMapper<>).Name && x.Namespace == typeof(IClassMapper<>).Namespace).FirstOrDefault()
                         where
                             interfaceType != null &&
                             interfaceType.GetGenericArguments()[0] == entityType
