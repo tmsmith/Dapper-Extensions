@@ -4,6 +4,10 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.5
+* Added Top to Query.
+* Added OrderBy to Query.
+* Added OrderByDescending to Query.
 
 ### 1.1.4
 * Added new AutoClassMapper attributes TableName and PrefixForColumns.
@@ -54,7 +58,7 @@ Basic configuration and setup:
 DapperConfiguration
     .Use()
     .UseClassMapper(typeof(AutoClassMapper<>))
-    .UseContainer<Dapper.Extensions.Linq.CastleWindsor.WindsorContainer>(c => c.UseExisting(_container))
+    .UseContainer<Dapper.Extensions.Linq.CastleWindsor.ContainerForWindsor>(c => c.UseExisting(_container))
 	.UseSqlDialect(new SqlServerDialect())
     .FromAssembly("Dapper.Entities")
     .Build();
@@ -120,7 +124,10 @@ int numberOfPeople = _dapperRepository.Count(e => e.FirstName == "Foo");
 ```c#
 List<Person> people = _dapperRepository
                        .Query(e => e.Active && e.DateCreated > DateTime.AddDays(-5))
+                       .OrderBy(e => e.DateCreated)
                        .ToList();
+                       
+Using Query you additionally have access to other methods like Top, OrderBy, OrderByDescending and others.
 ```
 
 # License
