@@ -43,6 +43,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         public void UsingQuery_OrderBy()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
+            personRepository.Delete();
+
             personRepository.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
             personRepository.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
             personRepository.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
@@ -57,6 +59,8 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         public void UsingQuery_OrderByDescending()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
+            personRepository.Delete();
+
             personRepository.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
             personRepository.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
             personRepository.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
@@ -78,7 +82,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 
             var topPersonsCount = personRepository.Query().Take(2).Count();
 
-            Assert.AreEqual(2, topPersonsCount);;
+            Assert.AreEqual(2, topPersonsCount);
         }
     }
 }

@@ -100,7 +100,7 @@ namespace Dapper.Extensions.Linq.Core.Configuration
         public IDapperConfiguration FromAssembly(string name)
         {
             string path = Directory
-                .GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll")
+                .GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories)
                 .SingleOrDefault(s =>
                 {
                     var fileName = Path.GetFileNameWithoutExtension(s);
