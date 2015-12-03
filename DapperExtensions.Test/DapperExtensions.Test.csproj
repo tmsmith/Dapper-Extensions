@@ -87,6 +87,14 @@
     <Compile Include="Data\Car.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\DB2\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Animal.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Car.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\CustomMapper.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Multikey.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Person.cs" />
+    <Compile Include="IntegrationTests\DB2\DB2BaseFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\TimerFixture.cs" />
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
     <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
     <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
@@ -137,6 +145,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
