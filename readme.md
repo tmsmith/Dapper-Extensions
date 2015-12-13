@@ -4,7 +4,7 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
-### 1.1.6
+### 1.1.7
 * Querying with extrernal lists can now use nullable types
 
 ### 1.1.6
