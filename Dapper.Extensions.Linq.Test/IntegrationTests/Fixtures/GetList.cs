@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
@@ -20,7 +22,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
             int listCount = personRepository.GetList().Count;
             int count = personRepository.Count();
 
-            Assert.AreEqual(listCount, count);  
+            Assert.AreEqual(listCount, count);
         }
 
         [Test]
@@ -83,6 +85,38 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
             var topPersonsCount = personRepository.Query().Take(2).Count();
 
             Assert.AreEqual(2, topPersonsCount);
+        }
+
+        [Test]
+        public void UsingQuery_List_Contains()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow };
+            int id = personRepository.Insert(person);
+
+            var people = new List<int> { id };
+
+            int personCount = personRepository
+                .Query(e => people.Contains(e.Id))
+                .Count();
+
+            Assert.AreEqual(1, personCount);
+        }
+
+        [Test]
+        public void UsingQuery_Enumerable_Contains()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow };
+            int id = personRepository.Insert(person);
+
+            IEnumerable<int> people = new List<int> { id };
+
+            int personCount = personRepository
+                .Query(e => people.Contains(e.Id))
+                .Count();
+
+            Assert.AreEqual(1, personCount);
         }
     }
 }

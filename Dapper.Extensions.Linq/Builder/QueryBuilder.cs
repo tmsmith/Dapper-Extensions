@@ -304,10 +304,13 @@ namespace Dapper.Extensions.Linq.Builder
             private IPredicate ParseCall(MethodCallExpression expression)
             {
                 if (expression.Method.DeclaringType == typeof(QueryFunctions))
-                    return this.ParseCallQueryFunction(expression);
+                    return ParseCallQueryFunction(expression);
 
                 if (expression.Method.DeclaringType == typeof(System.Linq.Enumerable))
-                    return this.ParseCallEnumerableFunction(expression);
+                    return ParseCallEnumerableFunction(expression);
+
+                if (expression.Method.DeclaringType != null && expression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+                    return ParseCallListFunction(expression);
 
                 throw new NotImplementedException();
             }
@@ -334,7 +337,6 @@ namespace Dapper.Extensions.Linq.Builder
             {
                 if (expression.Method.Name == "Contains")
                 {
-                    // expression.Arguments[0]
                     var valueExpression = expression.Arguments[0] as MemberExpression;
                     var memberExpression = SimplifyExpression(expression.Arguments[1]) as MemberExpression;
 
@@ -349,9 +351,33 @@ namespace Dapper.Extensions.Linq.Builder
 
                 throw new NotImplementedException();
             }
-        }
 
-        private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
+            private IPredicate ParseCallListFunction(MethodCallExpression expression)
+            {
+                if (expression.Method.Name == "Contains")
+                {
+                    var valueExpression = expression.Arguments[0] as MemberExpression;
+                    var memberExpression = SimplifyExpression(expression.Object) as MemberExpression;
+
+                    if (valueExpression == null)
+                        throw new NotImplementedException();
+
+                    if (memberExpression == null)
+                        throw new NotImplementedException();
+
+                    return new FieldPredicate<T>
+                    {
+                        Operator = Operator.Eq,
+                        PropertyName = valueExpression.Member.Name,
+                        Value = InvokeExpression(memberExpression)
+                    };
+                }
+
+                throw new NotImplementedException();
+            }
+    }
+
+    private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
         {
             if (!callback(predicate))
                 return predicate;
