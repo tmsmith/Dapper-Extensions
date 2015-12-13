@@ -111,7 +111,7 @@ namespace Dapper.Extensions.Linq.Builder
                 g = left as PredicateGroup;
                 if (g != null && g.Operator == group.Operator && g.Predicates != null)
                 {
-                    foreach (var predicate in g.Predicates)
+                    foreach (var predicate in g.Predicates )
                         group.Predicates.Add(predicate);
                 }
                 else if (g == null || g.Predicates != null)
@@ -120,7 +120,7 @@ namespace Dapper.Extensions.Linq.Builder
                 g = right as PredicateGroup;
                 if (g != null && g.Operator == group.Operator && g.Predicates != null)
                 {
-                    foreach (var predicate in g.Predicates)
+                    foreach (var predicate in g.Predicates )
                         group.Predicates.Add(predicate);
                 }
                 else if (g == null || g.Predicates != null)
@@ -340,13 +340,17 @@ namespace Dapper.Extensions.Linq.Builder
                     var valueExpression = expression.Arguments[0] as MemberExpression;
                     var memberExpression = SimplifyExpression(expression.Arguments[1]) as MemberExpression;
 
-                    if (valueExpression == null)
+                    if(valueExpression == null)
                         throw new NotImplementedException();
 
-                    if (memberExpression == null)
+                    if(memberExpression == null)
                         throw new NotImplementedException();
 
-                    return new FieldPredicate<T> { Not = false, Operator = Operator.Eq, PropertyName = memberExpression.Member.Name, Value = InvokeExpression(valueExpression) };
+                    string propertyName = Nullable.GetUnderlyingType(memberExpression.Expression.Type) == null ? 
+                        memberExpression.Member.Name : 
+                        ((MemberExpression)memberExpression.Expression).Member.Name;
+
+                    return new FieldPredicate<T> { Not = false, Operator = Operator.Eq, PropertyName = propertyName, Value = InvokeExpression(valueExpression) };
                 }
 
                 throw new NotImplementedException();
@@ -365,12 +369,9 @@ namespace Dapper.Extensions.Linq.Builder
                     if (memberExpression == null)
                         throw new NotImplementedException();
 
-
-                    string propertyName;
-                    if (Nullable.GetUnderlyingType(valueExpression.Expression.Type) == null)
-                        propertyName = valueExpression.Member.Name;
-                    else
-                        propertyName = ((MemberExpression)valueExpression.Expression).Member.Name;
+                    string propertyName = Nullable.GetUnderlyingType(valueExpression.Expression.Type) == null ? 
+                        valueExpression.Member.Name : 
+                        ((MemberExpression)valueExpression.Expression).Member.Name;
 
                     return new FieldPredicate<T>
                     {
@@ -382,9 +383,9 @@ namespace Dapper.Extensions.Linq.Builder
 
                 throw new NotImplementedException();
             }
-        }
+    }
 
-        private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
+    private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
         {
             if (!callback(predicate))
                 return predicate;
@@ -415,10 +416,10 @@ namespace Dapper.Extensions.Linq.Builder
         private static bool TryGetField(Expression expression, out string name)
         {
             expression = SimplifyExpression(expression);
-            if (expression.NodeType == ExpressionType.MemberAccess)
+            if(expression.NodeType == ExpressionType.MemberAccess)
             {
                 var memberExpression = expression as MemberExpression;
-                if (memberExpression.Expression.NodeType == ExpressionType.Parameter)
+                if ( memberExpression.Expression.NodeType == ExpressionType.Parameter )
                 {
                     name = memberExpression.Member.Name;
                     return true;
