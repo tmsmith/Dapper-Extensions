@@ -104,6 +104,22 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         }
 
         [Test]
+        public void UsingQuery_List_Contains_Nullable()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow, ProfileId = 12};
+            personRepository.Insert(person);
+
+            var profileIds = new List<int> { 12 };
+
+            int personCount = personRepository
+                .Query(e => profileIds.Contains(e.ProfileId.Value))
+                .Count();
+
+            Assert.AreEqual(1, personCount);
+        }
+
+        [Test]
         public void UsingQuery_Enumerable_Contains()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();

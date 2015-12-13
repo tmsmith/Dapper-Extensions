@@ -12,6 +12,7 @@ namespace Dapper.Extensions.Linq.Test.Entities
         public string LastName { get; set; }
         public DateTime DateCreated { get; set; }
         public bool Active { get; set; }
+        public int? ProfileId { get; set; }
 
         [Ignore]
         public IEnumerable<Phone> Phones { get; private set; }
