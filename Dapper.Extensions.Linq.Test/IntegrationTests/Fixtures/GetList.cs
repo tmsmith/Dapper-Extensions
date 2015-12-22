@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Dapper.Extensions.Linq.Core.Repositories;
+using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
@@ -149,6 +152,24 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
                 .Count();
 
             Assert.AreEqual(1, personCount);
+        }
+
+        [Test]
+        public void UsingQuery_With_Expression()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+
+            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow, ProfileId = 14 };
+            personRepository.Insert(person);
+
+            Expression<Func<Person, bool>> expression = PredicateBuilder.True<Person>();
+            expression.And(e => e.ProfileId == 14);
+
+            int count = personRepository
+                .Query(expression)
+                .Count();
+
+            Assert.AreEqual(1, count);
         }
     }
 }

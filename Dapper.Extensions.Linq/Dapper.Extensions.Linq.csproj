@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\PredicateBuilder.cs" />
     <Compile Include="Predicates\BasePredicate.cs" />
     <Compile Include="Predicates\BetweenPredicate.cs" />
     <Compile Include="Predicates\BetweenValues.cs" />

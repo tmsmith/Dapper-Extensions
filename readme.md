@@ -4,6 +4,9 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.8
+* Added PredicateBuilder to allow ExpressionBuilding for Query
+
 ### 1.1.7
 * Querying with extrernal lists can now use nullable types
 
