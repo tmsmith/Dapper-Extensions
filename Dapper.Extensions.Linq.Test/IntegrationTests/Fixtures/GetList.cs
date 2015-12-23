@@ -110,7 +110,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         public void UsingQuery_List_Contains_Nullable()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
-            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow, ProfileId = 12};
+            var person = new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow, ProfileId = 12 };
             personRepository.Insert(person);
 
             var profileIds = new List<int> { 12 };
@@ -163,10 +163,48 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
             personRepository.Insert(person);
 
             Expression<Func<Person, bool>> expression = PredicateBuilder.True<Person>();
-            expression.And(e => e.ProfileId == 14);
+            expression = expression.And(e => e.ProfileId == 14);
 
             int count = personRepository
                 .Query(expression)
+                .Count();
+
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        public void UsingQuery_With_Expression_Ordered_By_Name()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+
+            //clear queries
+            personRepository.Delete();
+
+            var person = new Person
+            {
+                Active = false,
+                FirstName = "b",
+                LastName = "b1",
+                DateCreated = DateTime.UtcNow
+            };
+            personRepository.Insert(person);
+
+            person = new Person
+            {
+                Active = false,
+                FirstName = "b",
+                LastName = "b2",
+                DateCreated = DateTime.UtcNow
+            };
+            personRepository.Insert(person);
+
+            const string firstName = "b";
+            Expression<Func<Person, bool>> expression = PredicateBuilder.True<Person>();
+            expression = expression.And(e => e.FirstName == firstName);
+
+            int count = personRepository
+                .Query(expression)
+                .OrderBy(e => e.FirstName)
                 .Count();
 
             Assert.AreEqual(1, count);
