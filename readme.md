@@ -4,6 +4,10 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.10
+* Linq contains can be used to mimic a like
+* Bug fixes
+
 ### 1.1.9
 * PredicateBuilder fix
 

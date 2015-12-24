@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Extensions;
 using Dapper.Extensions.Linq.Test.Entities;
@@ -173,11 +172,30 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         }
 
         [Test]
+        public void UsingQuery_With_Expression_Contains()
+        {
+            var personRepository = Container.Resolve<IRepository<Person>>();
+
+            personRepository.Delete();
+
+            var person = new Person { Active = false, FirstName = "ba", LastName = "b1", DateCreated = DateTime.UtcNow, ProfileId = 14 };
+            personRepository.Insert(person);
+
+            Expression<Func<Person, bool>> expression = PredicateBuilder.True<Person>();
+            expression = expression.And(e => e.FirstName.Contains("b"));
+
+            int count = personRepository
+                .Query(expression)
+                .Count();
+
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
         public void UsingQuery_With_Expression_Ordered_By_Name()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
 
-            //clear queries
             personRepository.Delete();
 
             var person = new Person
@@ -207,7 +225,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
                 .OrderBy(e => e.FirstName)
                 .Count();
 
-            Assert.AreEqual(1, count);
+            Assert.AreEqual(2, count);
         }
     }
 }

@@ -29,7 +29,9 @@ namespace Dapper.Extensions.Linq.Builder
         private IEnumerable<T> ResolveEnities()
         {
             IPredicateGroup predicate = QueryBuilder<T>.FromExpression(_expression);
-            return _session.GetList<T>(predicate.Predicates == null ? null : predicate, _sort, _session.Transaction, null, false, _take);
+
+            IPredicateGroup p = predicate?.Predicates == null ? null : predicate;
+            return _session.GetList<T>(p, _sort, _session.Transaction, null, false, _take);
         }
 
         public IEnumerable<T> AsEnumerable()

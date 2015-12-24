@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Dapper.Extensions.Linq.Core;
 using Dapper.Extensions.Linq.Core.Builder;
@@ -111,7 +112,7 @@ namespace Dapper.Extensions.Linq.Builder
                 g = left as PredicateGroup;
                 if (g != null && g.Operator == group.Operator && g.Predicates != null)
                 {
-                    foreach (var predicate in g.Predicates )
+                    foreach (var predicate in g.Predicates)
                         group.Predicates.Add(predicate);
                 }
                 else if (g == null || g.Predicates != null)
@@ -120,7 +121,7 @@ namespace Dapper.Extensions.Linq.Builder
                 g = right as PredicateGroup;
                 if (g != null && g.Operator == group.Operator && g.Predicates != null)
                 {
-                    foreach (var predicate in g.Predicates )
+                    foreach (var predicate in g.Predicates)
                         group.Predicates.Add(predicate);
                 }
                 else if (g == null || g.Predicates != null)
@@ -309,8 +310,13 @@ namespace Dapper.Extensions.Linq.Builder
                 if (expression.Method.DeclaringType == typeof(System.Linq.Enumerable))
                     return ParseCallEnumerableFunction(expression);
 
-                if (expression.Method.DeclaringType != null && expression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+                if (expression.Method.DeclaringType != null &&
+                    expression.Method.DeclaringType.IsGenericType &&
+                    expression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
                     return ParseCallListFunction(expression);
+
+                if (expression.Method.Name == "Contains")
+                    return ParseCallContains(expression);
 
                 throw new NotImplementedException();
             }
@@ -333,6 +339,26 @@ namespace Dapper.Extensions.Linq.Builder
                 throw new NotImplementedException();
             }
 
+            private IPredicate ParseCallContains(MethodCallExpression expression)
+            {
+                var patternExpression = expression.Arguments[0] as ConstantExpression;
+                var memberExpression = expression.Object as MemberExpression;
+
+                if (patternExpression == null)
+                    throw new NotImplementedException();
+
+                if (memberExpression == null || memberExpression.Expression.NodeType != ExpressionType.Parameter)
+                    throw new NotImplementedException();
+
+                return new FieldPredicate<T>
+                {
+                    Not = false,
+                    Operator = Operator.Like,
+                    PropertyName = memberExpression.Member.Name,
+                    Value = string.Format("%{0}%", patternExpression.Value)
+                };
+            }
+
             private IPredicate ParseCallEnumerableFunction(MethodCallExpression expression)
             {
                 if (expression.Method.Name == "Contains")
@@ -340,14 +366,14 @@ namespace Dapper.Extensions.Linq.Builder
                     var valueExpression = expression.Arguments[0] as MemberExpression;
                     var memberExpression = SimplifyExpression(expression.Arguments[1]) as MemberExpression;
 
-                    if(valueExpression == null)
+                    if (valueExpression == null)
                         throw new NotImplementedException();
 
-                    if(memberExpression == null)
+                    if (memberExpression == null)
                         throw new NotImplementedException();
 
-                    string propertyName = Nullable.GetUnderlyingType(memberExpression.Expression.Type) == null ? 
-                        memberExpression.Member.Name : 
+                    string propertyName = Nullable.GetUnderlyingType(memberExpression.Expression.Type) == null ?
+                        memberExpression.Member.Name :
                         ((MemberExpression)memberExpression.Expression).Member.Name;
 
                     return new FieldPredicate<T> { Not = false, Operator = Operator.Eq, PropertyName = propertyName, Value = InvokeExpression(valueExpression) };
@@ -369,8 +395,8 @@ namespace Dapper.Extensions.Linq.Builder
                     if (memberExpression == null)
                         throw new NotImplementedException();
 
-                    string propertyName = Nullable.GetUnderlyingType(valueExpression.Expression.Type) == null ? 
-                        valueExpression.Member.Name : 
+                    string propertyName = Nullable.GetUnderlyingType(valueExpression.Expression.Type) == null ?
+                        valueExpression.Member.Name :
                         ((MemberExpression)valueExpression.Expression).Member.Name;
 
                     return new FieldPredicate<T>
@@ -383,9 +409,9 @@ namespace Dapper.Extensions.Linq.Builder
 
                 throw new NotImplementedException();
             }
-    }
+        }
 
-    private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
+        private static IPredicate VisitPredicateTree(IPredicate predicate, Func<IPredicate, bool> callback)
         {
             if (!callback(predicate))
                 return predicate;
@@ -416,10 +442,10 @@ namespace Dapper.Extensions.Linq.Builder
         private static bool TryGetField(Expression expression, out string name)
         {
             expression = SimplifyExpression(expression);
-            if(expression.NodeType == ExpressionType.MemberAccess)
+            if (expression.NodeType == ExpressionType.MemberAccess)
             {
                 var memberExpression = expression as MemberExpression;
-                if ( memberExpression.Expression.NodeType == ExpressionType.Parameter )
+                if (memberExpression.Expression.NodeType == ExpressionType.Parameter)
                 {
                     name = memberExpression.Member.Name;
                     return true;
