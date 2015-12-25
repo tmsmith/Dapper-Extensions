@@ -318,7 +318,7 @@ namespace Dapper.Extensions.Linq.Builder
                 if (expression.Method.Name == "Contains")
                     return ParseCallContains(expression);
 
-                throw new NotImplementedException();
+                throw new NotImplementedException("ParseCall");
             }
 
             private IPredicate ParseCallQueryFunction(MethodCallExpression expression)
@@ -341,8 +341,12 @@ namespace Dapper.Extensions.Linq.Builder
 
             private IPredicate ParseCallContains(MethodCallExpression expression)
             {
-                var patternExpression = expression.Arguments[0] as ConstantExpression;
+                var patternExpression = expression.Arguments[0];
                 var memberExpression = expression.Object as MemberExpression;
+
+                object value = patternExpression.NodeType == ExpressionType.Constant ? 
+                    ((ConstantExpression)patternExpression).Value : 
+                    InvokeExpression(patternExpression);
 
                 if (patternExpression == null)
                     throw new NotImplementedException();
@@ -355,7 +359,7 @@ namespace Dapper.Extensions.Linq.Builder
                     Not = false,
                     Operator = Operator.Like,
                     PropertyName = memberExpression.Member.Name,
-                    Value = string.Format("%{0}%", patternExpression.Value)
+                    Value = string.Format("%{0}%", value)
                 };
             }
 

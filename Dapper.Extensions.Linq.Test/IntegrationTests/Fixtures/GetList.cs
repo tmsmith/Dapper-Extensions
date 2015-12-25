@@ -172,7 +172,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         }
 
         [Test]
-        public void UsingQuery_With_Expression_Contains()
+        public void UsingQuery_With_Expression_Value_Contains()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
 
@@ -192,7 +192,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
         }
 
         [Test]
-        public void UsingQuery_With_Expression_Ordered_By_Name()
+        public void UsingQuery_With_Expression_Ordered_By_Name_Constant()
         {
             var personRepository = Container.Resolve<IRepository<Person>>();
 
