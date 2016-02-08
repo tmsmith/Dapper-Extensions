@@ -79,6 +79,7 @@
     <Compile Include="Configuration\Container.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\Fixtures\QueryBuilder.cs" />
     <Compile Include="IntegrationTests\Fixtures\Global.cs" />
     <Compile Include="IntegrationTests\Fixtures\Methods.cs" />
     <Compile Include="IntegrationTests\Fixtures\Count.cs" />
