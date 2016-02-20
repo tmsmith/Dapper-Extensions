@@ -219,6 +219,9 @@ namespace Dapper.Extensions.Linq.Builder
                     case ExpressionType.Call:
                         return this.ParseCall((MethodCallExpression)expression);
 
+                    case ExpressionType.MemberAccess:
+                        return this.ParseBoolMember((MemberExpression) expression);
+
                     case ExpressionType.Add:
                     case ExpressionType.AddAssign:
                     case ExpressionType.AddAssignChecked:
@@ -254,7 +257,6 @@ namespace Dapper.Extensions.Linq.Builder
                     case ExpressionType.LeftShiftAssign:
                     case ExpressionType.ListInit:
                     case ExpressionType.Loop:
-                    case ExpressionType.MemberAccess:
                     case ExpressionType.MemberInit:
                     case ExpressionType.Modulo:
                     case ExpressionType.ModuloAssign:
@@ -300,6 +302,17 @@ namespace Dapper.Extensions.Linq.Builder
                     case ExpressionType.Constant:
                         return new PredicateGroup();
                 }
+            }
+
+            private IPredicate ParseBoolMember(MemberExpression expression)
+            {
+                if (expression.Type == typeof (bool))
+                {
+                    var propertyName = expression.Member.Name;
+                    return new FieldPredicate<T> { Not = false, Operator = Operator.Eq, PropertyName = propertyName, Value = true };
+                }
+
+                throw new NotImplementedException(expression.Type.ToString());
             }
 
             private IPredicate ParseCall(MethodCallExpression expression)
