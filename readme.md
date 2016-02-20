@@ -4,6 +4,9 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.12
+* Improve QueryBuilder.cs handling of boolean (alexzubiaga) 
+
 ### 1.1.11
 * Expressions can use variables and constants 
 
