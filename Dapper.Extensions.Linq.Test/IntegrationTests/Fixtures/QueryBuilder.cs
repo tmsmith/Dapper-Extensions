@@ -36,5 +36,13 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
 
             QueryBuilder<Person>.FromExpression(expression);
         }
+
+        [Test]
+        public void QueryBuilder_LeftSideMemberExpression()
+        {
+            Expression<Func<Person, bool>> expression = e => DateTime.Now == e.DateCreated && e.Active;
+
+            QueryBuilder<Person>.FromExpression(expression);
+        }
     }
 }
