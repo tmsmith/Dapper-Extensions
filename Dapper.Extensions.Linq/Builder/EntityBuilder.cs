@@ -18,6 +18,7 @@ namespace Dapper.Extensions.Linq.Builder
         private readonly Expression<Func<T, bool>> _expression;
         private readonly IList<ISort> _sort;
         private int? _take;
+        private int? _timeout;
 
         public EntityBuilder(IDapperSession session, Expression<Func<T, bool>> expression)
         {
@@ -31,7 +32,7 @@ namespace Dapper.Extensions.Linq.Builder
             IPredicateGroup predicate = QueryBuilder<T>.FromExpression(_expression);
 
             IPredicateGroup p = predicate?.Predicates == null ? null : predicate;
-            return _session.GetList<T>(p, _sort, _session.Transaction, null, false, _take);
+            return _session.GetList<T>(p, _sort, _session.Transaction, _timeout, false, _take);
         }
 
         public IEnumerable<T> AsEnumerable()
@@ -102,6 +103,17 @@ namespace Dapper.Extensions.Linq.Builder
         public IEntityBuilder<T> Take(int number)
         {
             _take = number;
+            return this;
+        }
+
+        /// <summary>
+        /// Timeouts cannot be specified for SqlCe, these will remain zero.
+        /// </summary>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public IEntityBuilder<T> Timeout(int timeout)
+        {
+            _timeout = timeout;
             return this;
         }
     }
