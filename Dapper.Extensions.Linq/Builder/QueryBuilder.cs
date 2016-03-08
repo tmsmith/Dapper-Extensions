@@ -462,7 +462,7 @@ namespace Dapper.Extensions.Linq.Builder
             if (expression.NodeType == ExpressionType.MemberAccess)
             {
                 var memberExpression = expression as MemberExpression;
-                if (memberExpression.Expression.NodeType == ExpressionType.Parameter)
+                if (memberExpression?.Expression?.NodeType == ExpressionType.Parameter)
                 {
                     name = memberExpression.Member.Name;
                     return true;
