@@ -23,5 +23,6 @@ namespace Dapper.Extensions.Linq.Core.Builder
         /// <param name="timeout"></param>
         /// <returns></returns>
         IEntityBuilder<T> Timeout(int timeout);
+        IEntityBuilder<T> Nolock();
     }
 }

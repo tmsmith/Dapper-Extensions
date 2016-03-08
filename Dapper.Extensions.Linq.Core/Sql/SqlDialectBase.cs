@@ -13,6 +13,7 @@ namespace Dapper.Extensions.Linq.Core.Sql
         public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
         public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
         public abstract string SelectLimit(string sql, int limit);
+        public abstract string SetNolock(string sql);
 
         public virtual char OpenQuote => '"';
 

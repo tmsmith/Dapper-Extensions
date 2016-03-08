@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using Dapper.Extensions.Linq.Core.Sql;
@@ -44,6 +45,11 @@ namespace Dapper.Extensions.Linq.Sql
         public override string SelectLimit(string sql, int limit)
         {
             return string.Format("{0} LIMIT {1}", sql, limit);
+        }
+
+        public override string SetNolock(string sql)
+        {
+            throw new NotSupportedException();
         }
     }
 

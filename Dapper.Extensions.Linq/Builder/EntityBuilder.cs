@@ -19,6 +19,7 @@ namespace Dapper.Extensions.Linq.Builder
         private readonly IList<ISort> _sort;
         private int? _take;
         private int? _timeout;
+        private bool _nolock;
 
         public EntityBuilder(IDapperSession session, Expression<Func<T, bool>> expression)
         {
@@ -32,7 +33,7 @@ namespace Dapper.Extensions.Linq.Builder
             IPredicateGroup predicate = QueryBuilder<T>.FromExpression(_expression);
 
             IPredicateGroup p = predicate?.Predicates == null ? null : predicate;
-            return _session.GetList<T>(p, _sort, _session.Transaction, _timeout, false, _take);
+            return _session.GetList<T>(p, _sort, _session.Transaction, _timeout, false, _take, _nolock);
         }
 
         public IEnumerable<T> AsEnumerable()
@@ -114,6 +115,12 @@ namespace Dapper.Extensions.Linq.Builder
         public IEntityBuilder<T> Timeout(int timeout)
         {
             _timeout = timeout;
+            return this;
+        }
+
+        public IEntityBuilder<T> Nolock()
+        {
+            _nolock = true;
             return this;
         }
     }

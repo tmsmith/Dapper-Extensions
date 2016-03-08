@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Dapper.Extensions.Linq.Core.Sql;
 using MySql.Data.MySqlClient;
@@ -38,6 +39,11 @@ namespace Dapper.Extensions.Linq.MySql
         public override string SelectLimit(string sql, int limit)
         {
             return string.Format("{0} LIMIT {1}", sql, limit);
+        }
+
+        public override string SetNolock(string sql)
+        {
+            return string.Concat(@"SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;", sql, "; COMMIT;");
         }
     }
 }

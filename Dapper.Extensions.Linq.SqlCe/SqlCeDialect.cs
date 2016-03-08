@@ -69,5 +69,10 @@ namespace Dapper.Extensions.Linq.SqlCe
             const string searchFor = "SELECT ";
             return sql.Insert(sql.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase) + searchFor.Length, string.Format("TOP ({0}) ", limit));
         }
+
+        public override string SetNolock(string sql)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

@@ -150,5 +150,11 @@ namespace Dapper.Extensions.Linq.Sql
             const string searchFor = "SELECT ";
             return sql.Insert(sql.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase) + searchFor.Length, string.Format("TOP ({0}) ", limit));
         }
+
+        public override string SetNolock(string sql)
+        {
+            const string searchFor = " WHERE ";
+            return sql.Insert(sql.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase), @" (NOLOCK)");
+        }
     }
 }

@@ -62,5 +62,10 @@ namespace Dapper.Extensions.Linq.SQLite
         {
             return string.Format("{0} LIMIT {1}", sql, limit);
         }
+
+        public override string SetNolock(string sql)
+        {
+            return string.Concat(@"PRAGMA journal_mode=WAL;", sql);
+        }
     }
 }
