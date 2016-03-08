@@ -1,5 +1,7 @@
 ﻿using System;
+using Castle.MicroKernel;
 using Dapper.Extensions.Linq.SqlCe;
+using Dapper.Extensions.Linq.Test.Entities;
 using NUnit.Framework;
 
 namespace Dapper.Extensions.Linq.Test.Sql
@@ -14,6 +16,16 @@ namespace Dapper.Extensions.Linq.Test.Sql
             public void Setup()
             {
                 Dialect = new SqlCeDialect();
+            }
+        }
+
+        [TestFixture]
+        public class Methods : SqlCeDialectFixtureBase
+        {
+            [Test]
+            public void Nolock()
+            {
+                Assert.Throws<NotSupportedException>(() => Dialect.SetNolock(""));
             }
         }
 

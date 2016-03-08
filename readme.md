@@ -4,6 +4,9 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.14
+* Nolock unit tests and fix
+
 ### 1.1.13
 * Handling NullReferenceException when comparing against MemberExpression on the left side (alexzubiaga)
 * Timeouts can be specified for EntityBuilder

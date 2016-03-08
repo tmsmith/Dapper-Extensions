@@ -153,8 +153,13 @@ namespace Dapper.Extensions.Linq.Sql
 
         public override string SetNolock(string sql)
         {
-            const string searchFor = " WHERE ";
-            return sql.Insert(sql.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase), @" (NOLOCK)");
+            if (sql.Contains(" WHERE "))
+                return sql.Insert(sql.IndexOf(" WHERE ", StringComparison.OrdinalIgnoreCase), @" (NOLOCK)");
+
+            if (sql.Contains(" ORDER BY "))
+                return sql.Insert(sql.IndexOf(" ORDER BY ", StringComparison.OrdinalIgnoreCase), @" (NOLOCK)");
+
+            return string.Concat(sql, " (NOLOCK)");
         }
     }
 }

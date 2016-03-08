@@ -21,6 +21,18 @@ namespace Dapper.Extensions.Linq.Test.Sql
         }
 
         [TestFixture]
+        public class Methods : SqlServerDialectFixtureBase
+        {
+            [Test]
+            public void Nolock()
+            {
+                Assert.That(Dialect.SetNolock("SELECT * FROM Person").Contains(" (NOLOCK) "));
+                Assert.That(Dialect.SetNolock("SELECT * FROM Person WHERE Id = 1").Contains(" (NOLOCK) "));
+                Assert.That(Dialect.SetNolock("SELECT * FROM Person ORDER BY Id DESC").Contains(" (NOLOCK) "));
+            }
+        }
+
+        [TestFixture]
         public class Properties : SqlServerDialectFixtureBase
         {
             [Test]
