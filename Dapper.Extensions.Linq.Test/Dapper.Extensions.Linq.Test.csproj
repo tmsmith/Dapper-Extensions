@@ -92,7 +92,9 @@
     <Compile Include="IntegrationTests\MySql\MySql.cs" />
     <Compile Include="IntegrationTests\SqlCe\SqlCe.cs" />
     <Compile Include="IntegrationTests\SQLite\SQLite.cs" />
+    <Compile Include="IntegrationTests\SqlServer\QueryDynamic.cs" />
     <Compile Include="IntegrationTests\SqlServer\SqlServer.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlServerOnly.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />

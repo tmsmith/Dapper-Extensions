@@ -5,8 +5,10 @@ using System.IO;
 using System.Reflection;
 using Dapper.Extensions.Linq.CastleWindsor;
 using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Sql;
+using Dapper.Extensions.Linq.Test.Entities;
 using Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures;
 using NUnit.Framework;
 

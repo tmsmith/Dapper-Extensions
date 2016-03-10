@@ -17,6 +17,7 @@ namespace Dapper.Extensions.Linq.Core.Repositories
         int Count(Expression<Func<T, bool>> predicate = null);
         bool Delete(Expression<Func<T, bool>> predicate = null);
         IEnumerable<T> Query(string sql, object param = null);
+        IEnumerable<dynamic> QueryDynamic(string sql, object param = null);
         object QueryScalar(string sql, object param = null);
     }
 }

@@ -69,7 +69,7 @@ namespace Dapper.Extensions.Linq.Repositories
             return GetCurrentSession().Query<T>(sql, param, GetCurrentSession().Transaction);
         }
 
-        public virtual IEnumerable<dynamic> DynamicQuery(string sql, object param = null)
+        public virtual IEnumerable<dynamic> QueryDynamic(string sql, object param = null)
         {
             return GetCurrentSession().Query<dynamic>(sql, param, GetCurrentSession().Transaction);
         }

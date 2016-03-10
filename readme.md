@@ -4,6 +4,9 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.15
+* QueryDynamic added for executing inline queries
+
 ### 1.1.14
 * Nolock unit tests and fix
 
@@ -152,13 +155,20 @@ int numberOfPeople = _dapperRepository.Count(e => e.FirstName == "Foo");
 
 ## Lists with Linq
 
+Using Query you additionally have access to other methods like Top, OrderBy, OrderByDescending and others.
 ```c#
 List<Person> people = _dapperRepository
                        .Query(e => e.Active && e.DateCreated > DateTime.AddDays(-5))
                        .OrderBy(e => e.DateCreated)
                        .ToList();
-                       
-Using Query you additionally have access to other methods like Top, OrderBy, OrderByDescending and others.
+```
+
+## Dynamic queries
+
+Allows you to execute custom inline script.
+```c#
+const string sql = "SELECT TOP 1 Id, FirstName FROM Person ORDER BY Id DESC";
+IEnumerable<dynamic> result = personRepository.QueryDynamic(sql);
 ```
 
 # License
