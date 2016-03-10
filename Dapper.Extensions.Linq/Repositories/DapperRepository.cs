@@ -58,27 +58,27 @@ namespace Dapper.Extensions.Linq.Repositories
             return session.Count<T>(QueryBuilder<T>.FromExpression(predicate), session.Transaction);
         }
 
-        public virtual bool Delete(Expression<Func<T, bool>>  predicate = null)
+        public virtual bool Delete(Expression<Func<T, bool>> predicate = null)
         {
             IDapperSession session = GetCurrentSession();
             return session.Delete<T>(QueryBuilder<T>.FromExpression(predicate), session.Transaction);
         }
 
-        public virtual IEnumerable<T> Query(string sql, object param = null)
+        public virtual IEnumerable<T> Query(string sql, object param = null, int? timeout = null)
         {
-            return GetCurrentSession().Query<T>(sql, param, GetCurrentSession().Transaction);
+            return GetCurrentSession().Query<T>(sql, param, GetCurrentSession().Transaction, true, timeout);
         }
 
-        public virtual IEnumerable<dynamic> QueryDynamic(string sql, object param = null)
+        public virtual IEnumerable<dynamic> QueryDynamic(string sql, object param = null, int? timeout = null)
         {
-            return GetCurrentSession().Query<dynamic>(sql, param, GetCurrentSession().Transaction);
+            return GetCurrentSession().Query<dynamic>(sql, param, GetCurrentSession().Transaction, true, timeout);
         }
 
         protected virtual IDapperSession GetCurrentSession() { return SessionContext.GetSession<T>(); }
 
-        public object QueryScalar(string sql, object param = null)
+        public object QueryScalar(string sql, object param = null, int? timeout = null)
         {
-            return GetCurrentSession().ExecuteScalar(sql, param, GetCurrentSession().Transaction);
+            return GetCurrentSession().ExecuteScalar(sql, param, GetCurrentSession().Transaction, timeout);
         }
     }
 }
