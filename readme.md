@@ -4,6 +4,9 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.16
+* Added timeout to Query, QueryScalar, QueryDynamic
+
 ### 1.1.15
 * QueryDynamic added for executing inline queries
 
