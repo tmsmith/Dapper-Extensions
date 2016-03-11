@@ -64,9 +64,5 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
                 }
             }
         }
-
-        [TestFixtureTearDown]
-        public void TearDown() { }
-
     }
 }

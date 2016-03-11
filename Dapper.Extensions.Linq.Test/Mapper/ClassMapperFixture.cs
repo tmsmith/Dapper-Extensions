@@ -108,7 +108,7 @@ namespace Dapper.Extensions.Linq.Test.Mapper
 
         public class TestMapper<T> : AutoClassMapper<T> where T : class
         {
-            public new PropertyMap Map(Expression<Func<T, object>> expression)
+            public PropertyMap Map(Expression<Func<T, object>> expression)
             {
                 return base.Map(expression);
             }

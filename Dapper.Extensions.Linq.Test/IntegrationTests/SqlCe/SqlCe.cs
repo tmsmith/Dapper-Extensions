@@ -76,8 +76,5 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
                 }
             }
         }
-
-        [TestFixtureTearDown]
-        public void TearDown() { }
     }
 }
