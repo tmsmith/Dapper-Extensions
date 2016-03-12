@@ -26,6 +26,13 @@ namespace Dapper.Extensions.Linq.Mapper
             base.Table(tableName);
         }
 
+        public override void Schema(string schemaName)
+        {
+            if (Attribute.IsDefined(EntityType, typeof(SchemaAttribute)))
+                schemaName = ((SchemaAttribute)EntityType.GetCustomAttribute(typeof(SchemaAttribute))).Name;
+            base.Table(schemaName);
+        }
+
         private void AutoMap()
         {
             Type type = typeof(T);

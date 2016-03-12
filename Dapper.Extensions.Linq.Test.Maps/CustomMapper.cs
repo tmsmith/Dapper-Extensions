@@ -9,6 +9,7 @@ namespace Dapper.Extensions.Linq.Test.Maps
     {
         public CustomMapper()
         {
+            Schema("dbo");
             Table("FooTable");
             Map(f => f.Id).Column("FooId").Key(KeyType.Identity);
             Map(f => f.DateOfBirth).Column("BirthDate");
