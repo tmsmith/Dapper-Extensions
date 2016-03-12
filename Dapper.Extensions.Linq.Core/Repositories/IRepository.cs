@@ -10,6 +10,7 @@ namespace Dapper.Extensions.Linq.Core.Repositories
         T Get(Guid id);
         T Get(int id);
         dynamic Insert(T item);
+        void Insert(IEnumerable<T> items);
         bool Update(T item);
         bool Delete(T item);
         IList<T> GetList();

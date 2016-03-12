@@ -35,6 +35,11 @@ namespace Dapper.Extensions.Linq.Repositories
             return GetCurrentSession().Insert(item, GetCurrentSession().Transaction);
         }
 
+        public virtual void Insert(IEnumerable<T> items)
+        {
+            GetCurrentSession().Insert(items);
+        }
+
         public virtual bool Update(T item) { return GetCurrentSession().Update(item); }
 
         public virtual bool Delete(T item)
