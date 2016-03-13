@@ -35,6 +35,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DataContextAttribute.cs" />
@@ -48,7 +49,19 @@
     <Compile Include="Configuration\ContainerCustomisations.cs" />
     <Compile Include="Configuration\DapperConfiguration.cs" />
     <Compile Include="Configuration\IContainerCustomisations.cs" />
+    <Compile Include="Config\Logging.cs" />
     <Compile Include="Enums\GroupOperator.cs" />
+    <Compile Include="Logging\DefaultFactory.cs" />
+    <Compile Include="Logging\DefaultLogger.cs" />
+    <Compile Include="Logging\DefaultLoggerFactory.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ILoggerFactory.cs" />
+    <Compile Include="Logging\ILogManager.cs" />
+    <Compile Include="Logging\LoggerConfig.cs" />
+    <Compile Include="Logging\LoggingFactoryDefinition.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogLevelReader.cs" />
+    <Compile Include="Logging\LogManager.cs" />
     <Compile Include="Mapper\IPropertyMap.cs" />
     <Compile Include="Enums\KeyType.cs" />
     <Compile Include="Enums\Operator.cs" />

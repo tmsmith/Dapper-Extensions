@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
 using Dapper.Extensions.Linq.Core.Enums;
+using Dapper.Extensions.Linq.Core.Logging;
 using Dapper.Extensions.Linq.Core.Mapper;
 
 namespace Dapper.Extensions.Linq.Mapper
@@ -14,6 +15,8 @@ namespace Dapper.Extensions.Linq.Mapper
     /// </summary>
     public class ClassMapper<T> : IClassMapper<T> where T : class
     {
+        private readonly ILog _log = LogManager.GetLogger<ClassMapper<T>>();
+
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.
         /// </summary>
@@ -33,6 +36,8 @@ namespace Dapper.Extensions.Linq.Mapper
 
         protected ClassMapper()
         {
+            _log.InfoFormat("Mapping class: {0}", EntityType.Name);
+
             PropertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
                                              {
                                                  { typeof(byte), KeyType.Identity }, { typeof(byte?), KeyType.Identity },
@@ -82,6 +87,9 @@ namespace Dapper.Extensions.Linq.Mapper
         protected PropertyMap Map(PropertyInfo propertyInfo, bool overwrite = true)
         {
             PropertyMap result = new PropertyMap(propertyInfo);
+
+            if (_log.IsDebugEnabled)
+                _log.DebugFormat("Mapped property: {0} > {1}, type: {2}", result.Name, result.ColumnName, result.KeyType.GetType().Name);
 
             IPropertyMap property = Properties.SingleOrDefault(p => p.Name.Equals(result.Name));
             if (overwrite && property != null)

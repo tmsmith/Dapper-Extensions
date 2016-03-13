@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Extensions.Linq.Logging", "Dapper.Extensions.Linq.Logging\Dapper.Extensions.Linq.Logging.csproj", "{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,18 @@ Global
 		{7F53F1E3-B686-4A9D-AA46-B4C3F380F654}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7F53F1E3-B686-4A9D-AA46-B4C3F380F654}.Release|x86.ActiveCfg = Release|Any CPU
 		{7F53F1E3-B686-4A9D-AA46-B4C3F380F654}.Release|x86.Build.0 = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{D84478BB-77F8-4EFE-AC69-B75623DFE9CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

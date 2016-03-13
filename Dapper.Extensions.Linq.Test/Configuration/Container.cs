@@ -1,6 +1,7 @@
 ﻿using Castle.MicroKernel;
 using Dapper.Extensions.Linq.CastleWindsor;
 using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Logging;
 using Dapper.Extensions.Linq.Mapper;
 using Dapper.Extensions.Linq.Test.Entities;
 using Dapper.Extensions.Linq.Core.Repositories;
@@ -27,6 +28,10 @@ namespace Dapper.Extensions.Linq.Test.Configuration
                 .UseSqlDialect(new SqlServerDialect())
                 .WithDefaultConnectionStringNamed("__DefaultSqlServer")
                 .Build();
+
+            LogManager
+                .Use<DefaultFactory>()
+                .Enable();
         }
 
         [Test]

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Reflection;
 using Castle.MicroKernel.Registration;
 using Dapper.Extensions.Linq.Core.Configuration;
+using Dapper.Extensions.Linq.Core.Logging;
 using Dapper.Extensions.Linq.Core.Repositories;
 using Dapper.Extensions.Linq.Core.Sessions;
 using Dapper.Extensions.Linq.Repositories;
@@ -9,8 +11,12 @@ namespace Dapper.Extensions.Linq.CastleWindsor
 {
     public class ContainerForWindsor : IContainer
     {
+        private readonly ILog _log = LogManager.GetLogger<ContainerForWindsor>();
+
         public void Build(DapperConfiguration configuration)
         {
+            _log.InfoFormat("Build with {0}", GetType().Name);
+
             object container;
             bool success = configuration.ContainerCustomisations.Settings().TryGetValue("ExistingContainer", out container);
             if (success == false) throw new NullReferenceException("ExistingContainer not found");
@@ -24,8 +30,9 @@ namespace Dapper.Extensions.Linq.CastleWindsor
                 .ImplementedBy(typeof(DapperRepository<>))
                 .LifestylePerThread());
 
-            foreach (var assembly in configuration.Assemblies)
+            foreach (Assembly assembly in configuration.Assemblies)
             {
+                _log.DebugFormat("Looking for repositories in assembly: {0}", assembly.GetName());
                 windsorContainer.Register(
                     Classes.FromAssembly(assembly)
                     .BasedOn(typeof(DapperRepository<>))
