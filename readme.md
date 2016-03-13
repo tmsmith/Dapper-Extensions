@@ -4,6 +4,12 @@ Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this provid
 
 Release Notes
 -------------
+### 1.1.17
+* Reduced the target framework to .NET 4.5 (previously 4.6)
+* IEnumerable insert
+* Schema attribute for AutoMapper
+* Added LogManager
+
 ### 1.1.16
 * Added timeout to Query, QueryScalar, QueryDynamic
 
@@ -99,6 +105,26 @@ DapperConfiguration
 	.UseSqlDialect(new SqlServerDialect())
     .FromAssembly("Dapper.Entities")
     .Build();
+```
+
+
+#Configure internal component logging
+
+The DefaultFactory logging class makes use of Trace.
+
+```c#
+LogManager
+    .Use<DefaultFactory>()
+    .Enable();
+```
+
+Application config:
+
+```xml
+  <configSections>
+    <section name="Logging" type="Dapper.Extensions.Linq.Core.Config.Logging, Dapper.Extensions.Linq.Core" />
+  </configSections>
+  <Logging Threshold="DEBUG" />
 ```
 
 # Examples
