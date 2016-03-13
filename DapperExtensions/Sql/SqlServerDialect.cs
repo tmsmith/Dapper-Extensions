@@ -22,6 +22,16 @@ namespace DapperExtensions.Sql
             return string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [Id]");
         }
 
+        public override string GetInsertedRecordSql(string tableName, string columns, string parameters, IList<Mapper.IPropertyMap> allColumns)
+        {
+            var sql = string.Format("INSERT INTO {0} ({1}) OUTPUT {2} VALUES ({3})",
+                tableName,
+                columns,
+                allColumns.Select(c => string.Format("[INSERTED].[{0}]", c.Name)).AppendStrings(),
+                parameters);
+            return sql;
+        }
+
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
         {
             int startValue = (page * resultsPerPage) + 1;

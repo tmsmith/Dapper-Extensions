@@ -139,7 +139,7 @@ namespace DapperExtensions.Sql
         
         public virtual string Insert(IClassMapper classMap)
         {
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Generated));
             if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
@@ -147,6 +147,15 @@ namespace DapperExtensions.Sql
 
             var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
             var parameters = columns.Select(p => Configuration.Dialect.ParameterPrefix + p.Name);
+
+            if (classMap.Properties.Any(p => p.KeyType == KeyType.Generated))
+            {
+                return Configuration.Dialect.GetInsertedRecordSql(
+                    GetTableName(classMap),
+                    columnNames.AppendStrings(),
+                    parameters.AppendStrings(),
+                    classMap.Properties);
+            }
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
                                        GetTableName(classMap),

@@ -16,6 +16,7 @@ namespace DapperExtensions.Sql
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
+        string GetInsertedRecordSql(string tableName, string columns, string parameters, IList<Mapper.IPropertyMap> allColumns);
         string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
         bool IsQuoted(string value);
@@ -106,6 +107,10 @@ namespace DapperExtensions.Sql
         }
 
         public abstract string GetIdentitySql(string tableName);
+        public virtual string GetInsertedRecordSql(string tableName, string columns, string parameters, IList<Mapper.IPropertyMap> allColumns)
+        {
+            throw new NotImplementedException("Retrieving the inserted record is not supported for this sql dialect.");
+        }
         public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
         public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
 

@@ -70,6 +70,7 @@ namespace DapperExtensions
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
             List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
+            var generatedColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Generated);
             foreach (var column in nonIdentityKeyProperties)
             {
                 if (column.KeyType == KeyType.Guid)
@@ -100,6 +101,13 @@ namespace DapperExtensions
                 int identityInt = Convert.ToInt32(identityValue);
                 keyValues.Add(identityColumn.Name, identityInt);
                 identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+            }
+            else if (generatedColumn != null)
+            {
+                T inserted = connection.Query<T>(sql, entity, transaction, false, commandTimeout, CommandType.Text).First();
+                var generatedId = generatedColumn.PropertyInfo.GetValue(inserted, null);
+                keyValues.Add(generatedColumn.Name, generatedId);
+                generatedColumn.PropertyInfo.SetValue(entity, generatedId, null);
             }
             else
             {
