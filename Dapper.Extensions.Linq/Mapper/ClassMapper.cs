@@ -89,7 +89,7 @@ namespace Dapper.Extensions.Linq.Mapper
             PropertyMap result = new PropertyMap(propertyInfo);
 
             if (_log.IsDebugEnabled)
-                _log.DebugFormat("Mapped property: {0} > {1}, type: {2}", result.Name, result.ColumnName, result.KeyType.GetType().Name);
+                _log.DebugFormat("Mapped property: {0} > {1}, type: {2}", result.Name, result.ColumnName, result.Type);
 
             IPropertyMap property = Properties.SingleOrDefault(p => p.Name.Equals(result.Name));
             if (overwrite && property != null)
