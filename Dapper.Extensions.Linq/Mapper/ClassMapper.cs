@@ -31,7 +31,7 @@ namespace Dapper.Extensions.Linq.Mapper
 
         public Type EntityType => typeof(T);
 
-        public ClassMapper()
+        protected ClassMapper()
         {
             PropertyTypeKeyTypeMapping = new Dictionary<Type, KeyType>
                                              {
@@ -48,12 +48,13 @@ namespace Dapper.Extensions.Linq.Mapper
                                              };
 
             Properties = new List<IPropertyMap>();
+            Schema(null);
             Table(typeof(T).Name);
         }
 
         protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; private set; }
 
-        public virtual void Schema(string schemaName)
+        protected virtual void Schema(string schemaName)
         {
             SchemaName = schemaName;
         }

@@ -41,6 +41,7 @@
     <Compile Include="Animal.cs" />
     <Compile Include="Car.cs" />
     <Compile Include="ExternallyMapped.cs" />
+    <Compile Include="Foo.cs" />
     <Compile Include="Multikey.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="Phone.cs" />

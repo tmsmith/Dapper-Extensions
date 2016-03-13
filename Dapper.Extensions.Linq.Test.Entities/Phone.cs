@@ -3,6 +3,7 @@ using Dapper.Extensions.Linq.Core.Attributes;
 
 namespace Dapper.Extensions.Linq.Test.Entities
 {
+    [Schema("dbo")]
     [TableName("ph_Phone")]
     [PrefixForColumns("p_")]
     public class Phone : IEntity

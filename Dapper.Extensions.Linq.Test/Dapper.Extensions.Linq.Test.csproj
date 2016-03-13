@@ -97,6 +97,7 @@
     <Compile Include="Configuration\Container.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\Fixtures\Mapper.cs" />
     <Compile Include="IntegrationTests\Fixtures\QueryBuilder.cs" />
     <Compile Include="IntegrationTests\Fixtures\Global.cs" />
     <Compile Include="IntegrationTests\Fixtures\Methods.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="IntegrationTests\SqlServer\QueryDynamic.cs" />
     <Compile Include="IntegrationTests\SqlServer\SqlServer.cs" />
     <Compile Include="IntegrationTests\SqlServer\SqlServerOnly.cs" />
+    <Compile Include="IntegrationTests\SqlServer\SqlSetup.cs" />
     <Compile Include="Mapper\AutoClassMapperFixture.cs" />
     <Compile Include="Mapper\ClassMapperFixture.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />

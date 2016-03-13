@@ -38,7 +38,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomMapper.cs" />
+    <Compile Include="FooMapper.cs" />
     <Compile Include="ExternallyMappedMap.cs" />
     <Compile Include="MultikeyMapper.cs" />
     <Compile Include="PersonMapper.cs" />

@@ -24,4 +24,20 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
             Assert.AreEqual(result.First().FirstName, person.FirstName);
         }
     }
+
+    public class Mapper : SqlServerOnly
+    {
+        [Test]
+        public void CustomMapper_With_dboSchema()
+        {
+            var fooRepository = Container.Resolve<IRepository<Foo>>();
+
+            var foo1 = new Foo { FirstName = "Foo", LastName = "Bar" };
+            int id = fooRepository.Insert(foo1);
+
+            Foo foo2 = fooRepository.Get(id);
+
+            Assert.AreEqual(foo2.FullName, "Foo Bar");
+        }
+    }
 }
