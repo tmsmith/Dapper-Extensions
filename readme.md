@@ -1,47 +1,137 @@
 # Introduction
 
-Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
+Dapper, Dapper Extensions and Linq. Dapper.Extensions.Linq builds on this providing advanced DB access through Linq queries. The fluid configuration makes setup simplistic and quick.
 
-Customized mappings are achieved through [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper). 
+Release Notes
+-------------
+### 1.1.17
+* Reduced the target framework to .NET 4.5 (previously 4.6)
+* IEnumerable insert
+* Schema attribute for AutoMapper
+* Added LogManager
 
-**Important**: This library is a separate effort from Dapper.Contrib (a sub-system of the [Dapper](https://github.com/SamSaffron/dapper-dot-net) project).
+### 1.1.16
+* Added timeout to Query, QueryScalar, QueryDynamic
+
+### 1.1.15
+* QueryDynamic added for executing inline queries
+
+### 1.1.14
+* Nolock unit tests and fix
+
+### 1.1.13
+* Handling NullReferenceException when comparing against MemberExpression on the left side (alexzubiaga)
+* Timeouts can be specified for EntityBuilder
+* Nolock can be specified for EntityBuilder
+
+### 1.1.12
+* Improve QueryBuilder.cs handling of boolean (alexzubiaga) 
+
+### 1.1.11
+* Expressions can use variables and constants 
+
+### 1.1.10
+* Linq contains can be used to mimic a like
+* Bug fixes
+
+
+### 1.1.9
+* PredicateBuilder fix
+
+### 1.1.8
+* Added PredicateBuilder to allow ExpressionBuilding for Query
+
+### 1.1.7
+* Querying with extrernal lists can now use nullable types
+
+### 1.1.6
+* Added the ability to query with external lists
+
+### 1.1.5
+* Added Top to Query.
+* Added OrderBy to Query.
+* Added OrderByDescending to Query.
+
+### 1.1.4
+* Added new AutoClassMapper attributes TableName and PrefixForColumns.
+* Isolated AutoMap to AutoClassMapper for clarity.
+* Removed an unused reference to EntityFramework on Dapper.Linq.Extensions.SQLite
+
 
 Features
 --------
-* Zero configuration out of the box.
-* Automatic mapping of POCOs for Get, Insert, Update, and Delete operations.
-* GetList, Count methods for more advanced scenarios.
-* GetPage for returning paged result sets.
-* Automatic support for Guid and Integer [primary keys](https://github.com/tmsmith/Dapper-Extensions/wiki/KeyTypes) (Includes manual support for other key types).
-* Pure POCOs through use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper) (_Attribute Free!_).
-* Customized entity-table mapping through the use of [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
-* Composite Primary Key support.
-* Singular and Pluralized table name support (Singular by default).
-* Easy-to-use [Predicate System](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates) for more advanced scenarios.
-* Properly escapes table/column names in generated SQL (Ex: SELECT [FirstName] FROM [Users] WHERE [Users].[UserId] = @UserId_0)
-* Unit test coverage (150+ Unit Tests)
+* Simplistic fluid configuration
+* Automatic mapping of Entities 
+* Sql generation with Linq
+* Customisable entity mapping with [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper).
+* Entites can be manipulated with attributes
+* Custom IoC containers
+* Multiple connection providers
+* Support for Sql Server, Postgre Sql, MySql, SqlCe and SQLite
+
+Attributes 
+---------
+* DataContext - Which connection provider to use, defaults to **__Default**, you can additionally override this with fluid configuration.
+
+Property Attributes
+-------------------------
+* Ignore - This property will not be mapped
+* MapTo - Assign a property to a different database column
 
 Naming Conventions
 ------------------
-* POCO names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
-* POCO property names should match each column name in the table.
+* Entity names should match the table name in the database. Pluralized table names are supported through the PlurizedAutoClassMapper.
+* Entity properties should match the column name in the table.
 * By convention, the primary key should be named Id. Using another name is supported through custom mappings.
 
 # Installation
 
-For more information, please view our [Getting Started](https://github.com/tmsmith/Dapper-Extensions/wiki/Getting-Started) guide.
-
-http://nuget.org/List/Packages/DapperExtensions
+http://nuget.org/List/Packages/Dapper.Extensions.Linq
 
 ```
-PM> Install-Package DapperExtensions
+PM> Install-Package Dapper.Extensions.Linq
+```
+
+# Configuration
+Note that dapper configuration requires a container in order to build. You can use the nuget package Dapper.Extensions.Linq.CastleWindsor or implement your own. The caslte provides you with dependency injection for the repositories.
+
+Basic configuration and setup:
+
+```c#
+DapperConfiguration
+    .Use()
+    .UseClassMapper(typeof(AutoClassMapper<>))
+    .UseContainer<Dapper.Extensions.Linq.CastleWindsor.ContainerForWindsor>(c => c.UseExisting(_container))
+	.UseSqlDialect(new SqlServerDialect())
+    .FromAssembly("Dapper.Entities")
+    .Build();
+```
+
+
+#Configure internal component logging
+
+The DefaultFactory logging class makes use of Trace.
+
+```c#
+LogManager
+    .Use<DefaultFactory>()
+    .Enable();
+```
+
+Application config:
+
+```xml
+  <configSections>
+    <section name="Logging" type="Dapper.Extensions.Linq.Core.Config.Logging, Dapper.Extensions.Linq.Core" />
+  </configSections>
+  <Logging Threshold="DEBUG" />
 ```
 
 # Examples
-The following examples will use a Person POCO defined as:
+The following examples will use a Person Entity
 
 ```c#
-public class Person
+public class Person : IEntity
 {
     public int Id { get; set; }
     public string FirstName { get; set; }
@@ -51,137 +141,68 @@ public class Person
 }
 ```
 
-
-## Get Operation
-
-```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    int personId = 1;
-    Person person = cn.Get<Person>(personId);	
-    cn.Close();
-}
-```
-
-## Simple Insert Operation
+## Get
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Person person = new Person { FirstName = "Foo", LastName = "Bar" };
-    int id = cn.Insert(person);
-    cn.Close();
-}
+_dapperRepository.Get(Id) //Using a get
+_dapperRepository.Query(e => e.Id == Id) //Using linq by id
+_dapperRepository.Query(e => e.FirstName == "Gary").SingleOrDefault() //Using linq by first name
+
 ```
 
-## Advanced Insert Operation (Composite Key)
+## Insert
 
 ```c#
-public class Car
-{
-    public int ModelId { get; set; }
-    public int Year { get; set; }
-    public string Color { get; set; }
-}
-
-...
-
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Car car = new Car { Color = "Red" };
-    var multiKey = cn.Insert(car);
-    cn.Close();
-
-    int modelId = multiKey.ModelId;
-    int year = multiKey.Year;
-}
+var person = new Person { FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.Now };
+_dapperRepository.Insert(person);
 ```
 
-## Simple Update Operation
+## Update
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    int personId = 1;
-    Person person = _connection.Get<Person>(personId);
-    person.LastName = "Baz";
-    cn.Update(person);
-    cn.Close();
-}
+Person person = _dapperRepository.Get(PersonId);
+person.LastName = "Rwar";
+_dapperRepository.Update(person);
 ```
 
-
-## Simple Delete Operation
+## Delete
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    Person person = _connection.Get<Person>(1);
-    cn.Delete(person);
-    cn.Close();
-}
+Person person = _dapperRepository.Get(PersonId);
+_dapperRepository.Delete(person);
 ```
 
-## GetList Operation (with Predicates)
+## Count
 
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
-    IEnumerable<Person> list = cn.GetList<Person>(predicate);
-    cn.Close();
-}
+int numberOfPeople = _dapperRepository.Count();
+
+or
+
+int numberOfPeople = _dapperRepository.Count(e => e.FirstName == "Foo");
 ```
 
-Generated SQL
+## Lists with Linq
 
-```
-SELECT 
-   [Person].[Id]
- , [Person].[FirstName]
- , [Person].[LastName]
- , [Person].[Active]
- , [Person].[DateCreated] 
-FROM [Person] 
-WHERE ([Person].[Active] = @Active_0)
-```
-
-More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
-
-
-## Count Operation (with Predicates)
-
+Using Query you additionally have access to other methods like Top, OrderBy, OrderByDescending and others.
 ```c#
-using (SqlConnection cn = new SqlConnection(_connectionString))
-{
-    cn.Open();
-    var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
-    int count = cn.Count<Person>(predicate);
-    cn.Close();
-}            
+List<Person> people = _dapperRepository
+                       .Query(e => e.Active && e.DateCreated > DateTime.AddDays(-5))
+                       .OrderBy(e => e.DateCreated)
+                       .ToList();
 ```
 
-Generated SQL
+## Dynamic queries
 
+Allows you to execute custom inline script.
+```c#
+const string sql = "SELECT TOP 1 Id, FirstName FROM Person ORDER BY Id DESC";
+IEnumerable<dynamic> result = personRepository.QueryDynamic(sql);
 ```
-SELECT 
-   COUNT(*) Total 
-FROM [Person] 
-WHERE ([Person].[DateCreated] < @DateCreated_0)
-```
-
-More information on predicates can be found in [our wiki](https://github.com/tmsmith/Dapper-Extensions/wiki/Predicates).
-
 
 # License
 
-Copyright 2011 Thad Smith, Page Brooks and contributors
+Copyright 2011 Thad Smith, Page Brooks, Ryan Watson and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

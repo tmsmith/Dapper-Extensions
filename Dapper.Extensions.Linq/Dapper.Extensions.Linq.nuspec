@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata schemaVersion="2">
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Thad Smith, Page Brooks, Ryan Watson</authors>
+    <owners>Ryan Watson</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/ryanwatson/Dapper.Extensions.Linq</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>https://github.com/ryanwatson/Dapper.Extensions.Linq</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>orm sql micro-orm Data Dapper</tags>
+  </metadata>
+</package>

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{138FF8C4-3616-4C39-B0D3-F62CE7001F2D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Dapper.Extensions.Linq.Core</RootNamespace>
+    <AssemblyName>Dapper.Extensions.Linq.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\DataContextAttribute.cs" />
+    <Compile Include="Attributes\IgnoreAttribute.cs" />
+    <Compile Include="Attributes\MapToAttribute.cs" />
+    <Compile Include="Attributes\PrefixForColumnsAttribute.cs" />
+    <Compile Include="Attributes\SchemaAttribute.cs" />
+    <Compile Include="Attributes\TableNameAttribute.cs" />
+    <Compile Include="Builder\IEntityBuilder.cs" />
+    <Compile Include="Builder\IQueryBuilder.cs" />
+    <Compile Include="Configuration\ContainerCustomisations.cs" />
+    <Compile Include="Configuration\DapperConfiguration.cs" />
+    <Compile Include="Configuration\IContainerCustomisations.cs" />
+    <Compile Include="Config\Logging.cs" />
+    <Compile Include="Enums\GroupOperator.cs" />
+    <Compile Include="Logging\DefaultFactory.cs" />
+    <Compile Include="Logging\DefaultLogger.cs" />
+    <Compile Include="Logging\DefaultLoggerFactory.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ILoggerFactory.cs" />
+    <Compile Include="Logging\ILogManager.cs" />
+    <Compile Include="Logging\LoggerConfig.cs" />
+    <Compile Include="Logging\LoggingFactoryDefinition.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogLevelReader.cs" />
+    <Compile Include="Logging\LogManager.cs" />
+    <Compile Include="Mapper\IPropertyMap.cs" />
+    <Compile Include="Enums\KeyType.cs" />
+    <Compile Include="Enums\Operator.cs" />
+    <Compile Include="IEntity.cs" />
+    <Compile Include="Configuration\IContainer.cs" />
+    <Compile Include="Configuration\IDapperConfiguration.cs" />
+    <Compile Include="Implementor\IDapperImplementor.cs" />
+    <Compile Include="Mapper\IClassMapper.cs" />
+    <Compile Include="Predicates\IBasePredicate.cs" />
+    <Compile Include="Predicates\IComparePredicate.cs" />
+    <Compile Include="Predicates\IExistsPredicate.cs" />
+    <Compile Include="Predicates\IFieldPredicate.cs" />
+    <Compile Include="Predicates\IGetMultiplePredicate.cs" />
+    <Compile Include="Predicates\IGetMultiplePredicateItem.cs" />
+    <Compile Include="Predicates\IMultipleResultReader.cs" />
+    <Compile Include="Predicates\IPredicate.cs" />
+    <Compile Include="Predicates\IPredicateGroup.cs" />
+    <Compile Include="Predicates\IPropertyPredicate.cs" />
+    <Compile Include="Predicates\ISort.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Sessions\DapperSession.cs" />
+    <Compile Include="Sessions\DapperSessionContext.cs" />
+    <Compile Include="Sessions\DapperSessionFactory.cs" />
+    <Compile Include="Sessions\IConnectionStringProvider.cs" />
+    <Compile Include="Sessions\IDapperSession.cs" />
+    <Compile Include="Sessions\IDapperSessionContext.cs" />
+    <Compile Include="Sessions\IDapperSessionFactory.cs" />
+    <Compile Include="Sessions\StaticConnectionStringProvider.cs" />
+    <Compile Include="Sql\ISqlDialect.cs" />
+    <Compile Include="Sql\ISqlGenerator.cs" />
+    <Compile Include="Sql\SqlDialectBase.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

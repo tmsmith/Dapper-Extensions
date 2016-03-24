@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4C1A2C6C-A469-4C87-98D1-F1D517FA1ACF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Dapper.Extensions.Linq</RootNamespace>
+    <AssemblyName>Dapper.Extensions.Linq</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\basis\src\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=1.40.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.42\lib\net45\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions\PredicateBuilder.cs" />
+    <Compile Include="Predicates\BasePredicate.cs" />
+    <Compile Include="Predicates\BetweenPredicate.cs" />
+    <Compile Include="Predicates\BetweenValues.cs" />
+    <Compile Include="Builder\QueryFunctions.cs" />
+    <Compile Include="Predicates\ComparePredicate.cs" />
+    <Compile Include="Implementor\DapperImplementor.cs" />
+    <Compile Include="Predicates\ExistsPredicate.cs" />
+    <Compile Include="Predicates\FieldPredicate.cs" />
+    <Compile Include="Predicates\GetMultiplePredicate.cs" />
+    <Compile Include="Predicates\GetMultiplePredicateItem.cs" />
+    <Compile Include="Predicates\SequenceReaderResultReader.cs" />
+    <Compile Include="Mapper\AutoClassMapper.cs" />
+    <Compile Include="Mapper\ClassMapper.cs" />
+    <Compile Include="Extensions\DapperExtensions.cs" />
+    <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
+    <Compile Include="Predicates\GridReaderResultReader.cs" />
+    <Compile Include="Predicates\IBetweenPredicate.cs" />
+    <Compile Include="Predicates\PredicateGroup.cs" />
+    <Compile Include="Predicates\Predicates.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Mapper\PropertyMap.cs" />
+    <Compile Include="Predicates\PropertyPredicate.cs" />
+    <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Builder\EntityBuilder.cs" />
+    <Compile Include="Builder\QueryBuilder.cs" />
+    <Compile Include="Repositories\DapperRepository.cs" />
+    <Compile Include="Predicates\Sort.cs" />
+    <Compile Include="Sql\PostgreSqlDialect.cs" />
+    <Compile Include="Sql\SqlGeneratorImpl.cs" />
+    <Compile Include="Sql\SqlServerDialect.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dapper.Extensions.Linq.Core\Dapper.Extensions.Linq.Core.csproj">
+      <Project>{138ff8c4-3616-4c39-b0d3-f62ce7001f2d}</Project>
+      <Name>Dapper.Extensions.Linq.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

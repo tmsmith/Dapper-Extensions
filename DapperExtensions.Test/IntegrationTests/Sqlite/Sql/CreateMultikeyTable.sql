@@ -1,6 +1,0 @@
-﻿CREATE TABLE Multikey (
-    Key1 INTEGER NOT NULL,
-    Key2 NVARCHAR(50) NOT NULL,
-    Value NVARCHAR(50),
-    PRIMARY KEY(Key1, Key2)
-)

@@ -1,0 +1,6 @@
+﻿DROP TABLE IF EXISTS ph_Phone;
+
+CREATE TABLE ph_Phone (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    p_Value NVARCHAR(50)
+)
