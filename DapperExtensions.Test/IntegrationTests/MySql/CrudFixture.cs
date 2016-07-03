@@ -54,6 +54,37 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
             }
+
+            [Test]
+            public void InsertUpdateOnDuplicateKeyMultipleEntitiesToDatabase()
+            {
+                Animal a1 = new Animal { Name = "Foo" };
+                Animal a2 = new Animal { Name = "Bar" };
+                Animal a3 = new Animal { Name = "Baz" };
+
+                Db.InsertUpdateOnDuplicateKey<Animal>(new[] { a1, a2, a3 });
+
+                var animals = Db.GetList<Animal>().ToList();
+                Assert.AreEqual(3, animals.Count);
+            }
+
+            [Test]
+            public void InsertMultipleEntitiesToDatabase_ThenUpdateOnDuplicate()
+            {
+                string newName = "Foo_changed";
+                Animal a1 = new Animal { Name = "Foo" };
+                Animal a2 = new Animal { Name = "Bar" };
+                Animal a3 = new Animal { Name = "Baz" };
+                Animal a4 = new Animal { Name = "Moq" };
+
+                Db.InsertUpdateOnDuplicateKey<Animal>(new[] { a1, a2, a3 });
+                a1.Name = newName;
+                Db.InsertUpdateOnDuplicateKey<Animal>(new[] { a1, a4 });
+
+                var animals = Db.GetList<Animal>().ToList();
+                Assert.AreEqual(4, animals.Count);
+                Assert.True(a1.Name == animals.First(a => a.Name == newName).Name);
+            }
         }
 
         [TestFixture]

@@ -149,6 +149,15 @@ namespace DapperExtensions
         }
 
         /// <summary>
+        /// Executes an insert-update-on-duplicate-key query for the specified entity.
+        /// It's supported only for MqSql.
+        /// </summary>
+        public static void InsertUpdateOnDuplicateKey<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            Instance.InsertUpdateOnDuplicateKey<T>(connection, entities, transaction, commandTimeout);
+        }
+
+        /// <summary>
         /// Executes an insert query for the specified entity, returning the primary key.  
         /// If the entity has a single key, just the value is returned.  
         /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
