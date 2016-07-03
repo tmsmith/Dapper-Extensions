@@ -55,6 +55,18 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
             }
+
+            [Test]
+            public void InsertUpdateOnDuplicateKeyMultipleEntitiesToDatabase_ShouldThrowException()
+            {
+                Animal a1 = new Animal { Name = "Foo" };
+                Animal a2 = new Animal { Name = "Bar" };
+                Animal a3 = new Animal { Name = "Baz" };
+
+                Action action = () => Db.InsertUpdateOnDuplicateKey<Animal>(new[] { a1, a2, a3 });
+
+                Assert.Throws<NotSupportedException>(new TestDelegate(action));
+            }
         }
 
         [TestFixture]

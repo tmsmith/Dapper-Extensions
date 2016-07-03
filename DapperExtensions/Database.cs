@@ -21,6 +21,8 @@ namespace DapperExtensions
         T Get<T>(dynamic id, int? commandTimeout = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, int? commandTimeout = null) where T : class;
+        void InsertUpdateOnDuplicateKey<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout = null) where T : class;
+        void InsertUpdateOnDuplicateKey<T>(IEnumerable<T> entities, int? commandTimeout = null) where T : class;
         dynamic Insert<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         dynamic Insert<T>(T entity, int? commandTimeout = null) where T : class;
         bool Update<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -158,6 +160,16 @@ namespace DapperExtensions
         public void Insert<T>(IEnumerable<T> entities, int? commandTimeout) where T : class
         {
             _dapper.Insert<T>(Connection, entities, _transaction, commandTimeout);
+        }
+
+        public void InsertUpdateOnDuplicateKey<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
+        {
+            _dapper.InsertUpdateOnDuplicateKey<T>(Connection, entities, transaction, commandTimeout);
+        }
+
+        public void InsertUpdateOnDuplicateKey<T>(IEnumerable<T> entities, int? commandTimeout) where T : class
+        {
+            _dapper.InsertUpdateOnDuplicateKey<T>(Connection, entities, _transaction, commandTimeout);
         }
 
         public dynamic Insert<T>(T entity, IDbTransaction transaction, int? commandTimeout) where T : class

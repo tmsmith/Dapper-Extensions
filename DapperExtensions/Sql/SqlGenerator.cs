@@ -167,7 +167,7 @@ namespace DapperExtensions.Sql
 
             var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
             var parameters = columns.Select(p => Configuration.Dialect.ParameterPrefix + p.Name);
-            var valuesSetters = columns.Select(p => string.Format("{0}=VALUES({0})", GetColumnName(classMap, p, false)));
+            var valuesSetters = columns.Select(p => string.Format("{0}=VALUES({1})", GetColumnName(classMap, p, false), p.Name));
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}",
                                        GetTableName(classMap),

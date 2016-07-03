@@ -68,8 +68,24 @@ namespace DapperExtensions
 
         public void InsertUpdateOnDuplicateKey<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
         {
+            if (SqlGenerator.Configuration.Dialect is SqlCeDialect)
+            {
+                throw new NotSupportedException("This method is not supported for SqlCE.");
+            }
+
+            if (SqlGenerator.Configuration.Dialect is SqliteDialect)
+            {
+                throw new NotSupportedException("This method is not supported for Sqlite.");
+            }
+
+            if (SqlGenerator.Configuration.Dialect is SqlServerDialect)
+            {
+                throw new NotSupportedException("This method is not supported for SqlServer.");
+            }
+
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
             var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+            string emptyGuidString = Guid.Empty.ToString();
 
             foreach (var e in entities)
             {
@@ -77,6 +93,13 @@ namespace DapperExtensions
                 {
                     if (column.KeyType == KeyType.Guid)
                     {
+                        object value = column.PropertyInfo.GetValue(e, null);
+                        string stringValue = value.ToString();
+                        if (!string.IsNullOrEmpty(stringValue) && stringValue != emptyGuidString)
+                        {
+                            continue;
+                        }
+
                         Guid comb = SqlGenerator.Configuration.GetNextGuid();
                         column.PropertyInfo.SetValue(e, comb, null);
                     }
