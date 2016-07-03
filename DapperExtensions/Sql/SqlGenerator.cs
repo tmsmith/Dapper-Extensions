@@ -16,6 +16,7 @@ namespace DapperExtensions.Sql
         string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
 
         string Insert(IClassMapper classMap);
+        string InsertUpdateOnDuplicateKey(IClassMapper classMap);
         string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
         string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
 
@@ -152,6 +153,27 @@ namespace DapperExtensions.Sql
                                        GetTableName(classMap),
                                        columnNames.AppendStrings(),
                                        parameters.AppendStrings());
+
+            return sql;
+        }
+
+        public virtual string InsertUpdateOnDuplicateKey(IClassMapper classMap)
+        {
+            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            if (!columns.Any())
+            {
+                throw new ArgumentException("No columns were mapped.");
+            }
+
+            var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
+            var parameters = columns.Select(p => Configuration.Dialect.ParameterPrefix + p.Name);
+            var valuesSetters = columns.Select(p => string.Format("{0}=VALUES({0})", GetColumnName(classMap, p, false)));
+
+            string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2}) ON DUPLICATE KEY UPDATE {3}",
+                                       GetTableName(classMap),
+                                       columnNames.AppendStrings(),
+                                       parameters.AppendStrings(),
+                                       valuesSetters.AppendStrings());
 
             return sql;
         }

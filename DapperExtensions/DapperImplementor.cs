@@ -15,6 +15,7 @@ namespace DapperExtensions
         ISqlGenerator SqlGenerator { get; }
         T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
         void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
+        void InsertUpdateOnDuplicateKey<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
         dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
@@ -61,6 +62,28 @@ namespace DapperExtensions
             }
 
             string sql = SqlGenerator.Insert(classMap);
+
+            connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
+        }
+
+        public void InsertUpdateOnDuplicateKey<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            var properties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
+
+            foreach (var e in entities)
+            {
+                foreach (var column in properties)
+                {
+                    if (column.KeyType == KeyType.Guid)
+                    {
+                        Guid comb = SqlGenerator.Configuration.GetNextGuid();
+                        column.PropertyInfo.SetValue(e, comb, null);
+                    }
+                }
+            }
+
+            string sql = SqlGenerator.InsertUpdateOnDuplicateKey(classMap);
 
             connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
         }
