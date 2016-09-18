@@ -154,7 +154,7 @@ namespace DapperExtensions.Sql
                     GetTableName(classMap),
                     columnNames.AppendStrings(),
                     parameters.AppendStrings(),
-                    classMap.Properties);
+                    classMap.Properties.Where(x => !x.Ignored).ToList());
             }
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
