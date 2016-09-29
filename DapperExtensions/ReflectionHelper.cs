@@ -71,9 +71,25 @@ namespace DapperExtensions
             }
 
             return result;
-        }
+		}
+		public static IDictionary<PropertyInfo, object> GetTypeValues<T>(T obj)
+		{
+			var result = new Dictionary<PropertyInfo, object>();
+			if (obj == null)
+			{
+				return result;
+			}
 
-        public static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
+			foreach (var propertyInfo in typeof(T).GetProperties())
+			{
+				object value = propertyInfo.GetValue(obj, null);
+				result[propertyInfo] = value;
+			}
+
+			return result;
+		}
+
+		public static string AppendStrings(this IEnumerable<string> list, string seperator = ", ")
         {
             return list.Aggregate(
                 new StringBuilder(),

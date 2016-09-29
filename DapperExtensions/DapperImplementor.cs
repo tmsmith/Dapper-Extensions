@@ -136,9 +136,9 @@ namespace DapperExtensions
             DynamicParameters dynamicParameters = new DynamicParameters();
 
             var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
-            foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
+            foreach (var property in ReflectionHelper.GetTypeValues(entity).Where(property => columns.Any(c => c.PropertyInfo == property.Key)))
             {
-                dynamicParameters.Add(property.Key, property.Value);
+                dynamicParameters.Add(property.Key.Name, property.Value);
             }
 
             foreach (var parameter in parameters)
