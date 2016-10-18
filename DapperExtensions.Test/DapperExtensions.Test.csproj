@@ -37,6 +37,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Dapper.1.13\lib\net40\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="IBM.Data.DB2, Version=9.0.0.2, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IBM.Data.DB2.ASP, Version=9.5.2.2, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.ASP.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IBM.Data.DB2.Entity, Version=9.0.0.3, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.Entity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
@@ -77,6 +89,14 @@
     <Compile Include="Data\Car.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\DB2\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Animal.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Car.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\CustomMapper.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Multikey.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Person.cs" />
+    <Compile Include="IntegrationTests\DB2\DB2BaseFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\TimerFixture.cs" />
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
     <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
     <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
@@ -101,6 +121,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="Sql\DB2DialectFixture.cs" />
     <Compile Include="Sql\SqliteDialectFixture.cs" />
     <Compile Include="Sql\SqlCeDialectFixture.cs" />
     <Compile Include="Sql\SqlDialectBaseFixture.cs" />
@@ -126,6 +147,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
