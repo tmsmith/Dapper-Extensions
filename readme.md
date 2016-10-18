@@ -107,7 +107,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
     int personId = 1;
-    Person person = _connection.Get<Person>(personId);
+    Person person = cn.Get<Person>(personId);
     person.LastName = "Baz";
     cn.Update(person);
     cn.Close();
@@ -121,7 +121,7 @@ using (SqlConnection cn = new SqlConnection(_connectionString))
 using (SqlConnection cn = new SqlConnection(_connectionString))
 {
     cn.Open();
-    Person person = _connection.Get<Person>(1);
+    Person person = cn.Get<Person>(1);
     cn.Delete(person);
     cn.Close();
 }
