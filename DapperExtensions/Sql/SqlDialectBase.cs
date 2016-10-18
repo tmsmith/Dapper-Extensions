@@ -121,7 +121,11 @@ namespace DapperExtensions.Sql
 
         public virtual string QuoteString(string value)
         {
-            return IsQuoted(value) ? value : string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
+            if (IsQuoted(value) || value == "*")
+            {
+                return value;
+            }
+            return string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
         }
 
         public virtual string UnQuoteString(string value)
