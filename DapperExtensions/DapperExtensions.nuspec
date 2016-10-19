@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.4.5</version>
+    <version>1.5.0</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -11,28 +11,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
-    1.4.5
-      * Allow passed in Guid values
-    1.4.4
-      * ReadOnly property not being checked (ptct.rmsantos)
-      * Cast Error when inserting in MySql (cortz)
-    1.4.3
-      * Fixed error when mapping property more than once. (jafin)
-      * Fixed error when group predicate was empty. (jafin)
-      * Add GetSet method for paging using first/max rows instead of page number.
-    1.4.2
-      * Initial Release of PostgreSqlDialect
-    1.4.1
-      * Paramater Prefix added to SqlDialect
-      * Error when Column and Property key name were different while performing an update.
-		1.4.0
-			* Add Database Class in order to have multiple connections with different dialects. (Extension methods are still available)
-			* Errors with Predicate not using proper SqlDialect
-			* MySql and Sqlite dialects are ready.
-			* ***BREAKNG CHANGE*** Renamed DapperExtensions.IDapperExtensionsImpl to IDapperImplementor
-			* ***BREAKNG CHANGE*** Renamed ISqlDialect.RunIdentityInsertAsBatch  to ISqlDialect.SupportsMultipleStatements
-			* Added GetMultiple method
-			* GetList, GetPage, Count, Delete will now accept an object as the Predicate for Equals predicates.
+        1.5.0
+      * Nuget Package Restore
+      * Do not set Guid on key when already set
+      * Do not include key in SET for UPDATEs
+      * Added Support for .NET 4.5 async/await
 	</releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
