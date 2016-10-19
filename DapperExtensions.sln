@@ -1,7 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 2012
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperExtensions", "DapperExtensions\DapperExtensions.csproj", "{4C1A2C6C-A469-4C87-98D1-F1D517FA1ACF}"
 EndProject
@@ -19,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7F5566
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperExtensions.Net45", "DapperExtensions.Net45\DapperExtensions.Net45.csproj", "{1656EC3C-7876-4C67-9650-C61ACB806D35}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DapperExtensionsDNXCore", "DapperExtensionsDNXCore\DapperExtensionsDNXCore.xproj", "{CAA1A673-6521-4954-BF05-37FFE016E5C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +80,18 @@ Global
 		{1656EC3C-7876-4C67-9650-C61ACB806D35}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1656EC3C-7876-4C67-9650-C61ACB806D35}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1656EC3C-7876-4C67-9650-C61ACB806D35}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAA1A673-6521-4954-BF05-37FFE016E5C3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
