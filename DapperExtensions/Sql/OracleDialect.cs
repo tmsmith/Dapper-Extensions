@@ -37,6 +37,22 @@ namespace DapperExtensions.Sql
             return sb.ToString();
         }
 
+        public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("SELECT * FROM (");
+            sb.AppendLine("SELECT \"_ss_dapper_1_\".*, ROWNUM RNUM FROM (");
+            sb.Append(sql);
+            sb.AppendLine(") \"_ss_dapper_1_\"");
+            sb.AppendLine("WHERE ROWNUM <= :topLimit) \"_ss_dapper_2_\" ");
+            sb.AppendLine("WHERE \"_ss_dapper_2_\".RNUM > :toSkip");
+
+            parameters.Add(":topLimit", maxResults + firstResult);
+            parameters.Add(":toSkip", firstResult);
+
+            return sb.ToString();
+        }
+
         public override string QuoteString(string value)
         {
             if (value != null && value[0]=='`')
