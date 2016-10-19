@@ -37,6 +37,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Dapper.1.34\lib\net40\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\packages\odp.net.managed.121.1.1\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -60,6 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Sql\OracleDialect.cs" />
     <Compile Include="Sql\PostgreSqlDialect.cs" />
     <Compile Include="Sql\SqlCeDialect.cs" />
     <Compile Include="Sql\SqlDialectBase.cs" />

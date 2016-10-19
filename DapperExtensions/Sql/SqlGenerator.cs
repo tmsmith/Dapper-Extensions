@@ -139,7 +139,7 @@ namespace DapperExtensions.Sql
         
         public virtual string Insert(IClassMapper classMap)
         {
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.TriggerIdentity));
             if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
@@ -152,6 +152,16 @@ namespace DapperExtensions.Sql
                                        GetTableName(classMap),
                                        columnNames.AppendStrings(),
                                        parameters.AppendStrings());
+
+            var triggerIdentityColumn = classMap.Properties.Where(p => p.KeyType == KeyType.TriggerIdentity).ToList();
+
+            if (triggerIdentityColumn.Count > 0)
+            {
+                if (triggerIdentityColumn.Count > 1)
+                    throw new ArgumentException("TriggerIdentity generator cannot be used with multi-column keys");
+
+                sql += string.Format(" RETURNING {0} INTO {1}IdOutParam", triggerIdentityColumn.Select(p => GetColumnName(classMap, p, false)).First(), Configuration.Dialect.ParameterPrefix);
+            }
 
             return sql;
         }
