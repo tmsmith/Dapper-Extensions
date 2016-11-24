@@ -710,9 +710,10 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void CallsDialect()
             {
-                ClassMap.SetupGet(c => c.SchemaName).Returns("SchemaName").Verifiable();
+              ClassMap.SetupGet( c => c.DatabaseName ).Returns( "DatabaseName" ).Verifiable();
+              ClassMap.SetupGet( c => c.SchemaName ).Returns( "SchemaName" ).Verifiable();
                 ClassMap.SetupGet(c => c.TableName).Returns("TableName").Verifiable();
-                Dialect.Setup(d => d.GetTableName("SchemaName", "TableName", null)).Returns("FullTableName").Verifiable();
+                Dialect.Setup( d => d.GetTableName( "DatabaseName", "SchemaName", "TableName", null ) ).Returns( "FullTableName" ).Verifiable();
                 var result = Generator.Object.GetTableName(ClassMap.Object);
                 Assert.AreEqual("FullTableName", result);
                 Dialect.Verify();
