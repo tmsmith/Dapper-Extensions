@@ -16,10 +16,10 @@ namespace DapperExtensions
         ISqlGenerator SqlGenerator { get; }
         T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
         void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
-        dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
-        bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
+        dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class;
+        bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class;
+        bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class;
+        bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class;
         IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;        
         IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         IEnumerable<T> GetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
@@ -44,7 +44,7 @@ namespace DapperExtensions
             return result;
         }
 
-        public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
+	    public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             IEnumerable<PropertyInfo> properties = null;
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
@@ -97,9 +97,9 @@ namespace DapperExtensions
             }
         }
 
-        public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+		public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>(tableName);
             List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
             var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
@@ -171,9 +171,9 @@ namespace DapperExtensions
             return keyValues;
         }
 
-        public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName = null) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>(tableName);
             IPredicate predicate = GetKeyPredicate<T>(classMap, entity);
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.Update(classMap, predicate, parameters);
@@ -193,16 +193,16 @@ namespace DapperExtensions
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
-        public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, string tableName) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>(tableName);
             IPredicate predicate = GetKeyPredicate<T>(classMap, entity);
             return Delete<T>(connection, classMap, predicate, transaction, commandTimeout);
         }
 
-        public bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout, string tableName) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>(tableName);
             IPredicate wherePredicate = GetPredicate(classMap, predicate);
             return Delete<T>(connection, classMap, wherePredicate, transaction, commandTimeout);
         }

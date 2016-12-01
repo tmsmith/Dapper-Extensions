@@ -159,6 +159,17 @@ namespace DapperExtensions
             return Instance.Insert<T>(connection, entity, transaction, commandTimeout);
         }
 
+		/// <summary>
+		/// Executes an insert query for the specified entity against the specified table, returning the primary key.  
+		/// If the entity has a single key, just the value is returned.  
+		/// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
+		/// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
+		/// </summary>
+		public static dynamic Insert<T>(this IDbConnection connection, T entity, string tableName, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+		{
+			return Instance.Insert<T>(connection, entity, transaction, commandTimeout, tableName);
+		}
+
         /// <summary>
         /// Executes an update query for the specified entity.
         /// </summary>
@@ -170,17 +181,17 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a delete query for the specified entity.
         /// </summary>
-        public static bool Delete<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static bool Delete<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null, string tableName = null) where T : class
         {
-            return Instance.Delete<T>(connection, entity, transaction, commandTimeout);
+            return Instance.Delete<T>(connection, entity, transaction, commandTimeout, tableName);
         }
 
         /// <summary>
         /// Executes a delete query using the specified predicate.
         /// </summary>
-        public static bool Delete<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static bool Delete<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null, string tableName = null) where T : class
         {
-            return Instance.Delete<T>(connection, predicate, transaction, commandTimeout);
+            return Instance.Delete<T>(connection, predicate, transaction, commandTimeout, tableName);
         }
 
         /// <summary>

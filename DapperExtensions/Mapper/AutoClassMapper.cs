@@ -10,10 +10,10 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class AutoClassMapper<T> : ClassMapper<T> where T : class
     {
-        public AutoClassMapper()
+        public AutoClassMapper(string tableName = null)
         {
             Type type = typeof(T);
-            Table(type.Name);
+            Table(tableName == null ? type.Name : tableName);
             AutoMap();
         }
     }
