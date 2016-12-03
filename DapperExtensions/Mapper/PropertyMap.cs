@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace DapperExtensions.Mapper
@@ -13,7 +11,10 @@ namespace DapperExtensions.Mapper
         string Name { get; }
         string ColumnName { get; }
         bool Ignored { get; }
-        bool IsReadOnly { get; }
+		bool SelectIgnored { get; }
+		bool InsertIgnored { get; }
+		bool UpdateIgnored { get; }
+		bool IsReadOnly { get; }
         KeyType KeyType { get; }
         PropertyInfo PropertyInfo { get; }
     }
@@ -23,6 +24,8 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class PropertyMap : IPropertyMap
     {
+		private SqlOperation _ignoreOperations = SqlOperation.None;
+
         public PropertyMap(PropertyInfo propertyInfo)
         {
             PropertyInfo = propertyInfo;
@@ -47,15 +50,45 @@ namespace DapperExtensions.Mapper
         /// </summary>
         public KeyType KeyType { get; private set; }
 
-        /// <summary>
-        /// Gets the ignore status of the current property. If ignored, the current property will not be included in queries.
-        /// </summary>
-        public bool Ignored { get; private set; }
+		/// <summary>
+		/// Gets the ignore status of the current property. If ignored, the current property will not be included in queries.
+		/// </summary>
+		public bool Ignored
+		{
+			get { return _ignoreOperations == SqlOperation.All; }
+		}
 
-        /// <summary>
-        /// Gets the read-only status of the current property. If read-only, the current property will not be included in INSERT and UPDATE queries.
-        /// </summary>
-        public bool IsReadOnly { get; private set; }
+		/// <summary>
+		/// Gets the select ignore status of the current property. If ignored, the current property will not be included in SELECT queries.
+		/// </summary>
+		public bool SelectIgnored
+		{
+			get { return _ignoreOperations.HasFlag(SqlOperation.Select); }
+		}
+
+		/// <summary>
+		/// Gets the insert ignore status of the current property. If ignored, the current property will not be included in INSERT queries.
+		/// </summary>
+		public bool InsertIgnored
+		{
+			get { return _ignoreOperations.HasFlag(SqlOperation.Insert); }
+		}
+
+		/// <summary>
+		/// Gets the update ignore status of the current property. If ignored, the current property will not be included in UPDATE queries.
+		/// </summary>
+		public bool UpdateIgnored
+		{
+			get { return _ignoreOperations.HasFlag(SqlOperation.Update); }
+		}
+
+		/// <summary>
+		/// Gets the read-only status of the current property. If read-only, the current property will not be included in INSERT and UPDATE queries.
+		/// </summary>
+		public bool IsReadOnly
+		{
+			get { return _ignoreOperations.HasFlag(SqlOperation.Insert | SqlOperation.Update); }
+		}
 
         /// <summary>
         /// Gets the property info for the current property.
@@ -88,6 +121,11 @@ namespace DapperExtensions.Mapper
                 throw new ArgumentException(string.Format("'{0}' is readonly and cannot be made a key field. ", Name));
             }
 
+			if (_ignoreOperations != SqlOperation.None)
+			{
+				throw new ArgumentException(string.Format("'{0}' has ignored operations and cannot be made a key field. ", Name));
+			}
+
             KeyType = keyType;
             return this;
         }
@@ -95,14 +133,14 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently sets the ignore status of the property.
         /// </summary>
-        public PropertyMap Ignore()
+        public PropertyMap Ignore(SqlOperation operations = SqlOperation.All)
         {
             if (KeyType != KeyType.NotAKey)
             {
                 throw new ArgumentException(string.Format("'{0}' is a key field and cannot be ignored.", Name));
             }
 
-            Ignored = true;
+            _ignoreOperations = operations;
             return this;
         }
 
@@ -116,7 +154,7 @@ namespace DapperExtensions.Mapper
                 throw new ArgumentException(string.Format("'{0}' is a key field and cannot be marked readonly.", Name));
             }
 
-            IsReadOnly = true;
+            _ignoreOperations = SqlOperation.Insert | SqlOperation.Update;
             return this;
         }
     }
@@ -151,4 +189,36 @@ namespace DapperExtensions.Mapper
         /// </summary>
         Generated
     }
+
+	/// <summary>
+	/// Used by ClassMapper to determine whether an entity property should be included in a statement.
+	/// </summary>
+	[Flags]
+	public enum SqlOperation
+	{
+		/// <summary>
+		/// The property is included in all statements.
+		/// </summary>
+		None = 0,
+
+		/// <summary>
+		/// The property is ignored for select statements.
+		/// </summary>
+		Select = 1,
+
+		/// <summary>
+		/// The property is ignored for insert statements.
+		/// </summary>
+		Insert = 2,
+
+		/// <summary>
+		/// The property is ignored for update statements.
+		/// </summary>
+		Update = 4,
+
+		/// <summary>
+		/// The property is ignored for all statements.
+		/// </summary>
+		All = Select | Insert | Update
+	}
 }

@@ -139,7 +139,7 @@ namespace DapperExtensions.Sql
         
         public virtual string Insert(IClassMapper classMap)
         {
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Generated));
+            var columns = classMap.Properties.Where(p => !(p.InsertIgnored || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Generated));
             if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
@@ -154,7 +154,7 @@ namespace DapperExtensions.Sql
                     GetTableName(classMap),
                     columnNames.AppendStrings(),
                     parameters.AppendStrings(),
-                    classMap.Properties.Where(x => !x.Ignored).ToList());
+                    classMap.Properties.Where(x => !x.InsertIgnored).ToList());
             }
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
@@ -177,7 +177,7 @@ namespace DapperExtensions.Sql
                 throw new ArgumentNullException("Parameters");
             }
 
-            var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity));
+            var columns = classMap.Properties.Where(p => !(p.UpdateIgnored || p.KeyType == KeyType.Identity));
             if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
@@ -252,7 +252,7 @@ namespace DapperExtensions.Sql
         public virtual string BuildSelectColumns(IClassMapper classMap)
         {
             var columns = classMap.Properties
-                .Where(p => !p.Ignored)
+                .Where(p => !p.SelectIgnored)
                 .Select(p => GetColumnName(classMap, p, true));
             return columns.AppendStrings();
         }

@@ -355,7 +355,7 @@ namespace DapperExtensions.Test.Sql
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
-                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+                property2.Setup(p => p.InsertIgnored).Returns(true).Verifiable();
 
                 List<IPropertyMap> properties = new List<IPropertyMap>
                                                     {
@@ -413,7 +413,7 @@ namespace DapperExtensions.Test.Sql
             public void DoesNotGenerateIgnoredColumns()
             {
                 Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                property1.Setup(p => p.Ignored).Returns(true).Verifiable();
+                property1.Setup(p => p.InsertIgnored).Returns(true).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
@@ -448,7 +448,7 @@ namespace DapperExtensions.Test.Sql
             public void DoesNotGenerateReadonlyColumns()
             {
                 Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                property1.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+                property1.Setup(p => p.InsertIgnored).Returns(true).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
@@ -507,7 +507,7 @@ namespace DapperExtensions.Test.Sql
                 property1.Setup(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
-                property2.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+                property2.Setup(p => p.UpdateIgnored).Returns(true).Verifiable();
 
                 List<IPropertyMap> properties = new List<IPropertyMap>
                                                     {
@@ -573,7 +573,7 @@ namespace DapperExtensions.Test.Sql
             public void DoesNotGenerateIgnoredColumns()
             {
                 Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                property1.Setup(p => p.Ignored).Returns(true).Verifiable();
+                property1.Setup(p => p.UpdateIgnored).Returns(true).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
@@ -614,7 +614,7 @@ namespace DapperExtensions.Test.Sql
             public void DoesNotGenerateReadonlyColumns()
             {
                 Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                property1.Setup(p => p.IsReadOnly).Returns(true).Verifiable();
+                property1.Setup(p => p.UpdateIgnored).Returns(true).Verifiable();
 
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
                 property2.Setup(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
@@ -837,7 +837,7 @@ namespace DapperExtensions.Test.Sql
             public void DoesNotIncludeIgnoredColumns()
             {
                 Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
-                property1.SetupGet(p => p.Ignored).Returns(true).Verifiable();
+                property1.SetupGet(p => p.SelectIgnored).Returns(true).Verifiable();
                 Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
                 var properties = new List<IPropertyMap>
                                      {
