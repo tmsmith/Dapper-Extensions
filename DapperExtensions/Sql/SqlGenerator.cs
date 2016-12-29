@@ -145,7 +145,10 @@ namespace DapperExtensions.Sql
                 throw new ArgumentException("No columns were mapped.");
             }
 
-            var columnNames = columns.Select(p => GetColumnName(classMap, p, false));
+            var columnNames = columns.Select(p => GetColumnName(classMap, p, false))
+                // remove table prefixes which aren't valid on insert col lists
+                .Select(str => str.Remove(0, str.IndexOf('.') + 1));
+
             var parameters = columns.Select(p => Configuration.Dialect.ParameterPrefix + p.Name);
 
             string sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
