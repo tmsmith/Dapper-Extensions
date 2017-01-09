@@ -384,7 +384,8 @@ namespace DapperExtensions
         {
             Type predicateType = typeof(FieldPredicate<>).MakeGenericType(classMap.EntityType);
             IList<IPredicate> predicates = new List<IPredicate>();
-            foreach (var kvp in ReflectionHelper.GetObjectValues(entity))
+            var notIgnoredColumns = classMap.Properties.Where(p => !p.Ignored);
+            foreach (var kvp in ReflectionHelper.GetObjectValues(entity).Where(property => notIgnoredColumns.Any(c => c.Name == property.Key)))
             {
                 IFieldPredicate fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
                 fieldPredicate.Not = false;
