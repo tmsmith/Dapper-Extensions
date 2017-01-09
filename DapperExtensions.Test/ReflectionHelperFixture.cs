@@ -22,13 +22,13 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void GetObjectValues_Returns_Dictionary_With_Property_Value_Pairs()
+        public void GetObjectValues_Returns_Dictionary_With_Property_ValueAccessor_Pairs()
         {
             Foo f = new Foo { Bar = 3, Baz = "Yum" };
 
             var dictionary = ReflectionHelper.GetObjectValues(f);
-            Assert.AreEqual(3, dictionary["Bar"]);
-            Assert.AreEqual("Yum", dictionary["Baz"]);
+            Assert.AreEqual(3, dictionary["Bar"]());
+            Assert.AreEqual("Yum", dictionary["Baz"]());
         }
 
         [Test]
