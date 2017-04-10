@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <Compile Remove="Mapper\**" />
+    <Compile Remove="Sql\**" />
+    <Compile Remove="x64\**" />
+    <Compile Remove="x86\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <EmbeddedResource Remove="Mapper\**" />
+    <EmbeddedResource Remove="Sql\**" />
+    <EmbeddedResource Remove="x64\**" />
+    <EmbeddedResource Remove="x86\**" />
+    <None Remove="Helpers\**" />
+    <None Remove="Mapper\**" />
+    <None Remove="Sql\**" />
+    <None Remove="x64\**" />
+    <None Remove="x86\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Helpers\DatabaseInfo.cs" />
+    <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="Helpers\TestHelpers.cs" />
+    <Compile Include="Mapper\AutoClassMapperFixture.cs" />
+    <Compile Include="Mapper\ClassMapperFixture.cs" />
+    <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
+    <Compile Include="Mapper\PropertyMapFixture.cs" />
+    <Compile Include="Sql\SqlCeDialectFixture.cs" />
+    <Compile Include="Sql\SqlDialectBaseFixture.cs" />
+    <Compile Include="Sql\SqlGeneratorFixture.cs" />
+    <Compile Include="Sql\SqliteDialectFixture.cs" />
+    <Compile Include="Sql\SqlServerDialectFixture.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Moq" Version="4.7.8" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DapperExtensionsCore\DapperExtensionsCore.csproj" />
+    <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj" />
+    <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,21 @@
+﻿BEGIN
+  FOR cur IN (SELECT table_name FROM USER_TABLES WHERE table_name = 'ANIMAL') LOOP
+	EXECUTE IMMEDIATE 'DROP TABLE Animal';
+  END LOOP;
+
+  FOR cur IN (SELECT sequence_name FROM USER_SEQUENCES WHERE sequence_name = 'ANIMAL_SEQ') LOOP
+    EXECUTE IMMEDIATE 'DROP SEQUENCE ANIMAL_SEQ';
+  END LOOP;
+
+  EXECUTE IMMEDIATE 'CREATE SEQUENCE ANIMAL_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE';
+
+  EXECUTE IMMEDIATE 'CREATE TABLE Animal (
+					   Id NUMBER PRIMARY KEY,
+					   Name VARCHAR2(50))';
+
+  EXECUTE IMMEDIATE 'CREATE or REPLACE TRIGGER trg#animal#b_ins
+                     BEFORE INSERT ON Animal FOR EACH ROW
+                     BEGIN
+                       SELECT animal_seq.nextval INTO :NEW.id  FROM dual;
+                     END;';
+END;

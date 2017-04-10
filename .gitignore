@@ -15,3 +15,5 @@ StyleCop.*
 
 # Nuget
 packages
+
+.vs/
