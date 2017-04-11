@@ -89,7 +89,7 @@ namespace DapperExtensions.Mapper
             PropertyMap keyMap = null;
             foreach (var propertyInfo in type.GetProperties())
             {
-                if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }
@@ -102,12 +102,12 @@ namespace DapperExtensions.Mapper
                 PropertyMap map = Map(propertyInfo);
                 if (!hasDefinedKey)
                 {
-                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(map.PropertyInfo.Name, "id", StringComparison.OrdinalIgnoreCase))
                     {
                         keyMap = map;
                     }
 
-                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                    if (keyMap == null && map.PropertyInfo.Name.EndsWith("id", StringComparison.OrdinalIgnoreCase))
                     {
                         keyMap = map;
                     }

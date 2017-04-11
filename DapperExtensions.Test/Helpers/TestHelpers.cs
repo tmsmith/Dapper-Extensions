@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using Dapper;
 using DapperExtensions.Sql;
-using DapperExtensions.Test.IntegrationTests;
 using MySql.Data.MySqlClient;
 
 namespace DapperExtensions.Test.Helpers

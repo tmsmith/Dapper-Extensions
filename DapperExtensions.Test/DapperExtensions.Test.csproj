@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,10 +10,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DapperExtensions.Test</RootNamespace>
     <AssemblyName>DapperExtensions.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -80,26 +83,27 @@
     <Compile Include="Data\Car.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="Data\CustomMapper.cs" />
+    <Compile Include="Data\Animal.cs" />
+    <Compile Include="Data\Multikey.cs" />
+    <Compile Include="Data\Person.cs" />
+    <Compile Include="IntegrationTests\DatabaseTestsFixture.cs" />
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
     <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
     <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
     <Compile Include="IntegrationTests\Oracle\CrudFixture.cs" />
     <Compile Include="IntegrationTests\Oracle\Data\Animal.cs" />
     <Compile Include="IntegrationTests\Oracle\Data\Car.cs" />
     <Compile Include="IntegrationTests\Oracle\Data\Person.cs" />
     <Compile Include="IntegrationTests\Oracle\OracleBaseFixture.cs" />
     <Compile Include="IntegrationTests\Oracle\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
-    <Compile Include="Data\CustomMapper.cs" />
-    <Compile Include="Data\Animal.cs" />
-    <Compile Include="Data\Multikey.cs" />
-    <Compile Include="Data\Person.cs" />
-    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
     <Compile Include="IntegrationTests\SqlCe\CrudFixture.cs" />
     <Compile Include="IntegrationTests\SqlCe\SqlCeBaseFixture.cs" />
     <Compile Include="IntegrationTests\SqlCe\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
+    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
     <Compile Include="IntegrationTests\SqlServer\CrudFixture.cs" />
     <Compile Include="IntegrationTests\SqlServer\SqlServerBaseFixture.cs" />
     <Compile Include="IntegrationTests\SqlServer\TimerFixture.cs" />
@@ -135,37 +139,24 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
+    <Content Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <Content Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
+    <Content Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
+    <Content Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
+    <Content Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
+    <Content Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
+    <Content Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
+    <Content Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
+    <Content Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
+    <Content Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
+    <Content Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
+    <Content Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
+    <Content Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
+    <Content Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
+    <Content Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
+    <Content Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
+    <Content Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
+    <Content Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -175,6 +166,13 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
