@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
-using DapperExtensions.Mapper;
-using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
@@ -118,7 +118,7 @@ namespace DapperExtensions
             _instance = null;
             _configuration = configuration;
         }
-        
+
         /// <summary>
         /// Configure DapperExtensions extension methods.
         /// </summary>
@@ -141,7 +141,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a query for the specified id, returning the data typed as per T.
         /// </summary>
-        public static async Task<T> GetAsync<T>(this IDbConnection connection, dynamic id , IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static async Task<T> GetAsync<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return await Instance.GetAsync<T>(connection, id, transaction, commandTimeout);
         }
@@ -152,6 +152,44 @@ namespace DapperExtensions
         public static async Task<IEnumerable<T>> GetListAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return await Instance.GetListAsync<T>(connection, predicate, sort, transaction, commandTimeout);
+        }
+        /// <summary>
+        /// Executes an insert query for the specified entity.
+        /// </summary>
+        public static Task InsertAsync<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = default(int?)) where T : class
+        {
+            return Instance.InsertAsync(connection, entities, transaction, commandTimeout);
+        }
+        /// <summary>
+        /// Executes an insert query for the specified entity, returning the primary key.  
+        /// If the entity has a single key, just the value is returned.  
+        /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
+        /// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
+        /// </summary>
+        public static Task<dynamic> InsertAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = default(int?)) where T : class
+        {
+            return Instance.InsertAsync(connection, entity, transaction, commandTimeout);
+        }
+        /// <summary>
+        /// Executes an update query for the specified entity.
+        /// </summary>
+        public static Task<bool> UpdateAsync<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        {
+            return Instance.UpdateAsync(connection, entity, transaction, commandTimeout);
+        }
+        /// <summary>
+        /// Executes a delete query for the specified entity.
+        /// </summary>
+        public static Task<bool> DeleteAsync<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        {
+            return Instance.DeleteAsync(connection, entity, transaction, commandTimeout);
+        }
+        /// <summary>
+        /// Executes a delete query using the specified predicate.
+        /// </summary>
+        public static Task<bool> DeleteAsync<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+        {
+            return Instance.DeleteAsync(connection, predicate, transaction, commandTimeout);
         }
 
         /// <summary>
