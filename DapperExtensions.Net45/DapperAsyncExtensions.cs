@@ -173,21 +173,21 @@ namespace DapperExtensions
         /// <summary>
         /// Executes an update query for the specified entity.
         /// </summary>
-        public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return Instance.UpdateAsync(connection, entity, transaction, commandTimeout);
         }
         /// <summary>
         /// Executes a delete query for the specified entity.
         /// </summary>
-        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return Instance.DeleteAsync(connection, entity, transaction, commandTimeout);
         }
         /// <summary>
         /// Executes a delete query using the specified predicate.
         /// </summary>
-        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
+        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             return Instance.DeleteAsync(connection, predicate, transaction, commandTimeout);
         }
