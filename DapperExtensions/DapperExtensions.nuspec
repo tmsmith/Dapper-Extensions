@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -11,6 +11,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
+        1.6.0
+      * Added DB2 Dialect
+      * Added flag to ignore All Key fields when doing an update
+      * Added missing async/await methods
+      * Added unmap method to Mapper
         1.5.0
       * Nuget Package Restore
       * Do not set Guid on key when already set
