@@ -85,6 +85,9 @@
     <Compile Include="..\DapperExtensions\ReflectionHelper.cs">
       <Link>ReflectionHelper.cs</Link>
     </Compile>
+    <Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs">
+      <Link>Sql\DB2Dialect.cs</Link>
+    </Compile>
     <Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs">
       <Link>Sql\MySqlDialect.cs</Link>
     </Compile>
