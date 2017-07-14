@@ -142,6 +142,23 @@ namespace DapperExtensions.Mapper
             return result;
         }
 
+        /// <summary>
+        /// Removes a propertymap entry
+        /// </summary>
+        /// <param name="expression"></param>
+        protected void UnMap(Expression<Func<T, object>> expression)
+        {
+            var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+            var mapping = this.Properties.Where(w => w.Name == propertyInfo.Name).SingleOrDefault();
+
+            if (mapping == null)
+            {
+                throw new ApplicationException("Unable to UnMap because mapping does not exist.");
+            }
+
+            this.Properties.Remove(mapping);
+        }
+
         private void GuardForDuplicatePropertyMap(PropertyMap result)
         {
             if (Properties.Any(p => p.Name.Equals(result.Name)))
