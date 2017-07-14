@@ -129,8 +129,24 @@ namespace DapperExtensions
                     result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                 }
 
-                long identityValue = result.First();
-                int identityInt = Convert.ToInt32(identityValue);
+                // We are only interested in the first identity, but we are iterating over all resulting items (if any).
+                // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
+                bool hasResult = false;
+                int identityInt = 0;
+                foreach (var identityValue in result)
+                {
+                    if (hasResult)
+                    {
+                        continue;
+                    }
+                    identityInt = Convert.ToInt32(identityValue);
+                    hasResult = true;
+                }
+                if (!hasResult)
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+
                 keyValues.Add(identityColumn.Name, identityInt);
                 identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
             }
