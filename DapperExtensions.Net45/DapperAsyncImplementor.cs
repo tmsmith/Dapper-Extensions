@@ -208,7 +208,7 @@ namespace DapperExtensions
             var classMap = SqlGenerator.Configuration.GetMap<T>();
             var predicate = GetKeyPredicate<T>(classMap, entity);
             var parameters = new Dictionary<string, object>();
-            var sql = SqlGenerator.Update(classMap, predicate, parameters);
+            var sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties);
             var dynamicParameters = new DynamicParameters();
 
             var columns = ignoreAllKeyProperties
