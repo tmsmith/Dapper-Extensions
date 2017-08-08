@@ -173,9 +173,9 @@ namespace DapperExtensions
         /// <summary>
         /// Executes an update query for the specified entity.
         /// </summary>
-        public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class
         {
-            return Instance.UpdateAsync(connection, entity, transaction, commandTimeout);
+            return Instance.UpdateAsync(connection, entity, transaction, commandTimeout, ignoreAllKeyProperties);
         }
         /// <summary>
         /// Executes a delete query for the specified entity.
