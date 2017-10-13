@@ -15,3 +15,4 @@ StyleCop.*
 
 # Nuget
 packages
+\.vs/DapperExtensions/v15/sqlite3/storage\.ide
