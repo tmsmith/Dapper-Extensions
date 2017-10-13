@@ -7,7 +7,7 @@ using System.Text;
 
 namespace DapperExtensions
 {
-    internal static class ReflectionHelper
+    public static class ReflectionHelper
     {
         private static List<Type> _simpleTypes = new List<Type>
                                {
@@ -92,14 +92,14 @@ namespace DapperExtensions
             return _simpleTypes.Contains(actualType);
         }
 
-        public static string GetParameterName(this IDictionary<string, object> parameters, string parameterName)
+        public static string GetParameterName(this IDictionary<string, object> parameters, string parameterName, char parameterPrefix)
         {
-            return string.Format("@{0}_{1}", parameterName, parameters.Count);
+            return string.Format("{0}{1}_{2}", parameterPrefix, parameterName, parameters.Count);
         }
 
-        public static string SetParameterName(this IDictionary<string, object> parameters, string parameterName, object value)
+        public static string SetParameterName(this IDictionary<string, object> parameters, string parameterName, object value, char parameterPrefix)
         {
-            string name = parameters.GetParameterName(parameterName);
+            string name = parameters.GetParameterName(parameterName, parameterPrefix);
             parameters.Add(name, value);
             return name;
         }

@@ -43,6 +43,18 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             }
 
             [Test]
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                var guid = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid, Name = "Foo" };
+                Db.Insert(a1);
+
+                var a2 = Db.Get<Animal>(a1.Id);
+                Assert.AreNotEqual(Guid.Empty, a2.Id);
+                Assert.AreEqual(guid, a2.Id);
+            }
+
+            [Test]
             public void AddsMultipleEntitiesToDatabase()
             {
                 Animal a1 = new Animal { Name = "Foo" };
@@ -53,6 +65,25 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
+            }
+
+            [Test]
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                var guid1 = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid1, Name = "Foo" };
+                var guid2 = Guid.NewGuid();
+                Animal a2 = new Animal { Id = guid2, Name = "Bar" };
+                var guid3 = Guid.NewGuid();
+                Animal a3 = new Animal { Id = guid3, Name = "Baz" };
+
+                Db.Insert<Animal>(new[] { a1, a2, a3 });
+
+                var animals = Db.GetList<Animal>().ToList();
+                Assert.AreEqual(3, animals.Count);
+                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid1));
+                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid2));
+                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid3));
             }
         }
 

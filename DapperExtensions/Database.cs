@@ -8,7 +8,7 @@ using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
-    public interface IDatabase
+    public interface IDatabase : IDisposable
     {
         bool HasActiveTransaction { get; }
         IDbConnection Connection { get; }
@@ -23,8 +23,8 @@ namespace DapperExtensions
         void Insert<T>(IEnumerable<T> entities, int? commandTimeout = null) where T : class;
         dynamic Insert<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         dynamic Insert<T>(T entity, int? commandTimeout = null) where T : class;
-        bool Update<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
-        bool Update<T>(T entity, int? commandTimeout = null) where T : class;
+        bool Update<T>(T entity, IDbTransaction transaction, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class;
+        bool Update<T>(T entity, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class;
         bool Delete<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         bool Delete<T>(T entity, int? commandTimeout = null) where T : class;
         bool Delete<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -33,6 +33,8 @@ namespace DapperExtensions
         IEnumerable<T> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true) where T : class;
+        IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
+        IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class;        
         int Count<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         int Count<T>(object predicate, int? commandTimeout = null) where T : class;
         IMultipleResultReader GetMultiple(GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout = null);
@@ -42,7 +44,7 @@ namespace DapperExtensions
         IClassMapper GetMap<T>() where T : class;
     }
 
-    public class Database : IDatabase, IDisposable
+    public class Database : IDatabase
     {
         private readonly IDapperImplementor _dapper;
 
@@ -168,14 +170,14 @@ namespace DapperExtensions
             return _dapper.Insert<T>(Connection, entity, _transaction, commandTimeout);
         }
 
-        public bool Update<T>(T entity, IDbTransaction transaction, int? commandTimeout) where T : class
+        public bool Update<T>(T entity, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties) where T : class
         {
-            return _dapper.Update<T>(Connection, entity, transaction, commandTimeout);
+            return _dapper.Update<T>(Connection, entity, transaction, commandTimeout, ignoreAllKeyProperties);
         }
 
-        public bool Update<T>(T entity, int? commandTimeout) where T : class
+        public bool Update<T>(T entity, int? commandTimeout, bool ignoreAllKeyProperties) where T : class
         {
-            return _dapper.Update<T>(Connection, entity, _transaction, commandTimeout);
+            return _dapper.Update<T>(Connection, entity, _transaction, commandTimeout, ignoreAllKeyProperties);
         }
 
         public bool Delete<T>(T entity, IDbTransaction transaction, int? commandTimeout) where T : class
@@ -216,6 +218,16 @@ namespace DapperExtensions
         public IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout, bool buffered) where T : class
         {
             return _dapper.GetPage<T>(Connection, predicate, sort, page, resultsPerPage, _transaction, commandTimeout, buffered);
+        }
+
+        public IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        {
+            return _dapper.GetSet<T>(Connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered);
+        }
+
+        public IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class
+        {
+            return _dapper.GetSet<T>(Connection, predicate, sort, firstResult, maxResults, _transaction, commandTimeout, buffered);
         }
 
         public int Count<T>(object predicate, IDbTransaction transaction, int? commandTimeout) where T : class

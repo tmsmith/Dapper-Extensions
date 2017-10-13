@@ -29,6 +29,7 @@ namespace DapperExtensions.Test.Sql
                 Assert.AreEqual('"', Dialect.OpenQuote);
                 Assert.AreEqual('"', Dialect.CloseQuote);
                 Assert.AreEqual(";" + Environment.NewLine, Dialect.BatchSeperator);
+                Assert.AreEqual('@', Dialect.ParameterPrefix);
                 Assert.IsTrue(Dialect.SupportsMultipleStatements);
             }
         }
@@ -215,6 +216,11 @@ namespace DapperExtensions.Test.Sql
             }
 
             public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
             {
                 throw new NotImplementedException();
             }

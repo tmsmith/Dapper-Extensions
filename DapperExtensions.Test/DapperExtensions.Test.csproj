@@ -12,6 +12,8 @@
     <AssemblyName>DapperExtensions.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,9 +33,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Dapper.1.12.1\lib\net40\Dapper.dll</HintPath>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net40\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IBM.Data.DB2, Version=9.0.0.2, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IBM.Data.DB2.ASP, Version=9.5.2.2, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.ASP.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IBM.Data.DB2.Entity, Version=9.0.0.3, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
+      <HintPath>..\packages\IBM.Data.DB2.10.0.5.5\lib\net20\IBM.Data.DB2.Entity.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
@@ -48,6 +62,9 @@
     <Reference Include="nunit.mocks, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\packages\odp.net.managed.121.1.1\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
     <Reference Include="pnunit.framework">
       <HintPath>..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
@@ -75,9 +92,23 @@
     <Compile Include="Data\Car.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
+    <Compile Include="IntegrationTests\DB2\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Animal.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Car.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\CustomMapper.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Multikey.cs" />
+    <Compile Include="IntegrationTests\DB2\Data\Person.cs" />
+    <Compile Include="IntegrationTests\DB2\DB2BaseFixture.cs" />
+    <Compile Include="IntegrationTests\DB2\TimerFixture.cs" />
     <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
     <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
     <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\CrudFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Animal.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Car.cs" />
+    <Compile Include="IntegrationTests\Oracle\Data\Person.cs" />
+    <Compile Include="IntegrationTests\Oracle\OracleBaseFixture.cs" />
+    <Compile Include="IntegrationTests\Oracle\TimerFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
     <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
@@ -99,6 +130,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapper\PropertyMapFixture.cs" />
     <Compile Include="ReflectionHelperFixture.cs" />
+    <Compile Include="Sql\DB2DialectFixture.cs" />
     <Compile Include="Sql\SqliteDialectFixture.cs" />
     <Compile Include="Sql\SqlCeDialectFixture.cs" />
     <Compile Include="Sql\SqlDialectBaseFixture.cs" />
@@ -152,6 +184,14 @@
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateAnimalTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateCarTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateFooTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateMultikeyTable.sql" />
+    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreatePersonTable.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -159,6 +199,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -167,6 +211,7 @@ xcopy /s /y "$(SolutionDir)packages\SqlServerCompact.4.0.8482.1\NativeBinaries\x
 if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
 xcopy /s /y "$(SolutionDir)packages\SqlServerCompact.4.0.8482.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

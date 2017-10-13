@@ -11,10 +11,13 @@ namespace DapperExtensions.Sql
         char CloseQuote { get; }
         string BatchSeperator { get; }
         bool SupportsMultipleStatements { get; }
+        char ParameterPrefix { get; }
+        string EmptyExpression { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
         string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
         bool IsQuoted(string value);
         string QuoteString(string value);
     }
@@ -39,6 +42,22 @@ namespace DapperExtensions.Sql
         public virtual bool SupportsMultipleStatements
         {
             get { return true; }
+        }
+
+        public virtual char ParameterPrefix
+        {
+            get
+            {
+                return '@';
+            }
+        }
+
+        public string EmptyExpression
+        {
+            get
+            {
+                return "1=1";
+            }
         }
 
         public virtual string GetTableName(string schemaName, string tableName, string alias)
@@ -88,6 +107,7 @@ namespace DapperExtensions.Sql
 
         public abstract string GetIdentitySql(string tableName);
         public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
 
         public virtual bool IsQuoted(string value)
         {
@@ -101,7 +121,11 @@ namespace DapperExtensions.Sql
 
         public virtual string QuoteString(string value)
         {
-            return IsQuoted(value) ? value : string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
+            if (IsQuoted(value) || value == "*")
+            {
+                return value;
+            }
+            return string.Format("{0}{1}{2}", OpenQuote, value.Trim(), CloseQuote);
         }
 
         public virtual string UnQuoteString(string value)

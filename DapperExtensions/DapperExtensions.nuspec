@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.4.0</version>
+    <version>1.6.3</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -11,24 +11,16 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
-		1.4.0
-			* Add Database Class in order to have multiple connections with different dialects. (Extension methods are still available)
-			* Errors with Predicate not using proper SqlDialect
-			* MySql and Sqlite dialects are ready.
-			* ***BREAKNG CHANGE*** Renamed DapperExtensions.IDapperExtensionsImpl to IDapperImplementor
-			* ***BREAKNG CHANGE*** Renamed ISqlDialect.RunIdentityInsertAsBatch  to ISqlDialect.SupportsMultipleStatements
-			* Added GetMultiple method
-			* GetList, GetPage, Count, Delete will now accept an object as the Predicate for Equals predicates.
-		1.3.3
-			* SqlServerDialect now uses SCOPE_IDENTITY instead of IDENT_CURRENT.
-			* PluralizedAutoClassMapper correctly handles words containing an F or FE
-			* ***BREAKNG CHANGE*** Now sets "Id" property as Key if it exists before searching for a property ending in "Id"				
-		1.3.2
-			* Increased speed of Inserts
-			* ***BREAKNG CHANGE*** GetPage is now 0 based as intended. SqlCe and SqlServer were working differently.
-			* Added ability to search other assemlies for mappings if not found in same assembly as poco class.
-			* Added ability to add a global property ignore using a callback on AutoMap
-	</releaseNotes>
+      1.6.2 / 1.6.3
+      * Exposed Ignore keys on update in usages of Implementor
+      1.6.1
+      * Added Oracle Dialect to 4.5
+      1.6.0
+      * Added DB2 Dialect
+      * Added flag to ignore All Key fields when doing an update
+      * Added missing async/await methods
+      * Added unmap method to Mapper
+    </releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
       <dependency id="Dapper" version="1.12" />
@@ -41,7 +33,10 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
+  	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
     <file src="bin\Release\DapperExtensions.pdb" target="lib\net40" />
+
+    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.dll" target="lib\net45" />
+    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.pdb" target="lib\net45" />
   </files>  
 </package>
