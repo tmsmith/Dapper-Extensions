@@ -9,10 +9,10 @@ namespace DapperExtensions.Sql
     public interface ISqlGenerator
     {
         IDapperExtensionsConfiguration Configuration { get; }
-        
-        string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
-        string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
-        string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters);
+
+	    string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters, IList<IProjection> projection = null);
+        string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters, IList<IProjection> projection = null);
+        string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters, IList<IProjection> projection = null);
         string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
 
         string Insert(IClassMapper classMap);
@@ -35,7 +35,11 @@ namespace DapperExtensions.Sql
 
         public IDapperExtensionsConfiguration Configuration { get; private set; }
 
-        public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
+	    public string Select(IClassMapper classMap,
+			IPredicate predicate,
+			IList<ISort> sort,
+			IDictionary<string, object> parameters,
+			IList<IProjection> projection = null)
         {
             if (parameters == null)
             {
@@ -43,7 +47,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder sql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+	            projection == null ?BuildSelectColumns(classMap) : BuildSelectColumns(classMap, projection),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -60,7 +64,13 @@ namespace DapperExtensions.Sql
             return sql.ToString();
         }
 
-        public virtual string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
+		public virtual string SelectPaged(IClassMapper classMap,
+			IPredicate predicate,
+			IList<ISort> sort,
+			int page,
+			int resultsPerPage,
+			IDictionary<string, object> parameters,
+			IList<IProjection> projections = null)
         {
             if (sort == null || !sort.Any())
             {
@@ -73,7 +83,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder innerSql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+	            projections == null ? BuildSelectColumns(classMap) : BuildSelectColumns(classMap, projections),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -88,7 +98,7 @@ namespace DapperExtensions.Sql
             return sql;
         }
 
-        public virtual string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters)
+        public virtual string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters, IList<IProjection> projection = null)
         {
             if (sort == null || !sort.Any())
             {
@@ -101,7 +111,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder innerSql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+                projection == null ? BuildSelectColumns(classMap) : BuildSelectColumns(classMap, projection),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -115,7 +125,6 @@ namespace DapperExtensions.Sql
             string sql = Configuration.Dialect.GetSetSql(innerSql.ToString(), firstResult, maxResults, parameters);
             return sql;
         }
-
 
         public virtual string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
         {
@@ -260,5 +269,24 @@ namespace DapperExtensions.Sql
                 .Select(p => GetColumnName(classMap, p, true));
             return columns.AppendStrings();
         }
-    }
+
+	    public virtual string BuildSelectColumns(IClassMapper classMap, IList<IProjection> projections)
+	    {
+			if(projections == null || !projections.Any())
+				throw new ArgumentException($"{projections} can not be null or empty");
+
+		    var array = projections.ToArray();
+
+		    var projectionColumns = array
+				.Select(p => GetColumnName(classMap, p.PropertyName, false))
+			    .ToArray();
+
+		    var columns = classMap.Properties
+			    .Where(p => !p.Ignored)
+			    .Select(p => GetColumnName(classMap, p, true))
+			    .Where(x => projectionColumns.Contains(x));
+
+		    return columns.AppendStrings();
+		}
+	}
 }

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using DapperExtensions.Test.Data;
 using NUnit.Framework;
@@ -285,7 +286,26 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
             }
-        }
+
+	        [Test]
+	        public void UsingProjections_Returns_ChosenField()
+	        {
+		        Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+		       
+		        var projections = new List<IProjection>() { Predicates.Projection<Person>(x => x.FirstName) };
+
+		        var results = Db.GetList<Person>(projections: projections);
+
+				Assert.AreEqual(results.Count(),1);
+
+		        var result = results.Single();
+
+				Assert.AreEqual(result.FirstName, "a");
+		        Assert.IsNull(result.LastName);
+				Assert.IsFalse(result.Active);
+				Assert.AreEqual(result.DateCreated, default(DateTime));
+			}
+		}
 
         [TestFixture]
         public class GetPageMethod : SqliteBaseFixture
@@ -399,7 +419,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(2, count);
             }
 
-            [Test]
+			[Test]
             public void UsingObject_Returns_Count()
             {
                 Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
