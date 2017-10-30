@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\DapperExtensions.Net45\DapperAsyncExtensions.cs" Link="DapperAsyncExtensions.cs" />
+    <Compile Include="..\DapperExtensions.Net45\DapperAsyncImplementor.cs" Link="DapperAsyncImplementor.cs" />
     <Compile Include="..\DapperExtensions\DapperExtensions.cs" Link="DapperExtensions.cs" />
     <Compile Include="..\DapperExtensions\DapperExtensionsConfiguration.cs" Link="DapperExtensionsConfiguration.cs" />
     <Compile Include="..\DapperExtensions\DapperImplementor.cs" Link="DapperImplementor.cs" />
