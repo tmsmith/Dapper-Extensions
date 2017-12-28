@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
-    <id>DapperExtensions</id>
+    <id>DapperExtensions.StrongName</id>
     <version>1.6.4</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
