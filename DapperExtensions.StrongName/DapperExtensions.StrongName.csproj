@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7F23327B-0A2B-4C71-8841-117F3321B786}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DapperExtensions.StrongName</RootNamespace>
+    <AssemblyName>DapperExtensions.StrongName</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper.StrongName, Version=1.50.4.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.StrongName.1.50.4\lib\net451\Dapper.StrongName.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\packages\odp.net.managed.121.1.1\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\DapperExtensions\DapperAsyncExtensions.cs">
+      <Link>DapperAsyncExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\DapperAsyncImplementor.cs">
+      <Link>DapperAsyncImplementor.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\DapperExtensions.cs">
+      <Link>DapperExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\DapperExtensionsConfiguration.cs">
+      <Link>DapperExtensionsConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\DapperImplementor.cs">
+      <Link>DapperImplementor.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Database.cs">
+      <Link>Database.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\GetMultiplePredicate.cs">
+      <Link>GetMultiplePredicate.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\GetMultipleResult.cs">
+      <Link>GetMultipleResult.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Mapper\AutoClassMapper.cs">
+      <Link>Mapper\AutoClassMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Mapper\ClassMapper.cs">
+      <Link>Mapper\ClassMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Mapper\PluralizedAutoClassMapper.cs">
+      <Link>Mapper\PluralizedAutoClassMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Mapper\PropertyMap.cs">
+      <Link>Mapper\PropertyMap.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Predicates.cs">
+      <Link>Predicates.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\ReflectionHelper.cs">
+      <Link>ReflectionHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs">
+      <Link>Sql\DB2Dialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs">
+      <Link>Sql\MySqlDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\OracleDialect.cs">
+      <Link>Sql\OracleDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\PostgreSqlDialect.cs">
+      <Link>Sql\PostgreSqlDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\SqlCeDialect.cs">
+      <Link>Sql\SqlCeDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\SqlDialectBase.cs">
+      <Link>Sql\SqlDialectBase.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\SqlGenerator.cs">
+      <Link>Sql\SqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\SqliteDialect.cs">
+      <Link>Sql\SqliteDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\SqlServerDialect.cs">
+      <Link>Sql\SqlServerDialect.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DapperExtensions.snk" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
