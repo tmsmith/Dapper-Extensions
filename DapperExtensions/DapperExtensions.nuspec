@@ -23,7 +23,7 @@
     </releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
-      <dependency id="Dapper" version="1.12" />
+      <dependency id="Dapper" version="1.50.4" />
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Core"/>
@@ -33,10 +33,7 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-  	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
-    <file src="bin\Release\DapperExtensions.pdb" target="lib\net40" />
-
-    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.dll" target="lib\net45" />
-    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.pdb" target="lib\net45" />
+  	<file src="bin\Release\DapperExtensions.dll" target="lib\net451" />
+    <file src="bin\Release\DapperExtensions.pdb" target="lib\net451" />
   </files>  
 </package>
