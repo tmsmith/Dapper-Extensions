@@ -18,11 +18,11 @@ namespace DapperExtensions.Sql
 			return GetSetSql(sql, startValue, resultsPerPage, parameters);
 		}
 		
-		public override string GetSetSql(string sql, int pageNumber, int maxResults, IDictionary<string, object> parameters)
+		public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
 		{
-			string result = string.Format("{0} LIMIT @maxResults OFFSET @pageStartRowNbr", sql);
-			parameters.Add("@maxResults", maxResults);
-			parameters.Add("@pageStartRowNbr", pageNumber * maxResults);
+			string result = string.Format("{0} LIMIT @resultsPerPage OFFSET @pageStartRowNbr", sql);
+			parameters.Add("@resultsPerPage", maxResults);
+			parameters.Add("@pageStartRowNbr", firstResult);
 			return result;
 		}
 
