@@ -76,6 +76,9 @@
     <Compile Include="..\DapperExtensions\Mapper\PropertyMap.cs">
       <Link>Mapper\PropertyMap.cs</Link>
     </Compile>
+	<Compile Include="..\DapperExtensions\Mapper\Parameter.cs">
+      <Link>Mapper\Parameter.cs</Link>
+    </Compile>
     <Compile Include="..\DapperExtensions\Predicates.cs">
       <Link>Predicates.cs</Link>
     </Compile>
