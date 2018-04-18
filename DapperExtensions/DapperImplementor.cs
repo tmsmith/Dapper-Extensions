@@ -14,6 +14,7 @@ namespace DapperExtensions
     public interface IDapperImplementor
     {
         ISqlGenerator SqlGenerator { get; }
+        string LastExecutedCommand { get; }
         T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
         void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
         dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
@@ -35,6 +36,7 @@ namespace DapperExtensions
         }
 
         public ISqlGenerator SqlGenerator { get; private set; }
+        public string LastExecutedCommand { get; private set; }
 
         public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
         {
@@ -87,6 +89,7 @@ namespace DapperExtensions
 
             string sql = SqlGenerator.Insert(classMap);
 
+            LastExecutedCommand = sql;
             if (triggerIdentityColumn == null)
             {
                 connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
@@ -114,18 +117,24 @@ namespace DapperExtensions
 
             IDictionary<string, object> keyValues = new ExpandoObject();
             string sql = SqlGenerator.Insert(classMap);
+
+            LastExecutedCommand = sql;
             if (identityColumn != null)
             {
                 IEnumerable<long> result;
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
+
+                    LastExecutedCommand = sql;
                     result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                 }
                 else
                 {
                     connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+
                     sql = SqlGenerator.IdentitySql(classMap);
+                    LastExecutedCommand += string.Format("{0}{0}{1}", Environment.NewLine, sql);
                     result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                 }
 
@@ -164,7 +173,6 @@ namespace DapperExtensions
                 dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
 
                 connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
-
                 var value = dynamicParameters.Get<object>(SqlGenerator.Configuration.Dialect.ParameterPrefix + "IdOutParam");
                 keyValues.Add(triggerIdentityColumn.Name, value);
                 triggerIdentityColumn.PropertyInfo.SetValue(entity, value, null);
@@ -209,6 +217,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
@@ -259,6 +268,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return (int)connection.Query(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text).Single().Total;
         }
 
@@ -282,6 +292,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
@@ -295,6 +306,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
@@ -308,6 +320,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
@@ -321,6 +334,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql;
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
 
@@ -444,6 +458,7 @@ namespace DapperExtensions
                 dynamicParameters.Add(parameter.Key, parameter.Value);
             }
 
+            LastExecutedCommand = sql.ToString();
             SqlMapper.GridReader grid = connection.QueryMultiple(sql.ToString(), dynamicParameters, transaction, commandTimeout, CommandType.Text);
             return new GridReaderResultReader(grid);
         }
@@ -451,6 +466,8 @@ namespace DapperExtensions
         protected SequenceReaderResultReader GetMultipleBySequence(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout)
         {
             IList<SqlMapper.GridReader> items = new List<SqlMapper.GridReader>();
+
+            LastExecutedCommand = string.Empty;
             foreach (var item in predicate.Items)
             {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -468,6 +485,7 @@ namespace DapperExtensions
                     dynamicParameters.Add(parameter.Key, parameter.Value);
                 }
 
+                LastExecutedCommand += string.Format("{0}{1}{1}", sql, Environment.NewLine);
                 SqlMapper.GridReader queryResult = connection.QueryMultiple(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
                 items.Add(queryResult);
             }
