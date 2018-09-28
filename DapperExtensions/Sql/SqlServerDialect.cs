@@ -108,14 +108,17 @@ namespace DapperExtensions.Sql
 
         protected virtual int GetSelectEnd(string sql)
         {
-            if (sql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
+            var trimmedSql = sql.TrimStart();
+            if (trimmedSql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
             {
-                return 15;
+                var index = trimmedSql.IndexOf("SELECT DISTINCT", StringComparison.Ordinal);
+                return index + 15;
             }
 
-            if (sql.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
+            if (trimmedSql.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
             {
-                return 6;
+                var index = trimmedSql.IndexOf("SELECT", StringComparison.Ordinal);
+                return index + 6;
             }
 
             throw new ArgumentException("SQL must be a SELECT statement.", "sql");
