@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Title>DapperExtensionsDNXCore</Title>
+    <Description>DapperExtensions DNX Core 5</Description>
+    <Authors>Rafael.Carvalho</Authors>
+    <TargetFrameworks>net451;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <AssemblyName>DapperExtensionsDNXCore</AssemblyName>
+    <PackageId>DapperExtensionsDNXCore</PackageId>
+    <Product>DapperExtensionsDNXCore</Product>
+    <Copyright>Copyright © 2018</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+
+</Project>
