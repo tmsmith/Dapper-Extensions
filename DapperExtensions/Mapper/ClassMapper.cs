@@ -149,7 +149,7 @@ namespace DapperExtensions.Mapper
         protected void UnMap(Expression<Func<T, object>> expression)
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
-            var mapping = this.Properties.Where(w => w.Name == propertyInfo.Name).SingleOrDefault();
+            var mapping = this.Properties.SingleOrDefault(w => w.Name == propertyInfo.Name);
 
             if (mapping == null)
             {
@@ -163,7 +163,7 @@ namespace DapperExtensions.Mapper
         {
             if (Properties.Any(p => p.Name.Equals(result.Name)))
             {
-                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.",result.Name));
+                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
             }
         }
     }

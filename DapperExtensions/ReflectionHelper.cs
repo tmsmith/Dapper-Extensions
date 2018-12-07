@@ -84,7 +84,7 @@ namespace DapperExtensions
         public static bool IsSimpleType(Type type)
         {
             Type actualType = type;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 actualType = type.GetGenericArguments()[0];
             }

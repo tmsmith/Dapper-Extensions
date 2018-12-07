@@ -9,7 +9,7 @@ namespace DapperExtensions.Sql
     public interface ISqlGenerator
     {
         IDapperExtensionsConfiguration Configuration { get; }
-        
+
         string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
         string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters);
@@ -136,7 +136,7 @@ namespace DapperExtensions.Sql
 
             return sql.ToString();
         }
-        
+
         public virtual string Insert(IClassMapper classMap)
         {
             var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.TriggerIdentity));
@@ -177,7 +177,7 @@ namespace DapperExtensions.Sql
             {
                 throw new ArgumentNullException("Parameters");
             }
-            
+
             var columns = ignoreAllKeyProperties
                 ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
                 : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
@@ -198,7 +198,7 @@ namespace DapperExtensions.Sql
                 setSql.AppendStrings(),
                 predicate.GetSql(this, parameters));
         }
-        
+
         public virtual string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
         {
             if (predicate == null)
@@ -215,7 +215,7 @@ namespace DapperExtensions.Sql
             sql.Append(" WHERE ").Append(predicate.GetSql(this, parameters));
             return sql.ToString();
         }
-        
+
         public virtual string IdentitySql(IClassMapper classMap)
         {
             return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));

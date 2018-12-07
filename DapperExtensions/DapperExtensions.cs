@@ -16,7 +16,7 @@ namespace DapperExtensions
         private static Func<IDapperExtensionsConfiguration, IDapperImplementor> _instanceFactory;
         private static IDapperImplementor _instance;
         private static IDapperExtensionsConfiguration _configuration;
-        
+
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
         /// DapperExtensions.Configure(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
@@ -50,7 +50,7 @@ namespace DapperExtensions
                 Configure(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
             }
         }
-        
+
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>

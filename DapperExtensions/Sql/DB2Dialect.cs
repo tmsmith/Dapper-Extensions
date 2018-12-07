@@ -54,7 +54,7 @@ namespace DapperExtensions.Sql
 
         protected string GetOrderByClause(string sql)
         {
-            int orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
+            int orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.OrdinalIgnoreCase);
             if (orderByIndex == -1)
             {
                 return null;
@@ -62,7 +62,7 @@ namespace DapperExtensions.Sql
 
             string result = sql.Substring(orderByIndex).Trim();
 
-            int whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
+            int whereIndex = result.IndexOf(" WHERE ", StringComparison.OrdinalIgnoreCase);
             if (whereIndex == -1)
             {
                 return result;
@@ -78,12 +78,12 @@ namespace DapperExtensions.Sql
             int fromIndex = 0;
             foreach (var word in words)
             {
-                if (word.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase))
+                if (word.Equals("SELECT", StringComparison.OrdinalIgnoreCase))
                 {
                     selectCount++;
                 }
 
-                if (word.Equals("FROM", StringComparison.InvariantCultureIgnoreCase))
+                if (word.Equals("FROM", StringComparison.OrdinalIgnoreCase))
                 {
                     selectCount--;
                     if (selectCount == 0)
