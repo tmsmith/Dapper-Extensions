@@ -10,13 +10,13 @@ namespace DapperExtensions.Sql
     {
         IDapperExtensionsConfiguration Configuration { get; }
         
-        string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
-        string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
-        string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters);
+        string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters, List<string> colList);
+        string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters, List<string> colList);
+        string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters, List<string> colToSelect);
         string Count(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
 
         string Insert(IClassMapper classMap);
-        string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters, bool ignoreAllKeyProperties);
+        string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters, bool ignoreAllKeyProperties, List<string> colToUpdate);
         string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters);
 
         string IdentitySql(IClassMapper classMap);
@@ -35,7 +35,7 @@ namespace DapperExtensions.Sql
 
         public IDapperExtensionsConfiguration Configuration { get; private set; }
 
-        public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters)
+        public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters, List<string> colList)
         {
             if (parameters == null)
             {
@@ -43,7 +43,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder sql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+                BuildSelectColumns(classMap, colList),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -60,7 +60,7 @@ namespace DapperExtensions.Sql
             return sql.ToString();
         }
 
-        public virtual string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public virtual string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters, List<string> colToSelect)
         {
             if (sort == null || !sort.Any())
             {
@@ -73,7 +73,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder innerSql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+                BuildSelectColumns(classMap, colToSelect),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -88,7 +88,7 @@ namespace DapperExtensions.Sql
             return sql;
         }
 
-        public virtual string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters)
+        public virtual string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters, List<string> colToSelect)
         {
             if (sort == null || !sort.Any())
             {
@@ -101,7 +101,7 @@ namespace DapperExtensions.Sql
             }
 
             StringBuilder innerSql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
-                BuildSelectColumns(classMap),
+                BuildSelectColumns(classMap, colToSelect),
                 GetTableName(classMap)));
             if (predicate != null)
             {
@@ -166,7 +166,7 @@ namespace DapperExtensions.Sql
             return sql;
         }
 
-        public virtual string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters, bool ignoreAllKeyProperties)
+        public virtual string Update(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters, bool ignoreAllKeyProperties, List<string> colToUpdate)
         {
             if (predicate == null)
             {
@@ -178,10 +178,14 @@ namespace DapperExtensions.Sql
                 throw new ArgumentNullException("Parameters");
             }
             
-            var columns = ignoreAllKeyProperties
+            List<IPropertyMap> columns = (ignoreAllKeyProperties
                 ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
-                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
+                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned))).ToList();
 
+            if (colToUpdate != null)
+            {
+                columns.RemoveAll(i => colToUpdate.Contains(i.ColumnName) == false || i.KeyType != KeyType.NotAKey );
+            }
             if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
@@ -253,12 +257,27 @@ namespace DapperExtensions.Sql
             return Configuration.Dialect.SupportsMultipleStatements;
         }
 
-        public virtual string BuildSelectColumns(IClassMapper classMap)
+        public virtual string BuildSelectColumns(IClassMapper classMap, List<string> colToSelect)
         {
-            var columns = classMap.Properties
-                .Where(p => !p.Ignored)
-                .Select(p => GetColumnName(classMap, p, true));
-            return columns.AppendStrings();
+            List<IPropertyMap> temp = classMap.Properties.ToList();
+
+
+            if (colToSelect != null)
+            {
+                temp.RemoveAll(p => colToSelect.Contains(p.ColumnName) == false);
+            }
+
+
+
+            List<string> cols = temp.Where(p => !p.Ignored)
+                .Select(p => GetColumnName(classMap, p, true)).ToList();
+
+            //if (colToSelect != null)
+            //{
+            //    columns.RemoveAll(p => colToSelect.Contains(p) == false);
+            //}
+
+            return cols.AppendStrings();
         }
     }
 }

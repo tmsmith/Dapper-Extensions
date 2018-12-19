@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Dapper;
@@ -15,20 +16,27 @@ namespace DapperExtensions
     {
         ISqlGenerator SqlGenerator { get; }
         T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class;
+        TOut GetPartial<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, dynamic id, IDbTransaction transaction, int? commandTimeout) where TIn : class where TOut : class;
         void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class;
         dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties) where T : class;
+        bool UpdatePartial<TIn, TOut>(IDbConnection connection, TIn entity, Expression<Func<TIn, TOut>> func, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties) where TIn : class;
         bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
         IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;        
+        IEnumerable<TOut> GetPartialList<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where TIn : class;
         IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
+        IEnumerable<TOut> GetPartialPage<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where TIn : class where TOut : class;
         IEnumerable<T> GetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
+        IEnumerable<TOut> GetPartialSet<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where TIn : class where TOut : class;
         int Count<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
         IMultipleResultReader GetMultiple(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout);
     }
 
     public class DapperImplementor : IDapperImplementor
     {
+        private static readonly Dictionary<Type, List<string>> ColsBuffer = new Dictionary<Type, List<string>>();
+
         public DapperImplementor(ISqlGenerator sqlGenerator)
         {
             SqlGenerator = sqlGenerator;
@@ -38,11 +46,18 @@ namespace DapperExtensions
 
         public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate predicate = GetIdPredicate(classMap, id);
-            T result = GetList<T>(connection, classMap, predicate, null, transaction, commandTimeout, true).SingleOrDefault();
-            return result;
+            return InternalGet(connection, id, transaction, commandTimeout, null);
         }
+
+        public TOut GetPartial<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, dynamic id, IDbTransaction transaction, int? commandTimeout) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            TIn obj = InternalGet<TIn>(connection, id, transaction, commandTimeout, cols);
+            Func<TIn, TOut> f = func.Compile();
+            return f.Invoke(obj);
+        }
+
+
 
         public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
         {
@@ -189,28 +204,15 @@ namespace DapperExtensions
 
         public bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties = false) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate predicate = GetKeyPredicate<T>(classMap, entity);
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-
-            var columns = ignoreAllKeyProperties 
-                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey) 
-                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
-
-            foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
-            {
-                dynamicParameters.Add(property.Key, property.Value);
-            }
-
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
-
-            return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
+             return InternalUpdate(connection,entity, transaction, null, commandTimeout, ignoreAllKeyProperties);
         }
+        public bool UpdatePartial<TIn, TOut>(IDbConnection connection, TIn entity, Expression<Func<TIn, TOut>> func, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties = false) where TIn : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            return InternalUpdate(connection, entity, transaction, cols, commandTimeout, ignoreAllKeyProperties);
+        }
+
+
 
         public bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
         {
@@ -228,24 +230,58 @@ namespace DapperExtensions
 
         public IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate wherePredicate = GetPredicate(classMap, predicate);
-            return GetList<T>(connection, classMap, wherePredicate, sort, transaction, commandTimeout, buffered);
+             return InternalGetList<T>(connection, predicate, sort, transaction, commandTimeout, buffered,null);
+        }
+
+
+
+        public IEnumerable<TOut> GetPartialList<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate = null, IList<ISort> sort= null , IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where TIn : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            List<TIn> te = this.InternalGetList<TIn>(connection, predicate, sort, transaction, commandTimeout, buffered, cols).ToList();
+
+            // Transform TIn object to Anonymous type
+
+            Func<TIn, TOut> f = func.Compile();
+            return te.Select(i => f.Invoke(i));
+
         }
 
         public IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate wherePredicate = GetPredicate(classMap, predicate);
-            return GetPage<T>(connection, classMap, wherePredicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
+            return InternalGetPage<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, null);
+        }
+
+        public IEnumerable<TOut> GetPartialPage<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+
+            List<TIn> list = InternalGetPage<TIn>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, cols).ToList();
+
+            // Transform TIn object to Anonymous type
+            Func<TIn, TOut> f = func.Compile();
+            return list.Select(i => f.Invoke(i));
         }
 
         public IEnumerable<T> GetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
         {
-            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            IPredicate wherePredicate = GetPredicate(classMap, predicate);
-            return GetSet<T>(connection, classMap, wherePredicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered);
+            return InternalGetSet<T>(connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered, null);
         }
+
+
+        public IEnumerable<TOut> GetPartialSet<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+
+            List<TIn> list = InternalGetSet<TIn>(connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered, cols).ToList();
+
+            // Transform TIn object to Anonymous type
+            Func<TIn, TOut> f = func.Compile();
+            return list.Select(i => f.Invoke(i));
+
+        }
+
+
 
         public int Count<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class
         {
@@ -272,10 +308,10 @@ namespace DapperExtensions
             return GetMultipleBySequence(connection, predicate, transaction, commandTimeout);
         }
 
-        protected IEnumerable<T> GetList<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        protected IEnumerable<T> GetList<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters);
+            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters, colToSelect);
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
             {
@@ -285,10 +321,10 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
-        protected IEnumerable<T> GetPage<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        protected IEnumerable<T> GetPage<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.SelectPaged(classMap, predicate, sort, page, resultsPerPage, parameters);
+            string sql = SqlGenerator.SelectPaged(classMap, predicate, sort, page, resultsPerPage, parameters, colToSelect);
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
             {
@@ -298,10 +334,10 @@ namespace DapperExtensions
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
 
-        protected IEnumerable<T> GetSet<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        protected IEnumerable<T> GetSet<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.SelectSet(classMap, predicate, sort, firstResult, maxResults, parameters);
+            string sql = SqlGenerator.SelectSet(classMap, predicate, sort, firstResult, maxResults, parameters, colToSelect);
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
             {
@@ -435,7 +471,7 @@ namespace DapperExtensions
                     itemPredicate = GetPredicate(classMap, item.Value);
                 }
 
-                sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters) + SqlGenerator.Configuration.Dialect.BatchSeperator);
+                sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters, null) + SqlGenerator.Configuration.Dialect.BatchSeperator);
             }
 
             DynamicParameters dynamicParameters = new DynamicParameters();
@@ -461,7 +497,7 @@ namespace DapperExtensions
                     itemPredicate = GetPredicate(classMap, item.Value);
                 }
 
-                string sql = SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters);
+                string sql = SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters, null);
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 foreach (var parameter in parameters)
                 {
@@ -474,5 +510,98 @@ namespace DapperExtensions
 
             return new SequenceReaderResultReader(items);
         }
+
+
+        /// <summary>
+        /// Return property liste from (anonymous) type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        private List<string> GetBufferedCols<T>()
+        {
+            Type outType = typeof(T);
+
+            lock (ColsBuffer)
+            {
+                if (ColsBuffer.TryGetValue(outType, out List<string> cols) == false)
+                {
+                    cols = new List<string>();
+
+                    typeof(T).GetProperties().
+                        Select(i => i.Name).
+                        ToList().
+                        ForEach(p => cols.Add(p));
+
+                    ColsBuffer.Add(outType, cols);
+                }
+
+                return cols;
+            }
+
+
+        }
+
+
+        private IEnumerable<T> InternalGetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IPredicate wherePredicate = GetPredicate(classMap, predicate);
+            return GetList<T>(connection, classMap, wherePredicate, sort, transaction, commandTimeout, buffered, colToSelect);
+        }
+
+        private IEnumerable<T> InternalGetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IPredicate wherePredicate = GetPredicate(classMap, predicate);
+            return GetPage<T>(connection, classMap, wherePredicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, colToSelect);
+        }
+
+        private IEnumerable<T> InternalGetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered, List<string> colToSelect) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IPredicate wherePredicate = GetPredicate(classMap, predicate);
+            return GetSet<T>(connection, classMap, wherePredicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered, colToSelect);
+        }
+
+
+        private bool InternalUpdate<T>(IDbConnection connection, T entity, IDbTransaction transaction, List<string> cols, int? commandTimeout, bool ignoreAllKeyProperties = false) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IPredicate predicate = GetKeyPredicate<T>(classMap, entity);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties, cols);
+            DynamicParameters dynamicParameters = new DynamicParameters();
+
+            var columns = (ignoreAllKeyProperties
+                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
+                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned))).ToList();
+
+            if (cols != null)
+            {
+                columns.RemoveAll(p => cols.Contains(p.ColumnName) == false || p.KeyType != KeyType.NotAKey);
+            }
+
+
+            foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
+            {
+                dynamicParameters.Add(property.Key, property.Value);
+            }
+
+            foreach (var parameter in parameters)
+            {
+                dynamicParameters.Add(parameter.Key, parameter.Value);
+            }
+
+            return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
+        }
+
+        private T InternalGet<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout, List<string> colsToSelect) where T : class
+        {
+            IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
+            IPredicate predicate = GetIdPredicate(classMap, id);
+            T result = GetList<T>(connection, classMap, predicate, null, transaction, commandTimeout, true, colsToSelect).SingleOrDefault();
+            return result;
+        }
+
     }
 }

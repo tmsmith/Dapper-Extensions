@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using DapperExtensions.Sql;
 using DapperExtensions.Mapper;
+using System.Linq.Expressions;
 
 namespace DapperExtensions
 {
@@ -141,6 +142,14 @@ namespace DapperExtensions
         }
 
         /// <summary>
+        /// Executes a query for the specified id, returning the data typed as per T
+        /// </summary>
+        public static TOut GetPartial<TIn, TOut>(this IDbConnection connection, dynamic id, Expression<Func<TIn, TOut>> func, IDbTransaction transaction = null, int? commandTimeout = null) where TIn : class where TOut : class
+        {
+            return Instance.GetPartial<TIn, TOut>(connection, func, id, transaction, commandTimeout);
+        }
+
+        /// <summary>
         /// Executes an insert query for the specified entity.
         /// </summary>
         public static void Insert<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
@@ -165,6 +174,15 @@ namespace DapperExtensions
         public static bool Update<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class
         {
             return Instance.Update<T>(connection, entity, transaction, commandTimeout, ignoreAllKeyProperties);
+        }
+
+
+        /// <summary>
+        /// Executes some column an update query for the specified entity, as typed by LINq expresion
+        /// </summary>
+        public static bool UpdatePartial<TIn, TOut>(this IDbConnection connection, TIn entity, Expression<Func<TIn, TOut>> func, IDbTransaction transaction = null, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where TIn : class where TOut : class
+        { 
+            return Instance.UpdatePartial<TIn, TOut>(connection, entity, func, transaction, commandTimeout, ignoreAllKeyProperties);
         }
 
         /// <summary>
@@ -192,12 +210,30 @@ namespace DapperExtensions
         }
 
         /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per LINq Expression.
+        /// </summary>
+        public static IEnumerable<TOut> GetPartialList<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where TIn : class
+        {
+            return Instance.GetPartialList(connection, func, predicate, sort, transaction, commandTimeout, buffered);
+
+        }
+
+        /// <summary>
         /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
         /// Data returned is dependent upon the specified page and resultsPerPage.
         /// </summary>
         public static IEnumerable<T> GetPage<T>(this IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
         {
             return Instance.GetPage<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
+        }
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per LINq expression.
+        /// Data returned is dependent upon the specified page and resultsPerPage.
+        /// </summary>
+        public static IEnumerable<TOut> GetPartialPage<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where TIn : class where TOut : class
+        {
+            return Instance.GetPartialPage(connection, func, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
         }
 
         /// <summary>
@@ -208,6 +244,19 @@ namespace DapperExtensions
         {
             return Instance.GetSet<T>(connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered);
         }
+
+
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per LINq expression.
+        /// Data returned is dependent upon the specified firstResult and maxResults.
+        /// </summary>
+        public static IEnumerable<TOut> GetPartialSet<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where TIn : class where TOut : class
+        {
+            return Instance.GetPartialSet<TIn, TOut>(connection, func, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered);
+        }
+
+
 
         /// <summary>
         /// Executes a query using the specified predicate, returning an integer that represents the number of rows that match the query.
