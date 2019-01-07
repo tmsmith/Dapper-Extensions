@@ -42,7 +42,7 @@ namespace DapperExtensions.Test.Sql
             {
                 Sort sort = new Sort();
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.Select(ClassMap.Object, null, null, null));
+                    () => Generator.Object.Select(ClassMap.Object, null, null, null, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
             }
@@ -53,9 +53,9 @@ namespace DapperExtensions.Test.Sql
                 IDictionary<string, object> parameters = new Dictionary<string, object>();
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
 
-                var result = Generator.Object.Select(ClassMap.Object, null, null, parameters);
+                var result = Generator.Object.Select(ClassMap.Object, null, null, parameters, null);
                 Assert.AreEqual("SELECT Columns FROM TableName", result);
                 ClassMap.Verify();
                 Generator.Verify();
@@ -69,9 +69,9 @@ namespace DapperExtensions.Test.Sql
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
 
-                var result = Generator.Object.Select(ClassMap.Object, predicate.Object, null, parameters);
+                var result = Generator.Object.Select(ClassMap.Object, predicate.Object, null, parameters, null);
                 Assert.AreEqual("SELECT Columns FROM TableName WHERE PredicateWhere", result);
                 ClassMap.Verify();
                 predicate.Verify();
@@ -92,10 +92,10 @@ namespace DapperExtensions.Test.Sql
                                        };
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
-                var result = Generator.Object.Select(ClassMap.Object, null, sort, parameters);
+                var result = Generator.Object.Select(ClassMap.Object, null, sort, parameters, null);
                 Assert.AreEqual("SELECT Columns FROM TableName ORDER BY SortColumn ASC", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -118,10 +118,10 @@ namespace DapperExtensions.Test.Sql
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
-                var result = Generator.Object.Select(ClassMap.Object, predicate.Object, sort, parameters);
+                var result = Generator.Object.Select(ClassMap.Object, predicate.Object, sort, parameters, null);
                 Assert.AreEqual("SELECT Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -137,7 +137,7 @@ namespace DapperExtensions.Test.Sql
             public void WithNoSort_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectPaged(ClassMap.Object, null, null, 0, 1, new Dictionary<string, object>()));
+                    () => Generator.Object.SelectPaged(ClassMap.Object, null, null, 0, 1, new Dictionary<string, object>(), null));
                 StringAssert.Contains("null or empty", ex.Message);
             }
 
@@ -145,7 +145,7 @@ namespace DapperExtensions.Test.Sql
             public void WithEmptySort_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectPaged(ClassMap.Object, null, new List<ISort>(), 0, 1, new Dictionary<string, object>()));
+                    () => Generator.Object.SelectPaged(ClassMap.Object, null, new List<ISort>(), 0, 1, new Dictionary<string, object>(), null));
                 StringAssert.Contains("null or empty", ex.Message);
                 Assert.AreEqual("Sort", ex.ParamName);
             }
@@ -155,7 +155,7 @@ namespace DapperExtensions.Test.Sql
             {
                 Sort sort = new Sort();
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectPaged(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null));
+                    () => Generator.Object.SelectPaged(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
             }
@@ -173,12 +173,12 @@ namespace DapperExtensions.Test.Sql
                                        };
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
                 Dialect.Setup(d => d.GetPagingSql("SELECT Columns FROM TableName ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
 
-                var result = Generator.Object.SelectPaged(ClassMap.Object, null, sort, 2, 10, parameters);
+                var result = Generator.Object.SelectPaged(ClassMap.Object, null, sort, 2, 10, parameters, null);
                 Assert.AreEqual("PagedSQL", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -202,12 +202,12 @@ namespace DapperExtensions.Test.Sql
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
                 Dialect.Setup(d => d.GetPagingSql("SELECT Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
 
-                var result = Generator.Object.SelectPaged(ClassMap.Object, predicate.Object, sort, 2, 10, parameters);
+                var result = Generator.Object.SelectPaged(ClassMap.Object, predicate.Object, sort, 2, 10, parameters, null);
                 Assert.AreEqual("PagedSQL", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -223,7 +223,7 @@ namespace DapperExtensions.Test.Sql
             public void WithNoSort_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectSet(ClassMap.Object, null, null, 0, 1, new Dictionary<string, object>()));
+                    () => Generator.Object.SelectSet(ClassMap.Object, null, null, 0, 1, new Dictionary<string, object>(), null));
                 StringAssert.Contains("null or empty", ex.Message);
             }
 
@@ -231,7 +231,7 @@ namespace DapperExtensions.Test.Sql
             public void WithEmptySort_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectSet(ClassMap.Object, null, new List<ISort>(), 0, 1, new Dictionary<string, object>()));
+                    () => Generator.Object.SelectSet(ClassMap.Object, null, new List<ISort>(), 0, 1, new Dictionary<string, object>(), null));
                 StringAssert.Contains("null or empty", ex.Message);
                 Assert.AreEqual("Sort", ex.ParamName);
             }
@@ -241,7 +241,7 @@ namespace DapperExtensions.Test.Sql
             {
                 Sort sort = new Sort();
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => Generator.Object.SelectSet(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null));
+                    () => Generator.Object.SelectSet(ClassMap.Object, null, new List<ISort> { sort }, 0, 1, null, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
             }
@@ -259,12 +259,12 @@ namespace DapperExtensions.Test.Sql
                                        };
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
                 Dialect.Setup(d => d.GetSetSql("SELECT Columns FROM TableName ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
 
-                var result = Generator.Object.SelectSet(ClassMap.Object, null, sort, 2, 10, parameters);
+                var result = Generator.Object.SelectSet(ClassMap.Object, null, sort, 2, 10, parameters, null);
                 Assert.AreEqual("PagedSQL", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -288,12 +288,12 @@ namespace DapperExtensions.Test.Sql
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("PredicateWhere");
 
                 Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
-                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object)).Returns("Columns").Verifiable();
+                Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, null)).Returns("Columns").Verifiable();
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, "SortProperty", false)).Returns("SortColumn").Verifiable();
 
                 Dialect.Setup(d => d.GetSetSql("SELECT Columns FROM TableName WHERE PredicateWhere ORDER BY SortColumn ASC", 2, 10, parameters)).Returns("PagedSQL").Verifiable();
 
-                var result = Generator.Object.SelectSet(ClassMap.Object, predicate.Object, sort, 2, 10, parameters);
+                var result = Generator.Object.SelectSet(ClassMap.Object, predicate.Object, sort, 2, 10, parameters, null);
                 Assert.AreEqual("PagedSQL", result);
                 ClassMap.Verify();
                 sortField.Verify();
@@ -486,7 +486,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void WithNullPredicate_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, null, new Dictionary<string, object>(), false));
+                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, null, new Dictionary<string, object>(), false, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Predicate", ex.ParamName);
             }
@@ -495,7 +495,7 @@ namespace DapperExtensions.Test.Sql
             public void WithNullParameters_ThrowsException()
             {
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, null, false));
+                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, null, false, null));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
             }
@@ -520,7 +520,7 @@ namespace DapperExtensions.Test.Sql
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
 
-                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false));
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false, null));
 
                 StringAssert.Contains("columns were mapped", ex.Message);
                 ClassMap.Verify();
@@ -555,7 +555,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
                 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false, null);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 
@@ -596,7 +596,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false, null);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 
@@ -637,7 +637,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false, null);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 
@@ -827,7 +827,7 @@ namespace DapperExtensions.Test.Sql
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, true)).Returns("Column2").Verifiable();
                 ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
 
-                var result = Generator.Object.BuildSelectColumns(ClassMap.Object);
+                var result = Generator.Object.BuildSelectColumns(ClassMap.Object, null);
                 Assert.AreEqual("Column1, Column2", result);
                 ClassMap.Verify();
                 Generator.Verify();
@@ -848,7 +848,7 @@ namespace DapperExtensions.Test.Sql
                 Generator.Setup(g => g.GetColumnName(ClassMap.Object, property2.Object, true)).Returns("Column2").Verifiable();
                 ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
 
-                var result = Generator.Object.BuildSelectColumns(ClassMap.Object);
+                var result = Generator.Object.BuildSelectColumns(ClassMap.Object, null);
                 Assert.AreEqual("Column2", result);
                 ClassMap.Verify();
                 Generator.Verify();

@@ -3,6 +3,8 @@ using DapperExtensions.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ namespace DapperExtensions
     public static class DapperAsyncExtensions
     {
         private readonly static object _lock = new object();
+        private static readonly Dictionary<Type, List<string>> ColsBuffer = new Dictionary<Type, List<string>>();
 
         private static Func<IDapperExtensionsConfiguration, IDapperAsyncImplementor> _instanceFactory;
         private static IDapperAsyncImplementor _instance;
@@ -94,6 +97,36 @@ namespace DapperExtensions
         }
 
         /// <summary>
+        /// Return property liste from (anonymous) type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        private static List<string> GetBufferedCols<T>()
+        {
+            Type outType = typeof(T);
+
+            lock (ColsBuffer)
+            {
+                if (ColsBuffer.TryGetValue(outType, out List<string> cols) == false)
+                {
+                    cols = new List<string>();
+
+                    typeof(T).GetProperties().
+                        Select(i => i.Name).
+                        ToList().
+                        ForEach(p => cols.Add(p));
+
+                    ColsBuffer.Add(outType, cols);
+                }
+
+                return cols;
+            }
+
+
+        }
+
+
+        /// <summary>
         /// Initializes the <see cref="DapperAsyncExtensions"/> class.
         /// </summary>
         static DapperAsyncExtensions()
@@ -143,7 +176,20 @@ namespace DapperExtensions
         /// </summary>
         public static async Task<T> GetAsync<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
-            return await Instance.GetAsync<T>(connection, id, transaction, commandTimeout);
+            return await Instance.GetAsync<T>(connection, id, null, transaction, commandTimeout);
+        }
+
+
+        /// <summary>
+        /// Executes a query for the specified id, returning the data typed as per T.
+        /// </summary>
+        public static async Task<TOut> GetPartialAsync<TIn, TOut>(this IDbConnection connection, dynamic id, Expression<Func<TIn, TOut>> func, IDbTransaction transaction = null, int? commandTimeout = null) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            TIn obj = await Instance.GetAsync<TIn>(connection, id, cols, transaction, commandTimeout);
+
+            Func<TIn, TOut> f = func.Compile();
+            return f.Invoke(obj);
         }
 
         /// <summary>
@@ -151,8 +197,21 @@ namespace DapperExtensions
         /// </summary>
         public static async Task<IEnumerable<T>> GetListAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
-            return await Instance.GetListAsync<T>(connection, predicate, sort, transaction, commandTimeout);
+            return await Instance.GetListAsync<T>(connection, null, predicate, sort, transaction, commandTimeout);
         }
+
+ 
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per Linq Expression.
+        /// </summary>
+        public static async Task<IEnumerable<TOut>> GetPartialListAsync<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate = null, IList<ISort> sort = null, IDbTransaction transaction = null, int? commandTimeout = null) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            List<TIn> list = ( await Instance.GetListAsync<TIn>(connection, cols, predicate, sort, transaction, commandTimeout)).ToList();
+            Func<TIn, TOut> f = func.Compile();
+            return list.Select(i => f.Invoke(i));
+        }
+
         /// <summary>
         /// Executes an insert query for the specified entity.
         /// </summary>
@@ -175,8 +234,18 @@ namespace DapperExtensions
         /// </summary>
         public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class
         {
-            return Instance.UpdateAsync(connection, entity, transaction, commandTimeout, ignoreAllKeyProperties);
+            return Instance.UpdateAsync(connection, entity, transaction, null, commandTimeout, ignoreAllKeyProperties);
         }
+
+        /// <summary>
+        /// Executes an update query for the specified entity.
+        /// </summary>
+        public static Task<bool> UpdatePartialAsync<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, TIn entity, IDbTransaction transaction = null, int? commandTimeout = null, bool ignoreAllKeyProperties = false) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+            return Instance.UpdateAsync(connection, entity, transaction, cols, commandTimeout, ignoreAllKeyProperties);
+        }
+
         /// <summary>
         /// Executes a delete query for the specified entity.
         /// </summary>
@@ -198,7 +267,24 @@ namespace DapperExtensions
         /// </summary>
         public static async Task<IEnumerable<T>> GetPageAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, int page = 1, int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
-            return await Instance.GetPageAsync<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout);
+            return await Instance.GetPageAsync<T>(connection, null, predicate, sort, page, resultsPerPage, transaction, commandTimeout);
+        }
+
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per LINq expression.
+        /// Data returned is dependent upon the specified page and resultsPerPage.
+        /// </summary>
+        public static async Task<IEnumerable<TOut>> GetPartialPageAsync<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate = null, IList<ISort> sort = null, int page = 1, int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null) where TIn : class where TOut : class
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+
+            List<TIn> list = (await Instance.GetPageAsync<TIn>(connection, cols, predicate, sort, page, resultsPerPage, transaction, commandTimeout)).ToList();
+
+            // Transform TIn object to Anonymous type
+            Func<TIn, TOut> f = func.Compile();
+            return list.Select(i => f.Invoke(i));
+
         }
 
 
@@ -208,7 +294,24 @@ namespace DapperExtensions
         /// </summary>
         public static async Task<IEnumerable<T>> GetSetAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, int firstResult = 1, int maxResults = 10, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
-            return await Instance.GetSetAsync<T>(connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout);
+            return await Instance.GetSetAsync<T>(connection, null, predicate, sort, firstResult, maxResults, transaction, commandTimeout);
+        }
+
+
+        /// <summary>
+        /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
+        /// Data returned is dependent upon the specified firstResult and maxResults.
+        /// </summary>
+        public static async Task<IEnumerable<TOut>> GetPartialSetAsync<TIn, TOut>(this IDbConnection connection, Expression<Func<TIn, TOut>> func, object predicate = null, IList<ISort> sort = null, int firstResult = 1, int maxResults = 10, IDbTransaction transaction = null, int? commandTimeout = null) where TIn : class where TOut : class
+
+        {
+            List<string> cols = GetBufferedCols<TOut>();
+
+            List<TIn> list = (await Instance.GetSetAsync<TIn>(connection, cols, predicate, sort, firstResult, maxResults, transaction, commandTimeout)).ToList();
+
+            // Transform TIn object to Anonymous type
+            Func<TIn, TOut> f = func.Compile();
+            return list.Select(i => f.Invoke(i));
         }
     }
 }
