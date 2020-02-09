@@ -486,7 +486,7 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void WithNullPredicate_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, null, new Dictionary<string, object>()));
+                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, null, new Dictionary<string, object>(), false));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Predicate", ex.ParamName);
             }
@@ -495,7 +495,7 @@ namespace DapperExtensions.Test.Sql
             public void WithNullParameters_ThrowsException()
             {
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
-                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, null));
+                var ex = Assert.Throws<ArgumentNullException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, null, false));
                 StringAssert.Contains("cannot be null", ex.Message);
                 Assert.AreEqual("Parameters", ex.ParamName);
             }
@@ -520,7 +520,7 @@ namespace DapperExtensions.Test.Sql
                 Mock<IPredicate> predicate = new Mock<IPredicate>();
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
 
-                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, parameters));
+                var ex = Assert.Throws<ArgumentException>(() => Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false));
 
                 StringAssert.Contains("columns were mapped", ex.Message);
                 ClassMap.Verify();
@@ -555,7 +555,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
                 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 
@@ -596,7 +596,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 
@@ -637,7 +637,7 @@ namespace DapperExtensions.Test.Sql
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 predicate.Setup(p => p.GetSql(Generator.Object, parameters)).Returns("Predicate").Verifiable();
 
-                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters);
+                var result = Generator.Object.Update(ClassMap.Object, predicate.Object, parameters, false);
 
                 Assert.AreEqual("UPDATE TableName SET Column = @Name WHERE Predicate", result);
 

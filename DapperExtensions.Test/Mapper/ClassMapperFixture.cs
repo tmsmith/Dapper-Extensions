@@ -28,6 +28,60 @@ namespace DapperExtensions.Test.Mapper
         }
 
         [TestFixture]
+        public class UnMapTests : ClassMapperFixtureBase
+        {
+            public class Foo
+            {
+                public string Name { get; set; }
+            }
+
+            public class FooClassMapper : ClassMapper<Foo>
+            {
+                public FooClassMapper()
+                {
+                }
+
+                //hook to access protected methods
+                public new PropertyMap Map(Expression<Func<Foo, object>> expression)
+                {
+                    return base.Map(expression);
+                }
+
+                //hook to access protected methods
+                public new void UnMap(Expression<Func<Foo, object>> expression)
+                {
+                    base.UnMap(expression);
+                }
+            }
+
+            private bool mappingExists(FooClassMapper mapper)
+            {
+                return mapper.Properties.Where(w => w.Name == "Name").Count() == 1;
+            }
+
+            [Test]
+            public void UnMapRemovesAnExistingMapping()
+            {
+                var target = new FooClassMapper();
+
+                target.Map(p => p.Name);
+                Assert.IsTrue(mappingExists(target));
+
+                target.UnMap(p => p.Name);
+                Assert.IsFalse(mappingExists(target));
+            }
+
+            [Test]
+            [ExpectedException(typeof(ApplicationException))]
+            public void UnMapThrowExceptionWhenMappingDidntPreviouslyExist()
+            {
+                var target = new FooClassMapper();
+
+                target.UnMap(p => p.Name);
+            }
+        }
+
+        [TestFixture]
         public class AutoMapIdTests : ClassMapperFixtureBase
         {
             [Test]

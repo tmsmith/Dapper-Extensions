@@ -85,8 +85,14 @@
     <Compile Include="..\DapperExtensions\ReflectionHelper.cs">
       <Link>ReflectionHelper.cs</Link>
     </Compile>
+    <Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs">
+      <Link>Sql\DB2Dialect.cs</Link>
+    </Compile>
     <Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs">
       <Link>Sql\MySqlDialect.cs</Link>
+    </Compile>
+    <Compile Include="..\DapperExtensions\Sql\OracleDialect.cs">
+      <Link>Sql\OracleDialect.cs</Link>
     </Compile>
     <Compile Include="..\DapperExtensions\Sql\PostgreSqlDialect.cs">
       <Link>Sql\PostgreSqlDialect.cs</Link>
