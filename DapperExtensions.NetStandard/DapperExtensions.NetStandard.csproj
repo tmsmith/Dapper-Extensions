@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\DapperExtensions.Net45\DapperAsyncExtensions.cs" Link="DapperAsyncExtensions.cs" />
+    <Compile Include="..\DapperExtensions.Net45\DapperAsyncImplementor.cs" Link="DapperAsyncImplementor.cs" />
+    <Compile Include="..\DapperExtensions\DapperExtensions.cs" Link="DapperExtensions.cs" />
+    <Compile Include="..\DapperExtensions\DapperExtensionsConfiguration.cs" Link="DapperExtensionsConfiguration.cs" />
+    <Compile Include="..\DapperExtensions\DapperImplementor.cs" Link="DapperImplementor.cs" />
+    <Compile Include="..\DapperExtensions\Database.cs" Link="Database.cs" />
+    <Compile Include="..\DapperExtensions\GetMultiplePredicate.cs" Link="GetMultiplePredicate.cs" />
+    <Compile Include="..\DapperExtensions\GetMultipleResult.cs" Link="GetMultipleResult.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\AutoClassMapper.cs" Link="Mapper\AutoClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\ClassMapper.cs" Link="Mapper\ClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\PluralizedAutoClassMapper.cs" Link="Mapper\PluralizedAutoClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\PropertyMap.cs" Link="Mapper\PropertyMap.cs" />
+    <Compile Include="..\DapperExtensions\Predicates.cs" Link="Predicates.cs" />
+    <Compile Include="..\DapperExtensions\ReflectionHelper.cs" Link="ReflectionHelper.cs" />
+    <Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs" Link="Sql\DB2Dialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs" Link="Sql\MySqlDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\OracleDialect.cs" Link="Sql\OracleDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\PostgreSqlDialect.cs" Link="Sql\PostgreSqlDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlCeDialect.cs" Link="Sql\SqlCeDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlDialectBase.cs" Link="Sql\SqlDialectBase.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlGenerator.cs" Link="Sql\SqlGenerator.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqliteDialect.cs" Link="Sql\SqliteDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlServerDialect.cs" Link="Sql\SqlServerDialect.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>

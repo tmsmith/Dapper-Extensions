@@ -2,6 +2,9 @@
 *.user
 *.suo
 
+# Visual Studio cache files, etc
+.vs
+
 # Build
 [Bb]in
 [Oo]bj
