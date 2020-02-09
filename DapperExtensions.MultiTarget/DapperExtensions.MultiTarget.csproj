@@ -1,7 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <!--<TargetFramework>netstandard2.0</TargetFramework>-->
+    <!--<TargetFrameworks>netstandard2.0;net45;net40</TargetFrameworks>-->
+    <TargetFrameworks>netstandard2.0;net45;net40</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</Description>
+    <PackageReleaseNotes>1.6.2 / 1.6.3
+      * Exposed Ignore keys on update in usages of Implementor
+1.6.1
+      * Added Oracle Dialect to 4.5
+1.6.0
+      * Added DB2 Dialect
+      * Added flag to ignore All Key fields when doing an update
+      * Added missing async/await methods
+      * Added unmap method to Mapper</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/tmsmith/Dapper-Extensions.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <Authors>Thad Smith, Page Brooks</Authors>
+    <PackageId>DapperExtensions</PackageId>
+    <Version>1.6.3</Version>
+    <RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions</RepositoryUrl>
+    <PackageTags>orm sql micro-orm Data Dapper</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <Copyright>Copyright 2011 Thad Smith, Page Brooks and contributors</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +52,20 @@
     <Compile Include="..\DapperExtensions\Sql\SqlServerDialect.cs" Link="Sql\SqlServerDialect.cs" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>

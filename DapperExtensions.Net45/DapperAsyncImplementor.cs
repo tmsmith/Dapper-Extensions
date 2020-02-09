@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿#if !NET40
+using Dapper;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using System;
@@ -68,7 +69,7 @@ namespace DapperExtensions
         public DapperAsyncImplementor(ISqlGenerator sqlGenerator)
             : base(sqlGenerator) { }
 
-        #region Implementation of IDapperAsyncImplementor
+#region Implementation of IDapperAsyncImplementor
         /// <summary>
         /// The asynchronous counterpart to <see cref="IDapperImplementor.Insert{T}(IDbConnection, IEnumerable{T}, IDbTransaction, int?)"/>.
         /// </summary>
@@ -319,9 +320,9 @@ namespace DapperExtensions
             return (int)(await connection.QueryAsync(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text)).Single().Total;
         }
 
-        #endregion
+#endregion
 
-        #region Helpers
+#region Helpers
 
         /// <summary>
         /// The asynchronous counterpart to <see cref="IDapperImplementor.GetList{T}"/>.
@@ -371,6 +372,7 @@ namespace DapperExtensions
             return await connection.QueryAsync<T>(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
         }
 
-        #endregion
+#endregion
     }
 }
+#endif
