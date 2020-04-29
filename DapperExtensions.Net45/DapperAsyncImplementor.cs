@@ -146,23 +146,23 @@ namespace DapperExtensions
             string sql = SqlGenerator.Insert(classMap);
             if (identityColumn != null)
             {
-                IEnumerable<long> result;
+                Type identityColumnType = identityColumn.PropertyInfo.PropertyType;
+                object result;
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = await connection.QuerySingleAsync(identityColumnType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
                 else
                 {
                     connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                     sql = SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = await connection.QuerySingleAsync(identityColumnType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
-
-                long identityValue = result.First();
-                int identityInt = Convert.ToInt32(identityValue);
-                keyValues.Add(identityColumn.Name, identityInt);
-                identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+                
+                var typedResult = Convert.ChangeType(result, identityColumnType);
+                keyValues.Add(identityColumn.Name, typedResult);
+                identityColumn.PropertyInfo.SetValue(entity, typedResult, null);
             }
             else if (triggerIdentityColumn != null)
             {

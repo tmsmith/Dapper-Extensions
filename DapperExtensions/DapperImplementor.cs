@@ -116,39 +116,23 @@ namespace DapperExtensions
             string sql = SqlGenerator.Insert(classMap);
             if (identityColumn != null)
             {
-                IEnumerable<long> result;
+                Type identityColumnType = identityColumn.PropertyInfo.PropertyType;
+                object result;
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.QuerySingle(identityColumnType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
                 else
                 {
                     connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                     sql = SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.QuerySingle(identityColumnType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
 
-                // We are only interested in the first identity, but we are iterating over all resulting items (if any).
-                // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
-                bool hasResult = false;
-                int identityInt = 0;
-                foreach (var identityValue in result)
-                {
-                    if (hasResult)
-                    {
-                        continue;
-                    }
-                    identityInt = Convert.ToInt32(identityValue);
-                    hasResult = true;
-                }
-                if (!hasResult)
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-
-                keyValues.Add(identityColumn.Name, identityInt);
-                identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+                var typedResult = Convert.ChangeType(result, identityColumnType);
+                keyValues.Add(identityColumn.Name, typedResult);
+                identityColumn.PropertyInfo.SetValue(entity, typedResult, null);
             }
             else if (triggerIdentityColumn != null)
             {
