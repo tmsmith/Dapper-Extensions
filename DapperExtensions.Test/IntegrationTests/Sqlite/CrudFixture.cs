@@ -86,6 +86,15 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid2));
                 Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid3));
             }
+
+            public void AddsEntityToDatabase_ReturnsGeneratedPrimaryKeyForDynamic()
+            {
+                var d1 = new Dyno {Name = "Dyno"};
+                Db.Insert(d1);
+
+                Assert.IsInstanceOf(typeof(Int32), d1.Id);
+                Assert.True(d1.Id > 0);
+            }
         }
 
         [TestFixture]

@@ -48,7 +48,8 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
                                     ReadScriptFile("CreateFooTable"),
                                     ReadScriptFile("CreateMultikeyTable"),
                                     ReadScriptFile("CreatePersonTable"),
-                                    ReadScriptFile("CreateCarTable")
+                                    ReadScriptFile("CreateCarTable"),
+                                    ReadScriptFile("CreateDynoTable")
                                 };
 
             foreach (var setupFile in files)
