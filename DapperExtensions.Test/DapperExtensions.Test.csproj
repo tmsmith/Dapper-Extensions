@@ -90,7 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Car.cs" />
-    <Compile Include="Data\Dyno.cs" />
     <Compile Include="Helpers\DatabaseInfo.cs" />
     <Compile Include="Helpers\Protected.cs" />
     <Compile Include="IntegrationTests\DB2\CrudFixture.cs" />
@@ -160,18 +159,16 @@
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateDynoTable.sql" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
@@ -179,7 +176,6 @@
     <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateDynoTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
@@ -187,14 +183,10 @@
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
     <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateDynoTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
     <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateAnimalTable.sql" />
     <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateCarTable.sql" />
     <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateFooTable.sql" />

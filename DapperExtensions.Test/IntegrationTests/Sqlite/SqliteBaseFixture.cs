@@ -43,8 +43,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                                     ReadScriptFile("CreateFooTable"),
                                     ReadScriptFile("CreateMultikeyTable"),
                                     ReadScriptFile("CreatePersonTable"),
-                                    ReadScriptFile("CreateCarTable"),
-                                    ReadScriptFile("CreateDynoTable")
+                                    ReadScriptFile("CreateCarTable")
                                 };
 
             foreach (var setupFile in files)
