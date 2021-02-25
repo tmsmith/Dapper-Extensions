@@ -116,17 +116,17 @@ namespace DapperExtensions
             string sql = SqlGenerator.Insert(classMap);
             if (identityColumn != null)
             {
-                long identityValue = 0;
+                IEnumerable<long> result;
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                    identityValue = connection.ExecuteScalar<long>(sql, entity, transaction, commandTimeout, CommandType.Text);
+                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                 }
                 else
                 {
                     connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
                     sql = SqlGenerator.IdentitySql(classMap);
-                    identityValue = connection.ExecuteScalar<long>(sql, null, transaction, commandTimeout, CommandType.Text);
+                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
                 }
 
                 // We are only interested in the first identity, but we are iterating over all resulting items (if any).
