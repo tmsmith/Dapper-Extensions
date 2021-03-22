@@ -477,6 +477,35 @@ namespace DapperExtensions.Test.Sql
                 Generator.Verify();
                 Generator.Verify(g => g.GetColumnName(ClassMap.Object, property1.Object, false), Times.Never());
             }
+
+            [Test]
+            public void DoesNotPrefixColumnListWithTableName()
+            {
+                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                property1.SetupGet(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
+
+                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                property2.SetupGet(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
+                property2.SetupGet(p => p.Name).Returns("Name").Verifiable();
+                property2.SetupGet(p => p.ColumnName).Returns("Name").Verifiable();
+
+                List<IPropertyMap> properties = new List<IPropertyMap>
+                                                    {
+                                                        property1.Object,
+                                                        property2.Object
+                                                    };
+
+                ClassMap.SetupGet(c => c.Properties).Returns(properties).Verifiable();
+                ClassMap.SetupGet(c => c.TableName).Returns("TableName");
+
+                Dialect.Setup(c => c.GetTableName(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((a, b, c) => b);
+                Dialect.Setup(d => d.GetColumnName(It.IsAny<string>(), It.IsAny<string>(), null)).Returns<string, string, string>((a, b, c) => a + "." + b);
+
+                SqlGeneratorImpl generator = new SqlGeneratorImpl(Configuration.Object);
+                var sql = generator.Insert(ClassMap.Object);
+
+                Assert.AreEqual("INSERT INTO TableName (Name) VALUES (@Name)", sql);
+            }
         }
 
         [TestFixture]
