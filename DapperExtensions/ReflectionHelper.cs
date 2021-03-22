@@ -30,7 +30,7 @@ namespace DapperExtensions
                                    typeof(DateTimeOffset),
                                    typeof(byte[])
                                };
-        
+
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;

@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using Dapper;
+﻿using Dapper;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using NUnit.Framework;
 using Oracle.ManagedDataAccess.Client;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
@@ -16,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new OracleConnection("Data Source=localhost/xe; User Id=xe; Password=xe;");
+            var connection = new OracleConnection("Data Source = localhost:1521 / xe; User Id = xe; Password = xe;");
             var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), new OracleDialect());
             var sqlGenerator = new SqlGeneratorImpl(config);
             Db = new Database(connection, sqlGenerator);

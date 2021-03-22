@@ -1,8 +1,3 @@
-using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-using System;
-
 namespace DapperExtensions.Mapper
 {
     /// <summary>

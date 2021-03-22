@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
-using System.Data.Common;
 
 namespace DapperExtensions
 {
@@ -35,7 +29,7 @@ namespace DapperExtensions
         IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, DbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true) where T : class;
         IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, DbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
-        IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class;        
+        IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class;
         int Count<T>(object predicate, DbTransaction transaction, int? commandTimeout = null) where T : class;
         int Count<T>(object predicate, int? commandTimeout = null) where T : class;
         IMultipleResultReader GetMultiple(GetMultiplePredicate predicate, DbTransaction transaction, int? commandTimeout = null);
@@ -55,7 +49,7 @@ namespace DapperExtensions
         {
             _dapper = new DapperImplementor(sqlGenerator);
             Connection = connection;
-            
+
             if (Connection.State != ConnectionState.Open)
             {
                 Connection.Open();
@@ -140,7 +134,7 @@ namespace DapperExtensions
                 throw ex;
             }
         }
-        
+
         public T Get<T>(dynamic id, DbTransaction transaction, int? commandTimeout) where T : class
         {
             return (T)_dapper.Get<T>(Connection, id, transaction, commandTimeout);

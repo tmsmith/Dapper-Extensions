@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace DapperExtensions.Sql
 {
@@ -13,18 +10,18 @@ namespace DapperExtensions.Sql
         }
 
         public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
-		{
-			int startValue = page * resultsPerPage;
-			return GetSetSql(sql, startValue, resultsPerPage, parameters);
-		}
-		
-		public override string GetSetSql(string sql, int pageNumber, int maxResults, IDictionary<string, object> parameters)
-		{
-			string result = string.Format("{0} LIMIT @maxResults OFFSET @pageStartRowNbr", sql);
-			parameters.Add("@maxResults", maxResults);
-			parameters.Add("@pageStartRowNbr", pageNumber * maxResults);
-			return result;
-		}
+        {
+            int startValue = page * resultsPerPage;
+            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+        }
+
+        public override string GetSetSql(string sql, int pageNumber, int maxResults, IDictionary<string, object> parameters)
+        {
+            string result = string.Format("{0} LIMIT @maxResults OFFSET @pageStartRowNbr", sql);
+            parameters.Add("@maxResults", maxResults);
+            parameters.Add("@pageStartRowNbr", pageNumber * maxResults);
+            return result;
+        }
 
         public override string GetColumnName(string prefix, string columnName, string alias)
         {

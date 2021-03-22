@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Dapper;
+using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Dapper;
-using DapperExtensions.Mapper;
-using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
@@ -20,7 +20,7 @@ namespace DapperExtensions
         bool Update<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout, bool ignoreAllKeyProperties) where T : class;
         bool Delete<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class;
         bool Delete<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
-        IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;        
+        IEnumerable<T> GetList<T>(IDbConnection connection, object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         IEnumerable<T> GetPage<T>(IDbConnection connection, object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         IEnumerable<T> GetSet<T>(IDbConnection connection, object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         int Count<T>(IDbConnection connection, object predicate, IDbTransaction transaction, int? commandTimeout) where T : class;
@@ -54,18 +54,18 @@ namespace DapperExtensions
             var parameters = new List<DynamicParameters>();
             if (triggerIdentityColumn != null)
             {
-                properties = typeof (T).GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.Name != triggerIdentityColumn.PropertyInfo.Name);
+                properties = typeof(T).GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.Name != triggerIdentityColumn.Name);
             }
 
             foreach (var e in entities)
             {
                 foreach (var column in notKeyProperties)
                 {
-                    if (column.KeyType == KeyType.Guid && (Guid)column.PropertyInfo.GetValue(e, null) == Guid.Empty)
+                    if (column.KeyType == KeyType.Guid && (Guid)column.GetValue(e) == Guid.Empty)
                     {
                         Guid comb = SqlGenerator.Configuration.GetNextGuid();
-                        column.PropertyInfo.SetValue(e, comb, null);
+                        column.SetValue(e, comb);
                     }
                 }
 
@@ -78,7 +78,7 @@ namespace DapperExtensions
                     }
 
                     // defaultValue need for identify type of parameter
-                    var defaultValue = typeof(T).GetProperty(triggerIdentityColumn.PropertyInfo.Name).GetValue(e, null);
+                    var defaultValue = typeof(T).GetProperty(triggerIdentityColumn.Name).GetValue(e, null);
                     dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
 
                     parameters.Add(dynamicParameters);
@@ -100,15 +100,15 @@ namespace DapperExtensions
         public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
         {
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
-            List<IPropertyMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
+            List<IMemberMap> nonIdentityKeyProperties = classMap.Properties.Where(p => p.KeyType == KeyType.Guid || p.KeyType == KeyType.Assigned).ToList();
             var identityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.Identity);
             var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
             foreach (var column in nonIdentityKeyProperties)
             {
-                if (column.KeyType == KeyType.Guid && (Guid)column.PropertyInfo.GetValue(entity, null) == Guid.Empty)
+                if (column.KeyType == KeyType.Guid && (Guid)column.GetValue(entity) == Guid.Empty)
                 {
                     Guid comb = SqlGenerator.Configuration.GetNextGuid();
-                    column.PropertyInfo.SetValue(entity, comb, null);
+                    column.SetValue(entity, comb);
                 }
             }
 
@@ -148,26 +148,26 @@ namespace DapperExtensions
                 }
 
                 keyValues.Add(identityColumn.Name, identityInt);
-                identityColumn.PropertyInfo.SetValue(entity, identityInt, null);
+                identityColumn.SetValue(entity, identityInt);
             }
             else if (triggerIdentityColumn != null)
             {
                 var dynamicParameters = new DynamicParameters();
                 foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.Name != triggerIdentityColumn.PropertyInfo.Name))
+                    .Where(p => p.Name != triggerIdentityColumn.Name))
                 {
                     dynamicParameters.Add(prop.Name, prop.GetValue(entity, null));
                 }
 
                 // defaultValue need for identify type of parameter
-                var defaultValue = entity.GetType().GetProperty(triggerIdentityColumn.PropertyInfo.Name).GetValue(entity, null);
+                var defaultValue = entity.GetType().GetProperty(triggerIdentityColumn.Name).GetValue(entity, null);
                 dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
 
                 connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
 
                 var value = dynamicParameters.Get<object>(SqlGenerator.Configuration.Dialect.ParameterPrefix + "IdOutParam");
                 keyValues.Add(triggerIdentityColumn.Name, value);
-                triggerIdentityColumn.PropertyInfo.SetValue(entity, value, null);
+                triggerIdentityColumn.SetValue(entity, value);
             }
             else
             {
@@ -176,7 +176,7 @@ namespace DapperExtensions
 
             foreach (var column in nonIdentityKeyProperties)
             {
-                keyValues.Add(column.Name, column.PropertyInfo.GetValue(entity, null));
+                keyValues.Add(column.Name, column.GetValue(entity));
             }
 
             if (keyValues.Count == 1)
@@ -195,8 +195,8 @@ namespace DapperExtensions
             string sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties);
             DynamicParameters dynamicParameters = new DynamicParameters();
 
-            var columns = ignoreAllKeyProperties 
-                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey) 
+            var columns = ignoreAllKeyProperties
+                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
                 : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
 
             foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
@@ -367,10 +367,10 @@ namespace DapperExtensions
             return predicates.Count == 1
                        ? predicates[0]
                        : new PredicateGroup
-                             {
-                                 Operator = GroupOperator.And,
-                                 Predicates = predicates
-                             };
+                       {
+                           Operator = GroupOperator.And,
+                           Predicates = predicates
+                       };
         }
 
         protected IPredicate GetKeyPredicate<T>(IClassMapper classMap, T entity) where T : class
@@ -383,20 +383,20 @@ namespace DapperExtensions
 
             IList<IPredicate> predicates = (from field in whereFields
                                             select new FieldPredicate<T>
-                                                       {
-                                                           Not = false,
-                                                           Operator = Operator.Eq,
-                                                           PropertyName = field.Name,
-                                                           Value = field.PropertyInfo.GetValue(entity, null)
-                                                       }).Cast<IPredicate>().ToList();
+                                            {
+                                                Not = false,
+                                                Operator = Operator.Eq,
+                                                PropertyName = field.Name,
+                                                Value = field.GetValue(entity)
+                                            }).Cast<IPredicate>().ToList();
 
             return predicates.Count == 1
                        ? predicates[0]
                        : new PredicateGroup
-                             {
-                                 Operator = GroupOperator.And,
-                                 Predicates = predicates
-                             };
+                       {
+                           Operator = GroupOperator.And,
+                           Predicates = predicates
+                       };
         }
 
         protected IPredicate GetEntityPredicate(IClassMapper classMap, object entity)
