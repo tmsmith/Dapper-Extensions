@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DapperExtensions.Sql;
-using DapperExtensions.Test.Helpers;
+﻿using DapperExtensions.Sql;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DapperExtensions.Test.Sql
 {

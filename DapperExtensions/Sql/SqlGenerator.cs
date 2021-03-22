@@ -1,15 +1,15 @@
-﻿using System;
+﻿using DapperExtensions.Mapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DapperExtensions.Mapper;
 
 namespace DapperExtensions.Sql
 {
     public interface ISqlGenerator
     {
         IDapperExtensionsConfiguration Configuration { get; }
-        
+
         string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters);
         string SelectPaged(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int page, int resultsPerPage, IDictionary<string, object> parameters);
         string SelectSet(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, int firstResult, int maxResults, IDictionary<string, object> parameters);
@@ -21,7 +21,7 @@ namespace DapperExtensions.Sql
 
         string IdentitySql(IClassMapper classMap);
         string GetTableName(IClassMapper map);
-        string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias);
+        string GetColumnName(IClassMapper map, IMemberMap property, bool includeAlias);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias);
         bool SupportsMultipleStatements();
     }
@@ -136,7 +136,7 @@ namespace DapperExtensions.Sql
 
             return sql.ToString();
         }
-        
+
         public virtual string Insert(IClassMapper classMap)
         {
             var columns = classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.TriggerIdentity));
@@ -177,7 +177,7 @@ namespace DapperExtensions.Sql
             {
                 throw new ArgumentNullException("Parameters");
             }
-            
+
             var columns = ignoreAllKeyProperties
                 ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
                 : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
@@ -198,7 +198,7 @@ namespace DapperExtensions.Sql
                 setSql.AppendStrings(),
                 predicate.GetSql(this, parameters));
         }
-        
+
         public virtual string Delete(IClassMapper classMap, IPredicate predicate, IDictionary<string, object> parameters)
         {
             if (predicate == null)
@@ -215,7 +215,7 @@ namespace DapperExtensions.Sql
             sql.Append(" WHERE ").Append(predicate.GetSql(this, parameters));
             return sql.ToString();
         }
-        
+
         public virtual string IdentitySql(IClassMapper classMap)
         {
             return Configuration.Dialect.GetIdentitySql(GetTableName(classMap));
@@ -226,7 +226,7 @@ namespace DapperExtensions.Sql
             return Configuration.Dialect.GetTableName(map.SchemaName, map.TableName, null);
         }
 
-        public virtual string GetColumnName(IClassMapper map, IPropertyMap property, bool includeAlias)
+        public virtual string GetColumnName(IClassMapper map, IMemberMap property, bool includeAlias)
         {
             string alias = null;
             if (property.ColumnName != property.Name && includeAlias)
@@ -239,7 +239,7 @@ namespace DapperExtensions.Sql
 
         public virtual string GetColumnName(IClassMapper map, string propertyName, bool includeAlias)
         {
-            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name.Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
             if (propertyMap == null)
             {
                 throw new ArgumentException(string.Format("Could not find '{0}' in Mapping.", propertyName));

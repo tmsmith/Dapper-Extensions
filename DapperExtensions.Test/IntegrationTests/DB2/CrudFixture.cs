@@ -1,9 +1,8 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.IntegrationTests.DB2.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.IntegrationTests.DB2.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.DB2
 {

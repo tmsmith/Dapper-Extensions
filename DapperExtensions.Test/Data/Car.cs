@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace DapperExtensions.Test.Data
+﻿namespace DapperExtensions.Test.Data
 {
     class Car
     {

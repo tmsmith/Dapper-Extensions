@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using DapperExtensions.Test.IntegrationTests.Oracle.Data;
+﻿using DapperExtensions.Test.IntegrationTests.Oracle.Data;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
@@ -78,22 +78,22 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             [Ignore("Oracle does not support GUID from the box")]
             public void GuidKey_UsingEntity()
             {
-/*
-                Animal a = new Animal { Name = "Name" };
-                Db.Insert(a);
-                DateTime start = DateTime.Now;
-                List<Guid> ids = new List<Guid>();
-                for (int i = 0; i < cnt; i++)
-                {
-                    Animal a2 = new Animal { Name = "Name" + i };
-                    Db.Insert(a2);
-                    ids.Add(a2.Id);
-                }
+                /*
+                                Animal a = new Animal { Name = "Name" };
+                                Db.Insert(a);
+                                DateTime start = DateTime.Now;
+                                List<Guid> ids = new List<Guid>();
+                                for (int i = 0; i < cnt; i++)
+                                {
+                                    Animal a2 = new Animal { Name = "Name" + i };
+                                    Db.Insert(a2);
+                                    ids.Add(a2.Id);
+                                }
 
-                double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
-*/
+                                double total = DateTime.Now.Subtract(start).TotalMilliseconds;
+                                Console.WriteLine("Total Time:" + total);
+                                Console.WriteLine("Average Time:" + total / cnt);
+                */
             }
 
             [Test]

@@ -1,9 +1,8 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlCe
 {
@@ -94,12 +93,12 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             public void UsingKey_ReturnsEntity()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
                 int id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
@@ -128,12 +127,12 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             public void UsingKey_DeletesFromDatabase()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
                 int id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
@@ -201,12 +200,12 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             public void UsingKey_UpdatesEntity()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
                 int id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);

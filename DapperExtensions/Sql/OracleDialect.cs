@@ -22,7 +22,7 @@ namespace DapperExtensions.Sql
         {
             var toSkip = page * resultsPerPage;
             var topLimit = (page + 1) * resultsPerPage;
-         
+
             var sb = new StringBuilder();
             sb.AppendLine("SELECT * FROM (");
             sb.AppendLine("SELECT \"_ss_dapper_1_\".*, ROWNUM RNUM FROM (");
@@ -55,7 +55,7 @@ namespace DapperExtensions.Sql
 
         public override string QuoteString(string value)
         {
-            if (value != null && value[0]=='`')
+            if (value != null && value[0] == '`')
             {
                 return string.Format("{0}{1}{2}", OpenQuote, value.Substring(1, value.Length - 2), CloseQuote);
             }

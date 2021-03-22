@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DapperExtensions.Sql;
 using System.Data;
-using System.Linq;
-using System.Text;
-using DapperExtensions.Sql;
 
 namespace DapperExtensions.Test.Helpers
 {

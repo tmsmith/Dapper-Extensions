@@ -1,9 +1,8 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.MySql
 {

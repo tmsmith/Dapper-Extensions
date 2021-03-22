@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using DapperExtensions.Test.Helpers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DapperExtensions.Test
 {
@@ -18,7 +17,7 @@ namespace DapperExtensions.Test
             protected Mock<ISqlDialect> @SqlDialect;
             protected Mock<ISqlGenerator> Generator;
             protected Mock<IDapperExtensionsConfiguration> Configuration;
-                
+
             [SetUp]
             public void Setup()
             {
@@ -90,7 +89,7 @@ namespace DapperExtensions.Test
                 var predicate = Predicates.Sort<PredicateTestEntity>(f => f.Name, false);
                 Assert.AreEqual("Name", predicate.PropertyName);
                 Assert.AreEqual(false, predicate.Ascending);
-            }            
+            }
         }
 
         [TestFixture]
@@ -115,7 +114,7 @@ namespace DapperExtensions.Test
             {
                 Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
                 Mock<BasePredicate> predicate = new Mock<BasePredicate>();
-                List<IPropertyMap> propertyMaps = new List<IPropertyMap>();
+                List<IMemberMap> propertyMaps = new List<IMemberMap>();
                 predicate.CallBase = true;
 
                 Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();
@@ -134,8 +133,8 @@ namespace DapperExtensions.Test
             {
                 Mock<IClassMapper> classMapper = new Mock<IClassMapper>();
                 Mock<BasePredicate> predicate = new Mock<BasePredicate>();
-                Mock<IPropertyMap> propertyMap = new Mock<IPropertyMap>();
-                List<IPropertyMap> propertyMaps = new List<IPropertyMap> { propertyMap.Object };
+                Mock<IMemberMap> propertyMap = new Mock<IMemberMap>();
+                List<IMemberMap> propertyMaps = new List<IMemberMap> { propertyMap.Object };
                 predicate.CallBase = true;
 
                 Configuration.Setup(c => c.GetMap(typeof(PredicateTestEntity))).Returns(classMapper.Object).Verifiable();
@@ -143,7 +142,7 @@ namespace DapperExtensions.Test
                 propertyMap.SetupGet(p => p.Name).Returns("Name").Verifiable();
                 Generator.Setup(g => g.GetColumnName(classMapper.Object, propertyMap.Object, false)).Returns("foo").Verifiable();
 
-                var result = predicate.Object.TestProtected().RunMethod<string>("GetColumnName", typeof (PredicateTestEntity), Generator.Object, "Name");
+                var result = predicate.Object.TestProtected().RunMethod<string>("GetColumnName", typeof(PredicateTestEntity), Generator.Object, "Name");
 
                 Configuration.Verify();
                 classMapper.Verify();
@@ -275,7 +274,7 @@ namespace DapperExtensions.Test
                 Assert.AreEqual(12, parameters["@Name_0"]);
                 Assert.AreEqual("(fooCol ** @Name_0)", sql);
             }
-            
+
             protected Mock<FieldPredicate<T>> Setup<T>(string propertyName, Operator op, object value, bool not) where T : class
             {
                 Mock<FieldPredicate<T>> predicate = new Mock<FieldPredicate<T>>();
@@ -291,7 +290,7 @@ namespace DapperExtensions.Test
 
         [TestFixture]
         public class PropertyPredicateTests : PredicatesFixtureBase
-        {           
+        {
             [Test]
             public void GetSql_ReturnsProperSql()
             {
@@ -392,7 +391,7 @@ namespace DapperExtensions.Test
                 subPredicate1.Verify(s => s.GetSql(Generator.Object, parameters), Times.AtMost(2));
 
                 Assert.AreEqual(0, parameters.Count);
-                Assert.AreEqual("(1=1)", sql); 
+                Assert.AreEqual("(1=1)", sql);
             }
 
             [Test]
@@ -409,7 +408,7 @@ namespace DapperExtensions.Test
                 predicate.Verify();
                 subPredicate1.Verify(s => s.GetSql(Generator.Object, parameters), Times.AtMost(2));
 
-                Assert.AreEqual(0, parameters.Count);                
+                Assert.AreEqual(0, parameters.Count);
                 Assert.AreEqual("(subSql AND subSql)", sql);
             }
 
@@ -451,7 +450,7 @@ namespace DapperExtensions.Test
                 Mock<IClassMapper> subMap = new Mock<IClassMapper>();
                 var predicate = Setup<PredicateTestEntity2>(subPredicate.Object, subMap.Object, false);
                 Generator.Setup(g => g.GetTableName(subMap.Object)).Returns("subTable").Verifiable();
-                
+
                 var parameters = new Dictionary<string, object>();
 
                 subPredicate.Setup(s => s.GetSql(Generator.Object, parameters)).Returns("subSql").Verifiable();
@@ -522,7 +521,7 @@ namespace DapperExtensions.Test
                 Mock<ExistsPredicate<T>> result = new Mock<ExistsPredicate<T>>();
                 result.Object.Predicate = predicate;
                 result.Object.Not = not;
-                result.Protected().Setup<IClassMapper>("GetClassMapper", typeof (T), Configuration.Object).Returns(classMap).Verifiable();
+                result.Protected().Setup<IClassMapper>("GetClassMapper", typeof(T), Configuration.Object).Returns(classMap).Verifiable();
                 result.CallBase = true;
                 return result;
             }

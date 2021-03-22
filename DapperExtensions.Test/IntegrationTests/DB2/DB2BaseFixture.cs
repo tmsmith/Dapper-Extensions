@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Dapper;
+﻿using Dapper;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using IBM.Data.DB2;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace DapperExtensions.Test.IntegrationTests.DB2
 {
@@ -19,18 +16,18 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new DB2Connection("Server=localhost;Database=test;UID=db2admin;PWD=db2admin;CurrentSchema=db2admin;");
+            var connection = new DB2Connection("Server=localhost;Database=TESTDB;UID=db2inst1;PWD=D4pp3rExt3ns1ons;");
             var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), new DB2Dialect());
             var sqlGenerator = new SqlGeneratorImpl(config);
             Db = new Database(connection, sqlGenerator);
             var files = new List<string>
-													{
-																		ReadScriptFile("CreateAnimalTable"),
-																		ReadScriptFile("CreateFooTable"),
-																		ReadScriptFile("CreateMultikeyTable"),
-																		ReadScriptFile("CreatePersonTable"),
-																		ReadScriptFile("CreateCarTable")
-																};
+                                                    {
+                                                                        ReadScriptFile("CreateAnimalTable"),
+                                                                        ReadScriptFile("CreateFooTable"),
+                                                                        ReadScriptFile("CreateMultikeyTable"),
+                                                                        ReadScriptFile("CreatePersonTable"),
+                                                                        ReadScriptFile("CreateCarTable")
+                                                                };
 
             foreach (var setupFile in files)
             {

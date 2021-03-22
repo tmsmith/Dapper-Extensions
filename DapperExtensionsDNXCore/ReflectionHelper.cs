@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-
-namespace DapperExtensions
+﻿namespace DapperExtensions
 {
     public static class ReflectionHelper
     {
@@ -30,7 +23,7 @@ namespace DapperExtensions
                                    typeof(DateTimeOffset),
                                    typeof(byte[])
                                };
-        
+
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;
