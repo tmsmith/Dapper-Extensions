@@ -132,14 +132,14 @@ namespace DapperExtensions
                 // We are only interested in the first identity, but we are iterating over all resulting items (if any).
                 // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
                 bool hasResult = false;
-                int identityInt = 0;
+                long identity = 0;
                 foreach (var identityValue in result)
                 {
                     if (hasResult)
                     {
                         continue;
                     }
-                    identityInt = Convert.ToInt32(identityValue);
+                    identity = identityValue;
                     hasResult = true;
                 }
                 if (!hasResult)
@@ -147,8 +147,8 @@ namespace DapperExtensions
                     throw new InvalidOperationException("The source sequence is empty.");
                 }
 
-                keyValues.Add(identityColumn.Name, identityInt);
-                identityColumn.SetValue(entity, identityInt);
+                keyValues.Add(identityColumn.Name, identity);
+                identityColumn.PropertyInfo.SetValue(entity, Convert.ChangeType(identity, identityColumn.PropertyInfo.PropertyType), null);
             }
             else if (triggerIdentityColumn != null)
             {
