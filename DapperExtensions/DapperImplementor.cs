@@ -201,7 +201,7 @@ namespace DapperExtensions
 
             foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
             {
-                dynamicParameters.Add(property.Key, property.Value);
+                dynamicParameters.Add(property.Key, property.Value());
             }
 
             foreach (var parameter in parameters)
@@ -339,7 +339,7 @@ namespace DapperExtensions
         {
             bool isSimpleType = ReflectionHelper.IsSimpleType(id.GetType());
             var keys = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
-            IDictionary<string, object> paramValues = null;
+            IDictionary<string, Func<object>> paramValues = null;
             IList<IPredicate> predicates = new List<IPredicate>();
             if (!isSimpleType)
             {
@@ -351,7 +351,7 @@ namespace DapperExtensions
                 object value = id;
                 if (!isSimpleType)
                 {
-                    value = paramValues[key.Name];
+                    value = paramValues[key.Name]();
                 }
 
                 Type predicateType = typeof(FieldPredicate<>).MakeGenericType(classMap.EntityType);
@@ -403,13 +403,14 @@ namespace DapperExtensions
         {
             Type predicateType = typeof(FieldPredicate<>).MakeGenericType(classMap.EntityType);
             IList<IPredicate> predicates = new List<IPredicate>();
-            foreach (var kvp in ReflectionHelper.GetObjectValues(entity))
+            var notIgnoredColumns = classMap.Properties.Where(p => !p.Ignored);
+            foreach (var kvp in ReflectionHelper.GetObjectValues(entity).Where(property => notIgnoredColumns.Any(c => c.Name == property.Key)))
             {
                 IFieldPredicate fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
                 fieldPredicate.Not = false;
                 fieldPredicate.Operator = Operator.Eq;
                 fieldPredicate.PropertyName = kvp.Key;
-                fieldPredicate.Value = kvp.Value;
+                fieldPredicate.Value = kvp.Value();
                 predicates.Add(fieldPredicate);
             }
 
