@@ -18,7 +18,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SQLite
     {
         private SQLiteConnection _connection;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["__DefaultSQLite"].ConnectionString;

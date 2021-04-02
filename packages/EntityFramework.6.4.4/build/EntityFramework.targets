@@ -1,0 +1,152 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <EnableDefaultEntityDeployItems Condition="'$(EnableDefaultEntityDeployItems)' == ''">True</EnableDefaultEntityDeployItems>
+  </PropertyGroup>
+
+  <!-- This .targets file can be used by updating Microsoft.Common.targets to 
+         include the line below (as the last import element just before the end project tag)
+      <Import Project="$(MSBuildBinPath)\Microsoft.Data.Entity.targets" Condition="Exists('$(MSBuildBinPath)\Microsoft.Data.Entity.targets')"/>
+      -->
+
+  <!-- The below ensures that "EntityDeploy" is available in the VS Build Action dropdown -->
+  <ItemGroup>
+    <AvailableItemName Include="EntityDeploy" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- EntityDeployIntermediateResourcePath is the path used to store resources generated from
+         the EDMX file before they are embedded in the build target -->
+    <EntityDeployIntermediateResourcePath>$(IntermediateOutputPath)edmxResourcesToEmbed\</EntityDeployIntermediateResourcePath>
+  </PropertyGroup>
+
+
+  <UsingTask TaskName="EntityDeploySplit"
+             AssemblyFile="Microsoft.Data.Entity.Build.Tasks.dll" />
+
+  <UsingTask TaskName="EntityDeploy"
+             AssemblyFile="Microsoft.Data.Entity.Build.Tasks.dll" />
+
+  <UsingTask TaskName="EntityDeploySetLogicalNames"
+             AssemblyFile="Microsoft.Data.Entity.Build.Tasks.dll" />
+
+  <UsingTask TaskName="EntityClean"
+             AssemblyFile="Microsoft.Data.Entity.Build.Tasks.dll" />
+
+  <PropertyGroup>
+    <!-- EntityDeployDependsOn deliberately left empty so others can override this -->
+    <EntityDeployDependsOn></EntityDeployDependsOn>
+    <BuildDependsOn>
+      EntityDeploy;
+      $(BuildDependsOn)
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CleanDependsOn>
+      $(CleanDependsOn);
+      EntityClean;
+    </CleanDependsOn>
+  </PropertyGroup>
+
+  <Target Name="EntityDeploy"
+          DependsOnTargets="$(EntityDeployDependsOn)" 
+          Condition="'@(EntityDeploy)' != ''">
+
+    <CallTarget Targets="EntityDeployNonEmbeddedResources" />
+    <CallTarget Targets="EntityDeployEmbeddedResources" />
+    <CallTarget Targets="EntityDeploySetLogicalNames" />
+
+  </Target>
+
+  <!-- Split the EDMX files into two groups: those whose resources need to be embedded 
+       and those whose resources need to be copied
+       Note: this also assigns the EntityDeployRelativeDir metadata to each
+       item so that the same metadata can be used regardless of whether the 
+       underlying item is a link or a normal file -->
+  <Target Name="EntityDeploySplit" >
+
+    <EntityDeploySplit
+          Sources="@(EntityDeploy)" >
+      <Output TaskParameter="EmbeddingItems" ItemName="EntityDeployEmbeddingItems" />
+      <Output TaskParameter="NonEmbeddingItems" ItemName="EntityDeployCopyingItems" />
+    </EntityDeploySplit>
+
+    <Message Condition="'$(EntityDeployDebug)'=='true'"
+             Text="EntityDeploySplit: EntityDeployEmbeddingItems = @(EntityDeployEmbeddingItems)" />
+    <Message Condition="'$(EntityDeployDebug)'=='true'"
+             Text="EntityDeploySplit: EntityDeployCopyingItems   = @(EntityDeployCopyingItems)" />
+
+  </Target>
+
+  <!-- Generate to $(OutputPath) the CSDL, MSL and SSDL resources from the EDMX 
+       files set to copy their outputs to the output directory (use SSDL as marker
+       file as that is the last one generated) -->
+  <Target Name="EntityDeployNonEmbeddedResources"
+          DependsOnTargets="EntityDeploySplit"
+          Inputs="@(EntityDeployCopyingItems)"
+          Outputs="@(EntityDeployCopyingItems->'$(OutputPath)%(EntityDeployRelativeDir)%(Filename).ssdl')" >
+
+    <EntityDeploy
+          Sources="@(EntityDeployCopyingItems)"
+          OutputPath="$(OutputPath)" >
+    </EntityDeploy>
+
+  </Target>
+
+  <!-- Generates to $(EntityDeployIntermediateResourcePath) the CSDL, MSL and SSDL
+       resources from the EDMX files set to embed their outputs (use SSDL as marker
+       file as that is the last one generated) -->
+  <Target Name="EntityDeployEmbeddedResources"
+          DependsOnTargets="EntityDeploySplit"
+          Inputs="@(EntityDeployEmbeddingItems)"
+          Outputs="@(EntityDeployEmbeddingItems->'$(EntityDeployIntermediateResourcePath)%(EntityDeployRelativeDir)%(Filename).ssdl')" >
+
+    <EntityDeploy
+          Sources="@(EntityDeployEmbeddingItems)"
+          OutputPath="$(EntityDeployIntermediateResourcePath)" >
+    </EntityDeploy>
+
+  </Target>
+
+  <Target Name="EntityClean"
+          Condition="'@(EntityDeploy)' != ''">
+
+    <EntityClean
+          Sources="@(EntityDeploy)"
+          ResourceOutputPath="$(EntityDeployIntermediateResourcePath)"
+          OutputPath="$(OutputPath)"
+      />
+  </Target>
+
+  <!-- Define the CSDL/MSL/SSDL files generated from @(EntityDeployEmbeddingItems)
+       as part of the EmbeddedResource ItemGroup which includes them in the build target 
+       Note: this must happen regardless of whether the EntityDeployEmbeddedResources target is 
+       skipped due to incremental build -->
+  <Target Name="EntityDeploySetLogicalNames"
+          DependsOnTargets="EntityDeploySplit">
+
+    <!-- First define the resources to be embedded
+         Note: ignore resources which are not in @(EntityDeployEmbeddingItems) - this ignores
+         resources generated by previous runs which have now had their MetadataArtifactProcessing 
+         changed to "CopyToOutput" -->
+    <ItemGroup>
+      <EntityDeployResourcesToEmbed Include="@(EntityDeployEmbeddingItems->'$(EntityDeployIntermediateResourcePath)%(EntityDeployRelativeDir)%(Filename).csdl')" />
+      <EntityDeployResourcesToEmbed Include="@(EntityDeployEmbeddingItems->'$(EntityDeployIntermediateResourcePath)%(EntityDeployRelativeDir)%(Filename).msl')" />
+      <EntityDeployResourcesToEmbed Include="@(EntityDeployEmbeddingItems->'$(EntityDeployIntermediateResourcePath)%(EntityDeployRelativeDir)%(Filename).ssdl')" />
+    </ItemGroup>
+
+    <Message Condition="'$(EntityDeployDebug)'=='true'"
+             Text="EntityDeploySetLogicalNames: EntityDeployResourcesToEmbed = @(EntityDeployResourcesToEmbed)" />
+
+    <!-- Now update their logical names and add them to the list of resources to be embedded -->
+    <EntityDeploySetLogicalNames
+          Sources="@(EntityDeployResourcesToEmbed)"
+          ResourceOutputPath="$(EntityDeployIntermediateResourcePath)" >
+      <Output TaskParameter="ResourcesToEmbed" ItemName="EmbeddedResource"/>
+    </EntityDeploySetLogicalNames>
+
+  </Target>
+
+</Project>
+

@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>K4os.Compression.LZ4.Streams</name>
+    </assembly>
+    <members>
+        <member name="T:K4os.Compression.LZ4.Streams.ILZ4Descriptor">
+            <summary>
+            LZ4 Frame descriptor.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.ContentLength">
+            <summary>Content length. Not always known.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.ContentChecksum">
+            <summary>Indicates if content checksum is provided.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.Chaining">
+            <summary>Indicates if blocks are chained (dependent) or not (independent).</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.BlockChecksum">
+            <summary>Indicates if block checksums are provided.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.Dictionary">
+            <summary>Dictionary id. May be null.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.ILZ4Descriptor.BlockSize">
+            <summary>Block size.</summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.Internal.EmptyToken">
+            <summary>
+            Completely empty class to do nothing.
+            It is used internally instead of CancellationToken to make sure
+            blocking operations are easily distinguishable from async ones
+            (you cannot call blocking operation by accident as they *require* EmptyToken).
+            </summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase">
+            <summary>
+            Base class for LZ4 encoder and decoder streams.
+            Cannot be used on its own it just provides some shared functionality.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.CanTimeout">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.ReadTimeout">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.WriteTimeout">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.CanSeek">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Position">
+            <summary>Read-only position in the stream. Trying to set it will throw
+            <see cref="T:System.InvalidOperationException"/>.</summary>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.SetLength(System.Int64)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.ReadByte">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Read(System.Span{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.WriteByte(System.Byte)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.Write(System.ReadOnlySpan{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.Internal.LZ4StreamBase.WriteAsync(System.ReadOnlyMemory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4DecoderSettings">
+            <summary>
+            Decoder settings.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4DecoderSettings.ExtraMemory">
+            <summary>Extra memory for decompression.</summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4DecoderStream">
+            <summary>
+            LZ4 Decompression stream handling.
+            </summary>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.#ctor(System.IO.Stream,System.Func{K4os.Compression.LZ4.Streams.ILZ4Descriptor,K4os.Compression.LZ4.Encoders.ILZ4Decoder},System.Boolean,System.Boolean)">
+            <summary>Creates new instance <see cref="T:K4os.Compression.LZ4.Streams.LZ4DecoderStream"/>.</summary>
+            <param name="inner">Inner stream.</param>
+            <param name="decoderFactory">A function which will create appropriate decoder depending
+            on frame descriptor.</param>
+            <param name="leaveOpen">If <c>true</c> inner stream will not be closed after disposing.</param>
+            <param name="interactive">If <c>true</c> reading from stream will be "interactive" allowing
+            to read bytes as soon as possible, even if more data is expected.</param>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.FlushAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.ReadByte">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Read(System.Span{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.ReadAsync(System.Memory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4DecoderStream.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4DecoderStream.CanWrite">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Length">
+            <summary>
+            Length of stream. Please note, this will only work if original LZ4 stream has
+            <c>ContentLength</c> field set in descriptor. Otherwise returned value will be <c>-1</c>.
+            It will also require synchronous stream access,
+            so it wont work if AllowSynchronousIO is false.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4DecoderStream.Position">
+            <summary>
+            Position within the stream. Position can be read, but cannot be set as LZ4 stream does
+            not have <c>Seek</c> capability.
+            </summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4EncoderSettings">
+            <summary>
+            LZ4 encoder settings.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.ContentLength">
+            <summary>
+            Content length. It is not enforced, it can be set to any value, but it will be
+            written to the stream so it can be used while decoding. If you don't know the length
+            just leave default value.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.ChainBlocks">
+            <summary>
+            Indicates if blocks should be chained (dependent) or not (independent). Dependent blocks
+            (with chaining) provide better compression ratio but are a little but slower and take
+            more memory. 
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.BlockSize">
+            <summary>
+            Block size. You can use any block size, but default values for LZ4 are 64k, 256k, 1m,
+            and 4m. 64k is good enough for dependent blocks, but for independent blocks bigger is
+            better. 
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.ContentChecksum">
+            <summary>Indicates is content checksum is provided. Not implemented yet.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.BlockChecksum">
+            <summary>Indicates if block checksum is provided. Not implemented yet.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.Dictionary">
+            <summary>Dictionary id. Not implemented yet.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.CompressionLevel">
+            <summary>Compression level.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderSettings.ExtraMemory">
+            <summary>Extra memory (for the process, more is usually better).</summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4EncoderStream">
+            <summary>
+            LZ4 compression stream. 
+            </summary>
+            <summary>
+            LZ4 compression stream. 
+            </summary>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.#ctor(System.IO.Stream,K4os.Compression.LZ4.Streams.ILZ4Descriptor,System.Func{K4os.Compression.LZ4.Streams.ILZ4Descriptor,K4os.Compression.LZ4.Encoders.ILZ4Encoder},System.Boolean)">
+            <summary>Creates new instance of <see cref="T:K4os.Compression.LZ4.Streams.LZ4EncoderStream"/>.</summary>
+            <param name="inner">Inner stream.</param>
+            <param name="descriptor">LZ4 Descriptor.</param>
+            <param name="encoderFactory">Function which will take descriptor and return
+            appropriate encoder.</param>
+            <param name="leaveOpen">Indicates if <paramref name="inner"/> stream should be left
+            open after disposing.</param>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Flush">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.FlushAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.WriteByte(System.Byte)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Write(System.ReadOnlySpan{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.WriteAsync(System.ReadOnlyMemory{System.Byte},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4EncoderStream.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderStream.CanRead">
+            <inheritdoc />
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Length">
+            <summary>Length of the stream and number of bytes written so far.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4EncoderStream.Position">
+            <summary>Read-only position in the stream. Trying to set it will throw
+            <see cref="T:System.InvalidOperationException"/>.</summary>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4Descriptor">
+            <summary>
+            LZ4 frame descriptor.
+            </summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.ContentLength">
+            <summary>Content length (if available).</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.ContentChecksum">
+            <summary>Indicates if content checksum if present.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.Chaining">
+            <summary>Indicates if blocks are chained.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.BlockChecksum">
+            <summary>Indicates if block checksums are present.</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.Dictionary">
+            <summary>Dictionary id (or null).</summary>
+        </member>
+        <member name="P:K4os.Compression.LZ4.Streams.LZ4Descriptor.BlockSize">
+            <summary>Block size.</summary>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4Descriptor.#ctor(System.Nullable{System.Int64},System.Boolean,System.Boolean,System.Boolean,System.Nullable{System.UInt32},System.Int32)">
+            <summary>Creates new instance of <see cref="T:K4os.Compression.LZ4.Streams.LZ4Descriptor"/>.</summary>
+            <param name="contentLength">Content length.</param>
+            <param name="contentChecksum">Content checksum flag.</param>
+            <param name="chaining">Chaining flag.</param>
+            <param name="blockChecksum">Block checksum flag.</param>
+            <param name="dictionary">Dictionary id.</param>
+            <param name="blockSize">Block size.</param>
+        </member>
+        <member name="T:K4os.Compression.LZ4.Streams.LZ4Stream">
+            <summary>
+            Utility class with factory methods to create LZ4 compression and decompression streams.
+            </summary>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4Stream.Encode(System.IO.Stream,K4os.Compression.LZ4.Streams.LZ4EncoderSettings,System.Boolean)">
+            <summary>Created compression stream on top of inner stream.</summary>
+            <param name="stream">Inner stream.</param>
+            <param name="settings">Compression settings.</param>
+            <param name="leaveOpen">Leave inner stream open after disposing.</param>
+            <returns>Compression stream.</returns>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4Stream.Encode(System.IO.Stream,K4os.Compression.LZ4.LZ4Level,System.Int32,System.Boolean)">
+            <summary>Created compression stream on top of inner stream.</summary>
+            <param name="stream">Inner stream.</param>
+            <param name="level">Compression level.</param>
+            <param name="extraMemory">Extra memory used for compression.</param>
+            <param name="leaveOpen">Leave inner stream open after disposing.</param>
+            <returns>Compression stream.</returns>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4Stream.Decode(System.IO.Stream,K4os.Compression.LZ4.Streams.LZ4DecoderSettings,System.Boolean,System.Boolean)">
+            <summary>Creates decompression stream on top of inner stream.</summary>
+            <param name="stream">Inner stream.</param>
+            <param name="settings">Decompression settings.</param>
+            <param name="leaveOpen">Leave inner stream open after disposing.</param>
+            <param name="interactive">If <c>true</c> reading from stream will be "interactive" allowing
+            to read bytes as soon as possible, even if more data is expected.</param>
+            <returns>Decompression stream.</returns>
+        </member>
+        <member name="M:K4os.Compression.LZ4.Streams.LZ4Stream.Decode(System.IO.Stream,System.Int32,System.Boolean,System.Boolean)">
+            <summary>Creates decompression stream on top of inner stream.</summary>
+            <param name="stream">Inner stream.</param>
+            <param name="extraMemory">Extra memory used for decompression.</param>
+            <param name="leaveOpen">Leave inner stream open after disposing.</param>
+            <param name="interactive">If <c>true</c> reading from stream will be "interactive" allowing
+            to read bytes as soon as possible, even if more data is expected.</param>
+            <returns>Decompression stream.</returns>
+        </member>
+    </members>
+</doc>

@@ -18,7 +18,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlCe
     {
         private SqlCeConnection _connection;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["__DefaultSqlCe"].ConnectionString;

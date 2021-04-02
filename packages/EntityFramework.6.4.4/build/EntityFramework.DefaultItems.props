@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup Condition="'$(EnableDefaultEntityDeployItems)' == 'True'">
+    <EntityDeploy Include="**/*.edmx" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <None Remove="**/*.edmx" Condition="'$(EnableDefaultNoneItems)' == 'True'" />
+  </ItemGroup>
+</Project>

@@ -5,7 +5,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
 {
     public class SqlServer : FixturesBase
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             Container = SqlSetup.Configuration();

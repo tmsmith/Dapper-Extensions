@@ -12,3 +12,5 @@
 *.dotCover
 _ReSharper.*
 StyleCop.*
+/.vs/Dapper.Extensions.Linq/v16/TestStore/0/testlog.manifest
+/.vs/Dapper.Extensions.Linq/v16/TestStore/0/001.testlog

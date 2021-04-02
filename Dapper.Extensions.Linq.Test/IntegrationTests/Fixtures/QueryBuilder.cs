@@ -15,7 +15,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.Fixtures
     {
         private IWindsorContainer Container { get; set; }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             Container = new Castle.Windsor.WindsorContainer();

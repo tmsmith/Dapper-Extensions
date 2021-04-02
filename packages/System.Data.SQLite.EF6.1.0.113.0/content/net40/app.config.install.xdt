@@ -1,0 +1,12 @@
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <system.data>
+    <DbProviderFactories>
+      <remove xdt:Transform="RemoveAll"
+              xdt:Locator="Condition(@invariant='System.Data.SQLite' or
+                                     @invariant='System.Data.SQLite.Linq')" />
+      <add xdt:Transform="RemoveAll"
+           xdt:Locator="Condition(@invariant='System.Data.SQLite' or
+                                  @invariant='System.Data.SQLite.Linq')" />
+    </DbProviderFactories>
+  </system.data>
+</configuration>

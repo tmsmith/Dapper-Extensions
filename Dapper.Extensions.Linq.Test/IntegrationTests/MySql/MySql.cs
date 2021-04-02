@@ -16,7 +16,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.MySql
     {
         const string DatabaseName = "dapperTest";
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             using (var mySqlConnection = new MySqlConnection("Server=localhost;Port=3306;uid=root;password=password!"))

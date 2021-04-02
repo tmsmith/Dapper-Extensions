@@ -6,7 +6,7 @@ namespace Dapper.Extensions.Linq.Test.IntegrationTests.SqlServer
     {
         protected Castle.Windsor.WindsorContainer Container;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
             Container = SqlSetup.Configuration();
