@@ -54,7 +54,7 @@ namespace DapperExtensions.Test.Mapper
                 }
             }
 
-            private bool mappingExists(FooClassMapper mapper)
+            private bool MappingExists(FooClassMapper mapper)
             {
                 return mapper.Properties.Where(w => w.Name == "Name").Count() == 1;
             }
@@ -65,10 +65,10 @@ namespace DapperExtensions.Test.Mapper
                 var target = new FooClassMapper();
 
                 target.Map(p => p.Name);
-                Assert.IsTrue(mappingExists(target));
+                Assert.IsTrue(MappingExists(target));
 
                 target.UnMap(p => p.Name);
-                Assert.IsFalse(mappingExists(target));
+                Assert.IsFalse(MappingExists(target));
             }
 
             [Test]
@@ -341,7 +341,7 @@ namespace DapperExtensions.Test.Mapper
 
         public class TestMapper<T> : ClassMapper<T> where T : class
         {
-            public MemberMap Map(Expression<Func<T, object>> expression)
+            public new MemberMap Map(Expression<Func<T, object>> expression)
             {
                 return base.Map(expression);
             }

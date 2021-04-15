@@ -17,6 +17,7 @@ namespace DapperExtensions.Test.Sql
             protected Mock<SqlGeneratorImpl> Generator;
             protected Mock<ISqlDialect> Dialect;
             protected Mock<IClassMapper> ClassMap;
+	        protected Mock<IList<IProjection>> Projections;
 
             [SetUp]
             public void Setup()
@@ -24,12 +25,15 @@ namespace DapperExtensions.Test.Sql
                 Configuration = new Mock<IDapperExtensionsConfiguration>();
                 Dialect = new Mock<ISqlDialect>();
                 ClassMap = new Mock<IClassMapper>();
+	            Projections = new Mock<IList<IProjection>>();
 
-                Dialect.SetupGet(c => c.ParameterPrefix).Returns('@');
+				Dialect.SetupGet(c => c.ParameterPrefix).Returns('@');
                 Configuration.SetupGet(c => c.Dialect).Returns(Dialect.Object).Verifiable();
 
-                Generator = new Mock<SqlGeneratorImpl>(Configuration.Object);
-                Generator.CallBase = true;
+                Generator = new Mock<SqlGeneratorImpl>(Configuration.Object)
+                {
+                    CallBase = true
+                };
             }
         }
 
@@ -60,7 +64,25 @@ namespace DapperExtensions.Test.Sql
                 Generator.Verify();
             }
 
-            [Test]
+	        [Test]
+	        public void WithoutPredicateAndSortWithProjection_GeneratesSql()
+	        {
+		        IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+		        Generator.Setup(g => g.GetTableName(ClassMap.Object)).Returns("TableName").Verifiable();
+		        Generator.Setup(g => g.BuildSelectColumns(ClassMap.Object, Projections.Object))
+					.Returns("Columns 1, Columns 2")
+					.Verifiable();
+
+
+
+		        var result = Generator.Object.Select(ClassMap.Object, null, null, parameters, Projections.Object);
+		        Assert.AreEqual("SELECT Columns 1, Columns 2 FROM TableName", result);
+		        ClassMap.Verify();
+		        Generator.Verify();
+	        }
+
+			[Test]
             public void WithPredicate_GeneratesSql()
             {
                 IDictionary<string, object> parameters = new Dictionary<string, object>();
@@ -481,15 +503,15 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void DoesNotPrefixColumnListWithTableName()
             {
-                Mock<IPropertyMap> property1 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property1 = new Mock<IMemberMap>();
                 property1.SetupGet(p => p.KeyType).Returns(KeyType.Identity).Verifiable();
 
-                Mock<IPropertyMap> property2 = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property2 = new Mock<IMemberMap>();
                 property2.SetupGet(p => p.KeyType).Returns(KeyType.NotAKey).Verifiable();
                 property2.SetupGet(p => p.Name).Returns("Name").Verifiable();
                 property2.SetupGet(p => p.ColumnName).Returns("Name").Verifiable();
 
-                List<IPropertyMap> properties = new List<IPropertyMap>
+                List<IMemberMap> properties = new List<IMemberMap>
                                                     {
                                                         property1.Object,
                                                         property2.Object

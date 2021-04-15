@@ -116,7 +116,20 @@ namespace DapperExtensions
                 Ascending = ascending
             };
         }
-    }
+
+	    public static IInPredicate In<T>(Expression<Func<T, object>> expression, ICollection collection, bool not = false)
+		    where T : class
+	    {
+		    var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+		    return new InPredicate<T>(collection, propertyInfo.Name, not);
+	    }
+
+	    public static IProjection Projection<T>(Expression<Func<T,object>> expression)
+	    {
+			PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+			return new Projection(propertyInfo.Name);
+		}
+	}
 
     public interface IPredicate
     {
@@ -390,4 +403,60 @@ namespace DapperExtensions
         And,
         Or
     }
+
+	public interface IProjection
+	{
+		string PropertyName { get; }
+	}
+
+	public class Projection : IProjection
+	{
+		public Projection(string propertyName)
+		{
+			PropertyName = propertyName;
+		}
+
+		public string PropertyName { get; }
+	}
+
+	public interface IInPredicate : IPredicate
+	{
+		ICollection Collection { get; }
+		bool Not { get; set; }
+	}
+
+	public class InPredicate<T> : BasePredicate, IInPredicate
+		where T : class
+	{
+		public ICollection Collection { get; }
+		public bool Not { get; set; }
+
+		public InPredicate(ICollection collection, string propertyName, bool isNot = false)
+		{
+			PropertyName = propertyName;
+			Collection = collection;
+			Not = isNot;
+		}
+
+		public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
+		{
+			var columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
+
+			var @params = new List<string>();
+
+			foreach (var item in Collection)
+			{
+				@params.Add(parameters.SetParameterName(PropertyName, item, sqlGenerator.Configuration.Dialect.ParameterPrefix));
+			}
+
+			var commaDelimited = string.Join(",", @params);
+
+			return $@"({columnName} {GetIsNotStatement(Not)} IN ({commaDelimited}))";
+		}
+
+		private static string GetIsNotStatement(bool not)
+		{
+			return not ? "NOT " : string.Empty;
+		}
+	}
 }

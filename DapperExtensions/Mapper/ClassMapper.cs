@@ -125,7 +125,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected MemberMap Map(Expression<Func<T, object>> expression)
+        protected virtual MemberMap Map(Expression<Func<T, object>> expression)
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return Map(propertyInfo);
@@ -134,7 +134,7 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected MemberMap Map(PropertyInfo propertyInfo)
+        protected virtual MemberMap Map(PropertyInfo propertyInfo)
         {
             MemberMap result = new MemberMap(propertyInfo);
             this.GuardForDuplicatePropertyMap(result);

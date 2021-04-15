@@ -24,7 +24,7 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<int> ids = new List<int>();
+                List<long> ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -55,7 +55,7 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<int> ids = new List<int>();
+                List<long> ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person

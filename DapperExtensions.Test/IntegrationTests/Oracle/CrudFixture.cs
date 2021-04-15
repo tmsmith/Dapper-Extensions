@@ -18,7 +18,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             public void AddsEntityToDatabase_ReturnsKey()
             {
                 Person p = new Person { Active = "Y", FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                int id = Db.Insert(p);
+                var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
             }
@@ -71,7 +71,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
@@ -106,7 +106,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
@@ -180,7 +180,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);
                 p2.FirstName = "Baz";
