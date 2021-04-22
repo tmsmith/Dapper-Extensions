@@ -55,9 +55,12 @@ namespace DapperExtensions.Sql
 
         public override string QuoteString(string value)
         {
-            if (value != null && value[0] == '`')
+            if (value != null)
             {
-                return string.Format("{0}{1}{2}", OpenQuote, value.Substring(1, value.Length - 2), CloseQuote);
+                if (value[0] == '\"') return value;
+
+                if (value[0] == '`')
+                    return string.Format("{0}{1}{2}", OpenQuote, value.Substring(1, value.Length - 2), CloseQuote);
             }
             return value.ToUpper();
         }
