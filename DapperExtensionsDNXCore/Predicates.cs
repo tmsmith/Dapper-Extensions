@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 
 namespace DapperExtensions
@@ -26,12 +19,12 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new FieldPredicate<T>
-                       {
-                           PropertyName = propertyInfo.Name,
-                           Operator = op,
-                           Value = value,
-                           Not = not
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                Operator = op,
+                Value = value,
+                Not = not
+            };
         }
 
         /// <summary>
@@ -52,12 +45,12 @@ namespace DapperExtensions
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             PropertyInfo propertyInfo2 = ReflectionHelper.GetProperty(expression2) as PropertyInfo;
             return new PropertyPredicate<T, T2>
-                       {
-                           PropertyName = propertyInfo.Name,
-                           PropertyName2 = propertyInfo2.Name,
-                           Operator = op,
-                           Not = not
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                PropertyName2 = propertyInfo2.Name,
+                Operator = op,
+                Not = not
+            };
         }
 
         /// <summary>
@@ -70,10 +63,10 @@ namespace DapperExtensions
         public static IPredicateGroup Group(GroupOperator op, params IPredicate[] predicate)
         {
             return new PredicateGroup
-                       {
-                           Operator = op,
-                           Predicates = predicate
-                       };
+            {
+                Operator = op,
+                Predicates = predicate
+            };
         }
 
         /// <summary>
@@ -83,10 +76,10 @@ namespace DapperExtensions
             where TSub : class
         {
             return new ExistsPredicate<TSub>
-                       {
-                           Not = not,
-                           Predicate = predicate
-                       };
+            {
+                Not = not,
+                Predicate = predicate
+            };
         }
 
         /// <summary>
@@ -97,11 +90,11 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new BetweenPredicate<T>
-                       {
-                           Not = not,
-                           PropertyName = propertyInfo.Name,
-                           Value = values
-                       };
+            {
+                Not = not,
+                PropertyName = propertyInfo.Name,
+                Value = values
+            };
         }
 
         /// <summary>
@@ -111,10 +104,10 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new Sort
-                       {
-                           PropertyName = propertyInfo.Name,
-                           Ascending = ascending
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                Ascending = ascending
+            };
         }
     }
 
@@ -329,7 +322,7 @@ namespace DapperExtensions
                 sb =>
                 {
                     var s = sb.ToString();
-                    if (s.Length == 0) return sqlGenerator.Configuration.Dialect.EmptyExpression; 
+                    if (s.Length == 0) return sqlGenerator.Configuration.Dialect.EmptyExpression;
                     return s;
                 }
                                         ) + ")";

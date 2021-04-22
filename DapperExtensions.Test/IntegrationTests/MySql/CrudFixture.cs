@@ -1,9 +1,8 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.MySql
 {
@@ -17,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
             public void AddsEntityToDatabase_ReturnsKey()
             {
                 Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                int id = Db.Insert(p);
+                var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
             }
@@ -100,7 +99,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
@@ -134,7 +133,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
@@ -207,7 +206,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);
                 p2.FirstName = "Baz";

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using NUnit.Framework;
+using System;
+using System.Linq;
 
 namespace DapperExtensions.Test.Mapper
 {
@@ -51,7 +49,7 @@ namespace DapperExtensions.Test.Mapper
                 var map = m.Properties.Single(p => p.KeyType == KeyType.Guid);
                 Assert.IsTrue(map.ColumnName == "SomeId");
             }
-            
+
             private AutoClassMapper<T> GetMapper<T>() where T : class
             {
                 return new AutoClassMapper<T>();

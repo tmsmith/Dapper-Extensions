@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Dapper;
+﻿using Dapper;
 using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace DapperExtensions.Test.IntegrationTests.MySql
 {
@@ -19,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new MySqlConnection("Server=localhost;Port=3306;Database=dapperTest;uid=root;password=password!");
+            var connection = new MySqlConnection("Server=localhost;Database=dapperTest;Uid=dapperExtensions;Pwd=password;");
             var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), new MySqlDialect());
             var sqlGenerator = new SqlGeneratorImpl(config);
             Db = new Database(connection, sqlGenerator);

@@ -30,7 +30,7 @@ namespace DapperExtensions
                                    typeof(DateTimeOffset),
                                    typeof(byte[])
                                };
-        
+
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;
@@ -54,9 +54,9 @@ namespace DapperExtensions
             }
         }
 
-        public static IDictionary<string, object> GetObjectValues(object obj)
+        public static IDictionary<string, Func<object>> GetObjectValues(object obj)
         {
-            IDictionary<string, object> result = new Dictionary<string, object>();
+            IDictionary<string, Func<object>> result = new Dictionary<string, Func<object>>();
             if (obj == null)
             {
                 return result;
@@ -66,7 +66,7 @@ namespace DapperExtensions
             foreach (var propertyInfo in obj.GetType().GetProperties())
             {
                 string name = propertyInfo.Name;
-                object value = propertyInfo.GetValue(obj, null);
+                Func<object> value = () => propertyInfo.GetValue(obj, null);
                 result[name] = value;
             }
 

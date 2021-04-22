@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DapperExtensions.Sql;
+﻿using DapperExtensions.Sql;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DapperExtensions.Test.Sql
 {
@@ -17,7 +16,7 @@ namespace DapperExtensions.Test.Sql
             public void Setup()
             {
                 Dialect = new TestDialect();
-            } 
+            }
         }
 
         [TestFixture]
@@ -55,7 +54,7 @@ namespace DapperExtensions.Test.Sql
                 Assert.IsFalse(Dialect.IsQuoted("foo\""));
             }
         }
-        
+
         [TestFixture]
         public class QuoteStringMethod : SqlDialectBaseFixtureBase
         {

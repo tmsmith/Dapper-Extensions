@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Dapper;
+using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using Dapper;
-using DapperExtensions.Mapper;
-using DapperExtensions.Sql;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.Sqlite
 {

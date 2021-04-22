@@ -1,12 +1,12 @@
-﻿using System;
+﻿using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using DapperExtensions.Mapper;
-using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
@@ -26,12 +26,12 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new FieldPredicate<T>
-                       {
-                           PropertyName = propertyInfo.Name,
-                           Operator = op,
-                           Value = value,
-                           Not = not
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                Operator = op,
+                Value = value,
+                Not = not
+            };
         }
 
         /// <summary>
@@ -52,12 +52,12 @@ namespace DapperExtensions
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             PropertyInfo propertyInfo2 = ReflectionHelper.GetProperty(expression2) as PropertyInfo;
             return new PropertyPredicate<T, T2>
-                       {
-                           PropertyName = propertyInfo.Name,
-                           PropertyName2 = propertyInfo2.Name,
-                           Operator = op,
-                           Not = not
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                PropertyName2 = propertyInfo2.Name,
+                Operator = op,
+                Not = not
+            };
         }
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace DapperExtensions
         public static IPredicateGroup Group(GroupOperator op, params IPredicate[] predicate)
         {
             return new PredicateGroup
-                       {
-                           Operator = op,
-                           Predicates = predicate
-                       };
+            {
+                Operator = op,
+                Predicates = predicate
+            };
         }
 
         /// <summary>
@@ -83,10 +83,10 @@ namespace DapperExtensions
             where TSub : class
         {
             return new ExistsPredicate<TSub>
-                       {
-                           Not = not,
-                           Predicate = predicate
-                       };
+            {
+                Not = not,
+                Predicate = predicate
+            };
         }
 
         /// <summary>
@@ -97,11 +97,11 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new BetweenPredicate<T>
-                       {
-                           Not = not,
-                           PropertyName = propertyInfo.Name,
-                           Value = values
-                       };
+            {
+                Not = not,
+                PropertyName = propertyInfo.Name,
+                Value = values
+            };
         }
 
         /// <summary>
@@ -111,12 +111,25 @@ namespace DapperExtensions
         {
             PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new Sort
-                       {
-                           PropertyName = propertyInfo.Name,
-                           Ascending = ascending
-                       };
+            {
+                PropertyName = propertyInfo.Name,
+                Ascending = ascending
+            };
         }
-    }
+
+	    public static IInPredicate In<T>(Expression<Func<T, object>> expression, ICollection collection, bool not = false)
+		    where T : class
+	    {
+		    var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+		    return new InPredicate<T>(collection, propertyInfo.Name, not);
+	    }
+
+	    public static IProjection Projection<T>(Expression<Func<T,object>> expression)
+	    {
+			PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+			return new Projection(propertyInfo.Name);
+		}
+	}
 
     public interface IPredicate
     {
@@ -141,7 +154,7 @@ namespace DapperExtensions
                 throw new NullReferenceException(string.Format("Map was not found for {0}", entityType));
             }
 
-            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
             if (propertyMap == null)
             {
                 throw new NullReferenceException(string.Format("{0} was not found for {1}", propertyName, entityType));
@@ -329,7 +342,7 @@ namespace DapperExtensions
                 sb =>
                 {
                     var s = sb.ToString();
-                    if (s.Length == 0) return sqlGenerator.Configuration.Dialect.EmptyExpression; 
+                    if (s.Length == 0) return sqlGenerator.Configuration.Dialect.EmptyExpression;
                     return s;
                 }
                                         ) + ")";
@@ -390,4 +403,60 @@ namespace DapperExtensions
         And,
         Or
     }
+
+	public interface IProjection
+	{
+		string PropertyName { get; }
+	}
+
+	public class Projection : IProjection
+	{
+		public Projection(string propertyName)
+		{
+			PropertyName = propertyName;
+		}
+
+		public string PropertyName { get; }
+	}
+
+	public interface IInPredicate : IPredicate
+	{
+		ICollection Collection { get; }
+		bool Not { get; set; }
+	}
+
+	public class InPredicate<T> : BasePredicate, IInPredicate
+		where T : class
+	{
+		public ICollection Collection { get; }
+		public bool Not { get; set; }
+
+		public InPredicate(ICollection collection, string propertyName, bool isNot = false)
+		{
+			PropertyName = propertyName;
+			Collection = collection;
+			Not = isNot;
+		}
+
+		public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
+		{
+			var columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
+
+			var @params = new List<string>();
+
+			foreach (var item in Collection)
+			{
+				@params.Add(parameters.SetParameterName(PropertyName, item, sqlGenerator.Configuration.Dialect.ParameterPrefix));
+			}
+
+			var commaDelimited = string.Join(",", @params);
+
+			return $@"({columnName} {GetIsNotStatement(Not)} IN ({commaDelimited}))";
+		}
+
+		private static string GetIsNotStatement(bool not)
+		{
+			return not ? "NOT " : string.Empty;
+		}
+	}
 }

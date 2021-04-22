@@ -1,13 +1,13 @@
-﻿using System;
+﻿using DapperExtensions.Mapper;
+using DapperExtensions.Test.Helpers;
+using Moq;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
-using DapperExtensions.Mapper;
-using DapperExtensions.Test.Helpers;
-using Moq;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.Mapper
 {
@@ -42,7 +42,7 @@ namespace DapperExtensions.Test.Mapper
                 }
 
                 //hook to access protected methods
-                public new PropertyMap Map(Expression<Func<Foo, object>> expression)
+                public new MemberMap Map(Expression<Func<Foo, object>> expression)
                 {
                     return base.Map(expression);
                 }
@@ -54,7 +54,7 @@ namespace DapperExtensions.Test.Mapper
                 }
             }
 
-            private bool mappingExists(FooClassMapper mapper)
+            private bool MappingExists(FooClassMapper mapper)
             {
                 return mapper.Properties.Where(w => w.Name == "Name").Count() == 1;
             }
@@ -65,19 +65,18 @@ namespace DapperExtensions.Test.Mapper
                 var target = new FooClassMapper();
 
                 target.Map(p => p.Name);
-                Assert.IsTrue(mappingExists(target));
+                Assert.IsTrue(MappingExists(target));
 
                 target.UnMap(p => p.Name);
-                Assert.IsFalse(mappingExists(target));
+                Assert.IsFalse(MappingExists(target));
             }
 
             [Test]
-            [ExpectedException(typeof(ApplicationException))]
             public void UnMapThrowExceptionWhenMappingDidntPreviouslyExist()
             {
                 var target = new FooClassMapper();
 
-                target.UnMap(p => p.Name);
+                Assert.Throws<ApplicationException>(() => target.UnMap(p => p.Name));
             }
         }
 
@@ -273,7 +272,7 @@ namespace DapperExtensions.Test.Mapper
             [Test]
             public void DoesNotMapAlreadyMappedProperties()
             {
-                Mock<IPropertyMap> property = new Mock<IPropertyMap>();
+                Mock<IMemberMap> property = new Mock<IMemberMap>();
                 property.SetupGet(p => p.Name).Returns("FooId");
                 property.SetupGet(p => p.KeyType).Returns(KeyType.Assigned);
 
@@ -309,7 +308,7 @@ namespace DapperExtensions.Test.Mapper
                 var mapper = new TestMapper<Foo>();
                 Func<Type, PropertyInfo, bool> canMap = (t, p) => ReflectionHelper.IsSimpleType(p.PropertyType);
                 mapper.TestProtected().RunMethod("AutoMap", canMap);
-                Assert.AreEqual(1, mapper.Properties.Count);                
+                Assert.AreEqual(1, mapper.Properties.Count);
             }
         }
 
@@ -342,7 +341,7 @@ namespace DapperExtensions.Test.Mapper
 
         public class TestMapper<T> : ClassMapper<T> where T : class
         {
-            public PropertyMap Map(Expression<Func<T, object>> expression)
+            public new MemberMap Map(Expression<Func<T, object>> expression)
             {
                 return base.Map(expression);
             }
