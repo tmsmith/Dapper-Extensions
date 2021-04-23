@@ -11,7 +11,7 @@ namespace DapperExtensions
 {
     public static class ReflectionHelper
     {
-        private static List<Type> _simpleTypes = new List<Type>
+        private static readonly List<Type> _simpleTypes = new List<Type>
             {
                                    typeof(byte),
                                    typeof(sbyte),
@@ -68,7 +68,7 @@ namespace DapperExtensions
             foreach (var propertyInfo in obj.GetType().GetProperties())
             {
                 string name = propertyInfo.Name;
-                Func<object> value = () => propertyInfo.GetValue(obj, null);
+                object value() => propertyInfo.GetValue(obj, null);
                 result[name] = value;
             }
 
@@ -114,23 +114,23 @@ namespace DapperExtensions
                 throw new NullReferenceException(String.Format("Map was not found for {0}", entityType));
             }
 
-            IPropertyMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
             if (propertyMap == null)
             {
                 throw new NullReferenceException(String.Format("{0} was not found for {1}", propertyName, entityType));
             }
 
             return new Parameter
-                {
-                    ColumnName = propertyMap.ColumnName,
-                    DbType = propertyMap.DbType,
-                    ParameterDirection = propertyMap.DbDirection,
-                    Precision = propertyMap.DbPrecision,
-                    Scale = propertyMap.DbScale,
-                    Size = propertyMap.DbSize,
-                    Value = value,
-                    Name = propertyName
-                };
+            {
+                ColumnName = propertyMap.ColumnName,
+                DbType = propertyMap.DbType,
+                ParameterDirection = propertyMap.DbDirection,
+                Precision = propertyMap.DbPrecision,
+                Scale = propertyMap.DbScale,
+                Size = propertyMap.DbSize,
+                Value = value is Func<object> ? (value as Func<object>).Invoke() : value,
+                Name = propertyName
+            };
         }
     }
 }

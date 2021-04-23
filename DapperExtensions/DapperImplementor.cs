@@ -51,11 +51,6 @@ namespace DapperExtensions
             var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
 
             var parameters = new List<DynamicParameters>();
-            if (triggerIdentityColumn != null)
-            {
-                properties = typeof(T).GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.Name != triggerIdentityColumn.Name);
-            }
 
             foreach (var e in entities)
             {
@@ -73,7 +68,7 @@ namespace DapperExtensions
                     var prop in
                         e.GetType()
                          .GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                         .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.PropertyInfo.Name)
+                         .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.Name)
                     )
                 {
                     var propValue = prop.GetValue(e, null);
@@ -115,7 +110,7 @@ namespace DapperExtensions
 
             var dynamicParameters = new DynamicParameters();
             foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.PropertyInfo.Name))
+                .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.Name))
             {
                 var propValue = prop.GetValue(entity, null);
                 var parameter = ReflectionHelper.GetParameter(typeof (T), SqlGenerator, prop.Name, propValue);
@@ -164,7 +159,7 @@ namespace DapperExtensions
             }
             else if (triggerIdentityColumn != null)
             {
-                var dynamicParameters = new DynamicParameters();
+                dynamicParameters = new DynamicParameters();
                 foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
                     .Where(p => p.Name != triggerIdentityColumn.Name))
                 {
@@ -284,7 +279,7 @@ namespace DapperExtensions
         protected IEnumerable<T> GetList<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<IProjection> projections = null) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters);
+            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters, projections);
             DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
@@ -466,8 +461,7 @@ namespace DapperExtensions
             DynamicParameters dynamicParameters = new DynamicParameters();
             foreach (var parameter in parameters)
             {
-                var p = parameter.Value as Parameter;
-                if (p != null)
+                if (parameter.Value is Parameter p)
                 {
                     dynamicParameters.Add(p.Name, p.Value, p.DbType,
                                           p.ParameterDirection, p.Size, p.Precision,

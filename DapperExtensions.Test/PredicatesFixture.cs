@@ -238,8 +238,8 @@ namespace DapperExtensions.Test
                 predicate.Verify();
 
                 Assert.AreEqual(2, parameters.Count);
-                Assert.AreEqual("foo", parameters["@Name_0"]);
-                Assert.AreEqual("bar", parameters["@Name_1"]);
+                Assert.AreEqual("foo", (parameters["@Name_0"] as Parameter).Value);
+                Assert.AreEqual("bar", (parameters["@Name_1"] as Parameter).Value);
                 Assert.AreEqual("(fooCol IN (@Name_0, @Name_1))", sql);
             }
 
@@ -254,8 +254,8 @@ namespace DapperExtensions.Test
                 predicate.Verify();
 
                 Assert.AreEqual(2, parameters.Count);
-                Assert.AreEqual("foo", parameters["@Name_0"]);
-                Assert.AreEqual("bar", parameters["@Name_1"]);
+                Assert.AreEqual("foo", (parameters["@Name_0"] as Parameter).Value);
+                Assert.AreEqual("bar", (parameters["@Name_1"] as Parameter).Value);
                 Assert.AreEqual("(fooCol NOT IN (@Name_0, @Name_1))", sql);
             }
 
@@ -271,7 +271,7 @@ namespace DapperExtensions.Test
                 predicate.Verify();
 
                 Assert.AreEqual(1, parameters.Count);
-                Assert.AreEqual(12, parameters["@Name_0"]);
+                Assert.AreEqual(12, (parameters["@Name_0"] as Parameter).Value);
                 Assert.AreEqual("(fooCol ** @Name_0)", sql);
             }
 
@@ -284,6 +284,7 @@ namespace DapperExtensions.Test
                 predicate.Object.Value = value;
                 predicate.CallBase = true;
                 predicate.Protected().Setup<string>("GetColumnName", typeof(T), Generator.Object, propertyName).Returns("fooCol").Verifiable();
+                Configuration.Setup(c => c.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
                 return predicate;
             }
         }
@@ -336,8 +337,8 @@ namespace DapperExtensions.Test
                 predicate.Verify();
 
                 Assert.AreEqual(2, parameters.Count);
-                Assert.AreEqual(12, parameters["@Name_0"]);
-                Assert.AreEqual(20, parameters["@Name_1"]);
+                Assert.AreEqual(12, (parameters["@Name_0"] as Parameter).Value);
+                Assert.AreEqual(20, (parameters["@Name_1"] as Parameter).Value);
                 Assert.AreEqual("(fooCol BETWEEN @Name_0 AND @Name_1)", sql);
             }
 
@@ -352,8 +353,8 @@ namespace DapperExtensions.Test
                 predicate.Verify();
 
                 Assert.AreEqual(2, parameters.Count);
-                Assert.AreEqual(12, parameters["@Name_0"]);
-                Assert.AreEqual(20, parameters["@Name_1"]);
+                Assert.AreEqual(12, (parameters["@Name_0"] as Parameter).Value);
+                Assert.AreEqual(20, (parameters["@Name_1"] as Parameter).Value);
                 Assert.AreEqual("(fooCol NOT BETWEEN @Name_0 AND @Name_1)", sql);
             }
 
@@ -366,6 +367,7 @@ namespace DapperExtensions.Test
                 predicate.Object.Not = not;
                 predicate.CallBase = true;
                 predicate.Protected().Setup<string>("GetColumnName", typeof(T), Generator.Object, propertyName).Returns("fooCol").Verifiable();
+                Configuration.Setup(c => c.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
                 return predicate;
             }
         }

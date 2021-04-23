@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Reflection;
 
 namespace DapperExtensions.Mapper
@@ -219,9 +220,9 @@ namespace DapperExtensions.Mapper
 
         public object GetValue(object obj)
         {
-            if (MemberInfo is FieldInfo)
+            if (MemberInfo is FieldInfo info)
             {
-                return ((FieldInfo)MemberInfo).GetValue(obj);
+                return info.GetValue(obj);
             }
             else
             {
@@ -231,9 +232,9 @@ namespace DapperExtensions.Mapper
 
         public void SetValue(object obj, object value)
         {
-            if (MemberInfo is FieldInfo)
+            if (MemberInfo is FieldInfo info)
             {
-                ((FieldInfo)MemberInfo).SetValue(obj, value);
+                info.SetValue(obj, value);
             }
             else
             {
@@ -245,9 +246,9 @@ namespace DapperExtensions.Mapper
         {
             get
             {
-                if (MemberInfo is FieldInfo)
+                if (MemberInfo is FieldInfo info)
                 {
-                    return ((FieldInfo)MemberInfo).FieldType;
+                    return info.FieldType;
                 }
                 else
                 {

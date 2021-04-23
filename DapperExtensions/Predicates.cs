@@ -213,7 +213,7 @@ namespace DapperExtensions
                 return string.Format("({0} IS {1}NULL)", columnName, Not ? "NOT " : string.Empty);
             }
 
-            if (Value is IEnumerable && !(Value is string))
+            if (Value is IEnumerable enumerable && !(Value is string))
             {
                 if (Operator != Operator.Eq)
                 {
@@ -221,7 +221,7 @@ namespace DapperExtensions
                 }
 
                 List<string> @params = new List<string>();
-                foreach (var value in (IEnumerable)Value)
+                foreach (var value in enumerable)
                 {
                     var p = ReflectionHelper.GetParameter(typeof (T), sqlGenerator, PropertyName, value);
                     string valueParameterName = parameters.SetParameterName(p, sqlGenerator.Configuration.Dialect.ParameterPrefix);
@@ -277,8 +277,8 @@ namespace DapperExtensions
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
             string columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
-            Parameter parameter1 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, this.Value.Value1);
-            Parameter parameter2 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, this.Value.Value2);
+            Parameter parameter1 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, Value.Value1);
+            Parameter parameter2 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, Value.Value2);
             string propertyName1 = parameters.SetParameterName(parameter1, sqlGenerator.Configuration.Dialect.ParameterPrefix);
             string propertyName2 = parameters.SetParameterName(parameter2, sqlGenerator.Configuration.Dialect.ParameterPrefix);
             return string.Format("({0} {1}BETWEEN {2} AND {3})", columnName, Not ? "NOT " : string.Empty, propertyName1, propertyName2);
@@ -450,7 +450,8 @@ namespace DapperExtensions
 
 			foreach (var item in Collection)
 			{
-				@params.Add(parameters.SetParameterName(PropertyName, item, sqlGenerator.Configuration.Dialect.ParameterPrefix));
+                var p = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, item);
+                @params.Add(parameters.SetParameterName(p, sqlGenerator.Configuration.Dialect.ParameterPrefix));
 			}
 
 			var commaDelimited = string.Join(",", @params);
