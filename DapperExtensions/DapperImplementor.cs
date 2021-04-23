@@ -128,41 +128,24 @@ namespace DapperExtensions
             LastExecutedCommand = sql;
             if (identityColumn != null)
             {
-                IEnumerable<long> result;
+                object result;
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
                     LastExecutedCommand = sql;
-                    result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.QuerySingle(identityColumn.MemberType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
                 else
                 {
                     connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
                     sql = SqlGenerator.IdentitySql(classMap);
                     LastExecutedCommand += string.Format("{0}{0}{1}", Environment.NewLine, sql);
-                    result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.QuerySingle(identityColumn.MemberType, sql, entity, transaction, commandTimeout, CommandType.Text);
                 }
 
-                // We are only interested in the first identity, but we are iterating over all resulting items (if any).
-                // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
-                bool hasResult = false;
-                long identity = 0;
-                foreach (var identityValue in result)
-                {
-                    if (hasResult)
-                    {
-                        continue;
-                    }
-                    identity = identityValue;
-                    hasResult = true;
-                }
-                if (!hasResult)
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-
-                keyValues.Add(identityColumn.Name, identity);
-                identityColumn.SetValue(entity, Convert.ChangeType(identity, identityColumn.MemberType));
+                var typedResult = Convert.ChangeType(result, identityColumn.MemberType);
+                keyValues.Add(identityColumn.Name, typedResult);
+                identityColumn.SetValue(entity, typedResult);
             }
             else if (triggerIdentityColumn != null)
             {

@@ -258,7 +258,7 @@ namespace DapperExtensions
         {
             return new SqlGeneratorImpl(_configuration).GetTableName(GetMap<T>());
         }
-        
+
         /// <summary>
         /// Returns the name of the database column based on mappings done with POCO.
         /// 'propertyName' is name of the property in POCO for which the column name should be returned.
@@ -268,6 +268,7 @@ namespace DapperExtensions
         public static string GetColumnName<T>(string propertyName) where T : class
         {
             return new SqlGeneratorImpl(_configuration).GetColumnName(GetMap<T>(), propertyName, false);
+        }
 
         /// <summary>
         /// Gets the last SQL command executed by the Dapper Extensions Implementation
