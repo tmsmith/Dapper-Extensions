@@ -46,7 +46,6 @@ namespace DapperExtensions
 
         public void Insert<T>(IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
         {
-            IEnumerable<PropertyInfo> properties = null;
             IClassMapper classMap = SqlGenerator.Configuration.GetMap<T>();
             var notKeyProperties = classMap.Properties.Where(p => p.KeyType != KeyType.NotAKey);
             var triggerIdentityColumn = classMap.Properties.SingleOrDefault(p => p.KeyType == KeyType.TriggerIdentity);
@@ -69,32 +68,34 @@ namespace DapperExtensions
                     }
                 }
 
+                var dynamicParameters = new DynamicParameters();
+                foreach (
+                    var prop in
+                        e.GetType()
+                         .GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                         .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.PropertyInfo.Name)
+                    )
+                {
+                    var propValue = prop.GetValue(e, null);
+
+                    var parameter = ReflectionHelper.GetParameter(typeof (T), SqlGenerator, prop.Name, propValue);
+                    dynamicParameters.Add(parameter.Name, parameter.Value, parameter.DbType,
+                                          parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                          parameter.Scale);
+                }
+
                 if (triggerIdentityColumn != null)
                 {
-                    var dynamicParameters = new DynamicParameters();
-                    foreach (var prop in properties)
-                    {
-                        dynamicParameters.Add(prop.Name, prop.GetValue(e, null));
-                    }
-
                     // defaultValue need for identify type of parameter
                     var defaultValue = typeof(T).GetProperty(triggerIdentityColumn.Name).GetValue(e, null);
                     dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
-
-                    parameters.Add(dynamicParameters);
                 }
+
+                parameters.Add(dynamicParameters);
             }
 
             string sql = SqlGenerator.Insert(classMap);
-
-            if (triggerIdentityColumn == null)
-            {
-                connection.Execute(sql, entities, transaction, commandTimeout, CommandType.Text);
-            }
-            else
-            {
-                connection.Execute(sql, parameters, transaction, commandTimeout, CommandType.Text);
-            }
+            connection.Execute(sql, parameters, transaction, commandTimeout, CommandType.Text);
         }
 
         public dynamic Insert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout) where T : class
@@ -112,6 +113,17 @@ namespace DapperExtensions
                 }
             }
 
+            var dynamicParameters = new DynamicParameters();
+            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => triggerIdentityColumn == null || p.Name != triggerIdentityColumn.PropertyInfo.Name))
+            {
+                var propValue = prop.GetValue(entity, null);
+                var parameter = ReflectionHelper.GetParameter(typeof (T), SqlGenerator, prop.Name, propValue);
+                dynamicParameters.Add(parameter.Name, parameter.Value, parameter.DbType,
+                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                      parameter.Scale);
+            }
+
             IDictionary<string, object> keyValues = new ExpandoObject();
             string sql = SqlGenerator.Insert(classMap);
             if (identityColumn != null)
@@ -120,13 +132,13 @@ namespace DapperExtensions
                 if (SqlGenerator.SupportsMultipleStatements())
                 {
                     sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
                 }
                 else
                 {
-                    connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+                    connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
                     sql = SqlGenerator.IdentitySql(classMap);
-                    result = connection.Query<long>(sql, entity, transaction, false, commandTimeout, CommandType.Text);
+                    result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
                 }
 
                 // We are only interested in the first identity, but we are iterating over all resulting items (if any).
@@ -171,7 +183,7 @@ namespace DapperExtensions
             }
             else
             {
-                connection.Execute(sql, entity, transaction, commandTimeout, CommandType.Text);
+                connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
             }
 
             foreach (var column in nonIdentityKeyProperties)
@@ -193,21 +205,22 @@ namespace DapperExtensions
             IPredicate predicate = GetKeyPredicate<T>(classMap, entity);
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties);
-            DynamicParameters dynamicParameters = new DynamicParameters();
 
             var columns = ignoreAllKeyProperties
                 ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
                 : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
 
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
+
             foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
             {
-                dynamicParameters.Add(property.Key, property.Value());
+                var parameter = ReflectionHelper.GetParameter(typeof (T), SqlGenerator, property.Key, property.Value);
+                dynamicParameters.Add(parameter.Name, parameter.Value, parameter.DbType,
+                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                      parameter.Scale);
             }
 
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            
 
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
@@ -253,11 +266,7 @@ namespace DapperExtensions
             IPredicate wherePredicate = GetPredicate(classMap, predicate);
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.Count(classMap, wherePredicate, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return (int)connection.Query(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text).Single().Total;
         }
@@ -275,12 +284,8 @@ namespace DapperExtensions
         protected IEnumerable<T> GetList<T>(IDbConnection connection, IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<IProjection> projections = null) where T : class
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters, projections);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            string sql = SqlGenerator.Select(classMap, predicate, sort, parameters);
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
@@ -289,11 +294,7 @@ namespace DapperExtensions
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.SelectPaged(classMap, predicate, sort, page, resultsPerPage, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
@@ -302,11 +303,7 @@ namespace DapperExtensions
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.SelectSet(classMap, predicate, sort, firstResult, maxResults, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return connection.Query<T>(sql, dynamicParameters, transaction, buffered, commandTimeout, CommandType.Text);
         }
@@ -315,11 +312,7 @@ namespace DapperExtensions
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.Delete(classMap, predicate, parameters);
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             return connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text) > 0;
         }
@@ -439,11 +432,7 @@ namespace DapperExtensions
                 sql.AppendLine(SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters) + SqlGenerator.Configuration.Dialect.BatchSeperator);
             }
 
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (var parameter in parameters)
-            {
-                dynamicParameters.Add(parameter.Key, parameter.Value);
-            }
+            DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
             SqlMapper.GridReader grid = connection.QueryMultiple(sql.ToString(), dynamicParameters, transaction, commandTimeout, CommandType.Text);
             return new GridReaderResultReader(grid);
@@ -463,17 +452,33 @@ namespace DapperExtensions
                 }
 
                 string sql = SqlGenerator.Select(classMap, itemPredicate, item.Sort, parameters);
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                foreach (var parameter in parameters)
-                {
-                    dynamicParameters.Add(parameter.Key, parameter.Value);
-                }
+                DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
                 SqlMapper.GridReader queryResult = connection.QueryMultiple(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
                 items.Add(queryResult);
             }
 
             return new SequenceReaderResultReader(items);
+        }
+
+        private static DynamicParameters GetDynamicParameters(Dictionary<string, object> parameters)
+        {
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            foreach (var parameter in parameters)
+            {
+                var p = parameter.Value as Parameter;
+                if (p != null)
+                {
+                    dynamicParameters.Add(p.Name, p.Value, p.DbType,
+                                          p.ParameterDirection, p.Size, p.Precision,
+                                          p.Scale);
+                }
+                else
+                {
+                    dynamicParameters.Add(parameter.Key, parameter.Value);
+                }
+            }
+            return dynamicParameters;
         }
     }
 }

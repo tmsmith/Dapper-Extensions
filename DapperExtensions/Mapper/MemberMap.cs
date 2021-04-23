@@ -12,6 +12,13 @@ namespace DapperExtensions.Mapper
         string ColumnName { get; }
         bool Ignored { get; }
         bool IsReadOnly { get; }
+
+        DbType? DbType { get; }
+        ParameterDirection? DbDirection { get; }
+        int? DbSize { get; }
+        byte? DbPrecision { get; }
+        byte? DbScale { get; }
+
         KeyType KeyType { get; }
         MemberInfo MemberInfo { get; }
         object GetValue(object obj);
@@ -63,6 +70,32 @@ namespace DapperExtensions.Mapper
         /// Gets the read-only status of the current property. If read-only, the current property will not be included in INSERT and UPDATE queries.
         /// </summary>
         public bool IsReadOnly { get; private set; }
+
+
+        /// <summary>
+        /// Gets the underlying Database Type for the current property.
+        /// </summary>
+        public DbType? DbType { get; private set; }
+
+        /// <summary>
+        /// Gets the parameter direction for the current property
+        /// </summary>
+        public ParameterDirection? DbDirection { get; private set; }
+
+        /// <summary>
+        /// Gets the field length of the current property.
+        /// </summary>
+        public int? DbSize { get; private set; }
+
+        /// <summary>
+        /// Gets the field precision of the current property
+        /// </summary>
+        public byte? DbPrecision { get; private set; }
+
+        /// <summary>
+        /// Gets the field scale of the current property
+        /// </summary>
+        public byte? DbScale { get; private set; }
 
         /// <summary>
         /// Gets the property info for the current property.
@@ -124,6 +157,63 @@ namespace DapperExtensions.Mapper
             }
 
             IsReadOnly = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Fluently sets the field length of the property
+        /// </summary>
+        /// <param name="size">The length of the field as it exists in the database</param>
+        public MemberMap Size(int size)
+        {
+            if (size < 0)
+            {
+                throw new ArgumentException(string.Format("'{0}' cannot have a negative field length.", Name));
+            }
+
+            DbSize = size;
+            return this;
+        }
+
+        /// <summary>
+        /// Fluently sets the DbType of the property.
+        /// </summary>
+        public MemberMap Type(DbType dbType)
+        {
+            DbType = dbType;
+            return this;
+        }
+
+        /// <summary>
+        /// Fluently sets the ParameterDirection of the property
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns>The expected parameter direction of the current property</returns>
+        public MemberMap Direction(ParameterDirection direction)
+        {
+            DbDirection = direction;
+            return this;
+        }
+
+        /// <summary>
+        /// Fluently sets the Precision of the property
+        /// </summary>
+        /// <param name="precision"></param>
+        /// <returns></returns>
+        public MemberMap Precision(byte precision)
+        {
+            DbPrecision = precision;
+            return this;
+        }
+
+        /// <summary>
+        /// Fluently sets the Scale of the current property
+        /// </summary>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        public MemberMap Scale(byte scale)
+        {
+            DbScale = scale;
             return this;
         }
 

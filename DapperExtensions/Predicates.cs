@@ -223,7 +223,8 @@ namespace DapperExtensions
                 List<string> @params = new List<string>();
                 foreach (var value in (IEnumerable)Value)
                 {
-                    string valueParameterName = parameters.SetParameterName(this.PropertyName, value, sqlGenerator.Configuration.Dialect.ParameterPrefix);
+                    var p = ReflectionHelper.GetParameter(typeof (T), sqlGenerator, PropertyName, value);
+                    string valueParameterName = parameters.SetParameterName(p, sqlGenerator.Configuration.Dialect.ParameterPrefix);
                     @params.Add(valueParameterName);
                 }
 
@@ -231,7 +232,8 @@ namespace DapperExtensions
                 return string.Format("({0} {1}IN ({2}))", columnName, Not ? "NOT " : string.Empty, paramStrings);
             }
 
-            string parameterName = parameters.SetParameterName(this.PropertyName, this.Value, sqlGenerator.Configuration.Dialect.ParameterPrefix);
+            var parameter = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, Value);
+            string parameterName = parameters.SetParameterName(parameter, sqlGenerator.Configuration.Dialect.ParameterPrefix);
             return string.Format("({0} {1} {2})", columnName, GetOperatorString(), parameterName);
         }
     }
@@ -275,8 +277,10 @@ namespace DapperExtensions
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters)
         {
             string columnName = GetColumnName(typeof(T), sqlGenerator, PropertyName);
-            string propertyName1 = parameters.SetParameterName(this.PropertyName, this.Value.Value1, sqlGenerator.Configuration.Dialect.ParameterPrefix);
-            string propertyName2 = parameters.SetParameterName(this.PropertyName, this.Value.Value2, sqlGenerator.Configuration.Dialect.ParameterPrefix);
+            Parameter parameter1 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, this.Value.Value1);
+            Parameter parameter2 = ReflectionHelper.GetParameter(typeof(T), sqlGenerator, PropertyName, this.Value.Value2);
+            string propertyName1 = parameters.SetParameterName(parameter1, sqlGenerator.Configuration.Dialect.ParameterPrefix);
+            string propertyName2 = parameters.SetParameterName(parameter2, sqlGenerator.Configuration.Dialect.ParameterPrefix);
             return string.Format("({0} {1}BETWEEN {2} AND {3})", columnName, Not ? "NOT " : string.Empty, propertyName1, propertyName2);
         }
 
