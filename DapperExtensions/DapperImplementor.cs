@@ -207,9 +207,9 @@ namespace DapperExtensions
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             string sql = SqlGenerator.Update(classMap, predicate, parameters, ignoreAllKeyProperties);
 
-            var columns = ignoreAllKeyProperties
-                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey)
-                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.Assigned));
+            var columns = ignoreAllKeyProperties 
+                ? classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly) && p.KeyType == KeyType.NotAKey) 
+                : classMap.Properties.Where(p => !(p.Ignored || p.IsReadOnly || p.KeyType == KeyType.Identity || p.KeyType == KeyType.TriggerIdentity || p.KeyType == KeyType.Assigned));
 
             DynamicParameters dynamicParameters = GetDynamicParameters(parameters);
 
