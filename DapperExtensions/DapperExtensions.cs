@@ -248,5 +248,13 @@ namespace DapperExtensions
         {
             return Instance.SqlGenerator.Configuration.GetNextGuid();
         }
+
+        /// <summary>
+        /// Gets the last SQL command executed by the Dapper Extensions Implementation
+        /// </summary>
+        public static string LastExecutedCommand(this IDbConnection connection)
+        {
+            return Instance.LastExecutedCommand;
+        }
     }
 }
