@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 using Animal = DapperExtensions.Test.IntegrationTests.Oracle.Data.Animal;
 using Person = DapperExtensions.Test.IntegrationTests.Oracle.Data.Person;
 
@@ -18,13 +18,13 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             public void AddsEntityToDatabase_ReturnsKey()
             {
                 Person p = new Person { Active = "Y", FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                int id = Db.Insert(p);
+                var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
             }
 
             [Test]
-            [Ignore] // TODO add MultiKey support for oracle
+            [Ignore("TODO add MultiKey support for oracle")]
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
                 Multikey m = new Multikey { Key2 = "key", Value = "foo" };
@@ -71,7 +71,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
@@ -80,7 +80,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
-            [Ignore] // TODO add MultiKey support for oracle
+            [Ignore("TODO add MultiKey support for oracle")]
             public void UsingCompositeKey_ReturnsEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -106,7 +106,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
@@ -114,7 +114,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
-            [Ignore] // TODO add MultiKey support for oracle
+            [Ignore("TODO add MultiKey support for oracle")]
             public void UsingCompositeKey_DeletesFromDatabase()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -180,7 +180,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);
                 p2.FirstName = "Baz";
@@ -195,7 +195,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
-            [Ignore] // TODO add MultiKey support for oracle
+            [Ignore("TODO add MultiKey support for oracle")]
             public void UsingCompositeKey_UpdatesEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };

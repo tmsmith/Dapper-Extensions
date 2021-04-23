@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using NUnit.Framework;
+using System;
 
 namespace DapperExtensions.Test.Mapper
 {

@@ -1,12 +1,4 @@
-﻿using System.Numerics;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-
-namespace DapperExtensions.Mapper
+﻿namespace DapperExtensions.Mapper
 {
     public interface IClassMapper
     {
@@ -147,7 +139,7 @@ namespace DapperExtensions.Mapper
         {
             if (Properties.Any(p => p.Name.Equals(result.Name)))
             {
-                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.",result.Name));
+                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
             }
         }
     }

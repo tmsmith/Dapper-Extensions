@@ -4,13 +4,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
 
 namespace DapperExtensions
 {
     public static class ReflectionHelper
     {
-        private static List<Type> _simpleTypes = new List<Type>
-                               {
+        private static readonly List<Type> _simpleTypes = new List<Type>
+            {
                                    typeof(byte),
                                    typeof(sbyte),
                                    typeof(short),
@@ -30,7 +32,7 @@ namespace DapperExtensions
                                    typeof(DateTimeOffset),
                                    typeof(byte[])
                                };
-        
+
         public static MemberInfo GetProperty(LambdaExpression lambda)
         {
             Expression expr = lambda;
@@ -54,9 +56,9 @@ namespace DapperExtensions
             }
         }
 
-        public static IDictionary<string, object> GetObjectValues(object obj)
+        public static IDictionary<string, Func<object>> GetObjectValues(object obj)
         {
-            IDictionary<string, object> result = new Dictionary<string, object>();
+            IDictionary<string, Func<object>> result = new Dictionary<string, Func<object>>();
             if (obj == null)
             {
                 return result;
@@ -66,7 +68,7 @@ namespace DapperExtensions
             foreach (var propertyInfo in obj.GetType().GetProperties())
             {
                 string name = propertyInfo.Name;
-                object value = propertyInfo.GetValue(obj, null);
+                object value() => propertyInfo.GetValue(obj, null);
                 result[name] = value;
             }
 
@@ -97,11 +99,38 @@ namespace DapperExtensions
             return string.Format("{0}{1}_{2}", parameterPrefix, parameterName, parameters.Count);
         }
 
-        public static string SetParameterName(this IDictionary<string, object> parameters, string parameterName, object value, char parameterPrefix)
+        public static string SetParameterName(this IDictionary<string, object> parameters, Parameter parameter, char parameterPrefix)
         {
-            string name = parameters.GetParameterName(parameterName, parameterPrefix);
-            parameters.Add(name, value);
-            return name;
+            parameter.Name = parameters.GetParameterName(parameter.ColumnName, parameterPrefix);
+            parameters.Add(parameter.Name, parameter);
+            return parameter.Name;
+        }
+
+        public static Parameter GetParameter(Type entityType, ISqlGenerator sqlGenerator, string propertyName, object value)
+        {
+            IClassMapper map = sqlGenerator.Configuration.GetMap(entityType);
+            if (map == null)
+            {
+                throw new NullReferenceException(String.Format("Map was not found for {0}", entityType));
+            }
+
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            if (propertyMap == null)
+            {
+                throw new NullReferenceException(String.Format("{0} was not found for {1}", propertyName, entityType));
+            }
+
+            return new Parameter
+            {
+                ColumnName = propertyMap.ColumnName,
+                DbType = propertyMap.DbType,
+                ParameterDirection = propertyMap.DbDirection,
+                Precision = propertyMap.DbPrecision,
+                Scale = propertyMap.DbScale,
+                Size = propertyMap.DbSize,
+                Value = value is Func<object> ? (value as Func<object>).Invoke() : value,
+                Name = propertyName
+            };
         }
     }
 }

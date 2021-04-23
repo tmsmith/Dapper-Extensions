@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Dapper;
-
-namespace DapperExtensions
+﻿namespace DapperExtensions
 {
     public interface IMultipleResultReader
     {

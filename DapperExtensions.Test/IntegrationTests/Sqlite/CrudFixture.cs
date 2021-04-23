@@ -1,9 +1,9 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.Sqlite
 {
@@ -17,13 +17,13 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             public void AddsEntityToDatabase_ReturnsKey()
             {
                 Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                int id = Db.Insert(p);
+                var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
             }
 
             [Test]
-            [Ignore] //TODO: multikey identity
+            [Ignore("TODO: multikey identity")]
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
                 Multikey m = new Multikey { Key2 = "key", Value = "foo" };
@@ -101,7 +101,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
@@ -110,7 +110,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore] //TODO: multikey identity
+            [Ignore("TODO: multikey identity")]
             public void UsingCompositeKey_ReturnsEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -136,7 +136,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
@@ -144,7 +144,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore] //TODO: multikey identity
+            [Ignore("TODO: multikey identity")]
             public void UsingCompositeKey_DeletesFromDatabase()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -210,7 +210,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                     LastName = "Bar",
                     DateCreated = DateTime.UtcNow
                 };
-                int id = Db.Insert(p1);
+                var id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);
                 p2.FirstName = "Baz";
@@ -225,7 +225,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore] //TODO: multikey identity
+            [Ignore("TODO: multikey identity")]
             public void UsingCompositeKey_UpdatesEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -285,7 +285,26 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
             }
-        }
+
+	        [Test]
+	        public void UsingProjections_Returns_ChosenField()
+	        {
+		        Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
+		       
+		        var projections = new List<IProjection>() { Predicates.Projection<Person>(x => x.FirstName) };
+
+		        var results = Db.GetList<Person>(projections: projections);
+
+				Assert.AreEqual(results.Count(),1);
+
+		        var result = results.Single();
+
+				Assert.AreEqual(result.FirstName, "a");
+		        Assert.IsNull(result.LastName);
+				Assert.IsFalse(result.Active);
+				Assert.AreEqual(result.DateCreated, default(DateTime));
+			}
+		}
 
         [TestFixture]
         public class GetPageMethod : SqliteBaseFixture
@@ -399,7 +418,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(2, count);
             }
 
-            [Test]
+			[Test]
             public void UsingObject_Returns_Count()
             {
                 Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
