@@ -12,8 +12,9 @@
 *.dotCover
 _ReSharper.*
 StyleCop.*
+dapperTest*
 
 # Nuget
 packages
-/.vs/DapperExtensions
+.vs
 /DapperExtensionsDNXCore/backup
