@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DapperExtensions.Test.Data;
+﻿using DapperExtensions.Test.Data;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlCe
 {
@@ -17,24 +16,24 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             public void IdentityKey_UsingEntity()
             {
                 Person p = new Person
-                               {
-                                   FirstName = "FirstName",
-                                   LastName = "LastName",
-                                   DateCreated = DateTime.Now,
-                                   Active = true
-                               };
+                {
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    DateCreated = DateTime.Now,
+                    Active = true
+                };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
                 List<int> ids = new List<int>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
-                                    {
-                                        FirstName = "FirstName" + i,
-                                        LastName = "LastName" + i,
-                                        DateCreated = DateTime.Now,
-                                        Active = true
-                                    };
+                    {
+                        FirstName = "FirstName" + i,
+                        LastName = "LastName" + i,
+                        DateCreated = DateTime.Now,
+                        Active = true
+                    };
                     Db.Insert(p2);
                     ids.Add(p2.Id);
                 }
@@ -48,24 +47,24 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
             public void IdentityKey_UsingReturnValue()
             {
                 Person p = new Person
-                               {
-                                   FirstName = "FirstName",
-                                   LastName = "LastName",
-                                   DateCreated = DateTime.Now,
-                                   Active = true
-                               };
+                {
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    DateCreated = DateTime.Now,
+                    Active = true
+                };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<int> ids = new List<int>();
+                List<long> ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
-                                    {
-                                        FirstName = "FirstName" + i,
-                                        LastName = "LastName" + i,
-                                        DateCreated = DateTime.Now,
-                                        Active = true
-                                    };
+                    {
+                        FirstName = "FirstName" + i,
+                        LastName = "LastName" + i,
+                        DateCreated = DateTime.Now,
+                        Active = true
+                    };
                     var id = Db.Insert(p2);
                     ids.Add(id);
                 }

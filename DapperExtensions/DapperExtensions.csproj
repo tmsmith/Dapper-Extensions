@@ -58,10 +58,11 @@
     <Compile Include="Mapper\AutoClassMapper.cs" />
     <Compile Include="Mapper\ClassMapper.cs" />
     <Compile Include="DapperExtensions.cs" />
+    <Compile Include="Mapper\Parameter.cs" />
     <Compile Include="Mapper\PluralizedAutoClassMapper.cs" />
     <Compile Include="Predicates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Mapper\PropertyMap.cs" />
+    <Compile Include="Mapper\MemberMap.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Sql\DB2Dialect.cs" />
     <Compile Include="Sql\OracleDialect.cs" />

@@ -73,8 +73,11 @@
     <Compile Include="..\DapperExtensions\Mapper\PluralizedAutoClassMapper.cs">
       <Link>Mapper\PluralizedAutoClassMapper.cs</Link>
     </Compile>
-    <Compile Include="..\DapperExtensions\Mapper\PropertyMap.cs">
+    <Compile Include="..\DapperExtensions\Mapper\MemberMap.cs">
       <Link>Mapper\PropertyMap.cs</Link>
+    </Compile>
+	<Compile Include="..\DapperExtensions\Mapper\Parameter.cs">
+      <Link>Mapper\Parameter.cs</Link>
     </Compile>
     <Compile Include="..\DapperExtensions\Predicates.cs">
       <Link>Predicates.cs</Link>

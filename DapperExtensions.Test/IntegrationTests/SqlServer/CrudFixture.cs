@@ -1,9 +1,8 @@
-﻿using System.Text;
+﻿using DapperExtensions.Test.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperExtensions.Test.Data;
-using NUnit.Framework;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlServer
 {
@@ -17,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             public void AddsEntityToDatabase_ReturnsKey()
             {
                 Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                int id = Db.Insert(p);
+                var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
             }
@@ -63,13 +62,13 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             public void UsingKey_ReturnsEntity()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
-                int id = Db.Insert(p1);
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
@@ -97,13 +96,13 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             public void UsingKey_DeletesFromDatabase()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
-                int id = Db.Insert(p1);
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
+                var id = Db.Insert(p1);
 
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
@@ -155,7 +154,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
                 var list = Db.GetList<Person>();
                 Assert.AreEqual(3, list.Count());
 
-                var result = Db.Delete<Person>(new { LastName = "Bar"} );
+                var result = Db.Delete<Person>(new { LastName = "Bar" });
                 Assert.IsTrue(result);
 
                 list = Db.GetList<Person>();
@@ -170,13 +169,13 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             public void UsingKey_UpdatesEntity()
             {
                 Person p1 = new Person
-                                {
-                                    Active = true,
-                                    FirstName = "Foo",
-                                    LastName = "Bar",
-                                    DateCreated = DateTime.UtcNow
-                                };
-                int id = Db.Insert(p1);
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
+                var id = Db.Insert(p1);
 
                 var p2 = Db.Get<Person>(id);
                 p2.FirstName = "Baz";

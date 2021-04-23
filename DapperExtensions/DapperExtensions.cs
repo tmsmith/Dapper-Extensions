@@ -1,11 +1,9 @@
-﻿using System;
+﻿using DapperExtensions.Mapper;
+using DapperExtensions.Sql;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using DapperExtensions.Sql;
-using DapperExtensions.Mapper;
 
 namespace DapperExtensions
 {
@@ -16,7 +14,7 @@ namespace DapperExtensions
         private static Func<IDapperExtensionsConfiguration, IDapperImplementor> _instanceFactory;
         private static IDapperImplementor _instance;
         private static IDapperExtensionsConfiguration _configuration;
-        
+
         /// <summary>
         /// Gets or sets the default class mapper to use when generating class maps. If not specified, AutoClassMapper<T> is used.
         /// DapperExtensions.Configure(Type, IList<Assembly>, ISqlDialect) can be used instead to set all values at once
@@ -50,7 +48,7 @@ namespace DapperExtensions
                 Configure(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
             }
         }
-        
+
         /// <summary>
         /// Get or sets the Dapper Extensions Implementation Factory.
         /// </summary>
@@ -249,6 +247,34 @@ namespace DapperExtensions
         public static Guid GetNextGuid()
         {
             return Instance.SqlGenerator.Configuration.GetNextGuid();
+        }
+        
+        /// <summary>
+        /// Returns the name of the database table based on mappings done with POCO.
+        /// Generic <T> is POCO class.
+        /// See: https://stackoverflow.com/a/49321116/5779732
+        /// </summary>
+        public static string GetTableName<T>() where T : class
+        {
+            return new SqlGeneratorImpl(_configuration).GetTableName(GetMap<T>());
+        }
+        
+        /// <summary>
+        /// Returns the name of the database column based on mappings done with POCO.
+        /// 'propertyName' is name of the property in POCO for which the column name should be returned.
+        /// Generic <T> is POCO class.
+        /// See: https://stackoverflow.com/a/49321116/5779732
+        /// </summary>
+        public static string GetColumnName<T>(string propertyName) where T : class
+        {
+            return new SqlGeneratorImpl(_configuration).GetColumnName(GetMap<T>(), propertyName, false);
+
+        /// <summary>
+        /// Gets the last SQL command executed by the Dapper Extensions Implementation
+        /// </summary>
+        public static string LastExecutedCommand(this IDbConnection connection)
+        {
+            return Instance.LastExecutedCommand;
         }
     }
 }
