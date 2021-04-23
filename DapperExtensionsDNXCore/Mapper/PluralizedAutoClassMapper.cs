@@ -1,9 +1,3 @@
-using System.Text;
-using System.Linq;
-using System.Collections.Generic;
-using System;
-using System.Text.RegularExpressions;
-
 namespace DapperExtensions.Mapper
 {
     /// <summary>
@@ -17,7 +11,7 @@ namespace DapperExtensions.Mapper
         {
             base.Table(Formatting.Pluralize(tableName));
         }
-        
+
         // Adapted from: http://mattgrande.wordpress.com/2009/10/28/pluralization-helper-for-c/
         public static class Formatting
         {

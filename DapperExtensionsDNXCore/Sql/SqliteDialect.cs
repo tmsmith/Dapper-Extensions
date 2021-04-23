@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DapperExtensions.Sql
+﻿namespace DapperExtensions.Sql
 {
     public class SqliteDialect : SqlDialectBase
     {

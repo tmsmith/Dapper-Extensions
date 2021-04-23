@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 using DapperExtensions.Test.Entities;
 
 namespace DapperExtensions.Test.Maps
@@ -17,6 +13,6 @@ namespace DapperExtensions.Test.Maps
                 Map(x => x.Id).Column("ExternalId");
                 AutoMap();
             }
-        } 
+        }
     }
 }
