@@ -4,7 +4,8 @@ using System;
 
 namespace DapperExtensions.Test.Sql
 {
-    public class SqlCeDialectFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class SqlCeDialectFixture
     {
         public abstract class SqlCeDialectFixtureBase
         {
@@ -38,7 +39,7 @@ namespace DapperExtensions.Test.Sql
             public void NullTableName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, null, null));
-                Assert.AreEqual("TableName", ex.ParamName);
+                StringAssert.AreEqualIgnoringCase("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
@@ -46,28 +47,28 @@ namespace DapperExtensions.Test.Sql
             public void EmptyTableName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, string.Empty, null));
-                Assert.AreEqual("TableName", ex.ParamName);
+                StringAssert.AreEqualIgnoringCase("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
             [Test]
             public void TableNameOnly_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName(null, "foo", null);
+                var result = Dialect.GetTableName(null, "foo", null);
                 Assert.AreEqual("[foo]", result);
             }
 
             [Test]
             public void SchemaAndTable_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", null);
+                var result = Dialect.GetTableName("bar", "foo", null);
                 Assert.AreEqual("[bar_foo]", result);
             }
 
             [Test]
             public void AllParams_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", "al");
+                var result = Dialect.GetTableName("bar", "foo", "al");
                 Assert.AreEqual("[bar_foo] AS [al]", result);
             }
         }

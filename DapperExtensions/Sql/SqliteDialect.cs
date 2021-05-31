@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace DapperExtensions.Sql
@@ -11,22 +12,21 @@ namespace DapperExtensions.Sql
             return "SELECT LAST_INSERT_ROWID() AS [Id]";
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = page * resultsPerPage;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage), resultsPerPage, parameters);
         }
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
             if (string.IsNullOrEmpty(sql))
             {
-                throw new ArgumentNullException("SQL");
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
             }
 
             if (parameters == null)
             {
-                throw new ArgumentNullException("Parameters");
+                throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
             }
 
             var result = string.Format("{0} LIMIT @Offset, @Count", sql);
@@ -48,6 +48,20 @@ namespace DapperExtensions.Sql
                 result.AppendFormat(" AS {0}", QuoteString(alias));
             }
             return result.ToString();
+        }
+
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
+        {
+            return databaseFunction switch
+            {
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
+        }
+
+        public override void EnableCaseInsensitive(IDbConnection connection)
+        {
         }
     }
 }

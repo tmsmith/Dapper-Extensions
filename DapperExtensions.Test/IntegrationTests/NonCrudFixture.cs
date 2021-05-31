@@ -10,7 +10,8 @@ using System.Reflection;
 namespace DapperExtensions.Test.IntegrationTests
 {
     [TestFixture]
-    public class NonCrudFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class NonCrudFixture
     {
         [TestFixture]
         public class GetNextGuidMethod
@@ -93,10 +94,18 @@ namespace DapperExtensions.Test.IntegrationTests
 
             private class EntityWithInterfaceMapperMapper : IClassMapper<EntityWithInterfaceMapper>
             {
-                public string SchemaName { get; private set; }
-                public string TableName { get; private set; }
-                public IList<IMemberMap> Properties { get; private set; }
-                public Type EntityType { get; private set; }
+                public string SchemaName { get; }
+                public string TableName { get; }
+                public IList<IMemberMap> Properties { get; }
+                public Type EntityType { get; }
+
+                public string SimpleAlias { get; }
+
+                public IList<IReferenceMap> References { get; }
+
+                public Guid Identity { get; private set; }
+
+                public Guid ParentIdentity { get; private set; }
 
                 public MemberMap Map(Expression<Func<EntityWithInterfaceMapper, object>> expression)
                 {
@@ -104,6 +113,16 @@ namespace DapperExtensions.Test.IntegrationTests
                 }
 
                 public MemberMap Map(PropertyInfo propertyInfo)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public void SetIdentity(Guid identity)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public void SetParentIdentity(Guid identity)
                 {
                     throw new NotImplementedException();
                 }

@@ -1,46 +1,34 @@
-﻿using Dapper;
-using DapperExtensions.Mapper;
-using DapperExtensions.Sql;
+﻿using DapperExtensions.Sql;
 using NUnit.Framework;
 using Oracle.ManagedDataAccess.Client;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
+using System.Linq;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
-    public class OracleBaseFixture
+    [NonParallelizable]
+    public class OracleBaseFixture : DatabaseTestsFixture
     {
-        protected IDatabase Db;
-
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new OracleConnection("Data Source = localhost:1521 / xe; User Id = xe; Password = xe;");
-            var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), new OracleDialect());
-            var sqlGenerator = new SqlGeneratorImpl(config);
-            Db = new Database(connection, sqlGenerator);
-            var files = new List<string>
-                                {
-                                    ReadScriptFile("CreateAnimalTable"),
-                                    ReadScriptFile("CreatePersonTable"),
-                                    ReadScriptFile("CreateCarTable")
-                                };
+            var connection = new OracleConnection(ConnectionString("Oracle"));
 
-            foreach (var setupFile in files)
-            {
-                connection.Execute(setupFile);
-            }
-        }
+            CommonSetup(connection, new OracleDialect());
 
-        public string ReadScriptFile(string name)
-        {
-            string fileName = GetType().Namespace + ".Sql." + name + ".sql";
-            using (Stream s = Assembly.GetExecutingAssembly().GetManifestResourceStream(fileName))
-            using (StreamReader sr = new StreamReader(s))
-            {
-                return sr.ReadToEnd();
-            }
+            ExecuteScripts(connection, true, CreateTableScripts.Where(s => s.IndexOf("foo", System.StringComparison.InvariantCultureIgnoreCase) < 0).ToArray());
+
+            //var files = new List<string>
+            //                    {
+            //                        ReadFile("CreateAnimalTable"),
+            //                        ReadFile("CreatePersonTable"),
+            //                        ReadFile("CreateCarTable"),
+            //                        ReadFile("CreateMultikeyTable")
+            //                    };
+
+            //foreach (var setupFile in files)
+            //{
+            //    connection.Execute(setupFile);
+            //}
         }
     }
 }

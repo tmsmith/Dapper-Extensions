@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using System.Collections.Generic;
 
-
 namespace DapperExtensions
 {
     public interface IMultipleResultReader

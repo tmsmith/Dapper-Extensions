@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 
 namespace DapperExtensions.Sql
 {
@@ -9,17 +10,16 @@ namespace DapperExtensions.Sql
             return "SELECT LASTVAL() AS Id";
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = page * resultsPerPage;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage) - 1, resultsPerPage, parameters);
         }
 
-        public override string GetSetSql(string sql, int pageNumber, int maxResults, IDictionary<string, object> parameters)
+        public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
-            string result = string.Format("{0} LIMIT @maxResults OFFSET @pageStartRowNbr", sql);
+            var result = string.Format("{0} LIMIT @maxResults OFFSET @pageStartRowNbr", sql);
             parameters.Add("@maxResults", maxResults);
-            parameters.Add("@pageStartRowNbr", pageNumber * maxResults);
+            parameters.Add("@pageStartRowNbr", firstResult);
             return result;
         }
 
@@ -32,6 +32,19 @@ namespace DapperExtensions.Sql
         {
             return base.GetTableName(schemaName, tableName, alias).ToLower();
         }
-    }
 
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
+        {
+            return databaseFunction switch
+            {
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
+        }
+
+        public override void EnableCaseInsensitive(IDbConnection connection)
+        {
+        }
+    }
 }

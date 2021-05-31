@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using System.Text.RegularExpressions;
 
 namespace DapperExtensions.Sql
 {
@@ -19,18 +21,45 @@ namespace DapperExtensions.Sql
             return "SELECT CONVERT(LAST_INSERT_ID(), SIGNED INTEGER) AS ID";
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = page * resultsPerPage;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage), resultsPerPage, parameters);
         }
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
-            string result = string.Format("{0} LIMIT @firstResult, @maxResults", sql);
+            var result = string.Format("{0} LIMIT @maxResults OFFSET @firstResult", sql);
             parameters.Add("@firstResult", firstResult);
             parameters.Add("@maxResults", maxResults);
             return result;
+        }
+
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
+        {
+            return databaseFunction switch
+            {
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
+        }
+
+        public override void EnableCaseInsensitive(IDbConnection connection)
+        {
+        }
+
+        public override string GetCountSql(string sql)
+        {
+            var countSQL = base.GetCountSql(sql);
+
+            var count = Regex.Matches(sql.ToUpperInvariant(), "SELECT").Count;
+
+            if (count > 1)
+            {
+                return $"{countSQL} AS {OpenQuote}Total{CloseQuote}";
+            }
+
+            return countSQL;
         }
     }
 }

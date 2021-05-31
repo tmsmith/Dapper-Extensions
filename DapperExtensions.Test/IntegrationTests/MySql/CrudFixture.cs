@@ -1,4 +1,4 @@
-﻿using DapperExtensions.Test.Data;
+﻿using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,8 @@ using System.Linq;
 namespace DapperExtensions.Test.IntegrationTests.MySql
 {
     [TestFixture]
-    public class CrudFixture
+    [Parallelizable(ParallelScope.Self)]
+    public static class CrudFixture
     {
         [TestFixture]
         public class InsertMethod : MySqlBaseFixture
@@ -19,6 +20,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
+                Dispose();
             }
 
             [Test]
@@ -28,6 +30,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var key = Db.Insert(m);
                 Assert.AreEqual(1, key.Key1);
                 Assert.AreEqual("key", key.Key2);
+                Dispose();
             }
 
             [Test]
@@ -39,6 +42,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var a2 = Db.Get<Animal>(a1.Id);
                 Assert.AreNotEqual(Guid.Empty, a2.Id);
                 Assert.AreEqual(a1.Id, a2.Id);
+                Dispose();
             }
 
             [Test]
@@ -51,6 +55,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 var a2 = Db.Get<Animal>(a1.Id);
                 Assert.AreNotEqual(Guid.Empty, a2.Id);
                 Assert.AreEqual(guid, a2.Id);
+                Dispose();
             }
 
             [Test]
@@ -64,6 +69,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
+                Dispose();
             }
 
             [Test]
@@ -80,9 +86,10 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid1));
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid2));
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid3));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid1));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid2));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid3));
+                Dispose();
             }
         }
 
@@ -105,6 +112,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(id, p2.Id);
                 Assert.AreEqual("Foo", p2.FirstName);
                 Assert.AreEqual("Bar", p2.LastName);
+                Dispose();
             }
 
             [Test]
@@ -117,12 +125,20 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
+                Dispose();
             }
         }
 
         [TestFixture]
         public class DeleteMethod : MySqlBaseFixture
         {
+            private void PersonArrange()
+            {
+                Db.Insert(new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow });
+                Db.Insert(new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow });
+                Db.Insert(new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow });
+            }
+
             [Test]
             public void UsingKey_DeletesFromDatabase()
             {
@@ -138,6 +154,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
                 Assert.IsNull(Db.Get<Person>(id));
+                Dispose();
             }
 
             [Test]
@@ -149,17 +166,13 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Multikey m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 });
                 Db.Delete(m2);
                 Assert.IsNull(Db.Get<Multikey>(new { key.Key1, key.Key2 }));
+                Dispose();
             }
 
             [Test]
             public void UsingPredicate_DeletesRows()
             {
-                Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
-                Db.Insert(p1);
-                Db.Insert(p2);
-                Db.Insert(p3);
+                PersonArrange();
 
                 var list = Db.GetList<Person>();
                 Assert.AreEqual(3, list.Count());
@@ -170,17 +183,13 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 list = Db.GetList<Person>();
                 Assert.AreEqual(1, list.Count());
+                Dispose();
             }
 
             [Test]
             public void UsingObject_DeletesRows()
             {
-                Person p1 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p2 = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p3 = new Person { Active = true, FirstName = "Foo", LastName = "Barz", DateCreated = DateTime.UtcNow };
-                Db.Insert(p1);
-                Db.Insert(p2);
-                Db.Insert(p3);
+                PersonArrange();
 
                 var list = Db.GetList<Person>();
                 Assert.AreEqual(3, list.Count());
@@ -190,6 +199,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 list = Db.GetList<Person>();
                 Assert.AreEqual(1, list.Count());
+                Dispose();
             }
         }
 
@@ -218,6 +228,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual("Baz", p3.FirstName);
                 Assert.AreEqual("Bar", p3.LastName);
                 Assert.AreEqual(false, p3.Active);
+                Dispose();
             }
 
             [Test]
@@ -235,63 +246,71 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(1, m3.Key1);
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
+                Dispose();
             }
         }
 
         [TestFixture]
         public class GetListMethod : MySqlBaseFixture
         {
-            [Test]
-            public void UsingNullPredicate_ReturnsAll()
+            private void Arrange()
             {
                 Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
                 Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
                 Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
                 Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+            }
+
+            [Test]
+            public void UsingNullPredicate_ReturnsAll()
+            {
+                Arrange();
 
                 IEnumerable<Person> list = Db.GetList<Person>();
                 Assert.AreEqual(4, list.Count());
+                Dispose();
             }
 
             [Test]
             public void UsingPredicate_ReturnsMatching()
             {
-                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+                Arrange();
 
                 var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "a" || p.FirstName == "c"));
+                Dispose();
             }
 
             [Test]
             public void UsingObject_ReturnsMatching()
             {
-                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow });
-                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow });
+                Arrange();
 
                 var predicate = new { Active = true, FirstName = "c" };
                 IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
+                Dispose();
             }
         }
 
         [TestFixture]
         public class GetPageMethod : MySqlBaseFixture
         {
+            private void Arrange(out long id1, out long id2, out long id3, out long id4)
+            {
+                id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+                id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
+                id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
+                id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+            }
+
             [Test]
             public void UsingNullPredicate_ReturnsMatching()
             {
-                var id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
-                var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+                Arrange(out var id1, out var id2, out var id3, out var id4);
 
                 IList<ISort> sort = new List<ISort>
                                     {
@@ -303,15 +322,13 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id2, list.First().Id);
                 Assert.AreEqual(id1, list.Skip(1).First().Id);
+                Dispose();
             }
 
             [Test]
             public void UsingPredicate_ReturnsMatching()
             {
-                var id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
-                var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+                Arrange(out var id1, out var id2, out var id3, out var id4);
 
                 var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 IList<ISort> sort = new List<ISort>
@@ -320,18 +337,16 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
+                Dispose();
             }
 
             [Test]
             public void NotFirstPage_Returns_NextResults()
             {
-                var id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
-                var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+                Arrange(out var id1, out var id2, out var id3, out var id4);
 
                 IList<ISort> sort = new List<ISort>
                                     {
@@ -339,19 +354,17 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 1, 2);
+                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 2, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id4, list.First().Id);
                 Assert.AreEqual(id3, list.Skip(1).First().Id);
+                Dispose();
             }
 
             [Test]
             public void UsingObject_ReturnsMatching()
             {
-                var id1 = Db.Insert(new Person { Active = true, FirstName = "Sigma", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id2 = Db.Insert(new Person { Active = false, FirstName = "Delta", LastName = "Alpha", DateCreated = DateTime.UtcNow });
-                var id3 = Db.Insert(new Person { Active = true, FirstName = "Theta", LastName = "Gamma", DateCreated = DateTime.UtcNow });
-                var id4 = Db.Insert(new Person { Active = false, FirstName = "Iota", LastName = "Beta", DateCreated = DateTime.UtcNow });
+                Arrange(out var id1, out var id2, out var id3, out var id4);
 
                 var predicate = new { Active = true };
                 IList<ISort> sort = new List<ISort>
@@ -360,51 +373,54 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
+                Dispose();
             }
         }
 
         [TestFixture]
         public class CountMethod : MySqlBaseFixture
         {
-            [Test]
-            public void UsingNullPredicate_Returns_Count()
+            private void Arrange()
             {
                 Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
                 Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
                 Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
                 Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+            }
+
+            [Test]
+            public void UsingNullPredicate_Returns_Count()
+            {
+                Arrange();
 
                 int count = Db.Count<Person>(null);
                 Assert.AreEqual(4, count);
+                Dispose();
             }
 
             [Test]
             public void UsingPredicate_Returns_Count()
             {
-                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
-                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+                Arrange();
 
                 var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
+                Dispose();
             }
 
             [Test]
             public void UsingObject_Returns_Count()
             {
-                Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-                Db.Insert(new Person { Active = false, FirstName = "b", LastName = "b1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-                Db.Insert(new Person { Active = true, FirstName = "c", LastName = "c1", DateCreated = DateTime.UtcNow.AddDays(-3) });
-                Db.Insert(new Person { Active = false, FirstName = "d", LastName = "d1", DateCreated = DateTime.UtcNow.AddDays(-1) });
+                Arrange();
 
                 var predicate = new { FirstName = new[] { "b", "d" } };
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
+                Dispose();
             }
         }
 
@@ -436,6 +452,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual(4, people.Count);
                 Assert.AreEqual(2, animals.Count);
                 Assert.AreEqual(1, people2.Count);
+                Dispose();
             }
         }
     }

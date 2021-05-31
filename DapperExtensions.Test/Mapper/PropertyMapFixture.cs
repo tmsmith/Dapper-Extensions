@@ -7,6 +7,7 @@ using System.Reflection;
 namespace DapperExtensions.Test.Mapper
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     public class PropertyMapFixture
     {
         private class Foo

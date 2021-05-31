@@ -1,14 +1,16 @@
-﻿using DapperExtensions.Test.Data;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
+using Animal = DapperExtensions.Test.Data.Common.Animal;
+using Multikey = DapperExtensions.Test.Data.Sqlite.Multikey;
+using Person = DapperExtensions.Test.Data.Common.Person;
 
 namespace DapperExtensions.Test.IntegrationTests.Sqlite
 {
     [TestFixture]
-    public class CrudFixture
+    [Parallelizable(ParallelScope.Self)]
+    public static class CrudFixture
     {
         [TestFixture]
         public class InsertMethod : SqliteBaseFixture
@@ -23,10 +25,9 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore("TODO: multikey identity")]
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
-                Multikey m = new Multikey { Key2 = "key", Value = "foo" };
+                Multikey m = new Multikey { Key1 = 1, Key2 = "key", Value = "foo" };
                 var key = Db.Insert(m);
                 Assert.AreEqual(1, key.Key1);
                 Assert.AreEqual("key", key.Key2);
@@ -82,9 +83,9 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid1));
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid2));
-                Assert.IsNotNull(animals.FirstOrDefault(x => x.Id == guid3));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid1));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid2));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid3));
             }
         }
 
@@ -110,10 +111,10 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore("TODO: multikey identity")]
+            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_ReturnsEntity()
             {
-                Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+                Multikey m1 = new Multikey { Key1 = 1, Key2 = "key", Value = "bar" };
                 var key = Db.Insert(m1);
 
                 Multikey m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 });
@@ -144,10 +145,10 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore("TODO: multikey identity")]
+            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_DeletesFromDatabase()
             {
-                Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+                Multikey m1 = new Multikey { Key1 = 1, Key2 = "key2", Value = "bar" };
                 var key = Db.Insert(m1);
 
                 Multikey m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 });
@@ -225,10 +226,10 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            [Ignore("TODO: multikey identity")]
+            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_UpdatesEntity()
             {
-                Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
+                Multikey m1 = new Multikey { Key1 = 1, Key2 = "key", Value = "bar" };
                 var key = Db.Insert(m1);
 
                 Multikey m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 });
@@ -286,25 +287,25 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
             }
 
-	        [Test]
-	        public void UsingProjections_Returns_ChosenField()
-	        {
-		        Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-		       
-		        var projections = new List<IProjection>() { Predicates.Projection<Person>(x => x.FirstName) };
+            //[Test]
+            //public void UsingProjections_Returns_ChosenField()
+            //{
+            //    Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
 
-		        var results = Db.GetList<Person>(projections: projections);
+            //    var projections = new List<IProjection>() { Predicates.Projection<Person>(x => x.FirstName) };
 
-				Assert.AreEqual(results.Count(),1);
+            //    var results = Db.GetList<Person>(colsToSelect: projections);
 
-		        var result = results.Single();
+            //    Assert.AreEqual(results.Count(), 1);
 
-				Assert.AreEqual(result.FirstName, "a");
-		        Assert.IsNull(result.LastName);
-				Assert.IsFalse(result.Active);
-				Assert.AreEqual(result.DateCreated, default(DateTime));
-			}
-		}
+            //    var result = results.Single();
+
+            //    Assert.AreEqual(result.FirstName, "a");
+            //    Assert.IsNull(result.LastName);
+            //    Assert.IsFalse(result.Active);
+            //    Assert.AreEqual(result.DateCreated, default(DateTime));
+            //}
+        }
 
         [TestFixture]
         public class GetPageMethod : SqliteBaseFixture
@@ -344,7 +345,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
             }
@@ -363,7 +364,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 1, 2);
+                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 2, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id4, list.First().Id);
                 Assert.AreEqual(id3, list.Skip(1).First().Id);
@@ -384,7 +385,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
             }
@@ -418,7 +419,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(2, count);
             }
 
-			[Test]
+            [Test]
             public void UsingObject_Returns_Count()
             {
                 Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });

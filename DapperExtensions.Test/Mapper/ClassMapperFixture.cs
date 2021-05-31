@@ -12,7 +12,8 @@ using System.Reflection;
 namespace DapperExtensions.Test.Mapper
 {
     [TestFixture]
-    public class ClassMapperFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class ClassMapperFixture
     {
         public abstract class ClassMapperFixtureBase
         {
@@ -54,9 +55,9 @@ namespace DapperExtensions.Test.Mapper
                 }
             }
 
-            private bool MappingExists(FooClassMapper mapper)
+            private static bool MappingExists(FooClassMapper mapper)
             {
-                return mapper.Properties.Where(w => w.Name == "Name").Count() == 1;
+                return mapper.Properties.Count(w => w.Name == "Name") == 1;
             }
 
             [Test]
@@ -72,11 +73,14 @@ namespace DapperExtensions.Test.Mapper
             }
 
             [Test]
+            //[ExpectedException(typeof(ApplicationException))]
             public void UnMapThrowExceptionWhenMappingDidntPreviouslyExist()
             {
                 var target = new FooClassMapper();
 
-                Assert.Throws<ApplicationException>(() => target.UnMap(p => p.Name));
+                var ex = Assert.Throws<ApplicationException>(() => target.UnMap(p => p.Name));
+
+                StringAssert.Contains("mapping does not exist", ex.Message);
             }
         }
 
@@ -290,7 +294,7 @@ namespace DapperExtensions.Test.Mapper
             {
                 var mapper = GetMapper<Foo>();
                 mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(2, mapper.Properties.Count);
+                Assert.AreEqual(4, mapper.Properties.Count);
             }
 
             [Test]
@@ -299,17 +303,63 @@ namespace DapperExtensions.Test.Mapper
                 var mapper = new TestMapper<Foo>();
                 mapper.Map(m => m.List).Ignore();
                 mapper.TestProtected().RunMethod("AutoMap");
-                Assert.AreEqual(2, mapper.Properties.Count);
+                Assert.AreEqual(4, mapper.Properties.Count);
             }
 
             [Test]
             public void DoesNotMapPropertyWhenCanMapIsFalse()
             {
                 var mapper = new TestMapper<Foo>();
-                Func<Type, PropertyInfo, bool> canMap = (t, p) => ReflectionHelper.IsSimpleType(p.PropertyType);
+                Func<Type, PropertyInfo, bool> canMap = (_, p) => ReflectionHelper.IsSimpleType(p.PropertyType);
                 mapper.TestProtected().RunMethod("AutoMap", canMap);
-                Assert.AreEqual(1, mapper.Properties.Count);
+                Assert.AreEqual(3, mapper.Properties.Count);
             }
+        }
+
+        [TestFixture]
+        public class ReferenceMapTests : ClassMapperFixtureBase
+        {
+            public class FooWithReferencence
+            {
+                public long FooId { get; set; }
+                public string Value { get; set; }
+                public long BarId { get; set; }
+                public Bar Bar { get; set; }
+            }
+
+            public class Bar
+            {
+                public long BarId { get; set; }
+                public string Name { get; set; }
+            }
+
+            [Test]
+            public void MappAllReferenceMaps()
+            {
+                var mapper = base.GetMapper<FooWithReferencence>();
+                Expression<Func<FooWithReferencence, object>> refMapExpression = (exp) => exp.Bar;
+
+                Expression<Func<Bar, FooWithReferencence, object>> refExpression = (foo, bar) => foo.BarId == bar.BarId;
+
+                var referenceMap = mapper.TestProtected()
+                    .RunMethod<ReferenceMap<FooWithReferencence>>("ReferenceMap", new object[] { refMapExpression });
+
+                var refMethod = referenceMap
+                    .TestProtected()
+                    .ExectueGenericMethod("Reference", new Type[] { typeof(Bar) }, new object[] { refExpression });
+
+                Assert.Greater(mapper.References.Count, 0);
+                Assert.AreEqual(mapper.References[0].ReferenceProperties[0].LeftProperty.EntityType, typeof(Bar));
+                Assert.AreEqual(mapper.References[0].ReferenceProperties[0].RightProperty.EntityType, typeof(FooWithReferencence));
+            }
+        }
+
+        public class Foo
+        {
+            public int FooId { get; set; }
+            public string Value { get; set; }
+            public int BarId { get; set; }
+            public IList<string> List { get; set; }
         }
 
         public class FooWithIntId
@@ -333,10 +383,10 @@ namespace DapperExtensions.Test.Mapper
             public string BarId { get; set; }
         }
 
-        public class Foo
+        public class Bar
         {
-            public int FooId { get; set; }
-            public IEnumerable<string> List { get; set; }
+            public long BarId { get; set; }
+            public string Name { get; set; }
         }
 
         public class TestMapper<T> : ClassMapper<T> where T : class

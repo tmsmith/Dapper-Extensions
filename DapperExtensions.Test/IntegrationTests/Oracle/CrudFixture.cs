@@ -1,15 +1,16 @@
-﻿using DapperExtensions.Test.Data;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Animal = DapperExtensions.Test.IntegrationTests.Oracle.Data.Animal;
-using Person = DapperExtensions.Test.IntegrationTests.Oracle.Data.Person;
+using Animal = DapperExtensions.Test.Data.Oracle.Animal;
+using Multikey = DapperExtensions.Test.Data.Oracle.Multikey;
+using Person = DapperExtensions.Test.Data.Oracle.Person;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
     [TestFixture]
-    public class CrudFixture
+    [Parallelizable(ParallelScope.Self)]
+    public static class CrudFixture
     {
         [TestFixture]
         public class InsertMethod : OracleBaseFixture
@@ -21,16 +22,18 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
+                Dispose();
             }
 
             [Test]
-            [Ignore("TODO add MultiKey support for oracle")]
+            //[Ignore] // TODO add MultiKey support for oracle
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
                 Multikey m = new Multikey { Key2 = "key", Value = "foo" };
                 var key = Db.Insert(m);
                 Assert.AreEqual(1, key.Key1);
                 Assert.AreEqual("key", key.Key2);
+                Dispose();
             }
 
             [Test]
@@ -42,6 +45,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 var a2 = Db.Get<Animal>(a1.Id);
                 Assert.AreNotEqual(Guid.Empty, a2.Id);
                 Assert.AreEqual(a1.Id, a2.Id);
+                Dispose();
             }
 
             [Test]
@@ -55,6 +59,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
+                Dispose();
             }
         }
 
@@ -77,10 +82,10 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(id, p2.Id);
                 Assert.AreEqual("Foo", p2.FirstName);
                 Assert.AreEqual("Bar", p2.LastName);
+                Dispose();
             }
 
             [Test]
-            [Ignore("TODO add MultiKey support for oracle")]
             public void UsingCompositeKey_ReturnsEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -90,6 +95,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
+                Dispose();
             }
         }
 
@@ -111,10 +117,11 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Person p2 = Db.Get<Person>(id);
                 Db.Delete(p2);
                 Assert.IsNull(Db.Get<Person>(id));
+                Dispose();
             }
 
             [Test]
-            [Ignore("TODO add MultiKey support for oracle")]
+            //[Ignore] // TODO add MultiKey support for oracle
             public void UsingCompositeKey_DeletesFromDatabase()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -123,6 +130,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Multikey m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 });
                 Db.Delete(m2);
                 Assert.IsNull(Db.Get<Multikey>(new { key.Key1, key.Key2 }));
+                Dispose();
             }
 
             [Test]
@@ -144,6 +152,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 list = Db.GetList<Person>();
                 Assert.AreEqual(1, list.Count());
+                Dispose();
             }
 
             [Test]
@@ -164,6 +173,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 list = Db.GetList<Person>();
                 Assert.AreEqual(1, list.Count());
+                Dispose();
             }
         }
 
@@ -192,10 +202,11 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual("Baz", p3.FirstName);
                 Assert.AreEqual("Bar", p3.LastName);
                 Assert.AreEqual("N", p3.Active);
+                Dispose();
             }
 
             [Test]
-            [Ignore("TODO add MultiKey support for oracle")]
+            //[Ignore] // TODO add MultiKey support for oracle
             public void UsingCompositeKey_UpdatesEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -210,6 +221,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(1, m3.Key1);
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
+                Dispose();
             }
         }
 
@@ -226,6 +238,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 IEnumerable<Person> list = Db.GetList<Person>();
                 Assert.AreEqual(4, list.Count());
+                Dispose();
             }
 
             [Test]
@@ -240,6 +253,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "a" || p.FirstName == "c"));
+                Dispose();
             }
 
             [Test]
@@ -254,6 +268,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IEnumerable<Person> list = Db.GetList<Person>(predicate, null);
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
+                Dispose();
             }
         }
 
@@ -278,6 +293,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id2, list.First().Id);
                 Assert.AreEqual(id1, list.Skip(1).First().Id);
+                Dispose();
             }
 
             [Test]
@@ -295,9 +311,10 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
+                Dispose();
             }
 
             [Test]
@@ -314,10 +331,11 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 1, 2);
+                IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 2, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id4, list.First().Id);
                 Assert.AreEqual(id3, list.Skip(1).First().Id);
+                Dispose();
             }
 
             [Test]
@@ -335,9 +353,10 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                                         Predicates.Sort<Person>(p => p.FirstName)
                                     };
 
-                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 3);
+                IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
+                Dispose();
             }
         }
 
@@ -354,6 +373,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 int count = Db.Count<Person>(null);
                 Assert.AreEqual(4, count);
+                Dispose();
             }
 
             [Test]
@@ -367,6 +387,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 var predicate = Predicates.Field<Person>(f => f.DateCreated, Operator.Lt, DateTime.UtcNow.AddDays(-5));
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
+                Dispose();
             }
 
             [Test]
@@ -380,6 +401,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 var predicate = new { FirstName = new[] { "b", "d" } };
                 int count = Db.Count<Person>(predicate);
                 Assert.AreEqual(2, count);
+                Dispose();
             }
         }
 
@@ -411,6 +433,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(4, people.Count);
                 Assert.AreEqual(2, animals.Count);
                 Assert.AreEqual(1, people2.Count);
+                Dispose();
             }
         }
     }

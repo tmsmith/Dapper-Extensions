@@ -2,11 +2,13 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace DapperExtensions.Test.Sql
 {
     [TestFixture]
-    public class SqlDialectBaseFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class SqlDialectBaseFixture
     {
         public abstract class SqlDialectBaseFixtureBase
         {
@@ -118,7 +120,7 @@ namespace DapperExtensions.Test.Sql
             public void NullTableName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, null, null));
-                Assert.AreEqual("TableName", ex.ParamName);
+                StringAssert.AreEqualIgnoringCase("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
@@ -126,36 +128,36 @@ namespace DapperExtensions.Test.Sql
             public void EmptyTableName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetTableName(null, string.Empty, null));
-                Assert.AreEqual("TableName", ex.ParamName);
+                StringAssert.AreEqualIgnoringCase("TableName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
             [Test]
             public void TableNameOnly_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName(null, "foo", null);
+                var result = Dialect.GetTableName(null, "foo", null);
                 Assert.AreEqual("\"foo\"", result);
             }
 
             [Test]
             public void SchemaAndTable_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", null);
+                var result = Dialect.GetTableName("bar", "foo", null);
                 Assert.AreEqual("\"bar\".\"foo\"", result);
             }
 
             [Test]
             public void AllParams_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetTableName("bar", "foo", "al");
-                Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
+                var result = Dialect.GetTableName("bar", "foo", "al");
+                Assert.AreEqual("\"bar\".\"foo\" \"al\"", result);
             }
 
             [Test]
             public void ContainsQuotes_DoesNotAddExtraQuotes()
             {
-                string result = Dialect.GetTableName("\"bar\"", "\"foo\"", "\"al\"");
-                Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
+                var result = Dialect.GetTableName("\"bar\"", "\"foo\"", "\"al\"");
+                Assert.AreEqual("\"bar\".\"foo\" \"al\"", result);
             }
         }
 
@@ -166,7 +168,7 @@ namespace DapperExtensions.Test.Sql
             public void NullColumnName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetColumnName(null, null, null));
-                Assert.AreEqual("ColumnName", ex.ParamName);
+                Assert.AreEqual("columnName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
@@ -174,52 +176,62 @@ namespace DapperExtensions.Test.Sql
             public void EmptyColumnName_ThrowsException()
             {
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetColumnName(null, string.Empty, null));
-                Assert.AreEqual("ColumnName", ex.ParamName);
+                Assert.AreEqual("columnName", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
             [Test]
             public void ColumnNameOnly_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetColumnName(null, "foo", null);
+                var result = Dialect.GetColumnName(null, "foo", null);
                 Assert.AreEqual("\"foo\"", result);
             }
 
             [Test]
             public void PrefixColumnName_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetColumnName("bar", "foo", null);
+                var result = Dialect.GetColumnName("bar", "foo", null);
                 Assert.AreEqual("\"bar\".\"foo\"", result);
             }
 
             [Test]
             public void AllParams_ReturnsProperlyQuoted()
             {
-                string result = Dialect.GetColumnName("bar", "foo", "al");
+                var result = Dialect.GetColumnName("bar", "foo", "al");
                 Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
             }
 
             [Test]
             public void ContainsQuotes_DoesNotAddExtraQuotes()
             {
-                string result = Dialect.GetColumnName("\"bar\"", "\"foo\"", "\"al\"");
+                var result = Dialect.GetColumnName("\"bar\"", "\"foo\"", "\"al\"");
                 Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
             }
         }
 
         public class TestDialect : SqlDialectBase
         {
+            public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
+            {
+                throw new NotImplementedException();
+            }
+
             public override string GetIdentitySql(string tableName)
             {
                 throw new NotImplementedException();
             }
 
-            public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+            public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
             {
                 throw new NotImplementedException();
             }
 
             public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void EnableCaseInsensitive(IDbConnection connection)
             {
                 throw new NotImplementedException();
             }

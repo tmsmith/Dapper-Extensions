@@ -15,19 +15,30 @@ namespace DapperExtensions
         ISqlDialect Dialect { get; }
         IClassMapper GetMap(Type entityType);
         IClassMapper GetMap<T>() where T : class;
+        Type GetMapType(Type entityType);
+        IList<Type> GetMapTypes();
         void ClearCache();
         Guid GetNextGuid();
+        IClassMapper GetVirtualClassMap(Type entityType, IClassMapper mapper = null);
+        ConcurrentDictionary<Type, IClassMapper> VirtualClassMaps { get; }
+        SqlInjection GetOrSetSqlInjection(Type entityType, SqlInjection sqlInjection = null);
+
+        bool CaseSensitiveSearchEnabled { get; }
+        void SetCaseSensitiveSearch(bool value);
     }
 
     public class DapperExtensionsConfiguration : IDapperExtensionsConfiguration
     {
+        private readonly ConcurrentDictionary<Type, SqlInjection> _sqlInjections = new ConcurrentDictionary<Type, SqlInjection>();
         private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
+        public ConcurrentDictionary<Type, IClassMapper> _virtualClassMaps = new ConcurrentDictionary<Type, IClassMapper>();
+
+        public ConcurrentDictionary<Type, IClassMapper> VirtualClassMaps { get => _virtualClassMaps; }
 
         public DapperExtensionsConfiguration()
             : this(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect())
         {
         }
-
 
         public DapperExtensionsConfiguration(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
         {
@@ -36,20 +47,17 @@ namespace DapperExtensions
             Dialect = sqlDialect;
         }
 
-        public Type DefaultMapper { get; private set; }
-        public IList<Assembly> MappingAssemblies { get; private set; }
-        public ISqlDialect Dialect { get; private set; }
+        public Type DefaultMapper { get; }
+        public IList<Assembly> MappingAssemblies { get; }
+        public ISqlDialect Dialect { get; }
+
+        public bool CaseSensitiveSearchEnabled { get; private set; } = false;
 
         public IClassMapper GetMap(Type entityType)
         {
-            IClassMapper map;
-            if (!_classMaps.TryGetValue(entityType, out map))
+            if (!_classMaps.TryGetValue(entityType, out IClassMapper map))
             {
-                Type mapType = GetMapType(entityType);
-                if (mapType == null)
-                {
-                    mapType = DefaultMapper.MakeGenericType(entityType);
-                }
+                var mapType = GetMapType(entityType) ?? DefaultMapper.MakeGenericType(entityType);
 
                 map = Activator.CreateInstance(mapType) as IClassMapper;
                 _classMaps[entityType] = map;
@@ -70,13 +78,13 @@ namespace DapperExtensions
 
         public Guid GetNextGuid()
         {
-            byte[] b = Guid.NewGuid().ToByteArray();
-            DateTime dateTime = new DateTime(1900, 1, 1);
-            DateTime now = DateTime.Now;
-            TimeSpan timeSpan = new TimeSpan(now.Ticks - dateTime.Ticks);
-            TimeSpan timeOfDay = now.TimeOfDay;
-            byte[] bytes1 = BitConverter.GetBytes(timeSpan.Days);
-            byte[] bytes2 = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
+            var b = Guid.NewGuid().ToByteArray();
+            var dateTime = new DateTime(1900, 1, 1);
+            var now = DateTime.Now;
+            var timeSpan = new TimeSpan(now.Ticks - dateTime.Ticks);
+            var timeOfDay = now.TimeOfDay;
+            var bytes1 = BitConverter.GetBytes(timeSpan.Days);
+            var bytes2 = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
             Array.Reverse(bytes1);
             Array.Reverse(bytes2);
             Array.Copy(bytes1, bytes1.Length - 2, b, b.Length - 6, 2);
@@ -84,20 +92,24 @@ namespace DapperExtensions
             return new Guid(b);
         }
 
-        protected virtual Type GetMapType(Type entityType)
+        public virtual Type GetMapType(Type entityType)
         {
-            Func<Assembly, Type> getType = a =>
+            Type getType(Assembly a)
             {
-                Type[] types = a.GetTypes();
+                var types = a.GetTypes();
+
+                //Order by to assure that direct implementaion comes first
+                //FirstOrDefault to avoid inheritance problems
                 return (from type in types
                         let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
                         where
                             interfaceType != null &&
-                            interfaceType.GetGenericArguments()[0] == entityType
-                        select type).SingleOrDefault();
-            };
+                            (interfaceType.GetGenericArguments()[0] == entityType || interfaceType.GetGenericArguments()[0] == entityType?.BaseType)
+                        orderby interfaceType.GetGenericArguments()[0] == entityType descending
+                        select type).FirstOrDefault();
+            }
 
-            Type result = getType(entityType.Assembly);
+            var result = getType(entityType.Assembly);
             if (result != null)
             {
                 return result;
@@ -114,5 +126,42 @@ namespace DapperExtensions
 
             return getType(entityType.Assembly);
         }
+
+        public virtual IList<Type> GetMapTypes()
+        {
+            IList<Type> list = new List<Type>();
+            static IList<Type> getType(Assembly a)
+            {
+                Type[] types = a.GetTypes();
+                return (from type in types
+                        let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
+                        where interfaceType != null
+                        select interfaceType.GetGenericArguments()[0]).ToList();
+            }
+
+            return MappingAssemblies
+                .SelectMany(assembly => getType(assembly))
+                .Select(t => t)
+                .ToList();
+        }
+
+        public IClassMapper GetVirtualClassMap(Type entityType, IClassMapper mapper = null)
+        {
+            if (mapper != null)
+                return _virtualClassMaps.GetOrAdd(entityType, mapper);
+            return _virtualClassMaps[entityType];
+        }
+
+        public SqlInjection GetOrSetSqlInjection(Type entityType, SqlInjection sqlInjection = null)
+        {
+            if (!_sqlInjections.TryGetValue(entityType, out SqlInjection value) && sqlInjection != null)
+            {
+                value = sqlInjection;
+                _sqlInjections[entityType] = value;
+            }
+            return value;
+        }
+
+        public void SetCaseSensitiveSearch(bool value) => CaseSensitiveSearchEnabled = value;
     }
 }

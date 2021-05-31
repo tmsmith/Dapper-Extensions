@@ -7,7 +7,8 @@ using System.Collections.Generic;
 namespace DapperExtensions.Test.Sql
 {
     [TestFixture]
-    public class SqlServerDialectFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class SqlServerDialectFixture
     {
         public abstract class SqlServerDialectFixtureBase
         {
@@ -40,24 +41,24 @@ namespace DapperExtensions.Test.Sql
             [Test]
             public void NullSql_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql(null, 0, 10, new Dictionary<string, object>()));
-                Assert.AreEqual("SQL", ex.ParamName);
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql(null, 0, 10, new Dictionary<string, object>(), ""));
+                StringAssert.AreEqualIgnoringCase("SQL", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
             [Test]
             public void EmptySql_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql(string.Empty, 0, 10, new Dictionary<string, object>()));
-                Assert.AreEqual("SQL", ex.ParamName);
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql(string.Empty, 0, 10, new Dictionary<string, object>(), ""));
+                StringAssert.AreEqualIgnoringCase("SQL", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
             [Test]
             public void NullParameters_ThrowsException()
             {
-                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql("SELECT [schema].[column] FROM [schema].[table]", 0, 10, null));
-                Assert.AreEqual("Parameters", ex.ParamName);
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql("SELECT [schema].[column] FROM [schema].[table]", 0, 10, null, ""));
+                StringAssert.AreEqualIgnoringCase("Parameters", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
             }
 
@@ -65,33 +66,34 @@ namespace DapperExtensions.Test.Sql
             public void Select_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                string sql = "SELECT TOP(10) [_proj].[column] FROM (SELECT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS [_row_number], [column] FROM [schema].[table]) [_proj] WHERE [_proj].[_row_number] >= @_pageStartRow ORDER BY [_proj].[_row_number]";
-                var result = Dialect.GetPagingSql("SELECT [column] FROM [schema].[table]", 0, 10, parameters);
+                const string sql = "SELECT [column] FROM [schema].[table] ORDER BY CURRENT_TIMESTAMP OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
+                var result = Dialect.GetPagingSql("SELECT [column] FROM [schema].[table]", 0, 10, parameters, "");
                 Assert.AreEqual(sql, result);
-                Assert.AreEqual(1, parameters.Count);
-                Assert.AreEqual(parameters["@_pageStartRow"], 1);
+                Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual(parameters["@skipRows"], 0);
+                Assert.AreEqual(parameters["@maxResults"], 10);
             }
 
             [Test]
             public void SelectDistinct_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                string sql = "SELECT TOP(10) [_proj].[column] FROM (SELECT DISTINCT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS [_row_number], [column] FROM [schema].[table]) [_proj] WHERE [_proj].[_row_number] >= @_pageStartRow ORDER BY [_proj].[_row_number]";
-                var result = Dialect.GetPagingSql("SELECT DISTINCT [column] FROM [schema].[table]", 0, 10, parameters);
+                const string sql = "SELECT DISTINCT [column] FROM [schema].[table] ORDER BY CURRENT_TIMESTAMP OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
+                var result = Dialect.GetPagingSql("SELECT DISTINCT [column] FROM [schema].[table]", 0, 10, parameters, "");
                 Assert.AreEqual(sql, result);
-                Assert.AreEqual(1, parameters.Count);
-                Assert.AreEqual(parameters["@_pageStartRow"], 1);
+                Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual(parameters["@skipRows"], 0);
             }
 
             [Test]
             public void SelectOrderBy_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                string sql = "SELECT TOP(10) [_proj].[column] FROM (SELECT ROW_NUMBER() OVER(ORDER BY [column] DESC) AS [_row_number], [column] FROM [schema].[table]) [_proj] WHERE [_proj].[_row_number] >= @_pageStartRow ORDER BY [_proj].[_row_number]";
-                var result = Dialect.GetPagingSql("SELECT [column] FROM [schema].[table] ORDER BY [column] DESC", 0, 10, parameters);
+                const string sql = "SELECT [column] FROM [schema].[table] ORDER BY [column] DESC OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
+                var result = Dialect.GetPagingSql("SELECT [column] FROM [schema].[table] ORDER BY [column] DESC", 0, 10, parameters, "");
                 Assert.AreEqual(sql, result);
-                Assert.AreEqual(1, parameters.Count);
-                Assert.AreEqual(parameters["@_pageStartRow"], 1);
+                Assert.AreEqual(2, parameters.Count);
+                Assert.AreEqual(parameters["@skipRows"], 0);
             }
         }
 

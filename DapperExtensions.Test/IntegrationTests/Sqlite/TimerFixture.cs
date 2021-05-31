@@ -1,4 +1,4 @@
-﻿using DapperExtensions.Test.Data;
+﻿using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -6,9 +6,10 @@ using System.Collections.Generic;
 namespace DapperExtensions.Test.IntegrationTests.Sqlite
 {
     [TestFixture]
-    public class TimerFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class TimerFixture
     {
-        private static int cnt = 1000;
+        private const int cnt = 1000;
 
         public class InsertTimes : SqliteBaseFixture
         {
@@ -24,7 +25,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<long> ids = new List<long>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -40,7 +41,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -55,7 +56,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<long> ids = new List<long>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -71,7 +72,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -90,7 +91,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -109,7 +110,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -129,16 +130,16 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
             public void AssignKey_UsingReturnValue()
             {
-                Car ca = new Car { Id = string.Empty.PadLeft(15, '0'), Name = "Name" };
+                var ca = new Car { Id = string.Empty.PadLeft(15, '0'), Name = "Name" };
                 Db.Insert(ca);
-                DateTime start = DateTime.Now;
-                List<string> ids = new List<string>();
+                var start = DateTime.Now;
+                var ids = new List<string>();
                 for (int i = 0; i < cnt; i++)
                 {
                     var key = (i + 1).ToString().PadLeft(15, '0');
@@ -149,7 +150,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
             }
         }
     }

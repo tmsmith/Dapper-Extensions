@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data;
 
 namespace DapperExtensions.Sql
 {
@@ -22,55 +21,47 @@ namespace DapperExtensions.Sql
             return string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [Id]");
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = (page * resultsPerPage) + 1;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage), resultsPerPage, parameters);
         }
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
             if (string.IsNullOrEmpty(sql))
             {
-                throw new ArgumentNullException("SQL");
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
             }
 
-            if (parameters == null)
+            if (parameters is null)
             {
-                throw new ArgumentNullException("Parameters");
+                throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
             }
 
-            int selectIndex = GetSelectEnd(sql) + 1;
-            string orderByClause = GetOrderByClause(sql);
-            if (orderByClause == null)
+            if (String.IsNullOrEmpty(GetOrderByClause(sql)))
             {
-                orderByClause = "ORDER BY CURRENT_TIMESTAMP";
+                sql = $"{sql} ORDER BY CURRENT_TIMESTAMP";
             }
 
+            var result = $"{sql} OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
 
-            string projectedColumns = GetColumnNames(sql).Aggregate(new StringBuilder(), (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(GetColumnName("_proj", s, null)), sb => sb.ToString());
-            string newSql = sql
-                .Replace(" " + orderByClause, string.Empty)
-                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(9), GetColumnName(null, "_row_number", null)));
+            parameters.Add("@skipRows", firstResult);
+            parameters.Add("@maxResults", maxResults);
 
-            string result = string.Format("SELECT TOP({0}) {1} FROM ({2}) [_proj] WHERE {3} >= @_pageStartRow ORDER BY {3}",
-                maxResults, projectedColumns.Trim(), newSql, GetColumnName("_proj", "_row_number", null));
-
-            parameters.Add("@_pageStartRow", firstResult);
             return result;
         }
 
-        protected string GetOrderByClause(string sql)
+        protected static string GetOrderByClause(string sql)
         {
-            int orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
+            var orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
             if (orderByIndex == -1)
             {
                 return null;
             }
 
-            string result = sql.Substring(orderByIndex).Trim();
+            var result = sql.Substring(orderByIndex).Trim();
 
-            int whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
+            var whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
             if (whereIndex == -1)
             {
                 return result;
@@ -79,11 +70,11 @@ namespace DapperExtensions.Sql
             return result.Substring(0, whereIndex).Trim();
         }
 
-        protected int GetFromStart(string sql)
+        protected static int GetFromStart(string sql)
         {
-            int selectCount = 0;
-            string[] words = sql.Split(' ');
-            int fromIndex = 0;
+            var selectCount = 0;
+            var words = sql.Split(' ');
+            var fromIndex = 0;
             foreach (var word in words)
             {
                 if (word.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase))
@@ -121,29 +112,43 @@ namespace DapperExtensions.Sql
                 return index + 6;
             }
 
-            throw new ArgumentException("SQL must be a SELECT statement.", "sql");
+            throw new ArgumentException("SQL must be a SELECT statement.", nameof(sql));
         }
 
         protected virtual IList<string> GetColumnNames(string sql)
         {
-            int start = GetSelectEnd(sql);
-            int stop = GetFromStart(sql);
-            string[] columnSql = sql.Substring(start, stop - start).Split(',');
-            List<string> result = new List<string>();
+            var start = GetSelectEnd(sql);
+            var stop = GetFromStart(sql);
+            var columnSql = sql.Substring(start, stop - start).Split(',');
+            var result = new List<string>();
             foreach (string c in columnSql)
             {
-                int index = c.IndexOf(" AS ", StringComparison.InvariantCultureIgnoreCase);
+                var index = c.IndexOf(" AS ", StringComparison.InvariantCultureIgnoreCase);
                 if (index > 0)
                 {
                     result.Add(c.Substring(index + 4).Trim());
                     continue;
                 }
 
-                string[] colParts = c.Split('.');
+                var colParts = c.Split('.');
                 result.Add(colParts[colParts.Length - 1].Trim());
             }
 
             return result;
+        }
+
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
+        {
+            return databaseFunction switch
+            {
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
+        }
+
+        public override void EnableCaseInsensitive(IDbConnection connection)
+        {
         }
     }
 }

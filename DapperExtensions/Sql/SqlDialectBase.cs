@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -11,15 +12,19 @@ namespace DapperExtensions.Sql
         char CloseQuote { get; }
         string BatchSeperator { get; }
         bool SupportsMultipleStatements { get; }
+        bool SupportsCountOfSubquery { get; }
         char ParameterPrefix { get; }
         string EmptyExpression { get; }
         string GetTableName(string schemaName, string tableName, string alias);
         string GetColumnName(string prefix, string columnName, string alias);
         string GetIdentitySql(string tableName);
-        string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy);
         string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
         bool IsQuoted(string value);
         string QuoteString(string value);
+        string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "");
+        void EnableCaseInsensitive(IDbConnection connection);
+        string GetCountSql(string sql);
     }
 
     public abstract class SqlDialectBase : ISqlDialect
@@ -52,7 +57,7 @@ namespace DapperExtensions.Sql
             }
         }
 
-        public string EmptyExpression
+        public virtual string EmptyExpression
         {
             get
             {
@@ -60,14 +65,16 @@ namespace DapperExtensions.Sql
             }
         }
 
+        public virtual bool SupportsCountOfSubquery => true;
+
         public virtual string GetTableName(string schemaName, string tableName, string alias)
         {
             if (string.IsNullOrWhiteSpace(tableName))
             {
-                throw new ArgumentNullException("TableName", "tableName cannot be null or empty.");
+                throw new ArgumentNullException(nameof(tableName), $"{nameof(tableName)} cannot be null or empty.");
             }
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(schemaName))
             {
                 result.AppendFormat(QuoteString(schemaName) + ".");
@@ -77,7 +84,7 @@ namespace DapperExtensions.Sql
 
             if (!string.IsNullOrWhiteSpace(alias))
             {
-                result.AppendFormat(" AS {0}", QuoteString(alias));
+                result.AppendFormat(" {0}", QuoteString(alias));
             }
             return result.ToString();
         }
@@ -86,10 +93,10 @@ namespace DapperExtensions.Sql
         {
             if (string.IsNullOrWhiteSpace(columnName))
             {
-                throw new ArgumentNullException("ColumnName", "columnName cannot be null or empty.");
+                throw new ArgumentNullException(nameof(columnName), $"{nameof(columnName)} cannot be null or empty.");
             }
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(prefix))
             {
                 result.AppendFormat(QuoteString(prefix) + ".");
@@ -105,8 +112,13 @@ namespace DapperExtensions.Sql
             return result.ToString();
         }
 
+        protected virtual int GetStartValue(int page, int resultsPerPage)
+        {
+            return (((page == 0 ? 1 : page) - 1) * resultsPerPage);
+        }
+
         public abstract string GetIdentitySql(string tableName);
-        public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters);
+        public abstract string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy);
         public abstract string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters);
 
         public virtual bool IsQuoted(string value)
@@ -131,6 +143,15 @@ namespace DapperExtensions.Sql
         public virtual string UnQuoteString(string value)
         {
             return IsQuoted(value) ? value.Substring(1, value.Length - 2) : value;
+        }
+
+        public abstract string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "");
+
+        public abstract void EnableCaseInsensitive(IDbConnection connection);
+
+        public virtual string GetCountSql(string sql)
+        {
+            return $"SELECT COUNT(*) AS {OpenQuote}Total{CloseQuote} FROM {sql}";
         }
     }
 }
