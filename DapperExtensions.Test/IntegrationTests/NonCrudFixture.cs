@@ -4,6 +4,7 @@ using DapperExtensions.Test.Maps;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -65,12 +66,14 @@ namespace DapperExtensions.Test.IntegrationTests
                 Assert.AreEqual(typeof(AutoClassMapper<ExternallyMapped>), mapper.GetType());
             }
 
+            [ExcludeFromCodeCoverage]
             private class EntityWithoutMapper
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
             }
 
+            [ExcludeFromCodeCoverage]
             private class EntityWithMapper
             {
                 public string Key { get; set; }
@@ -86,12 +89,14 @@ namespace DapperExtensions.Test.IntegrationTests
                 }
             }
 
+            [ExcludeFromCodeCoverage]
             private class EntityWithInterfaceMapper
             {
                 public string Key { get; set; }
                 public string Value { get; set; }
             }
 
+            [ExcludeFromCodeCoverage]
             private class EntityWithInterfaceMapperMapper : IClassMapper<EntityWithInterfaceMapper>
             {
                 public string SchemaName { get; }
@@ -126,6 +131,30 @@ namespace DapperExtensions.Test.IntegrationTests
                 {
                     throw new NotImplementedException();
                 }
+            }
+        }
+
+        [TestFixture]
+        public class ConfigurationMethods
+        {
+            [Test]
+            public void SetCaseSensitiveSearch_True_ChangesCaseSensitiveSearchEnabled()
+            {
+                var config = new DapperExtensionsConfiguration();
+
+                config.SetCaseSensitiveSearch(true);
+
+                Assert.IsTrue(config.CaseSensitiveSearchEnabled);
+            }
+
+            [Test]
+            public void SetCaseSensitiveSearch_False_ChangesCaseSensitiveSearchEnabled()
+            {
+                var config = new DapperExtensionsConfiguration();
+
+                config.SetCaseSensitiveSearch(false);
+
+                Assert.IsFalse(config.CaseSensitiveSearchEnabled);
             }
         }
     }

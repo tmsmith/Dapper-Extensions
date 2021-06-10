@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -216,9 +217,9 @@ namespace DapperExtensions.Sql
             AllColumns = AllColumns.Select(c => new Column
             {
                 Alias = c.Alias,
-                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}i_{i++}",
                 ClassMapper = c.ClassMapper,
                 Property = c.Property,
+                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}i_{i++}",
                 TableIdentity = c.TableIdentity,
                 Table = c.Table
             }).ToList<IColumn>();
@@ -273,9 +274,9 @@ namespace DapperExtensions.Sql
             AllColumns = AllColumns.Select(c => new Column
             {
                 Alias = c.Alias,
-                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}u_{i++}",
                 ClassMapper = c.ClassMapper,
                 Property = c.Property,
+                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}u_{i++}",
                 TableIdentity = c.TableIdentity,
                 Table = c.Table
             }).ToList<IColumn>();
@@ -601,49 +602,110 @@ namespace DapperExtensions.Sql
             });
         }
 
-        private IList<Table> GetAllMappedTables(IClassMapper parentClassMapper, IClassMapper topParentMap, PropertyInfo propertyInfo, bool isVirtualMap = false, IList<IReferenceMap> includedProperties = null)
+        private IClassMapper GetVirtualReferenceMap(ref Table table, bool isVirtual, Guid parentIdentity, Type parentType, IList<IReferenceMap> includedProperties)
         {
-            var _parentVirtualIdentity = topParentMap.Identity;
-            var tables = new List<Table>();
-            var _table = new Table();
-            var _includeRelacionalEntities = (includedProperties?.Count > 0);
+            if (isVirtual)
+            {
+                var identity = TablesAdded.Where(c => c.Identity == parentIdentity && c.IsVirtual).ToList();
+                if (identity.Count > 0)
+                    parentIdentity = identity.Select(i => i.Identity).Last();
 
-            IEnumerable<IReferenceMap> getReferences(IClassMapper mapper) =>
-             mapper.References.Where(r =>
-                        (r.ParentIdentity /*== topParentMap.Identity || r.ParentIdentity*/ == parentClassMapper.Identity)
-                        && includedProperties.Any(a => a.PropertyInfo == r.PropertyInfo && a.ParentIdentity == parentClassMapper.Identity));
+                table.LastIdentity = table.Identity;
 
+                var virtualReferenceMap = CreateVirtualClassMap(parentType, parentIdentity);
+
+                //Set new identity to virtual map
+                var newIdentity = GetIdentityFromIncludedProperties(includedProperties, table.PropertyInfo, table.ParentIdentity);
+
+                if (newIdentity != null)
+                {
+                    virtualReferenceMap.SetIdentity(newIdentity.Identity);
+                    SetReferencePropertiesParentIdentity(virtualReferenceMap, newIdentity.Identity);
+                }
+
+                table.Identity = virtualReferenceMap.Identity;
+                table.ParentIdentity = virtualReferenceMap.ParentIdentity;
+                table.EntityType = virtualReferenceMap.EntityType;
+
+                return virtualReferenceMap;
+            }
+            else
+                return null;
+        }
+
+        private void ProcessRelationationalIdentities(ref IClassMapper mapper, ref IClassMapper parent, PropertyInfo propertyInfo, IList<IReferenceMap> includedProperties)
+        {
+            if (includedProperties?.Count > 0)
+                if (mapper.Identity == parent.Identity)
+                {
+                    var parentIdentity = includedProperties[0].ParentIdentity;
+                    mapper.SetIdentity(parentIdentity);
+                    mapper.SetParentIdentity(parentIdentity);
+
+                    parent.SetIdentity(parentIdentity);
+                    parent.SetParentIdentity(parentIdentity);
+
+                    SetReferencePropertiesParentIdentity(mapper, parentIdentity);
+                    SetReferencePropertiesParentIdentity(parent, parentIdentity);
+                }
+                else
+                {
+                    var parentIdentity = parent.Identity;
+                    var childIdentityFromIncluded = includedProperties.FirstOrDefault(i => TablesAdded.Any(a => a.Identity == i.ParentIdentity) &&
+                        i.ParentIdentity == parentIdentity && i.PropertyInfo == propertyInfo);
+
+                    if (childIdentityFromIncluded != null)
+                    {
+                        mapper.SetIdentity(childIdentityFromIncluded.Identity);
+                        SetReferencePropertiesParentIdentity(mapper, childIdentityFromIncluded.Identity);
+                    }
+                }
+        }
+
+        private IList<Table> ProcessReference(IReferenceMap reference, IClassMapper mapper, IClassMapper parent, IClassMapper virtualReferenceMap, IList<IReferenceMap> includedProperties)
+        {
             IClassMapper getTopParentMap(IClassMapper virtualMap, IReferenceMap reference) =>
             (virtualMap != null
             && includedProperties.Any(i => i.ParentIdentity == virtualMap.Identity && i.PropertyInfo == reference.PropertyInfo))
-            ? virtualMap : parentClassMapper;
+            ? virtualMap : mapper;
+
+            var tables = new List<Table>();
+
+            var map = Configuration.GetMap(reference.EntityType);
+
+            var isVirtual = TablesAdded.Any(a => a.Identity == map.Identity && a.ParentIdentity == parent.Identity);
+            if (!isVirtual || (isVirtual && !TablesAdded.Any(a => a.ParentIdentity == map.Identity && a.IsVirtual)))
+            {
+                var topParentParam = getTopParentMap(virtualReferenceMap, reference);
+                tables.AddRange(GetAllMappedTables(map, mapper, reference.PropertyInfo, isVirtual, includedProperties));
+            }
+
+            return tables;
+        }
+
+        private IList<Table> ProcessReferences(IClassMapper mapper, IClassMapper parent, IClassMapper virtualReferenceMap, IList<IReferenceMap> includedProperties)
+        {
+            IEnumerable<IReferenceMap> getReferences(IClassMapper mapper) =>
+             mapper.References.Where(r =>
+                        (r.ParentIdentity == mapper.Identity)
+                        && includedProperties.Any(a => a.PropertyInfo == r.PropertyInfo && a.ParentIdentity == mapper.Identity));
+
+            var tables = new List<Table>();
+
+            if (includedProperties?.Count > 0)
+                foreach (var reference in getReferences(mapper))
+                    tables.AddRange(ProcessReference(reference, mapper, parent, virtualReferenceMap, includedProperties));
+
+            return tables;
+        }
+
+        private IList<Table> GetAllMappedTables(IClassMapper parentClassMapper, IClassMapper topParentMap, PropertyInfo propertyInfo, bool isVirtualMap = false, IList<IReferenceMap> includedProperties = null)
+        {
+            var tables = new List<Table>();
+            var _table = new Table();
 
             //Set new Identity and Parent Identity to most top map.
-            if (_includeRelacionalEntities && parentClassMapper.Identity == topParentMap.Identity)
-            {
-                var parentIdentity = includedProperties[0].ParentIdentity;
-                parentClassMapper.SetIdentity(parentIdentity);
-                parentClassMapper.SetParentIdentity(parentIdentity);
-
-                topParentMap.SetIdentity(parentIdentity);
-                topParentMap.SetParentIdentity(parentIdentity);
-
-                SetReferencePropertiesParentIdentity(parentClassMapper, parentIdentity);
-                SetReferencePropertiesParentIdentity(topParentMap, parentIdentity);
-            }
-
-            //Set new Identity to class mapper references
-            if (includedProperties != null && parentClassMapper.Identity != topParentMap.Identity)
-            {
-                var childIdentityFromIncluded = includedProperties.FirstOrDefault(i => TablesAdded.Any(a => a.Identity == i.ParentIdentity) &&
-                    i.ParentIdentity == topParentMap.Identity && i.PropertyInfo == propertyInfo);
-
-                if (childIdentityFromIncluded != null)
-                {
-                    parentClassMapper.SetIdentity(childIdentityFromIncluded.Identity);
-                    SetReferencePropertiesParentIdentity(parentClassMapper, childIdentityFromIncluded.Identity);
-                }
-            }
+            ProcessRelationationalIdentities(ref parentClassMapper, ref topParentMap, propertyInfo, includedProperties);
 
             TableCount++;
             _table = new Table
@@ -660,52 +722,14 @@ namespace DapperExtensions.Sql
             };
 
             /** Creates a virtual mapping for nested references in the current ClassMapper **/
-            IClassMapper virtualReferenceMap = null;
-            if (isVirtualMap)
-            {
-                var identity = TablesAdded.Where(c => /*c.LastIdentity != default(Guid) &&*/ c.Identity == _parentVirtualIdentity
-                                                   && c.IsVirtual).ToList();
-                if (identity.Count > 0)
-                    _parentVirtualIdentity = identity.Select(i => i.Identity).Last();
-
-                _table.LastIdentity = _table.Identity;
-
-                virtualReferenceMap = CreateVirtualClassMap(parentClassMapper.EntityType, _parentVirtualIdentity);
-
-                //Set new identity to virtual map
-                var newIdentity = GetIdentityFromIncludedProperties(includedProperties, _table.PropertyInfo, _table.ParentIdentity);
-
-                if (newIdentity != null)
-                {
-                    virtualReferenceMap.SetIdentity(newIdentity.Identity);
-                    SetReferencePropertiesParentIdentity(virtualReferenceMap, newIdentity.Identity);
-                }
-
-                _table.Identity = virtualReferenceMap.Identity;
-                _table.ParentIdentity = virtualReferenceMap.ParentIdentity;
-                _table.EntityType = virtualReferenceMap.EntityType;
-            }
+            IClassMapper virtualReferenceMap = GetVirtualReferenceMap(ref _table, isVirtualMap, topParentMap.Identity, parentClassMapper.EntityType, includedProperties);
 
             if (parentClassMapper.Identity == topParentMap.Identity || includedProperties.Any(a => a.Identity == _table.Identity))
             {
                 tables.Add(_table);
                 TablesAdded.Add(_table);
 
-                if (_includeRelacionalEntities)
-                {
-                    foreach (var reference in getReferences(parentClassMapper))
-                    {
-                        var map = Configuration.GetMap(reference.EntityType);
-
-                        var isVirtual = TablesAdded.Any(a => a.Identity == map.Identity && a.ParentIdentity == topParentMap.Identity);
-                        if (!isVirtual || (isVirtual && !TablesAdded.Any(a => a.ParentIdentity == map.Identity && a.IsVirtual)))
-                        {
-                            var topParentParam = getTopParentMap(virtualReferenceMap, reference);
-                            foreach (var result in GetAllMappedTables(map, parentClassMapper, reference.PropertyInfo, isVirtual, includedProperties))
-                                tables.Add(result);
-                        }
-                    }
-                }
+                tables.AddRange(ProcessReferences(parentClassMapper, topParentMap, virtualReferenceMap, includedProperties));
             }
             return tables;
         }
@@ -731,9 +755,9 @@ namespace DapperExtensions.Sql
             AllColumns = AllColumns.Select(c => new Column
             {
                 Alias = c.Alias,
-                SimpleAlias = $"c_{i++}",
                 ClassMapper = c.ClassMapper,
                 Property = c.Property,
+                SimpleAlias = $"c_{i++}",
                 TableIdentity = c.TableIdentity,
                 Table = c.Table
             }).ToList<IColumn>();
@@ -768,55 +792,32 @@ namespace DapperExtensions.Sql
             return _reference;
         }
 
+        private IEnumerable<IColumn> GetColumns(Table table)
+        {
+            var reference = GetReference(table);
+
+            string getParentReference(IMemberMap map) => map.ParentProperty != null ? map.ParentProperty.Name : string.Empty;
+
+            var map = table.ClassMapper ?? Configuration.GetMap(table.EntityType);
+            var columnIndex = 0;
+
+            return map?.Properties?
+                .Where(p => (map?.References == null || map?.References?.Any(r => r.PropertyInfo?.Name == p.Name) == false) && map?.Properties?.Any(mp => mp.ParentProperty == p) == false)
+                .Select(m =>
+                {
+                    var alias = !string.IsNullOrEmpty(reference) ? reference + getParentReference(m) + "_" + m.Name : getParentReference(m) + m.Name;
+                    return new Column(string.IsNullOrEmpty(alias) ? $"Column{++columnIndex}" : alias, m, m.ClassMapper, table);
+                })
+                .ToList() ?? new List<Column>();
+        }
+
         public IEnumerable<IColumn> GetColumns()
         {
             var columns = new List<IColumn>();
-            var alias = "";
-            var reference = "";
-            var index = 0;
-
-            var virtualTables = Tables.Where(c => c.IsVirtual).ToList();
-            var nonVirtualTables = Tables.Where(c => !c.IsVirtual).ToList();
-
-            string getParentReference(IMemberMap map) =>
-                map.ParentProperty != null ? (!String.IsNullOrEmpty(alias) ? "_" : String.Empty) + map.ParentProperty.Name : String.Empty;
 
             foreach (var table in Tables)
-            {
-                alias = "";
+                columns.AddRange(GetColumns(table));
 
-                if (index > 0 && Tables[index - 1].Identity != table.ParentIdentity)
-                    reference = "";
-
-                reference = GetReference(table);
-
-                var map = table.ClassMapper ?? Configuration.GetMap(table.EntityType);
-                var columnIndex = 0;
-
-                var columnAlias = map?.Properties?
-                    .Where(p => (map?.References == null || map?.References?.Any(r => r.PropertyInfo?.Name == p.Name) == false) && map?.Properties?.Any(mp => mp.ParentProperty == p) == false)
-                    .Select(m =>
-                    {
-                        alias = !string.IsNullOrEmpty(reference) ? reference + getParentReference(m) + "_" + m.Name : getParentReference(m) + m.Name;
-                        return new
-                        {
-                            column = new Column(string.IsNullOrEmpty(alias) ? $"Column{++columnIndex}" : alias, m, m.ClassMapper, table)//,
-                            //table
-                        };
-                    })
-                    .ToList();
-
-                columnAlias?.ForEach(data =>
-                {
-                    var column = data.column;
-                    //var tb = data.table;
-
-                    //if (Tables.Any(a => a.Identity == tb.ParentIdentity && !a.IsVirtual))
-                    columns.Add(column);
-                });
-
-                index++;
-            }
             return columns;
         }
 

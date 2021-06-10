@@ -11,6 +11,13 @@ namespace DapperExtensions.Test.Data.Common
         Service
     }
 
+    public enum HistoryAction
+    {
+        Created,
+        Updated,
+        Removed
+    }
+
     #region Data Classes
 
     public abstract class Order<TItem> where TItem : OrderItem
@@ -33,6 +40,16 @@ namespace DapperExtensions.Test.Data.Common
         public long OrderId { get; set; }
         public double Price { get; set; }
         public double ItemTotal { get; set; }
+        public IEnumerable<OrderItemHistory> ItemHistory { get; set; }
+    }
+
+    public class OrderItemHistory
+    {
+        public long Id { get; set; }
+        public long OrderId { get; set; }
+        public long OrderItemId { get; set; }
+        public HistoryAction Action { get; set; }
+        public DateTime ActionDateTime { get; set; }
     }
 
     public class ProductOrder : Order<ProductItem>
@@ -85,6 +102,15 @@ namespace DapperExtensions.Test.Data.Common
         {
             Map(t => t.Id).Column("Id").Key(KeyType.Assigned);
             Map(t => t.OrderId).Column("OrderId").Key(KeyType.ForeignKey);
+            AutoMap();
+        }
+    }
+
+    public class OrderItemHistoryMap : ClassMapper<OrderItemHistory>
+    {
+        public OrderItemHistoryMap()
+        {
+            Map(t => t.Action).Column("Action").EnumDescription(true);
             AutoMap();
         }
     }

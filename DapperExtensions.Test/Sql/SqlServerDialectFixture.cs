@@ -1,5 +1,7 @@
-﻿using DapperExtensions.Sql;
+﻿using DapperExtensions.Predicate;
+using DapperExtensions.Sql;
 using DapperExtensions.Test.Helpers;
+using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,18 @@ namespace DapperExtensions.Test.Sql
             public void Setup()
             {
                 Dialect = new SqlServerDialect();
+            }
+        }
+
+        [TestFixture]
+        public class DatabaseFunctions : SqlServerDialectFixtureBase
+        {
+            [Test]
+            public void DatabaseFunctionTests()
+            {
+                Assert.IsTrue("foo".Equals(Dialect.GetDatabaseFunctionString(DatabaseFunction.None, "foo"), StringComparison.InvariantCultureIgnoreCase));
+                Assert.IsTrue("IsNull(foo, newFoo)".Equals(Dialect.GetDatabaseFunctionString(DatabaseFunction.NullValue, "foo", "newFoo"), StringComparison.InvariantCultureIgnoreCase));
+                Assert.IsTrue("Truncate(foo)".Equals(Dialect.GetDatabaseFunctionString(DatabaseFunction.Truncate, "foo"), StringComparison.InvariantCultureIgnoreCase));
             }
         }
 
@@ -60,6 +74,14 @@ namespace DapperExtensions.Test.Sql
                 var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetPagingSql("SELECT [schema].[column] FROM [schema].[table]", 0, 10, null, ""));
                 StringAssert.AreEqualIgnoringCase("Parameters", ex.ParamName);
                 StringAssert.Contains("cannot be null", ex.Message);
+            }
+
+            [Test]
+            public void NotSelect_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentException>(() => Dialect.GetPagingSql("INSERT INTO TABLE (ID) VALUES (1)", 1, 10, new Dictionary<string, object>(), ""));
+                StringAssert.AreEqualIgnoringCase("SQL", ex.ParamName);
+                StringAssert.Contains("must be a SELECT statement", ex.Message);
             }
 
             [Test]
@@ -119,6 +141,26 @@ namespace DapperExtensions.Test.Sql
             {
                 var result = Dialect.TestProtected().RunMethod<string>("GetOrderByClause", "SELECT * FROM Table ORDER BY Column1 ASC, Column2 DESC WHERE Column1 = 'value'");
                 Assert.AreEqual("ORDER BY Column1 ASC, Column2 DESC", result);
+            }
+        }
+
+        [TestFixture]
+        public class GetIdentitySqlMethod : SqlServerDialectFixtureBase
+        {
+            private const string _identitySql = "SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [Id]";
+
+            [Test]
+            public void NullTableName_ReturnsSql()
+            {
+                var result = Dialect.GetIdentitySql(null);
+                result.Should().Be(_identitySql);
+            }
+
+            [Test]
+            public void WithTableName_ReturnsSql()
+            {
+                var result = Dialect.GetIdentitySql("FooTable");
+                result.Should().Be(_identitySql);
             }
         }
     }

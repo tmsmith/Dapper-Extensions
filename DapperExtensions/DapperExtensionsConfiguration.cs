@@ -3,6 +3,7 @@ using DapperExtensions.Sql;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -16,11 +17,8 @@ namespace DapperExtensions
         IClassMapper GetMap(Type entityType);
         IClassMapper GetMap<T>() where T : class;
         Type GetMapType(Type entityType);
-        IList<Type> GetMapTypes();
         void ClearCache();
         Guid GetNextGuid();
-        IClassMapper GetVirtualClassMap(Type entityType, IClassMapper mapper = null);
-        ConcurrentDictionary<Type, IClassMapper> VirtualClassMaps { get; }
         SqlInjection GetOrSetSqlInjection(Type entityType, SqlInjection sqlInjection = null);
 
         bool CaseSensitiveSearchEnabled { get; }
@@ -31,9 +29,6 @@ namespace DapperExtensions
     {
         private readonly ConcurrentDictionary<Type, SqlInjection> _sqlInjections = new ConcurrentDictionary<Type, SqlInjection>();
         private readonly ConcurrentDictionary<Type, IClassMapper> _classMaps = new ConcurrentDictionary<Type, IClassMapper>();
-        public ConcurrentDictionary<Type, IClassMapper> _virtualClassMaps = new ConcurrentDictionary<Type, IClassMapper>();
-
-        public ConcurrentDictionary<Type, IClassMapper> VirtualClassMaps { get => _virtualClassMaps; }
 
         public DapperExtensionsConfiguration()
             : this(typeof(AutoClassMapper<>), new List<Assembly>(), new SqlServerDialect())
@@ -71,6 +66,7 @@ namespace DapperExtensions
             return GetMap(typeof(T));
         }
 
+        [ExcludeFromCodeCoverage]
         public void ClearCache()
         {
             _classMaps.Clear();
@@ -111,45 +107,14 @@ namespace DapperExtensions
 
             var result = getType(entityType.Assembly);
             if (result != null)
-            {
                 return result;
-            }
 
-            foreach (var mappingAssembly in MappingAssemblies)
+            for (var i = 0; i < MappingAssemblies.Count && result == null; i++)
             {
-                result = getType(mappingAssembly);
-                if (result != null)
-                {
-                    return result;
-                }
+                result = getType(MappingAssemblies[i]);
             }
 
-            return getType(entityType.Assembly);
-        }
-
-        public virtual IList<Type> GetMapTypes()
-        {
-            IList<Type> list = new List<Type>();
-            static IList<Type> getType(Assembly a)
-            {
-                Type[] types = a.GetTypes();
-                return (from type in types
-                        let interfaceType = type.GetInterface(typeof(IClassMapper<>).FullName)
-                        where interfaceType != null
-                        select interfaceType.GetGenericArguments()[0]).ToList();
-            }
-
-            return MappingAssemblies
-                .SelectMany(assembly => getType(assembly))
-                .Select(t => t)
-                .ToList();
-        }
-
-        public IClassMapper GetVirtualClassMap(Type entityType, IClassMapper mapper = null)
-        {
-            if (mapper != null)
-                return _virtualClassMaps.GetOrAdd(entityType, mapper);
-            return _virtualClassMaps[entityType];
+            return result ?? getType(entityType.Assembly);
         }
 
         public SqlInjection GetOrSetSqlInjection(Type entityType, SqlInjection sqlInjection = null)

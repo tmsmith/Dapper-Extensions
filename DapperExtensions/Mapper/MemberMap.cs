@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DapperExtensions.Extensions;
+using System;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,7 @@ namespace DapperExtensions.Mapper
         object GetValue(object obj);
         void SetValue(object obj, object value);
         Type MemberType { get; }
+        bool UseEnumDescription { get; }
     }
 
     /// <summary>
@@ -262,6 +264,10 @@ namespace DapperExtensions.Mapper
             {
                 return info.GetValue(obj);
             }
+            else if (MemberInfo.DeclaringType.IsEnum)
+            {
+                return (obj as Enum).Description();
+            }
             else
             {
                 return ((PropertyInfo)MemberInfo).GetValue(obj, null);
@@ -293,6 +299,14 @@ namespace DapperExtensions.Mapper
                     return ((PropertyInfo)MemberInfo).PropertyType;
                 }
             }
+        }
+
+        public bool UseEnumDescription { get; private set; }
+
+        public MemberMap EnumDescription(bool value)
+        {
+            UseEnumDescription = value;
+            return this;
         }
     }
 

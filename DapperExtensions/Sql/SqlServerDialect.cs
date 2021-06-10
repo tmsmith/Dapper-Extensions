@@ -1,6 +1,8 @@
-﻿using System;
+﻿using DapperExtensions.Predicate;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DapperExtensions.Sql
 {
@@ -29,19 +31,16 @@ namespace DapperExtensions.Sql
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
             if (string.IsNullOrEmpty(sql))
-            {
                 throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
-            }
 
-            if (parameters is null)
-            {
+            if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
-            }
 
-            if (String.IsNullOrEmpty(GetOrderByClause(sql)))
-            {
+            if (!IsSelectSql(sql))
+                throw new ArgumentException($"{nameof(sql)} must be a SELECT statement.", nameof(sql));
+
+            if (string.IsNullOrEmpty(GetOrderByClause(sql)))
                 sql = $"{sql} ORDER BY CURRENT_TIMESTAMP";
-            }
 
             var result = $"{sql} OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
 
@@ -70,73 +69,6 @@ namespace DapperExtensions.Sql
             return result.Substring(0, whereIndex).Trim();
         }
 
-        protected static int GetFromStart(string sql)
-        {
-            var selectCount = 0;
-            var words = sql.Split(' ');
-            var fromIndex = 0;
-            foreach (var word in words)
-            {
-                if (word.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount++;
-                }
-
-                if (word.Equals("FROM", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount--;
-                    if (selectCount == 0)
-                    {
-                        break;
-                    }
-                }
-
-                fromIndex += word.Length + 1;
-            }
-
-            return fromIndex;
-        }
-
-        protected virtual int GetSelectEnd(string sql)
-        {
-            var trimmedSql = sql.TrimStart();
-            if (trimmedSql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var index = trimmedSql.IndexOf("SELECT DISTINCT", StringComparison.Ordinal);
-                return index + 15;
-            }
-
-            if (trimmedSql.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var index = trimmedSql.IndexOf("SELECT", StringComparison.Ordinal);
-                return index + 6;
-            }
-
-            throw new ArgumentException("SQL must be a SELECT statement.", nameof(sql));
-        }
-
-        protected virtual IList<string> GetColumnNames(string sql)
-        {
-            var start = GetSelectEnd(sql);
-            var stop = GetFromStart(sql);
-            var columnSql = sql.Substring(start, stop - start).Split(',');
-            var result = new List<string>();
-            foreach (string c in columnSql)
-            {
-                var index = c.IndexOf(" AS ", StringComparison.InvariantCultureIgnoreCase);
-                if (index > 0)
-                {
-                    result.Add(c.Substring(index + 4).Trim());
-                    continue;
-                }
-
-                var colParts = c.Split('.');
-                result.Add(colParts[colParts.Length - 1].Trim());
-            }
-
-            return result;
-        }
-
         public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
         {
             return databaseFunction switch
@@ -147,6 +79,7 @@ namespace DapperExtensions.Sql
             };
         }
 
+        [ExcludeFromCodeCoverage]
         public override void EnableCaseInsensitive(IDbConnection connection)
         {
         }

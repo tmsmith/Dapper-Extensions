@@ -1,6 +1,7 @@
 using DapperExtensions.Mapper;
 using NUnit.Framework;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -10,6 +11,7 @@ namespace DapperExtensions.Test.Mapper
     [Parallelizable(ParallelScope.All)]
     public class PropertyMapFixture
     {
+        [ExcludeFromCodeCoverage]
         private class Foo
         {
             public int Bar { get; set; }

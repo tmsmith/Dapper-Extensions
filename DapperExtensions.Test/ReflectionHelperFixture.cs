@@ -24,16 +24,6 @@ namespace DapperExtensions.Test
         }
 
         [Test]
-        public void GetObjectValues_Returns_Dictionary_With_Property_ValueAccessor_Pairs()
-        {
-            Foo f = new Foo { Bar = 3, Baz = "Yum" };
-
-            var dictionary = ReflectionHelper.GetObjectValues(f);
-            Assert.AreEqual(3, dictionary["Bar"]());
-            Assert.AreEqual("Yum", dictionary["Baz"]());
-        }
-
-        [Test]
         public void GetProperty_Returns_Unary_Comparison()
         {
             Expression<Func<Foo, object>> expression = f => f.Bar == f.Bar;
@@ -56,6 +46,16 @@ namespace DapperExtensions.Test
         {
             var dictionary = ReflectionHelper.GetObjectValues(null);
             Assert.AreEqual(0, dictionary.Count);
+        }
+
+        [Test]
+        public void GetObjectValues_Returns_Dictionary_With_Property_ValueAccessor_Pairs()
+        {
+            Foo f = new Foo { Bar = 3, Baz = "Yum" };
+
+            var dictionary = ReflectionHelper.GetObjectValues(f);
+            Assert.AreEqual(3, dictionary["Bar"]());
+            Assert.AreEqual("Yum", dictionary["Baz"]());
         }
     }
 }

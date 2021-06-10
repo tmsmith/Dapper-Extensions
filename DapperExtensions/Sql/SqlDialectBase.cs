@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DapperExtensions.Predicate;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -91,15 +92,16 @@ namespace DapperExtensions.Sql
 
         public virtual string GetColumnName(string prefix, string columnName, string alias)
         {
-            if (string.IsNullOrWhiteSpace(columnName))
-            {
+            if (string.IsNullOrEmpty(columnName))
                 throw new ArgumentNullException(nameof(columnName), $"{nameof(columnName)} cannot be null or empty.");
-            }
+
+            if (string.IsNullOrWhiteSpace(columnName))
+                throw new ArgumentNullException(nameof(columnName), $"{nameof(columnName)} cannot be null or empty.");
 
             var result = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(prefix))
             {
-                result.AppendFormat(QuoteString(prefix) + ".");
+                result.AppendFormat((IsQuoted(prefix) ? prefix : QuoteString(prefix)) + ".");
             }
 
             result.AppendFormat(QuoteString(columnName));
@@ -151,7 +153,18 @@ namespace DapperExtensions.Sql
 
         public virtual string GetCountSql(string sql)
         {
+            if (string.IsNullOrEmpty(sql))
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null or empty.");
+
+            if (string.IsNullOrWhiteSpace(sql))
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null or empty.");
+
             return $"SELECT COUNT(*) AS {OpenQuote}Total{CloseQuote} FROM {sql}";
+        }
+
+        protected virtual bool IsSelectSql(string sql)
+        {
+            return sql.Trim().StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

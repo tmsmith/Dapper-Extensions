@@ -1,4 +1,4 @@
-﻿#if NET461
+﻿#if NETFRAMEWORK
 using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;

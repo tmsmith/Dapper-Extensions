@@ -1,8 +1,11 @@
-﻿using DapperExtensions.Test.Data.Common;
+﻿using DapperExtensions.Predicate;
+using DapperExtensions.Test.Data.Common;
+using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DapperExtensions.Test.IntegrationTests.Async.MySql
 {
@@ -153,16 +156,9 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
 
                 var p2 = Db.Get<Person>(id).Result;
                 Assert.IsTrue(Db.Delete(p2).Result);
-                var aux = Db.Get<Person>(id);
+                Task<Person> aux = Db.Get<Person>(id);
 
-                if (aux.AsyncState == null)
-                {
-                    Assert.IsNull(aux.AsyncState);
-                }
-                else
-                {
-                    Assert.IsNull(aux.Result);
-                }
+                aux.AsyncState.Should().BeNull();
                 Dispose();
             }
 
@@ -176,14 +172,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 Assert.IsTrue(Db.Delete(m2).Result);
                 var aux = Db.Get<Multikey>(new { key.Key1, key.Key2 });
 
-                if (aux.AsyncState == null)
-                {
-                    Assert.IsNull(aux.AsyncState);
-                }
-                else
-                {
-                    Assert.IsNull(aux.Result);
-                }
+                aux.AsyncState.Should().BeNull();
                 Dispose();
             }
 
@@ -333,7 +322,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 var list = Db.GetPage<Person>(null, sort, 0, 2).Result;
@@ -352,7 +341,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 var list = Db.GetPage<Person>(predicate, sort, 0, 2).Result;
@@ -369,7 +358,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 var list = Db.GetPage<Person>(null, sort, 2, 2).Result;
@@ -388,7 +377,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 var list = Db.GetPage<Person>(predicate, sort, 0, 2).Result;
@@ -467,9 +456,9 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 var animals = result.Read<Animal>().ToList();
                 var people2 = result.Read<Person>().ToList();
 
-                Assert.AreEqual(4, people.Count);
-                Assert.AreEqual(2, animals.Count);
-                Assert.AreEqual(1, people2.Count);
+                people.Should().HaveCount(4);
+                animals.Should().HaveCount(2);
+                people2.Should().HaveCount(1);
                 Dispose();
             }
         }

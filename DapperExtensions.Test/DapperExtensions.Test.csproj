@@ -16,28 +16,12 @@
     <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETSTANDARD20</DefineConstants>
-  </PropertyGroup>
-
-  <!--<PropertyGroup Condition="'$(TargetFramework)' != 'net461'">
-    <RunSettingsFilePath>..\coverlet.runsettings</RunSettingsFilePath>
-  </PropertyGroup>-->
-
-  <!--<PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
-    <RunSettingsFilePath>..\mscoverage.runsettings</RunSettingsFilePath>
-  </PropertyGroup>-->
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="3.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeCoverage" Version="16.10.0" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.10.0" />
@@ -50,10 +34,6 @@
     <PackageReference Include="ReportGenerator" Version="4.8.8" />
     <PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-    <!--<PackageReference Include="coverlet.collector" Version="3.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>-->
     <PackageReference Include="Dapper" Version="2.0.90" />
   </ItemGroup>
 
@@ -65,8 +45,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <!--<PackageReference Include="Microsoft.CodeCoverage" Version="16.9.4" />-->
-    <!--<PackageReference Include="IBM.Data.DB2" version="10.0.5.5" targetFramework="net461" />-->
     <PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
     <PackageReference Include="System.Data.SQLite" version="1.0.113.7" targetFramework="net461" />
     <PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />
@@ -87,5 +65,27 @@
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
   </Target>
-
+  
+  <PropertyGroup Label="FineCodeCoverage">
+    <Enabled>
+      True
+    </Enabled>
+    <!--<Exclude>
+      [ThirdParty.*]*
+      [FourthParty]*
+    </Exclude>
+    <Include>
+      [*]*
+    </Include>-->
+    <ExcludeByFile>
+      **/Migrations/*
+      **/Hacks/*.cs
+    </ExcludeByFile>
+    <!--<ExcludeByAttribute>
+      MyCustomExcludeFromCodeCoverage
+    </ExcludeByAttribute>-->
+    <IncludeTestAssembly>
+      True
+    </IncludeTestAssembly>
+  </PropertyGroup>
 </Project>

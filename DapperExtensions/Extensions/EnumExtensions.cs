@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DapperExtensions.Predicate;
+using System;
 using System.ComponentModel;
 
 namespace DapperExtensions.Extensions
@@ -18,6 +19,20 @@ namespace DapperExtensions.Extensions
             }
 
             return value.ToString();
+        }
+
+        public static string GetString(this Operator op, bool not)
+        {
+            return op switch
+            {
+                Operator.Gt => not ? "<=" : ">",
+                Operator.Ge => not ? "<" : ">=",
+                Operator.Lt => not ? ">=" : "<",
+                Operator.Le => not ? ">" : "<=",
+                Operator.Like => not ? "NOT LIKE" : "LIKE",
+                Operator.Contains => not ? "NOT IN" : "IN",
+                _ => not ? "<>" : "=",
+            };
         }
     }
 }

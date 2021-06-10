@@ -67,6 +67,14 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual("effects", m.TableName);
             }
 
+            [Test]
+            public void ReturnsProperPluralizationWhenWordIsUnpluralizable()
+            {
+                PluralizedAutoClassMapper<Foo> m = GetMapper<Foo>();
+                m.Table("equipment");
+                Assert.AreEqual("equipment", m.TableName);
+            }
+
             private static PluralizedAutoClassMapper<T> GetMapper<T>() where T : class
             {
                 return new PluralizedAutoClassMapper<T>();

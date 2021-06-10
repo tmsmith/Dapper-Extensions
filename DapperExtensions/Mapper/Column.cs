@@ -9,7 +9,6 @@ namespace DapperExtensions.Mapper
         string SimpleAlias { get; set; }
         IClassMapper ClassMapper { get; set; }
         IMemberMap Property { get; set; }
-        string ReferenceName { get; set; }
         Table Table { get; set; }
     }
     public class Column : IColumn
@@ -19,7 +18,6 @@ namespace DapperExtensions.Mapper
         public string SimpleAlias { get; set; }
         public IClassMapper ClassMapper { get; set; }
         public IMemberMap Property { get; set; }
-        public string ReferenceName { get; set; }
         public Table Table { get; set; }
 
         public Column()

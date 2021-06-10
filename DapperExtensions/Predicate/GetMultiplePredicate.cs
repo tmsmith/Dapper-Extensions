@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DapperExtensions
+namespace DapperExtensions.Predicate
 {
     public class GetMultiplePredicate
     {
@@ -24,15 +24,6 @@ namespace DapperExtensions
                 Value = predicate,
                 Type = typeof(T),
                 Sort = sort
-            });
-        }
-
-        public void Add<T>(object id) where T : class
-        {
-            _items.Add(new GetMultiplePredicateItem
-            {
-                Value = id,
-                Type = typeof(T)
             });
         }
 

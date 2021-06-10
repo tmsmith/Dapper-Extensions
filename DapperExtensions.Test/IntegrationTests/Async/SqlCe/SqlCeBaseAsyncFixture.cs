@@ -1,4 +1,4 @@
-﻿#if NET461
+﻿#if NETFRAMEWORK
 using Dapper;
 using DapperExtensions.Sql;
 using NUnit.Framework;

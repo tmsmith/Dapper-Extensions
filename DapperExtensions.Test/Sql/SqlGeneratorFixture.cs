@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
 using Moq;
 using NUnit.Framework;
@@ -380,7 +381,9 @@ namespace DapperExtensions.Test.Sql
                     ParentIdentity = ClassMap.Object.Identity,
                     IsVirtual = false,
                     PropertyInfo = null,
-                    ClassMapper = ClassMap.Object
+                    ClassMapper = ClassMap.Object,
+                    LastIdentity = Guid.Empty,
+                    ParentEntityType = null
                 };
 
                 var column1 = new Column("Column1", property1.Object, null, table);

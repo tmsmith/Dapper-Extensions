@@ -1,7 +1,8 @@
-﻿#if NETCORE || NETSTANDARD20
+﻿using DapperExtensions.Predicate;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -30,6 +31,9 @@ namespace DapperExtensions.Sql
             {
                 throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null");
             }
+
+            if (!IsSelectSql(sql))
+                throw new ArgumentException($"{nameof(sql)} must be a SELECT statement.", nameof(sql));
 
             var selectIndex = GetSelectEnd(sql) + 1;
             var orderByClause = GetOrderByClause(sql) ?? "ORDER BY CURRENT_TIMESTAMP";
@@ -68,44 +72,12 @@ namespace DapperExtensions.Sql
 
         protected static int GetFromStart(string sql)
         {
-            var selectCount = 0;
-            var words = sql.Split(' ');
-            var fromIndex = 0;
-            foreach (var word in words)
-            {
-                if (word.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount++;
-                }
-
-                if (word.Equals("FROM", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount--;
-                    if (selectCount == 0)
-                    {
-                        break;
-                    }
-                }
-
-                fromIndex += word.Length + 1;
-            }
-
-            return fromIndex;
+            return sql.IndexOf("FROM", StringComparison.InvariantCultureIgnoreCase);
         }
 
         protected virtual int GetSelectEnd(string sql)
         {
-            if (sql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return 15;
-            }
-
-            if (sql.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return 6;
-            }
-
-            throw new ArgumentException("SQL must be a SELECT statement.", nameof(sql));
+            return sql.IndexOf("SELECT") + (sql.TrimStart().StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase) ? 15 : 6);
         }
 
         protected virtual IList<string> GetColumnNames(string sql)
@@ -140,6 +112,7 @@ namespace DapperExtensions.Sql
             };
         }
 
+        [ExcludeFromCodeCoverage]
         public override void EnableCaseInsensitive(IDbConnection connection)
         {
         }
@@ -147,4 +120,3 @@ namespace DapperExtensions.Sql
         public override bool SupportsMultipleStatements => false;
     }
 }
-#endif

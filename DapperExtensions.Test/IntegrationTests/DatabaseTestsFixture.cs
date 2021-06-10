@@ -29,6 +29,8 @@ namespace DapperExtensions.Test.IntegrationTests
 
         public string ProjectPath { get; }
 
+        protected SqlDialectBase Dialect { get; private set; }
+
         protected virtual string ConnectionString(string connectionName)
         {
             lock (_connectionStrings)
@@ -58,7 +60,8 @@ namespace DapperExtensions.Test.IntegrationTests
 
         protected virtual void CommonSetup(DbConnection connection, SqlDialectBase sqlDialect)
         {
-            var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), sqlDialect);
+            Dialect = sqlDialect;
+            var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), Dialect);
             var sqlGenerator = new SqlGeneratorImpl(config);
             Db = new Database(connection, sqlGenerator);
         }

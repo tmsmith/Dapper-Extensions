@@ -2,4 +2,7 @@ Unit Testing
 * Inheritance
 * Oracle GUID using RAW(16)
 * Oracle with Boolean (Person)
-* Run initial scripts from Oracle and SQL Server
+* Multikey with Identity
+
+New features
+* Read and Write ENUMs as Text Description

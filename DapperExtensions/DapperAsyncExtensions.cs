@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
 using System;
 using System.Collections.Generic;
@@ -351,6 +352,24 @@ namespace DapperExtensions
         public static void ClearCache()
         {
             Instance.SqlGenerator.Configuration.ClearCache();
+        }
+
+        /// <summary>
+        /// Generates a COMB Guid which solves the fragmented index issue.
+        /// See: http://davybrion.com/blog/2009/05/using-the-guidcomb-identifier-strategy
+        /// </summary>
+        public static async Task<Guid> GetNextGuid()
+        {
+            return await Task.FromResult(Instance.SqlGenerator.Configuration.GetNextGuid());
+        }
+
+        /// <summary>
+        /// Gets the appropriate mapper for the specified type T.
+        /// If the mapper for the type is not yet created, a new mapper is generated from the mapper type specifed by DefaultMapper.
+        /// </summary>
+        public static async Task<IClassMapper> GetMap<T>() where T : class
+        {
+            return await Task.FromResult(_configuration.GetMap<T>());
         }
     }
 }

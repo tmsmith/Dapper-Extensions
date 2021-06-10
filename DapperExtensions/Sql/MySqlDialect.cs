@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using DapperExtensions.Predicate;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace DapperExtensions.Sql
@@ -28,6 +31,15 @@ namespace DapperExtensions.Sql
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
+            if (string.IsNullOrEmpty(sql))
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
+
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
+
+            if (!IsSelectSql(sql))
+                throw new ArgumentException($"{nameof(sql)} must be a SELECT statement.", nameof(sql));
+
             var result = string.Format("{0} LIMIT @maxResults OFFSET @firstResult", sql);
             parameters.Add("@firstResult", firstResult);
             parameters.Add("@maxResults", maxResults);
@@ -44,6 +56,7 @@ namespace DapperExtensions.Sql
             };
         }
 
+        [ExcludeFromCodeCoverage]
         public override void EnableCaseInsensitive(IDbConnection connection)
         {
         }

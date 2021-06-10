@@ -1,34 +1,46 @@
 ﻿using DapperExtensions.Sql;
 using NUnit.Framework;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlServer
 {
     [NonParallelizable]
     public class SqlServerBaseFixture : DatabaseTestsFixture
     {
+        [ExcludeFromCodeCoverage]
+        private SqlConnection SetupDatabase()
+        {
+            var connection = new SqlConnection(ConnectionString("SqlServerDBA"));
+
+            ExecuteScripts(connection, true, "Setup");
+
+            connection.Close();
+
+            return new SqlConnection(ConnectionString("SqlServer"));
+        }
+
         [SetUp]
         public virtual void Setup()
         {
             var connection = new SqlConnection(ConnectionString("SqlServer"));
 
-            CommonSetup(connection, new SqlServerDialect());
+            try
+            {
+                CommonSetup(connection, new SqlServerDialect());
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 18456)
+                {
+                    connection = SetupDatabase();
+                    CommonSetup(connection, new SqlServerDialect());
+                }
+                else
+                    throw;
+            }
 
             ExecuteScripts(connection, true, CreateTableScripts);
-
-            //var files = new List<string>
-            //                    {
-            //                        ReadFile("CreateAnimalTable"),
-            //                        ReadFile("CreateFooTable"),
-            //                        ReadFile("CreateMultikeyTable"),
-            //                        ReadFile("CreatePersonTable"),
-            //                        ReadFile("CreateCarTable")
-            //                    };
-
-            //foreach (var setupFile in files)
-            //{
-            //    connection.Execute(setupFile);
-            //}
         }
     }
 }

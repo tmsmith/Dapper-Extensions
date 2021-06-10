@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using DapperExtensions.Predicate;
+using FluentAssertions;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,7 +113,6 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_ReturnsEntity()
             {
                 Multikey m1 = new Multikey { Key1 = 1, Key2 = "key", Value = "bar" };
@@ -145,7 +146,6 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_DeletesFromDatabase()
             {
                 Multikey m1 = new Multikey { Key1 = 1, Key2 = "key2", Value = "bar" };
@@ -226,7 +226,6 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
             }
 
             [Test]
-            //[Ignore] //TODO: multikey identity
             public void UsingCompositeKey_UpdatesEntity()
             {
                 Multikey m1 = new Multikey { Key1 = 1, Key2 = "key", Value = "bar" };
@@ -286,25 +285,6 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
             }
-
-            //[Test]
-            //public void UsingProjections_Returns_ChosenField()
-            //{
-            //    Db.Insert(new Person { Active = true, FirstName = "a", LastName = "a1", DateCreated = DateTime.UtcNow.AddDays(-10) });
-
-            //    var projections = new List<IProjection>() { Predicates.Projection<Person>(x => x.FirstName) };
-
-            //    var results = Db.GetList<Person>(colsToSelect: projections);
-
-            //    Assert.AreEqual(results.Count(), 1);
-
-            //    var result = results.Single();
-
-            //    Assert.AreEqual(result.FirstName, "a");
-            //    Assert.IsNull(result.LastName);
-            //    Assert.IsFalse(result.Active);
-            //    Assert.AreEqual(result.DateCreated, default(DateTime));
-            //}
         }
 
         [TestFixture]
@@ -321,7 +301,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 0, 2);
@@ -342,7 +322,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
@@ -361,7 +341,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 2, 2);
@@ -382,7 +362,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
@@ -448,7 +428,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 Db.Insert(new Animal { Name = "Bar" });
                 Db.Insert(new Animal { Name = "Baz" });
 
-                GetMultiplePredicate predicate = new GetMultiplePredicate();
+                var predicate = new GetMultiplePredicate();
                 predicate.Add<Person>(null);
                 predicate.Add<Animal>(Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
                 predicate.Add<Person>(Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
@@ -458,9 +438,10 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
                 var animals = result.Read<Animal>().ToList();
                 var people2 = result.Read<Person>().ToList();
 
-                Assert.AreEqual(4, people.Count);
-                Assert.AreEqual(2, animals.Count);
-                Assert.AreEqual(1, people2.Count);
+                people.Should().HaveCount(4);
+                animals.Should().HaveCount(2);
+                people2.Should().HaveCount(1);
+                Dispose();
             }
         }
     }

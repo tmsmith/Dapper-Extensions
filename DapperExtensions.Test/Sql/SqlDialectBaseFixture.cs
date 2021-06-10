@@ -1,4 +1,6 @@
-﻿using DapperExtensions.Sql;
+﻿using DapperExtensions.Predicate;
+using DapperExtensions.Sql;
+using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -22,6 +24,50 @@ namespace DapperExtensions.Test.Sql
         }
 
         [TestFixture]
+        public class AbstractMethods : SqlDialectBaseFixtureBase
+        {
+            [Test]
+            public void DatabaseFunctionTests()
+            {
+                Action action = () => Dialect.GetDatabaseFunctionString(DatabaseFunction.None, "foo");
+
+                action.Should().Throw<NotImplementedException>();
+            }
+
+            [Test]
+            public void GetIdentitySqlTests()
+            {
+                Action action = () => Dialect.GetIdentitySql("foo");
+
+                action.Should().Throw<NotImplementedException>();
+            }
+
+            [Test]
+            public void GetPagingSqlTests()
+            {
+                Action action = () => Dialect.GetPagingSql("foo", 0, 0, null, null);
+
+                action.Should().Throw<NotImplementedException>();
+            }
+
+            [Test]
+            public void GetSetSqlTests()
+            {
+                Action action = () => Dialect.GetSetSql("foo", 0, 0, null);
+
+                action.Should().Throw<NotImplementedException>();
+            }
+
+            [Test]
+            public void EnableCaseInsensitiveTests()
+            {
+                Action action = () => Dialect.EnableCaseInsensitive(null);
+
+                action.Should().Throw<NotImplementedException>();
+            }
+        }
+
+        [TestFixture]
         public class Properties : SqlDialectBaseFixtureBase
         {
             [Test]
@@ -31,7 +77,9 @@ namespace DapperExtensions.Test.Sql
                 Assert.AreEqual('"', Dialect.CloseQuote);
                 Assert.AreEqual(";" + Environment.NewLine, Dialect.BatchSeperator);
                 Assert.AreEqual('@', Dialect.ParameterPrefix);
+                Assert.AreEqual("1=1", Dialect.EmptyExpression);
                 Assert.IsTrue(Dialect.SupportsMultipleStatements);
+                Assert.IsTrue(Dialect.SupportsCountOfSubquery);
             }
         }
 
@@ -181,6 +229,14 @@ namespace DapperExtensions.Test.Sql
             }
 
             [Test]
+            public void WhitespaceColumnName_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetColumnName(null, "  ", null));
+                Assert.AreEqual("columnName", ex.ParamName);
+                StringAssert.Contains("cannot be null", ex.Message);
+            }
+
+            [Test]
             public void ColumnNameOnly_ReturnsProperlyQuoted()
             {
                 var result = Dialect.GetColumnName(null, "foo", null);
@@ -206,6 +262,34 @@ namespace DapperExtensions.Test.Sql
             {
                 var result = Dialect.GetColumnName("\"bar\"", "\"foo\"", "\"al\"");
                 Assert.AreEqual("\"bar\".\"foo\" AS \"al\"", result);
+            }
+        }
+
+        [TestFixture]
+        public class GetCountSqlMethod : SqlDialectBaseFixtureBase
+        {
+            [Test]
+            public void NullSql_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetCountSql(null));
+                Assert.AreEqual("sql", ex.ParamName);
+                StringAssert.Contains("cannot be null", ex.Message);
+            }
+
+            [Test]
+            public void WhitespaceSql_ThrowsException()
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() => Dialect.GetCountSql("  "));
+                Assert.AreEqual("sql", ex.ParamName);
+                StringAssert.Contains("cannot be null", ex.Message);
+            }
+
+            [Test]
+            public void SelectSql_ReturnsProperSql()
+            {
+                const string sql = "TABLE";
+                var result = Dialect.GetCountSql(sql);
+                Assert.AreEqual($"SELECT COUNT(*) AS {Dialect.OpenQuote}Total{Dialect.CloseQuote} FROM {sql}", result);
             }
         }
 

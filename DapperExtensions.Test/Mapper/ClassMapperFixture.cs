@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -31,6 +32,7 @@ namespace DapperExtensions.Test.Mapper
         [TestFixture]
         public class UnMapTests : ClassMapperFixtureBase
         {
+            [ExcludeFromCodeCoverage]
             public class Foo
             {
                 public string Name { get; set; }
@@ -223,6 +225,7 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual(KeyType.Assigned, mapper3.Properties[0].KeyType);
             }
 
+            [ExcludeFromCodeCoverage]
             private class Test1<T>
             {
                 public T SomeId { get; set; }
@@ -319,6 +322,7 @@ namespace DapperExtensions.Test.Mapper
         [TestFixture]
         public class ReferenceMapTests : ClassMapperFixtureBase
         {
+            [ExcludeFromCodeCoverage]
             public class FooWithReferencence
             {
                 public long FooId { get; set; }
@@ -327,6 +331,7 @@ namespace DapperExtensions.Test.Mapper
                 public Bar Bar { get; set; }
             }
 
+            [ExcludeFromCodeCoverage]
             public class Bar
             {
                 public long BarId { get; set; }
@@ -354,6 +359,7 @@ namespace DapperExtensions.Test.Mapper
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public class Foo
         {
             public int FooId { get; set; }
@@ -362,6 +368,7 @@ namespace DapperExtensions.Test.Mapper
             public IList<string> List { get; set; }
         }
 
+        [ExcludeFromCodeCoverage]
         public class FooWithIntId
         {
             public int FooId { get; set; }
@@ -369,6 +376,7 @@ namespace DapperExtensions.Test.Mapper
             public int BarId { get; set; }
         }
 
+        [ExcludeFromCodeCoverage]
         public class FooWithGuidId
         {
             public Guid FooId { get; set; }
@@ -376,6 +384,7 @@ namespace DapperExtensions.Test.Mapper
             public Guid BarId { get; set; }
         }
 
+        [ExcludeFromCodeCoverage]
         public class FooWithStringId
         {
             public string FooId { get; set; }
@@ -383,12 +392,14 @@ namespace DapperExtensions.Test.Mapper
             public string BarId { get; set; }
         }
 
+        [ExcludeFromCodeCoverage]
         public class Bar
         {
             public long BarId { get; set; }
             public string Name { get; set; }
         }
 
+        [ExcludeFromCodeCoverage]
         public class TestMapper<T> : ClassMapper<T> where T : class
         {
             public new MemberMap Map(Expression<Func<T, object>> expression)

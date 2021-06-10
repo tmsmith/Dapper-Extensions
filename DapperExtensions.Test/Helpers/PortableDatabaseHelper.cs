@@ -28,10 +28,8 @@ namespace DapperExtensions.Test.Helpers
                     Directory.CreateDirectory(filePath);
                 }
 
-                if (File.Exists(file))
-                {
+                if (File.Exists(file) && !IsDatabaseInUse(file))
                     File.Delete(file);
-                }
 
                 return $"Data Source={file}";
             }
@@ -44,6 +42,7 @@ namespace DapperExtensions.Test.Helpers
             {
                 var fi = new FileInfo(databaseName);
                 fs = fi.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+                fs.Close();
                 return false;
             }
             catch (Exception)

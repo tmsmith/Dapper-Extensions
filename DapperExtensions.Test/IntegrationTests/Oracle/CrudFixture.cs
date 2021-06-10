@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using DapperExtensions.Predicate;
+using FluentAssertions;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +28,6 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
-            //[Ignore] // TODO add MultiKey support for oracle
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
                 Multikey m = new Multikey { Key2 = "key", Value = "foo" };
@@ -286,7 +287,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 0, 2);
@@ -308,7 +309,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
@@ -328,7 +329,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(null, sort, 2, 2);
@@ -350,7 +351,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 IList<ISort> sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
-                                        Predicates.Sort<Person>(p => p.FirstName)
+                                        Predicates.Sort<Person>("FirstName")
                                     };
 
                 IEnumerable<Person> list = Db.GetPage<Person>(predicate, sort, 0, 2);
@@ -420,7 +421,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Db.Insert(new Animal { Name = "Bar" });
                 Db.Insert(new Animal { Name = "Baz" });
 
-                GetMultiplePredicate predicate = new GetMultiplePredicate();
+                var predicate = new GetMultiplePredicate();
                 predicate.Add<Person>(null);
                 predicate.Add<Animal>(Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
                 predicate.Add<Person>(Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
@@ -430,9 +431,9 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 var animals = result.Read<Animal>().ToList();
                 var people2 = result.Read<Person>().ToList();
 
-                Assert.AreEqual(4, people.Count);
-                Assert.AreEqual(2, animals.Count);
-                Assert.AreEqual(1, people2.Count);
+                people.Should().HaveCount(4);
+                animals.Should().HaveCount(2);
+                people2.Should().HaveCount(1);
                 Dispose();
             }
         }

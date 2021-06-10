@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
 using System;
 using System.Collections.Generic;

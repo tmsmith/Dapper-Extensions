@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
 using System;
 using System.Collections.Concurrent;
@@ -342,12 +343,6 @@ namespace DapperExtensions
             return Instance.SqlGenerator.Configuration.GetMapType(entityType);
         }
 
-        public static IList<Type> GetMapTypes()
-            => _configuration.GetMapTypes();
-
-        public static IClassMapper GetVirtualClassMap(this Type entityType, IClassMapper mapper = null)
-            => _configuration.GetVirtualClassMap(entityType, mapper);
-
         /// <summary>
         /// Clears the ClassMappers for each type.
         /// </summary>
@@ -369,8 +364,6 @@ namespace DapperExtensions
         /// <param name="map">IClassMapper from class mapped</param>
         /// <returns>Array from ColumnName</returns>
         public static List<IColumn> AllMappedColumns { get; }
-
-        public static ConcurrentDictionary<Type, IClassMapper> VirtualClassMaps { get => _configuration.VirtualClassMaps; }
 
         public static IEnumerable<IMemberMap> GetIdentifiers(this IClassMapper map)
         {

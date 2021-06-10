@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DapperExtensions.Mapper;
+using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
 using Newtonsoft.Json.Linq;
 using System;
@@ -495,6 +496,55 @@ namespace DapperExtensions
             return dynamicParameters;
         }
 
+        protected virtual DynamicParameters AddParameter<T>(T entity, DynamicParameters parameters, IMemberMap prop, bool useColumnAlias = false)
+        {
+            var propValue = prop.GetValue(entity);
+            var parameter = ReflectionHelper.GetParameter(typeof(T), SqlGenerator, prop.Name, propValue);
+            var alias = GetSimpleAliasFromColumnAlias(parameter.Name);
+            var name = useColumnAlias ? string.IsNullOrEmpty(alias) ? parameter.Name : alias : parameter.Name;
+
+            parameters ??= new DynamicParameters();
+
+            if (prop.MemberInfo.DeclaringType == typeof(bool) || (prop.MemberInfo.DeclaringType.IsGenericType && prop.MemberType.GetGenericTypeDefinition() == typeof(Nullable<>) && prop.MemberInfo.DeclaringType.GetGenericArguments()[0] == typeof(bool)))
+            {
+                var value = (bool?)propValue;
+                if (!value.HasValue)
+                {
+                    parameters.Add(name, value, parameter.DbType,
+                                  parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                  parameter.Scale);
+                }
+                else
+                {
+                    parameters.Add(name, value.Value ? 1 : 0, parameter.DbType,
+                                  parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                  parameter.Scale);
+                }
+            }
+            else
+            {
+                parameters.Add(name, parameter.Value, parameter.DbType,
+                                  parameter.ParameterDirection, parameter.Size, parameter.Precision,
+                                  parameter.Scale);
+            }
+
+            return parameters;
+        }
+
+        private DynamicParameters GetDynamicParameters<T>(T entity, IClassMapper classMap, IList<IMemberMap> sequenceColumn, IList<MemberInfo> foreignKeys, IList<MemberInfo> ignoredColumns, bool useColumnAlias)
+        {
+            var keyColumns = sequenceColumn.Count == 0 ? classMap.Properties.Where(p => p.KeyType == KeyType.Assigned || p.KeyType == KeyType.Guid)?.ToList() : sequenceColumn;
+
+            var dynamicParameters = new DynamicParameters();
+
+            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => !keyColumns.Any(k => k.Name.Equals(p.Name)) && !foreignKeys.Contains(p) && !ignoredColumns.Contains(p)
+                ))
+                dynamicParameters = AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
+
+            return dynamicParameters;
+        }
+
         public DynamicParameters GetDynamicParameters<T>(IClassMapper classMap, T entity, bool useColumnAlias = false)
         {
             var sequenceIdentityColumn = classMap.Properties.Where(p => p.KeyType == KeyType.SequenceIdentity)?.ToList();
@@ -504,41 +554,16 @@ namespace DapperExtensions
             if (sequenceIdentityColumn?.Count > 1)
                 throw new ArgumentException("SequenceIdentity generator cannot be used with multi-column keys");
 
-            var keyColumns = sequenceIdentityColumn.Count == 0 ? classMap.Properties.Where(p => p.KeyType == KeyType.Assigned || p.KeyType == KeyType.Guid)?.ToList() : sequenceIdentityColumn;
+            return GetDynamicParameters(entity, classMap, sequenceIdentityColumn, foreignKeys, ignored, useColumnAlias);
+        }
 
-            var dynamicParameters = new DynamicParameters();
+        public DynamicParameters GetDynamicParameters<T>(T entity, DynamicParameters dynamicParameters, IMemberMap keyColumn, bool useColumnAlias = false)
+        {
+            dynamicParameters ??= new DynamicParameters();
+            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.Name != keyColumn.Name))
+                AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
 
-            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => !keyColumns.Any(k => k.Name.Equals(p.Name)) && !foreignKeys.Contains(p) && !ignored.Contains(p)
-                ))
-            {
-                var propValue = prop.GetValue(entity, null);
-                var parameter = ReflectionHelper.GetParameter(typeof(T), SqlGenerator, prop.Name, propValue);
-                var alias = GetSimpleAliasFromColumnAlias(parameter.Name);
-                var name = useColumnAlias ? string.IsNullOrEmpty(alias) ? parameter.Name : alias : parameter.Name;
-                if (prop.DeclaringType == typeof(bool) || (prop.DeclaringType.IsGenericType && prop.DeclaringType.GetGenericTypeDefinition() == typeof(Nullable<>) && prop.DeclaringType.GetGenericArguments()[0] == typeof(bool)))
-                {
-                    var value = (bool?)propValue;
-                    if (!value.HasValue)
-                    {
-                        dynamicParameters.Add(name, value, parameter.DbType,
-                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                      parameter.Scale);
-                    }
-                    else
-                    {
-                        dynamicParameters.Add(name, value.Value ? 1 : 0, parameter.DbType,
-                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                      parameter.Scale);
-                    }
-                }
-                else
-                {
-                    dynamicParameters.Add(name, parameter.Value, parameter.DbType,
-                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                      parameter.Scale);
-                }
-            }
             return dynamicParameters;
         }
 
@@ -569,6 +594,85 @@ namespace DapperExtensions
             }
         }
 
+        private object InsertTriggered<T>(IDbConnection connection, T entity, IDbTransaction transaction,
+            int? commandTimeout, string sql, IMemberMap key, DynamicParameters dynamicParameters)
+        {
+            // defaultValue need for identify type of parameter
+            var defaultValue = entity.GetType().GetProperty(key.Name).GetValue(entity, null);
+            dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
+
+            LastExecutedCommand = sql;
+            connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
+
+            return dynamicParameters.Get<object>(SqlGenerator.Configuration.Dialect.ParameterPrefix + "IdOutParam");
+        }
+
+        private object InsertIdentity(IDbConnection connection, IDbTransaction transaction,
+            int? commandTimeout, IClassMapper classMap, string sql, DynamicParameters dynamicParameters)
+        {
+            IEnumerable<long> result;
+
+            if (SqlGenerator.SupportsMultipleStatements())
+            {
+                sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
+                result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
+            }
+            else
+            {
+                connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
+                sql = SqlGenerator.IdentitySql(classMap);
+                result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
+            }
+            LastExecutedCommand = sql;
+
+            // We are only interested in the first identity, but we are iterating over all resulting items (if any).
+            // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
+            var hasResult = false;
+            object keyValue = null;
+            foreach (var identityValue in result)
+            {
+                if (hasResult)
+                {
+                    continue;
+                }
+                keyValue = identityValue;
+                hasResult = true;
+            }
+
+            if (!hasResult)
+            {
+                throw new InvalidOperationException("The source sequence is empty.");
+            }
+            else
+            {
+                return keyValue;
+            }
+        }
+
+        private IDictionary<string, object> AddSequenceParameter<T>(IDbConnection connection, T entity, 
+            IMemberMap key, DynamicParameters dynamicParameters, IDictionary<string, object> keyValues)
+        {
+            var query = $"select {key.SequenceName}.nextval seq from dual";
+            var value = connection.ExecuteScalar<int>(query);
+
+            key.SetValue(entity, value);
+
+            AddParameter(entity, dynamicParameters, key, true);
+
+            keyValues ??= new ExpandoObject();
+            keyValues.Add(key.Name, value);
+
+            return keyValues;
+        }
+
+        private void AddKeyParameters<T>(T entity, IList<IMemberMap> keyList, DynamicParameters dynamicParameters, bool useColumnAlias = false)
+        {
+            foreach (var prop in keyList)
+            {
+                dynamicParameters = AddParameter(entity, dynamicParameters, prop, useColumnAlias);
+            }
+        }
+
         protected dynamic InternalInsert<T>(IDbConnection connection, T entity, IDbTransaction transaction, int? commandTimeout,
             IClassMapper classMap, IList<IMemberMap> nonIdentityKeyProperties, IMemberMap identityColumn,
             IMemberMap triggerIdentityColumn, IList<IMemberMap> sequenceIdentityColumn) where T : class
@@ -589,64 +693,17 @@ namespace DapperExtensions
             if (triggerIdentityColumn != null || identityColumn != null)
             {
                 var keyColumn = triggerIdentityColumn ?? identityColumn;
-                object keyValue = null;
+                object keyValue;
 
-                dynamicParameters = new DynamicParameters();
-                foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.Name != keyColumn.Name))
-                {
-                    var propValue = prop.GetValue(entity, null);
-                    var parameter = ReflectionHelper.GetParameter(typeof(T), SqlGenerator, prop.Name, propValue);
-                    dynamicParameters.Add(GetSimpleAliasFromColumnAlias(prop.Name), parameter.Value, parameter.DbType,
-                                          parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                          parameter.Scale);
-                }
+                dynamicParameters = GetDynamicParameters(entity, dynamicParameters, keyColumn, true);
 
                 if (triggerIdentityColumn != null)
                 {
-                    // defaultValue need for identify type of parameter
-                    var defaultValue = entity.GetType().GetProperty(triggerIdentityColumn.Name).GetValue(entity, null);
-                    dynamicParameters.Add("IdOutParam", direction: ParameterDirection.Output, value: defaultValue);
-
-                    LastExecutedCommand = sql;
-                    connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
-
-                    keyValue = dynamicParameters.Get<object>(SqlGenerator.Configuration.Dialect.ParameterPrefix + "IdOutParam");
+                    keyValue = InsertTriggered(connection, entity, transaction, commandTimeout, sql, triggerIdentityColumn, dynamicParameters);
                 }
                 else
                 {
-                    IEnumerable<long> result;
-                    if (SqlGenerator.SupportsMultipleStatements())
-                    {
-                        sql += SqlGenerator.Configuration.Dialect.BatchSeperator + SqlGenerator.IdentitySql(classMap);
-                        LastExecutedCommand = sql;
-                        result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
-                    }
-                    else
-                    {
-                        connection.Execute(sql, dynamicParameters, transaction, commandTimeout, CommandType.Text);
-                        sql = SqlGenerator.IdentitySql(classMap);
-                        LastExecutedCommand = sql;
-                        result = connection.Query<long>(sql, dynamicParameters, transaction, false, commandTimeout, CommandType.Text);
-                    }
-
-                    // We are only interested in the first identity, but we are iterating over all resulting items (if any).
-                    // This makes sure that ADO.NET drivers (like MySql) won't actively terminate the query.
-                    var hasResult = false;
-                    foreach (var identityValue in result)
-                    {
-                        if (hasResult)
-                        {
-                            continue;
-                        }
-                        keyValue = identityValue;
-                        hasResult = true;
-                    }
-
-                    if (!hasResult)
-                    {
-                        throw new InvalidOperationException("The source sequence is empty.");
-                    }
+                    keyValue = InsertIdentity(connection, transaction, commandTimeout, classMap, sql, dynamicParameters);
                 }
 
                 keyValues.Add(keyColumn.Name, keyValue);
@@ -661,28 +718,11 @@ namespace DapperExtensions
                     if (sequenceIdentityColumn.Count > 1)
                         throw new ArgumentException("SequenceIdentity generator cannot be used with multi-column keys");
 
-                    var seqIdentityColumn = sequenceIdentityColumn[0];
-
-                    var query = $"select {seqIdentityColumn.SequenceName}.nextval seq from dual";
-                    var value = connection.ExecuteScalar<int>(query);
-
-                    keyValues.Add(seqIdentityColumn.Name, value);
-                    seqIdentityColumn.SetValue(entity, value);
-
-                    var parameter = ReflectionHelper.GetParameter(typeof(T), SqlGenerator, seqIdentityColumn.Name, seqIdentityColumn.GetValue(entity));
-                    dynamicParameters.Add(GetSimpleAliasFromColumnAlias(parameter.Name), parameter.Value, parameter.DbType,
-                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                      parameter.Scale);
+                    AddSequenceParameter(connection, entity, sequenceIdentityColumn[0], dynamicParameters, keyValues);
                 }
                 else if (nonIdentityKeyProperties != null)
                 {
-                    foreach (var prop in nonIdentityKeyProperties)
-                    {
-                        var parameter = ReflectionHelper.GetParameter(typeof(T), SqlGenerator, prop.Name, prop.GetValue(entity));
-                        dynamicParameters.Add(GetSimpleAliasFromColumnAlias(parameter.Name), parameter.Value, parameter.DbType,
-                                      parameter.ParameterDirection, parameter.Size, parameter.Precision,
-                                      parameter.Scale);
-                    }
+                    AddKeyParameters(entity, nonIdentityKeyProperties, dynamicParameters, true);
                 }
 
                 LastExecutedCommand = sql;

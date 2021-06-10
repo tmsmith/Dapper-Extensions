@@ -35,28 +35,6 @@ namespace DapperExtensions
                                    typeof(byte[])
                                };
 
-        public static IList<MemberInfo> GetProperties(LambdaExpression lambda)
-        {
-            Expression expr = lambda;
-            for (; ; )
-            {
-                switch (expr.NodeType)
-                {
-                    case ExpressionType.Lambda:
-                        expr = ((LambdaExpression)expr).Body;
-                        if (expr.NodeType == ExpressionType.New)
-                        {
-                            NewExpression newExpression = (NewExpression)expr;
-                            IList<MemberInfo> mi = newExpression.Members;
-                            return mi;
-                        }
-                        break;
-                    default:
-                        return null;
-                }
-            }
-        }
-
         public static IList<PropertyInfo> GetNestedProperties<T>(string nestedProperties, char delimiter, out string propertyInfoName)
         {
             IList<PropertyInfo> propertyInfos = new List<PropertyInfo>();
@@ -343,15 +321,13 @@ namespace DapperExtensions
         {
             IClassMapper map = sqlGenerator.Configuration.GetMap(entityType);
             if (map == null)
-            {
                 throw new NullReferenceException(String.Format("Map was not found for {0}", entityType));
-            }
 
-            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == propertyName);
+            var entityPropertyName = propertyName.Split('_').Last();
+
+            IMemberMap propertyMap = map.Properties.SingleOrDefault(p => p.Name == entityPropertyName);
             if (propertyMap == null)
-            {
-                throw new NullReferenceException(String.Format("{0} was not found for {1}", propertyName, entityType));
-            }
+                throw new NullReferenceException(String.Format("{0} was not found for {1}", entityPropertyName, entityType));
 
             return new Parameter
             {
