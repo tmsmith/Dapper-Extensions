@@ -1,7 +1,8 @@
-﻿using System;
+﻿using DapperExtensions.Predicate;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DapperExtensions.Sql
 {
@@ -22,55 +23,44 @@ namespace DapperExtensions.Sql
             return string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [Id]");
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = (page * resultsPerPage) + 1;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage), resultsPerPage, parameters);
         }
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
             if (string.IsNullOrEmpty(sql))
-            {
-                throw new ArgumentNullException("SQL");
-            }
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
 
             if (parameters == null)
-            {
-                throw new ArgumentNullException("Parameters");
-            }
+                throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
 
-            int selectIndex = GetSelectEnd(sql) + 1;
-            string orderByClause = GetOrderByClause(sql);
-            if (orderByClause == null)
-            {
-                orderByClause = "ORDER BY CURRENT_TIMESTAMP";
-            }
+            if (!IsSelectSql(sql))
+                throw new ArgumentException($"{nameof(sql)} must be a SELECT statement.", nameof(sql));
 
+            if (string.IsNullOrEmpty(GetOrderByClause(sql)))
+                sql = $"{sql} ORDER BY CURRENT_TIMESTAMP";
 
-            string projectedColumns = GetColumnNames(sql).Aggregate(new StringBuilder(), (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(GetColumnName("_proj", s, null)), sb => sb.ToString());
-            string newSql = sql
-                .Replace(" " + orderByClause, string.Empty)
-                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(9), GetColumnName(null, "_row_number", null)));
+            var result = $"{sql} OFFSET (@skipRows) ROWS FETCH NEXT @maxResults ROWS ONLY";
 
-            string result = string.Format("SELECT TOP({0}) {1} FROM ({2}) [_proj] WHERE {3} >= @_pageStartRow ORDER BY {3}",
-                maxResults, projectedColumns.Trim(), newSql, GetColumnName("_proj", "_row_number", null));
+            parameters.Add("@skipRows", firstResult);
+            parameters.Add("@maxResults", maxResults);
 
-            parameters.Add("@_pageStartRow", firstResult);
             return result;
         }
 
-        protected string GetOrderByClause(string sql)
+        protected static string GetOrderByClause(string sql)
         {
-            int orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
+            var orderByIndex = sql.LastIndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase);
             if (orderByIndex == -1)
             {
                 return null;
             }
 
-            string result = sql.Substring(orderByIndex).Trim();
+            var result = sql.Substring(orderByIndex).Trim();
 
-            int whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
+            var whereIndex = result.IndexOf(" WHERE ", StringComparison.InvariantCultureIgnoreCase);
             if (whereIndex == -1)
             {
                 return result;
@@ -79,71 +69,19 @@ namespace DapperExtensions.Sql
             return result.Substring(0, whereIndex).Trim();
         }
 
-        protected int GetFromStart(string sql)
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
         {
-            int selectCount = 0;
-            string[] words = sql.Split(' ');
-            int fromIndex = 0;
-            foreach (var word in words)
+            return databaseFunction switch
             {
-                if (word.Equals("SELECT", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount++;
-                }
-
-                if (word.Equals("FROM", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    selectCount--;
-                    if (selectCount == 0)
-                    {
-                        break;
-                    }
-                }
-
-                fromIndex += word.Length + 1;
-            }
-
-            return fromIndex;
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
         }
 
-        protected virtual int GetSelectEnd(string sql)
+        [ExcludeFromCodeCoverage]
+        public override void EnableCaseInsensitive(IDbConnection connection)
         {
-            var trimmedSql = sql.TrimStart();
-            if (trimmedSql.StartsWith("SELECT DISTINCT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var index = trimmedSql.IndexOf("SELECT DISTINCT", StringComparison.Ordinal);
-                return index + 15;
-            }
-
-            if (trimmedSql.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var index = trimmedSql.IndexOf("SELECT", StringComparison.Ordinal);
-                return index + 6;
-            }
-
-            throw new ArgumentException("SQL must be a SELECT statement.", "sql");
-        }
-
-        protected virtual IList<string> GetColumnNames(string sql)
-        {
-            int start = GetSelectEnd(sql);
-            int stop = GetFromStart(sql);
-            string[] columnSql = sql.Substring(start, stop - start).Split(',');
-            List<string> result = new List<string>();
-            foreach (string c in columnSql)
-            {
-                int index = c.IndexOf(" AS ", StringComparison.InvariantCultureIgnoreCase);
-                if (index > 0)
-                {
-                    result.Add(c.Substring(index + 4).Trim());
-                    continue;
-                }
-
-                string[] colParts = c.Split('.');
-                result.Add(colParts[colParts.Length - 1].Trim());
-            }
-
-            return result;
         }
     }
 }

@@ -12,8 +12,14 @@ namespace DapperExtensions.Mapper
     {
         string SchemaName { get; }
         string TableName { get; }
+        string SimpleAlias { get; }
         IList<IMemberMap> Properties { get; }
+        IList<IReferenceMap> References { get; }
         Type EntityType { get; }
+        Guid Identity { get; }
+        Guid ParentIdentity { get; }
+        void SetIdentity(Guid identity);
+        void SetParentIdentity(Guid identity);
     }
 
     public interface IClassMapper<T> : IClassMapper where T : class
@@ -35,15 +41,22 @@ namespace DapperExtensions.Mapper
         /// </summary>
         public string TableName { get; protected set; }
 
+        public string SimpleAlias { get; protected set; }
+
         /// <summary>
         /// A collection of properties that will map to columns in the database table.
         /// </summary>
-        public IList<IMemberMap> Properties { get; private set; }
+        public IList<IMemberMap> Properties { get; }
 
-        public Type EntityType
-        {
-            get { return typeof(T); }
-        }
+        /// <summary>
+        /// A collection of references that will map to columns in the database table.
+        /// </summary>
+        public IList<IReferenceMap> References { get; }
+
+        public Type EntityType { get; private set; }
+
+        public Guid Identity { get; private set; }
+        public Guid ParentIdentity { get; private set; }
 
         public ClassMapper()
         {
@@ -62,10 +75,13 @@ namespace DapperExtensions.Mapper
                                              };
 
             Properties = new List<IMemberMap>();
-            Table(typeof(T).Name);
+            References = new List<IReferenceMap>();
+            TableName = typeof(T).Name;
+            Identity = Guid.NewGuid();
+            EntityType = typeof(T);
         }
 
-        protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; private set; }
+        protected Dictionary<Type, KeyType> PropertyTypeKeyTypeMapping { get; }
 
         public virtual void Schema(string schemaName)
         {
@@ -84,42 +100,49 @@ namespace DapperExtensions.Mapper
 
         protected virtual void AutoMap(Func<Type, PropertyInfo, bool> canMap)
         {
-            Type type = typeof(T);
-            bool hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
+            var type = typeof(T);
+            var hasDefinedKey = Properties.Any(p => p.KeyType != KeyType.NotAKey);
             MemberMap keyMap = null;
-            foreach (var propertyInfo in type.GetProperties())
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public))
             {
                 if (Properties.Any(p => p.Name.Equals(propertyInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     continue;
                 }
 
-                if ((canMap != null && !canMap(type, propertyInfo)))
+                if (canMap != null && !canMap(type, propertyInfo))
                 {
                     continue;
                 }
 
-                MemberMap map = Map(propertyInfo);
+                var map = Map(propertyInfo);
                 if (!hasDefinedKey)
                 {
-                    if (string.Equals(map.MemberInfo.Name, "id", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(map.Name, "id", StringComparison.InvariantCultureIgnoreCase))
                     {
                         keyMap = map;
                     }
 
-                    if (keyMap == null && map.MemberInfo.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
+                    if (keyMap == null && map.Name.EndsWith("id", true, CultureInfo.InvariantCulture))
                     {
                         keyMap = map;
                     }
                 }
             }
 
-            if (keyMap != null)
-            {
-                keyMap.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.MemberType)
+            keyMap?.Key(PropertyTypeKeyTypeMapping.ContainsKey(keyMap.MemberType)
                     ? PropertyTypeKeyTypeMapping[keyMap.MemberType]
                     : KeyType.Assigned);
-            }
+        }
+
+        protected virtual IReferenceMap<T> ReferenceMap(Expression<Func<T, object>> expression)
+        {
+            var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
+            var result = new ReferenceMap<T>(propertyInfo, Identity);
+
+            GuardForDuplicateReferenceMap(result);
+            References.Add(result);
+            return result;
         }
 
         /// <summary>
@@ -127,18 +150,44 @@ namespace DapperExtensions.Mapper
         /// </summary>
         protected virtual MemberMap Map(Expression<Func<T, object>> expression)
         {
-            PropertyInfo propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
-            return Map(propertyInfo);
+            var propertyInfo = ReflectionHelper.GetProperty(expression);
+            MemberMap result = null;
+
+            if (propertyInfo is IEnumerable<MemberInfo>)
+            {
+                foreach (var prop in (propertyInfo as IEnumerable<MemberInfo>))
+                {
+                    result = Map(prop as PropertyInfo, result);
+                }
+            }
+            else
+            {
+                result = Map(propertyInfo as PropertyInfo);
+            }
+            return result;
         }
 
         /// <summary>
         /// Fluently, maps an entity property to a column
         /// </summary>
-        protected virtual MemberMap Map(PropertyInfo propertyInfo)
+        protected virtual MemberMap Map(PropertyInfo propertyInfo, MemberMap parent = null)
         {
-            MemberMap result = new MemberMap(propertyInfo);
-            this.GuardForDuplicatePropertyMap(result);
-            Properties.Add(result);
+            var result = new MemberMap(propertyInfo, this, parent: parent);
+            if (GuardForDuplicatePropertyMap(result))
+            {
+                if (propertyInfo.PropertyType.IsClass)
+                {
+                    result = (MemberMap)Properties.FirstOrDefault(p => p.Name.Equals(result.Name) && p.ParentProperty == result.ParentProperty);
+                }
+                else
+                {
+                    throw new ApplicationException("Unable to UnMap because mapping does not exist.");
+                }
+            }
+            else
+            {
+                Properties.Add(result);
+            }
             return result;
         }
 
@@ -146,10 +195,10 @@ namespace DapperExtensions.Mapper
         /// Removes a propertymap entry
         /// </summary>
         /// <param name="expression"></param>
-        protected void UnMap(Expression<Func<T, object>> expression)
+        protected virtual void UnMap(Expression<Func<T, object>> expression)
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
-            var mapping = this.Properties.Where(w => w.Name == propertyInfo.Name).SingleOrDefault();
+            var mapping = Properties.SingleOrDefault(w => w.Name == propertyInfo.Name);
 
             if (mapping == null)
             {
@@ -159,12 +208,32 @@ namespace DapperExtensions.Mapper
             this.Properties.Remove(mapping);
         }
 
-        private void GuardForDuplicatePropertyMap(MemberMap result)
+        private bool GuardForDuplicatePropertyMap(MemberMap result)
         {
-            if (Properties.Any(p => p.Name.Equals(result.Name)))
+            return Properties.Any(p => p.Name.Equals(result.Name) && p.ParentProperty == result.ParentProperty);
+        }
+
+        private void GuardForDuplicateReferenceMap(ReferenceMap<T> result)
+        {
+            if (References.Any(p => p.Name.Equals(result.Name)))
             {
-                throw new ArgumentException(string.Format("Duplicate mapping for property {0} detected.", result.Name));
+                throw new ArgumentException($"Duplicate mapping for reference property {result.Name} detected.");
             }
+        }
+
+        public virtual void SetEntityType(Type type)
+        {
+            EntityType = type;
+        }
+
+        public virtual void SetIdentity(Guid identity)
+        {
+            Identity = identity;
+        }
+
+        public virtual void SetParentIdentity(Guid identity)
+        {
+            ParentIdentity = identity;
         }
     }
 }

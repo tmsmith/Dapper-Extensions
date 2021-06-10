@@ -1,0 +1,145 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
+    <Version>1.7.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFRAMEWORK</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net461' AND '$(TargetFramework)' != 'netstandard2.0'">
+    <DefineConstants>NETCORE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD20</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>DapperExtensions.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" version="13.0.1" />
+    <PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
+    <PackageReference Include="Dapper" Version="2.0.90" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net461' and '$(TargetFramework)' != 'net461'">
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>$(AssemblyName)</PackageId>
+    <files>
+      <file src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
+      <file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
+      <file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
+      <file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
+      <file src="bin\Release\netstandard2.0\$(AssemblyName).dll" target="lib\netstandard2.0\$(AssemblyName).dll" />
+      <file src="bin\Release\netstandard2.1\$(AssemblyName).dll" target="lib\netstandard2.1\$(AssemblyName).dll" />
+    </files>
+    <Description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</Description>
+    <Authors>Thad Smith, Page Brooks, Valfrid Couto</Authors>
+    <Company>Thad Smith, Page Brooks</Company>
+    <PackageProjectUrl>https://github.com/tmsmith/Dapper-Extensions</PackageProjectUrl>
+    <Copyright>Thad Smith, Page Brooks</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions.git</RepositoryUrl>
+    <PackageReleaseNotes>
+      1.7.0
+      * Removed DNXCore
+      * Migrate project to Visual Studio 2019
+      * Compatibility with .Net Framework 4.6.1, .Core 2.1, 3.1, Net 5.0 and Net Standard 2.0 and 2.1
+      * Removed DB2 support from .Net Framework due IBM removal of nuget packages
+      * Included possibility to define a subset of columns to select / update
+      * Implemented Code Coverage to the Tests
+      * Migrate tests connection strings to JSon
+      * Unified NetCore and NetFramework projects to use a simple multi-target projects
+      * Multiple enhancements to the code
+      * Implemented multi-level predicate support
+      1.6.2 / 1.6.3
+      * Exposed Ignore keys on update in usages of Implementor
+      1.6.1
+      * Added Oracle Dialect to 4.5
+      1.6.0
+      * Added DB2 Dialect
+      * Added flag to ignore All Key fields when doing an update
+      * Added missing async/await methods
+      * Added unmap method to Mapper
+    </PackageReleaseNotes>
+    <PackageTags>orm sql micro-orm Data Dapper</PackageTags>
+    <NeutralLanguage></NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\DapperExtensions\DapperAsyncExtensions.cs" Link="DapperAsyncExtensions.cs" />
+    <Compile Include="..\DapperExtensions\DapperAsyncImplementor.cs" Link="DapperAsyncImplementor.cs" />
+    <Compile Include="..\DapperExtensions\DapperExtensions.cs" Link="DapperExtensions.cs" />
+    <Compile Include="..\DapperExtensions\DapperExtensionsConfiguration.cs" Link="DapperExtensionsConfiguration.cs" />
+    <Compile Include="..\DapperExtensions\DapperImplementor.cs" Link="DapperImplementor.cs" />
+    <Compile Include="..\DapperExtensions\Database.cs" Link="Database.cs" />
+    <Compile Include="..\DapperExtensions\GetMultipleResult.cs" Link="GetMultipleResult.cs" />
+    <Compile Include="..\DapperExtensions\Predicates.cs" Link="Predicates.cs" />
+    <Compile Include="..\DapperExtensions\ReflectionHelper.cs" Link="ReflectionHelper.cs" />
+    <Compile Include="..\DapperExtensions\Enums\Comparator.cs" Link="Enums\Comparator.cs" />
+    <Compile Include="..\DapperExtensions\Extensions\EnumExtensions.cs" Link="Extensions\EnumExtensions.cs" />
+
+    <Compile Include="..\DapperExtensions\Mapper\AutoClassMapper.cs" Link="Mapper\AutoClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\ClassMapper.cs" Link="Mapper\ClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\Column.cs" Link="Mapper\Column.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\MemberMap.cs" Link="Mapper\MemberMap.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\Parameter.cs" Link="Mapper\Parameter.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\PluralizedAutoClassMapper.cs" Link="Mapper\PluralizedAutoClassMapper.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\PropertyKey.cs" Link="Mapper\PropertyKey.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\ReferenceMap.cs" Link="Mapper\ReferenceMap.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\ReferenceProperty.cs" Link="Mapper\ReferenceProperty.cs" />
+    <Compile Include="..\DapperExtensions\Mapper\Table.cs" Link="Mapper\Table.cs" />
+
+    <Compile Include="..\DapperExtensions\Predicate\BasePredicate.cs" Link="Predicate\BasePredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\BetweenPredicate.cs" Link="Predicate\BetweenPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\ComparePredicate.cs" Link="Predicate\ComparePredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\ExistsPredicate.cs" Link="Predicate\ExistsPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\FieldPredicate.cs" Link="Predicate\FieldPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\GetMultiplePredicate.cs" Link="Predicate\GetMultiplePredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\InPredicate.cs" Link="Predicate\InPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\IPredicate.cs" Link="Predicate\IPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\PredicateEnums.cs" Link="Predicate\PredicateEnums.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\PredicateGroup.cs" Link="Predicate\PredicateGroup.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\Projection.cs" Link="Predicate\Projection.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\PropertyPredicate.cs" Link="Predicate\PropertyPredicate.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\Sort.cs" Link="Predicate\Sort.cs" />
+    <Compile Include="..\DapperExtensions\Predicate\VirtualPredicate.cs" Link="Predicate\VirtualPredicate.cs" />
+
+    <Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs" Link="Sql\DB2Dialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs" Link="Sql\MySqlDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\OracleDialect.cs" Link="Sql\OracleDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\PostgreSqlDialect.cs" Link="Sql\PostgreSqlDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlCeDialect.cs" Link="Sql\SqlCeDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlDialectBase.cs" Link="Sql\SqlDialectBase.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlGenerator.cs" Link="Sql\SqlGenerator.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlInjection.cs" Link="Sql\SqlInjection.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqliteDialect.cs" Link="Sql\SqliteDialect.cs" />
+    <Compile Include="..\DapperExtensions\Sql\SqlServerDialect.cs" Link="Sql\SqlServerDialect.cs" />
+  </ItemGroup>
+</Project>

@@ -2,15 +2,23 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata schemaVersion="2">
     <id>DapperExtensions</id>
-    <version>1.6.3</version>
+    <version>1.7.0</version>
     <authors>Thad Smith, Page Brooks</authors>
     <owners>Thad Smith, Page Brooks</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <projectUrl>https://github.com/tmsmith/Dapper-Extensions</projectUrl>
+    <projectUrl>https://github.com/valfrid-ly/Dapper-Extensions</projectUrl>
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</description>
     <releaseNotes>
+	  1.7.0
+	  * Forked from orginal project of Thad Smith
+	  * Implemented Code Coverage to the Tests
+	  * Migrate tests connection strings to JSon
+	  * Unified NetCore and NetFramework projects to use a simple multi-target projects
+	  * Multiple enhancements to the code
+	  * Implemented multi-level predicate support
+	  * .Net Standard 2.0 compliance
       1.6.2 / 1.6.3
       * Exposed Ignore keys on update in usages of Implementor
       1.6.1
@@ -23,20 +31,19 @@
     </releaseNotes>
     <tags>orm sql micro-orm Data Dapper</tags>
 	<dependencies>
-      <dependency id="Dapper" version="1.12" />
+      <dependency id="Dapper" version="2.0.30" />
+      <dependency id="Slapper.AutoMapper" version="2.0.1" />
+      <dependency id="Newtonsoft.Json" version="12.0.3" />
+      <dependency id="Microsoft.CSharp" version="4.7.0" />
     </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Core"/>
-      <frameworkAssembly assemblyName="System"/>
-      <frameworkAssembly assemblyName="System.Data"/>
-      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0-Client, .NETFramework4.0" />
-    </frameworkAssemblies>
   </metadata>
   <files>
-  	<file src="bin\Release\DapperExtensions.dll" target="lib\net40" />
-    <file src="bin\Release\DapperExtensions.pdb" target="lib\net40" />
-
-    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.dll" target="lib\net45" />
-    <file src="..\DapperExtensions.Net45\bin\Release\DapperExtensions.pdb" target="lib\net45" />
+      <file src="bin\Release\net461\DapperExtensions.dll" target="lib\net461\DapperExtensions.dll" />
+      <file src="bin\Release\netcoreapp2.1\DapperExtensions.dll" target="lib\netcoreapp2.1\DapperExtensions.dll" />
+      <file src="bin\Release\netcoreapp3.1\DapperExtensions.dll" target="lib\netcoreapp3.1\DapperExtensions.dll" />
+      <file src="bin\Release\net5.0\DapperExtensions.dll" target="lib\net5.0\DapperExtensions.dll" />
+      <file src="bin\Release\net5.0\DapperExtensions.dll" target="lib\net5.0\DapperExtensions.dll" />
+      <file src="bin\Release\netstandard2.0\DapperExtensions.dll" target="lib\netstandard2.0\DapperExtensions.dll" />
+      <file src="bin\Release\netstandard2.1\DapperExtensions.dll" target="lib\netstandard2.1\DapperExtensions.dll" />
   </files>  
 </package>

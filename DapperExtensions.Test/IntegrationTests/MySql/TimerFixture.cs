@@ -1,4 +1,4 @@
-﻿using DapperExtensions.Test.Data;
+﻿using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -6,9 +6,10 @@ using System.Collections.Generic;
 namespace DapperExtensions.Test.IntegrationTests.MySql
 {
     [TestFixture]
-    public class TimerFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class TimerFixture
     {
-        private static int cnt = 1000;
+        private const int cnt = 1000;
 
         public class InsertTimes : MySqlBaseFixture
         {
@@ -24,7 +25,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<long> ids = new List<long>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -40,7 +41,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -55,7 +57,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<long> ids = new List<long>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -71,7 +73,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -90,7 +93,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -109,7 +113,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -129,7 +134,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -149,7 +155,8 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
         }
     }

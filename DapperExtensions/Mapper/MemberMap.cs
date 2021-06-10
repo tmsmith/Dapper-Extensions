@@ -1,16 +1,19 @@
-﻿using System;
+﻿using DapperExtensions.Extensions;
+using System;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 
 namespace DapperExtensions.Mapper
 {
     /// <summary>
-    /// Maps an entity property / field to its corresponding column in the database.
+    /// Maps an entity property to its corresponding column in the database.
     /// </summary>
     public interface IMemberMap
     {
         string Name { get; }
         string ColumnName { get; }
+        string SequenceName { get; }
         bool Ignored { get; }
         bool IsReadOnly { get; }
 
@@ -22,9 +25,12 @@ namespace DapperExtensions.Mapper
 
         KeyType KeyType { get; }
         MemberInfo MemberInfo { get; }
+        IClassMapper ClassMapper { get; }
+        IMemberMap ParentProperty { get; }
         object GetValue(object obj);
         void SetValue(object obj, object value);
         Type MemberType { get; }
+        bool UseEnumDescription { get; }
     }
 
     /// <summary>
@@ -32,17 +38,33 @@ namespace DapperExtensions.Mapper
     /// </summary>
     public class MemberMap : IMemberMap
     {
-        public MemberMap(PropertyInfo memberInfo)
+        #region Constructors
+        public MemberMap(PropertyInfo memberInfo) : this(memberInfo, null)
         {
-            MemberInfo = memberInfo;
-            ColumnName = MemberInfo.Name;
         }
 
-        public MemberMap(FieldInfo memberInfo)
+        public MemberMap(FieldInfo memberInfo) : this(memberInfo, null)
+        {
+        }
+
+        public MemberMap(MemberInfo memberInfo) : this(memberInfo, null)
+        {
+        }
+
+        public MemberMap(MemberInfo memberInfo, IClassMapper classMapper, bool isReference = false, IMemberMap parent = null)
         {
             MemberInfo = memberInfo;
-            ColumnName = MemberInfo.Name;
+            ColumnName = isReference ? classMapper.Properties
+                                                  .Where(x => x.MemberInfo == MemberInfo)
+                                                  .Select(c => c.ColumnName)
+                                                  .FirstOrDefault() : MemberInfo.Name;
+            ClassMapper = classMapper;
+
+            ParentProperty = parent;
         }
+        #endregion
+
+        public IMemberMap ParentProperty { get; }
 
         /// <summary>
         /// Gets the name of the property by using the specified propertyInfo.
@@ -58,6 +80,11 @@ namespace DapperExtensions.Mapper
         public string ColumnName { get; private set; }
 
         /// <summary>
+        /// Gets the sequence name for generate Id for column property
+        /// </summary>
+        public string SequenceName { get; private set; }
+
+        /// <summary>
         /// Gets the key type for the current property.
         /// </summary>
         public KeyType KeyType { get; private set; }
@@ -71,7 +98,6 @@ namespace DapperExtensions.Mapper
         /// Gets the read-only status of the current property. If read-only, the current property will not be included in INSERT and UPDATE queries.
         /// </summary>
         public bool IsReadOnly { get; private set; }
-
 
         /// <summary>
         /// Gets the underlying Database Type for the current property.
@@ -101,8 +127,9 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// Gets the property info for the current property.
         /// </summary>
-		public MemberInfo MemberInfo { get; private set; }
+        public MemberInfo MemberInfo { get; }
 
+        public IClassMapper ClassMapper { get; }
         /// <summary>
         /// Fluently sets the column name for the property.
         /// </summary>
@@ -113,10 +140,18 @@ namespace DapperExtensions.Mapper
             return this;
         }
 
+        public MemberMap Sequence(string sequenceName)
+        {
+            SequenceName = sequenceName;
+            if (!string.IsNullOrEmpty(sequenceName))
+                Key(KeyType.SequenceIdentity);
+
+            return this;
+        }
+
         /// <summary>
         /// Fluently sets the key type of the property.
         /// </summary>
-        /// <param name="columnName">The column name as it exists in the database.</param>
         public MemberMap Key(KeyType keyType)
         {
             if (Ignored)
@@ -129,6 +164,11 @@ namespace DapperExtensions.Mapper
                 throw new ArgumentException(string.Format("'{0}' is readonly and cannot be made a key field. ", Name));
             }
 
+            if (!string.IsNullOrEmpty(SequenceName) && keyType != KeyType.SequenceIdentity)
+            {
+                throw new ArgumentException(string.Format("'{0}' cannot be made a key field. ", Name));
+            }
+
             KeyType = keyType;
             return this;
         }
@@ -138,7 +178,7 @@ namespace DapperExtensions.Mapper
         /// </summary>
         public MemberMap Ignore()
         {
-            if (KeyType != KeyType.NotAKey)
+            if (KeyType != KeyType.NotAKey && KeyType != KeyType.SlapperIdentifierKey)
             {
                 throw new ArgumentException(string.Format("'{0}' is a key field and cannot be ignored.", Name));
             }
@@ -152,7 +192,7 @@ namespace DapperExtensions.Mapper
         /// </summary>
         public MemberMap ReadOnly()
         {
-            if (KeyType != KeyType.NotAKey)
+            if (KeyType != KeyType.NotAKey && KeyType != KeyType.SlapperIdentifierKey)
             {
                 throw new ArgumentException(string.Format("'{0}' is a key field and cannot be marked readonly.", Name));
             }
@@ -224,6 +264,10 @@ namespace DapperExtensions.Mapper
             {
                 return info.GetValue(obj);
             }
+            else if (MemberInfo.DeclaringType.IsEnum)
+            {
+                return (obj as Enum).Description();
+            }
             else
             {
                 return ((PropertyInfo)MemberInfo).GetValue(obj, null);
@@ -256,6 +300,14 @@ namespace DapperExtensions.Mapper
                 }
             }
         }
+
+        public bool UseEnumDescription { get; private set; }
+
+        public MemberMap EnumDescription(bool value)
+        {
+            UseEnumDescription = value;
+            return this;
+        }
     }
 
     /// <summary>
@@ -286,6 +338,20 @@ namespace DapperExtensions.Mapper
         /// <summary>
         /// The property is a key that is not automatically managed.
         /// </summary>
-        Assigned
+        Assigned,
+        /// <summary>
+        /// The property is a key that represents a property from domain table reference.
+        /// </summary>
+        ForeignKey,
+
+        /// <summary>
+        /// The property is a key generated by the database sequence.
+        /// </summary>
+        SequenceIdentity,
+
+        /// <summary>
+        /// The property is a key that's used for Slapper mapping identifier only.
+        /// </summary>
+        SlapperIdentifierKey
     }
 }

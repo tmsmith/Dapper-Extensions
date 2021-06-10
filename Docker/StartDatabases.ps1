@@ -1,0 +1,1 @@
+﻿wsl -u root -- service docker start

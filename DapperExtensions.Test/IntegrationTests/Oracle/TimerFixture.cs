@@ -1,14 +1,16 @@
-﻿using DapperExtensions.Test.IntegrationTests.Oracle.Data;
+﻿using DapperExtensions.Test.Data.Oracle;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using Car = DapperExtensions.Test.Data.Common.Car;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
     [TestFixture]
-    public class TimerFixture
+    [Parallelizable(ParallelScope.All)]
+    public static class TimerFixture
     {
-        private static int cnt = 1000;
+        private const int cnt = 1000;
 
         public class InsertTimes : OracleBaseFixture
         {
@@ -24,7 +26,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<int> ids = new List<int>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -40,7 +42,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -55,7 +58,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 };
                 Db.Insert(p);
                 DateTime start = DateTime.Now;
-                List<int> ids = new List<int>();
+                var ids = new List<long>();
                 for (int i = 0; i < cnt; i++)
                 {
                     Person p2 = new Person
@@ -71,7 +74,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -79,20 +83,21 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             public void GuidKey_UsingEntity()
             {
                 /*
-                                Animal a = new Animal { Name = "Name" };
-                                Db.Insert(a);
-                                DateTime start = DateTime.Now;
-                                List<Guid> ids = new List<Guid>();
-                                for (int i = 0; i < cnt; i++)
-                                {
-                                    Animal a2 = new Animal { Name = "Name" + i };
-                                    Db.Insert(a2);
-                                    ids.Add(a2.Id);
-                                }
+                Animal a = new Animal { Name = "Name" };
+                Db.Insert(a);
+                DateTime start = DateTime.Now;
+                List<Guid> ids = new List<Guid>();
+                for (int i = 0; i < cnt; i++)
+                {
+                    Animal a2 = new Animal { Name = "Name" + i };
+                    Db.Insert(a2);
+                    ids.Add(a2.Id);
+                }
 
-                                double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                                Console.WriteLine("Total Time:" + total);
-                                Console.WriteLine("Average Time:" + total / cnt);
+                double total = DateTime.Now.Subtract(start).TotalMilliseconds;
+                Console.WriteLine("Total Time:" + total);
+                Console.WriteLine("Average Time:" + total / cnt);
+                Dispose();
                 */
             }
 
@@ -113,7 +118,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -133,7 +139,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
 
             [Test]
@@ -153,7 +160,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
                 Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                Console.WriteLine("Average Time:" + (total / cnt));
+                Dispose();
             }
         }
     }
