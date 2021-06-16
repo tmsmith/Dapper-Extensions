@@ -47,6 +47,8 @@ bld/
 [Ll]og/
 [Ll]ogs/
 [Pp]ublish
+[Bb]uild*
+[Cc]overage*
 *.xap
 
 # Visual Studio 2015/2017 cache/options directory
@@ -58,8 +60,7 @@ bld/
 Generated\ Files/
 
 # MSTest test Results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
+[Tt]est*
 
 # NUnit
 *.VisualState.xml
