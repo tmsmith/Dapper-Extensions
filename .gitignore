@@ -7,6 +7,8 @@
 [Oo]bj
 *.xap
 [Pp]ublish
+[Tt]est*
+[Cc]overage*
 
 # Other files
 *.dotCover
