@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace DapperExtensions.Mapper
 {
     /// <summary>
-    /// Automatically maps an entity to a table using a combination of reflection and naming conventions for keys. 
+    /// Automatically maps an entity to a table using a combination of reflection and naming conventions for keys.
     /// Identical to AutoClassMapper, but attempts to pluralize table names automatically.
     /// Example: Person entity maps to People table
     /// </summary>
@@ -35,10 +35,10 @@ namespace DapperExtensions.Mapper
                                                                                          { "(.+[^aeiou])y$", "$1ies" },
                                                                                          { "(.+z)$", "$1zes" },
                                                                                          { "([m|l])ouse$", "$1ice" },
-                                                                                         { "(.+)(e|i)x$", @"$1ices"},    // ie, Matrix, Index
+                                                                                         { "(.+)(e|i)x$", "$1ices"},    // ie, Matrix, Index
                                                                                          { "(octop|vir)us$", "$1i"},
-                                                                                         { "(.+(s|x|sh|ch))$", @"$1es"},
-                                                                                         { "(.+)", @"$1s" }
+                                                                                         { "(.+(s|x|sh|ch))$", "$1es"},
+                                                                                         { "(.+)", "$1s" }
                                                                                      };
 
             public static string Pluralize(string singular)

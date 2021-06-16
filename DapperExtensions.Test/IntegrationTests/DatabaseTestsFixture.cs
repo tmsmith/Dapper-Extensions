@@ -1,80 +1,145 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Dapper;
+using DapperExtensions.Mapper;
 using DapperExtensions.Sql;
-using DapperExtensions.Test.Data;
-using DapperExtensions.Test.Helpers;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace DapperExtensions.Test.IntegrationTests
 {
-    [TestFixture]
-    public class DatabaseTestsFixture
-    {/*
-        public class PredicateTests : DatabaseConnection
+    [NonParallelizable]
+    public abstract class DatabaseTestsFixture : IDisposable
+    {
+        private readonly Dictionary<string, string> _connectionStrings = new Dictionary<string, string>();
+        private readonly string projectName = Assembly.GetCallingAssembly().GetName().Name;
+        protected readonly string[] CreateTableScripts = { "CreateAnimalTable", "CreateFooTable", "CreateMultikeyTable", "CreatePersonTable", "CreateCarTable" };
+
+        protected DatabaseTestsFixture(string configPath = null)
         {
-            [Test]
-            public void Eq_EnumerableType_GeneratesAndRunsProperSql()
-            {
-                Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Impl.Insert<Person>(Connection, new[] { p1, p2, p3 }, null, null);
+            ProjectPath = configPath ?? $"{Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."))}";
+        }
 
-                var predicate = Predicates.Field<Person>(p => p.FirstName, Operator.Eq, new[] { "Alpha", "Gamma" });
-                var result = Impl.GetList<Person>(Connection, predicate, null, null, null, true);
-                Assert.AreEqual(2, result.Count());
-                Assert.IsTrue(result.Any(r => r.FirstName == "Alpha"));
-                Assert.IsTrue(result.Any(r => r.FirstName == "Gamma"));
+        public virtual IDatabase Db { get; private set; }
+
+        public string ProjectPath { get; }
+
+        protected SqlDialectBase Dialect { get; private set; }
+
+        protected virtual string ConnectionString(string connectionName)
+        {
+            lock (_connectionStrings)
+            {
+                if (_connectionStrings.Count == 0)
+                {
+                    var fileContent = ReadFile($"{ProjectPath}\\connectionstrings.json");
+
+                    foreach (var item in JsonConvert.DeserializeObject<Dictionary<string, string>>(fileContent))
+                    {
+                        _connectionStrings.Add(item.Key, item.Value);
+                    }
+                }
             }
 
-            [Test]
-            public void Exists_GeneratesAndRunsProperSql()
+            var result = _connectionStrings.FirstOrDefault(c => c.Key.Equals(connectionName));
+
+            if (!result.Equals(default) && !string.IsNullOrEmpty(result.Value))
             {
-                Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Impl.Insert<Person>(Connection, new[] { p1, p2, p3 }, null, null);
-
-                Animal a1 = new Animal { Name = "Gamma" };
-                Animal a2 = new Animal { Name = "Beta" };
-                Impl.Insert<Animal>(Connection, new[] { a1, a2 }, null, null);
-
-                var subPredicate = Predicates.Property<Person, Animal>(p => p.FirstName, Operator.Eq, a => a.Name);
-                var predicate = Predicates.Exists<Animal>(subPredicate);
-
-                var result = Impl.GetList<Person>(Connection, predicate, null, null, null, true);
-                Assert.AreEqual(2, result.Count());
-                Assert.IsTrue(result.Any(r => r.FirstName == "Beta"));
-                Assert.IsTrue(result.Any(r => r.FirstName == "Gamma"));
+                return result.Value;
             }
-
-            [Test]
-            public void Between_GeneratesAndRunsProperSql()
+            else
             {
-                Person p1 = new Person { Active = true, FirstName = "Alpha", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p2 = new Person { Active = true, FirstName = "Beta", LastName = "Bar", DateCreated = DateTime.UtcNow };
-                Person p3 = new Person { Active = true, FirstName = "Gamma", LastName = "Omega", DateCreated = DateTime.UtcNow };
-                Impl.Insert<Person>(Connection, new[] { p1, p2, p3 }, null, null);
-
-                var pred = Predicates.Between<Person>(p => p.LastName,
-                                                      new BetweenValues { Value1 = "Aaa", Value2 = "Bzz" });
-                var result = Impl.GetList<Person>(Connection, pred, null, null, null, true).ToList();
-                Assert.AreEqual(2, result.Count);
-                Assert.AreEqual("Alpha", result[0].FirstName);
-                Assert.AreEqual("Beta", result[1].FirstName);
+                throw new KeyNotFoundException($"ConnectionString not found in file '{ProjectPath}'");
             }
         }
 
-        public class CustomMapperTests : DatabaseConnection
+        protected virtual void CommonSetup(DbConnection connection, SqlDialectBase sqlDialect)
         {
-            [Test]
-            public void GeneratesAndRunsProperSql()
+            Dialect = sqlDialect;
+            var config = new DapperExtensionsConfiguration(typeof(AutoClassMapper<>), new List<Assembly>(), Dialect);
+            var sqlGenerator = new SqlGeneratorImpl(config);
+            Db = new Database(connection, sqlGenerator);
+        }
+
+        private string GetNamespacePath()
+        {
+            var namespacePath = $"{GetType().Namespace.Replace($"{projectName}.", "")}";
+
+            //TODO: Understand why projectName comes as "nunit.framework" using release configuration and need to adjust here
+            if (!System.Diagnostics.Debugger.IsAttached)
             {
-                Impl = new DapperExtensions.DapperExtensionsImpl(typeof(CustomMapper), TestHelpers.GetGenerator());
-                Foo f = new Foo { FirstName = "Foo", LastName = "Bar", DateOfBirth = DateTime.UtcNow.AddYears(-20) };
-                Impl.Insert(Connection, f, null, null);
+                foreach (var aux in namespacePath.Split('.'))
+                {
+                    if (namespacePath.Contains(aux) && ProjectPath.Contains(aux))
+                    {
+                        //Using substrings to avoid removing partial strings
+                        var indexOf = namespacePath.IndexOf(aux);
+
+                        namespacePath = indexOf > 0 ?
+                            $"{namespacePath.Substring(0, indexOf - 1)}{namespacePath.Substring(indexOf + aux.Length)}" :
+                            indexOf + aux.Length >= namespacePath.Length ? "" : namespacePath.Substring(indexOf + aux.Length);
+                    }
+                }
             }
-        }*/
+
+            while (namespacePath.Contains("."))
+            {
+                namespacePath = namespacePath.Substring(namespacePath.IndexOf(".") + 1);
+            }
+
+            return $"DDL\\{namespacePath}";
+        }
+
+        public virtual void ExecuteScripts(IDbConnection connection, bool abortOnError, params string[] scripts)
+        {
+            var files = new List<string>();
+            var namespacePath = GetNamespacePath();
+
+            foreach (var script in scripts)
+            {
+                var fileName = $"{ProjectPath}\\{namespacePath}\\{script}";
+                fileName += !Path.HasExtension(fileName) ? ".sql" : "";
+
+                files.Add(ReadFile(fileName));
+            };
+
+            foreach (var setupFile in files)
+            {
+                try
+                {
+                    connection.Execute(setupFile);
+                }
+                catch (Exception)
+                {
+                    if (abortOnError)
+                        throw;
+                }
+            }
+        }
+
+        private static string ReadFile(string fileName)
+        {
+            using StreamReader sr = new StreamReader(fileName);
+            return sr.ReadToEnd();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool dispose)
+        {
+            if (dispose)
+            {
+                Db.Dispose();
+            }
+        }
     }
 }

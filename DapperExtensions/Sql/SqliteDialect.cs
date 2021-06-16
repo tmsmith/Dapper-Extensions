@@ -1,5 +1,8 @@
-﻿using System;
+﻿using DapperExtensions.Predicate;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace DapperExtensions.Sql
@@ -11,23 +14,21 @@ namespace DapperExtensions.Sql
             return "SELECT LAST_INSERT_ROWID() AS [Id]";
         }
 
-        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters)
+        public override string GetPagingSql(string sql, int page, int resultsPerPage, IDictionary<string, object> parameters, string partitionBy)
         {
-            int startValue = page * resultsPerPage;
-            return GetSetSql(sql, startValue, resultsPerPage, parameters);
+            return GetSetSql(sql, GetStartValue(page, resultsPerPage), resultsPerPage, parameters);
         }
 
         public override string GetSetSql(string sql, int firstResult, int maxResults, IDictionary<string, object> parameters)
         {
             if (string.IsNullOrEmpty(sql))
-            {
-                throw new ArgumentNullException("SQL");
-            }
+                throw new ArgumentNullException(nameof(sql), $"{nameof(sql)} cannot be null.");
 
             if (parameters == null)
-            {
-                throw new ArgumentNullException("Parameters");
-            }
+                throw new ArgumentNullException(nameof(parameters), $"{nameof(parameters)} cannot be null.");
+
+            if (!IsSelectSql(sql))
+                throw new ArgumentException($"{nameof(sql)} must be a SELECT statement.", nameof(sql));
 
             var result = string.Format("{0} LIMIT @Offset, @Count", sql);
             parameters.Add("@Offset", firstResult);
@@ -35,19 +36,19 @@ namespace DapperExtensions.Sql
             return result;
         }
 
-        public override string GetColumnName(string prefix, string columnName, string alias)
+        public override string GetDatabaseFunctionString(DatabaseFunction databaseFunction, string columnName, string functionParameters = "")
         {
-            if (string.IsNullOrWhiteSpace(columnName))
+            return databaseFunction switch
             {
-                throw new ArgumentNullException(columnName, "columnName cannot be null or empty.");
-            }
-            var result = new StringBuilder();
-            result.AppendFormat(columnName);
-            if (!string.IsNullOrWhiteSpace(alias))
-            {
-                result.AppendFormat(" AS {0}", QuoteString(alias));
-            }
-            return result.ToString();
+                DatabaseFunction.NullValue => $"IsNull({columnName}, {functionParameters})",
+                DatabaseFunction.Truncate => $"Truncate({columnName})",
+                _ => columnName,
+            };
+        }
+
+        [ExcludeFromCodeCoverage]
+        public override void EnableCaseInsensitive(IDbConnection connection)
+        {
         }
     }
 }

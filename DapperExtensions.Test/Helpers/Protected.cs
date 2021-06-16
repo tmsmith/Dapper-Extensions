@@ -11,12 +11,7 @@ namespace DapperExtensions.Test.Helpers
 
         public Protected(object obj)
         {
-            if (obj == null)
-            {
-                throw new ArgumentException("object cannot be null.", "obj");
-            }
-
-            _obj = obj;
+            _obj = obj ?? throw new ArgumentException("object cannot be null.", nameof(obj));
         }
 
         public static Expression IsNull<T>()
@@ -47,7 +42,7 @@ namespace DapperExtensions.Test.Helpers
 
         public object InvokeMethod(string name, Type[] genericTypes, object[] parameters)
         {
-            object[] pa = parameters.Select(p =>
+            var pa = parameters.Select(p =>
             {
                 if (p is ConstantExpression)
                 {
@@ -56,10 +51,10 @@ namespace DapperExtensions.Test.Helpers
 
                 return p;
             }).ToArray();
-            MethodInfo method = GetMethod(name, parameters);
+            var method = GetMethod(name, parameters);
             try
             {
-                if (genericTypes != null && genericTypes.Any())
+                if (genericTypes?.Any() == true)
                 {
                     method = method.MakeGenericMethod(genericTypes);
                 }
@@ -72,18 +67,43 @@ namespace DapperExtensions.Test.Helpers
             }
         }
 
+        public MethodInfo GetGenericMethod(string name, Type[] arguments, object[] parameters)
+        {
+            return _obj.GetType()
+                         .GetMethods()
+                         .Where(m => m.Name == name)
+                         .Select(m => new
+                         {
+                             Method = m,
+                             Params = m.GetParameters(),
+                             Args = m.GetGenericArguments()
+                         })
+                         .Where(x => x.Params.Length == parameters.Length
+                                     && x.Args.Length == arguments.Length
+                                     //&& x.Params[0].ParameterType == x.Args[0]
+                                     )
+                         .Select(x => x.Method)
+                         .First();
+        }
+
+        public object ExectueGenericMethod(string name, Type[] arguments, object[] parameters)
+        {
+            var method = GetGenericMethod(name, arguments, parameters);
+            return method.MakeGenericMethod(arguments).Invoke(_obj, parameters);
+        }
+
         public MethodInfo GetMethod(string name, object[] parameters)
         {
-            Type[] types = parameters.Select(p =>
+            var types = parameters.Select(p =>
             {
-                if (p is ConstantExpression)
+                if (p is ConstantExpression constantExpression)
                 {
-                    return (Type)((ConstantExpression)p).Value;
+                    return (Type)(constantExpression).Value;
                 }
 
                 return p.GetType();
             }).ToArray();
-            MethodInfo method = _obj.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, types, null);
+            MethodInfo method = _obj.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, null, types, null);
             if (method == null)
             {
                 throw new ArgumentException(string.Format("{0} was not found in {1}.", name, _obj.GetType()), name);

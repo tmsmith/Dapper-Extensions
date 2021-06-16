@@ -1,0 +1,62 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mariadb:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: D4pp3rExt3ns1ons 
+      MYSQL_DATABASE: dapperTest
+      MYSQL_USER: dapperExtensions
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+      - 33306:3306
+
+  mariadbadminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  oracle-db:
+    image: oracleinanutshell/oracle-xe-11g:latest
+    restart: always
+    environment:
+      ORACLE_CHARACTERSET: AL32UTF8
+      ORACLE_ALLOW_REMOTE: 1
+      ORACLE_DISABLE_ASYNCH_IO: 1
+      ORACLE_ENABLE_XDB: 1
+    ports:
+      - 51521:1521
+      - 1521:1521 
+  
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+    restart: always
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: D4pp3rExt3ns1ons
+    ports:
+      - 1433:1433
+      
+  db2:
+    image: ibmcom/db2
+    restart: always
+    privileged: true
+    environment:
+      LICENSE: accept
+      DB2INSTANCE: db2inst1
+      DB2INST1_PASSWORD: D4pp3rExt3ns1ons
+      DBNAME: testdb
+      BLU: 0
+      ENABLE_ORACLE_COMPATIBILITY: 0
+      TO_CREATE_SAMPLEDB: 0
+      REPODB: 0
+      IS_OSXFS: 0
+      HADR_ENABLED: 0
+    ports:
+      - 50000:50000
+      - 55001:55000

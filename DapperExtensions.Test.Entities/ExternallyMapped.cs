@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DapperExtensions.Test.Entities
 {
+    [ExcludeFromCodeCoverage]
     public class ExternallyMapped
     {
         public int Id { get; set; }

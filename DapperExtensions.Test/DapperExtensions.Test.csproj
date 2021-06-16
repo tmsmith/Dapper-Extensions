@@ -1,210 +1,91 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5CE85D4C-AAB4-4BB0-A196-11EC54D98FAB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DapperExtensions.Test</RootNamespace>
-    <AssemblyName>DapperExtensions.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFRAMEWORK</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net461' AND '$(TargetFramework)' != 'netstandard2.0'">
+    <DefineConstants>NETCORE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="IBM.Data.DB2, Version=9.7.4.4, Culture=neutral, PublicKeyToken=7c307b91aa13d208, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
+    <PackageReference Include="coverlet.collector" Version="3.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.10.0" />
+    <PackageReference Include="Newtonsoft.Json" version="13.0.1" />
+    <PackageReference Include="Moq" version="4.16.1" />
+    <PackageReference Include="MySql.Data" version="8.0.24" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit.ConsoleRunner" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="ReportGenerator" Version="4.8.8" />
+    <PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="Dapper" Version="2.0.90" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="IBM.Data.DB2.Core" version="2.2.0.100" />
+    <PackageReference Include="System.Data.SQLite.Core" version="1.0.113.7" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
+    <PackageReference Include="System.Data.SQLite" version="1.0.113.7" targetFramework="net461" />
+    <PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj" />
+    <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
+    <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="IBM.Data.DB2">
       <HintPath>..\..\..\..\..\Program Files\IBM\IBM DATA SERVER DRIVER\bin\netf40\IBM.Data.DB2.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Data\Car.cs" />
-    <Compile Include="Helpers\DatabaseInfo.cs" />
-    <Compile Include="Helpers\Protected.cs" />
-    <Compile Include="IntegrationTests\DB2\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\DB2\Data\Animal.cs" />
-    <Compile Include="IntegrationTests\DB2\Data\Car.cs" />
-    <Compile Include="IntegrationTests\DB2\Data\CustomMapper.cs" />
-    <Compile Include="IntegrationTests\DB2\Data\Multikey.cs" />
-    <Compile Include="IntegrationTests\DB2\Data\Person.cs" />
-    <Compile Include="IntegrationTests\DB2\DB2BaseFixture.cs" />
-    <Compile Include="IntegrationTests\DB2\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\MySql\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\MySql\MySqlBaseFixture.cs" />
-    <Compile Include="IntegrationTests\MySql\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\Oracle\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\Oracle\Data\Animal.cs" />
-    <Compile Include="IntegrationTests\Oracle\Data\Car.cs" />
-    <Compile Include="IntegrationTests\Oracle\Data\Person.cs" />
-    <Compile Include="IntegrationTests\Oracle\OracleBaseFixture.cs" />
-    <Compile Include="IntegrationTests\Oracle\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\SqliteBaseFixture.cs" />
-    <Compile Include="IntegrationTests\Sqlite\TimerFixture.cs" />
-    <Compile Include="Data\CustomMapper.cs" />
-    <Compile Include="Data\Animal.cs" />
-    <Compile Include="Data\Multikey.cs" />
-    <Compile Include="Data\Person.cs" />
-    <Compile Include="IntegrationTests\NonCrudFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\SqlCeBaseFixture.cs" />
-    <Compile Include="IntegrationTests\SqlCe\TimerFixture.cs" />
-    <Compile Include="IntegrationTests\SqlServer\CrudFixture.cs" />
-    <Compile Include="IntegrationTests\SqlServer\SqlServerBaseFixture.cs" />
-    <Compile Include="IntegrationTests\SqlServer\TimerFixture.cs" />
-    <Compile Include="Mapper\AutoClassMapperFixture.cs" />
-    <Compile Include="Mapper\ClassMapperFixture.cs" />
-    <Compile Include="Mapper\PluralizedAutoClassMapperFixture.cs" />
-    <Compile Include="PredicatesFixture.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Mapper\PropertyMapFixture.cs" />
-    <Compile Include="ReflectionHelperFixture.cs" />
-    <Compile Include="Sql\DB2DialectFixture.cs" />
-    <Compile Include="Sql\SqliteDialectFixture.cs" />
-    <Compile Include="Sql\SqlCeDialectFixture.cs" />
-    <Compile Include="Sql\SqlDialectBaseFixture.cs" />
-    <Compile Include="Sql\SqlGeneratorFixture.cs" />
-    <Compile Include="Helpers\TestHelpers.cs" />
-    <Compile Include="Sql\SqlServerDialectFixture.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj">
-      <Project>{DAFAEFFC-0E56-4FA5-923C-DE47E91B51D8}</Project>
-      <Name>DapperExtensions.Test.Entities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj">
-      <Project>{87220EF9-8EE4-4EB0-829C-31C51BD7B750}</Project>
-      <Name>DapperExtensions.Test.Maps</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj">
-      <Project>{4C1A2C6C-A469-4C87-98D1-F1D517FA1ACF}</Project>
-      <Name>DapperExtensions</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateMultikeyTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlCe\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateCarTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Sqlite\Sql\CreateAnimalTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\SqlServer\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\MySql\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreatePersonTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\Oracle\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateAnimalTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateCarTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateFooTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreateMultikeyTable.sql" />
-    <EmbeddedResource Include="IntegrationTests\DB2\Sql\CreatePersonTable.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dapper">
-      <Version>1.50.2</Version>
-    </PackageReference>
-    <PackageReference Include="IBM.Data.DB.Provider">
-      <Version>11.5.4000.4861</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.TestPlatform.TestHost">
-      <Version>16.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="Moq">
-      <Version>4.0.10827</Version>
-    </PackageReference>
-    <PackageReference Include="MySql.Data">
-      <Version>6.5.4</Version>
-    </PackageReference>
-    <PackageReference Include="NUnit">
-      <Version>3.13.1</Version>
-    </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter">
-      <Version>3.17.0</Version>
-    </PackageReference>
-    <PackageReference Include="Oracle.ManagedDataAccess">
-      <Version>12.2.1100</Version>
-    </PackageReference>
-    <PackageReference Include="SqlServerCompact">
-      <Version>4.0.8854.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Data.SQLite">
-      <Version>1.0.113.7</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ContentSQLiteInteropFiles>true</ContentSQLiteInteropFiles>
-    <CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
-    <CleanSQLiteInteropFiles>false</CleanSQLiteInteropFiles>
-    <CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
+  <PropertyGroup Label="FineCodeCoverage">
+    <Enabled>
+      True
+    </Enabled>
+    <!--<Exclude>
+      [ThirdParty.*]*
+      [FourthParty]*
+    </Exclude>
+    <Include>
+      [*]*
+    </Include>-->
+    <ExcludeByFile>
+      **/Migrations/*
+      **/Hacks/*.cs
+    </ExcludeByFile>
+    <!--<ExcludeByAttribute>
+      MyCustomExcludeFromCodeCoverage
+    </ExcludeByAttribute>-->
+    <IncludeTestAssembly>
+      True
+    </IncludeTestAssembly>
+  </PropertyGroup>
 </Project>

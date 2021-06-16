@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <PackageId>$(AssemblyName)</PackageId>
+    <files>
+      <file src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
+      <file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
+      <file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
+      <file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
+      <file src="bin\Release\netstandard2.0\$(AssemblyName).dll" target="lib\netstandard2.0\$(AssemblyName).dll" />
+      <file src="bin\Release\netstandard2.1\$(AssemblyName).dll" target="lib\netstandard2.1\$(AssemblyName).dll" />
+    </files>
+    <Description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</Description>
+    <Authors>Thad Smith, Page Brooks, Valfrid Couto</Authors>
+    <Company>Thad Smith, Page Brooks</Company>
+    <PackageProjectUrl>https://github.com/tmsmith/Dapper-Extensions</PackageProjectUrl>
+    <Copyright>Thad Smith, Page Brooks</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions.git</RepositoryUrl>
+    <PackageReleaseNotes>
+      1.7.0
+      * Removed DNXCore
+      * Migrate project to Visual Studio 2019
+      * Compatibility with .Net Framework 4.6.1, .Core 2.1, 3.1, Net 5.0 and Net Standard 2.0 and 2.1
+      * Removed DB2 support from .Net Framework due IBM removal of nuget packages
+      * Included possibility to define a subset of columns to select / update
+      * Implemented Code Coverage to the Tests
+      * Migrate tests connection strings to JSon
+      * Unified NetCore and NetFramework projects to use a simple multi-target projects
+      * Multiple enhancements to the code
+      * Implemented multi-level predicate support
+      1.6.2 / 1.6.3
+      * Exposed Ignore keys on update in usages of Implementor
+      1.6.1
+      * Added Oracle Dialect to 4.5
+      1.6.0
+      * Added DB2 Dialect
+      * Added flag to ignore All Key fields when doing an update
+      * Added missing async/await methods
+      * Added unmap method to Mapper
+    </PackageReleaseNotes>
+    <PackageTags>orm sql micro-orm Data Dapper</PackageTags>
+    <NeutralLanguage></NeutralLanguage>
+  </PropertyGroup>
+
+</Project>
