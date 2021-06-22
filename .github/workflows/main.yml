@@ -1,0 +1,80 @@
+name: NuGet Generation
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+#    - name: Setup MSBuild Path
+#      uses: warrenbuckley/Setup-MSBuild@v1
+#       
+#    - name: Setup NuGet
+#      uses: NuGet/setup-nuget@v1.0.2
+#     
+#    - name: Restore NuGet Packages
+#      run: nuget restore SimpleFrameworkApp.sln
+# 
+#    - name: Build and Publish Web App
+#      run: msbuild DapperExtensions.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+      
+    - name: Setup .NET Core 2.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 2.1.x	
+    
+    - name: Setup .NET Core 3.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 3.1.x
+    
+    - name: Setup .NET Core 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+#    - name: Publish
+#      uses: brandedoutcast/publish-nuget@v2.5.2
+#      with:
+#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
+#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
+#          INCLUDE_SYMBOLS: true
+
+    - name: Pack Default Versions
+      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.csproj --output .
+
+    #- name: PushNuget Default Version
+    #  run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+
+    #- name: Pack Signed Version
+    #  run: dotnet pack --no-build --configuration Release DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+
+    #- name: PushNuget Signed Version
+    #  run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+      
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_packages
+        path: bin\Release\Publish
