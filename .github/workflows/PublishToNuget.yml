@@ -48,12 +48,20 @@ jobs:
       with:
         dotnet-version: 5.0.x
     
+    - name: Start Databases
+      run: |
+        cd Docker
+        docker-compose up -d 
+        cd ..
+        
     - name: Install dependencies
       run: dotnet restore DapperExtensions
+      
     - name: Build
       run: dotnet build DapperExtensions --configuration Release --no-restore
+      
     - name: Test
-      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --no-build
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal
 #    - name: Publish
 #      uses: brandedoutcast/publish-nuget@v2.5.2
 #      with:
