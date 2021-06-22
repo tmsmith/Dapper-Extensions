@@ -56,17 +56,17 @@
     <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+  <!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="IBM.Data.DB2">
       <HintPath>..\..\..\..\..\Program Files\IBM\IBM DATA SERVER DRIVER\bin\netf40\IBM.Data.DB2.dll</HintPath>
     </Reference>
-  </ItemGroup>
+  </ItemGroup> -->
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
-  </Target>
+  </Target>-->
   
-  <PropertyGroup Label="FineCodeCoverage">
+  <!--<PropertyGroup Label="FineCodeCoverage">
     <Enabled>
       True
     </Enabled>
@@ -77,15 +77,15 @@
     <Include>
       [*]*
     </Include>-->
-    <ExcludeByFile>
+    <!--<ExcludeByFile>
       **/Migrations/*
       **/Hacks/*.cs
     </ExcludeByFile>
     <!--<ExcludeByAttribute>
       MyCustomExcludeFromCodeCoverage
     </ExcludeByAttribute>-->
-    <IncludeTestAssembly>
+    <!--<IncludeTestAssembly>
       True
     </IncludeTestAssembly>
-  </PropertyGroup>
+  </PropertyGroup>-->
 </Project>
