@@ -1,11 +1,3 @@
-# Generate a badge
-# run your tests... get the $total of covared lines and calculate the COLOR of youe badge
-# for example if (( $total < 50 )) ;then COLOR=RED ;done
-curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > badge.svg
-gsutil  -h "Cache-Control: no-cache" cp badge.svg gs://$SOME_BACKET/$PROJECT_NAME/codcov.svg
-gsutil acl ch -u AllUsers:R gs://$SOME_BACKET/$PROJECT_NAME/codcov.svg
-#REPLACE $SOME_BUCKET and $PROJECT_NAME
-
 # Introduction
 
 Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.
