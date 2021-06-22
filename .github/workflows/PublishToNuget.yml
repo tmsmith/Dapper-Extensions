@@ -18,34 +18,32 @@ on:
 jobs:
   build_netcore:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
+#    strategy:
+#      matrix:
+#        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
         
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup dotnet ${{ matrix.dotnet-version }}
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
-      env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
-          
-#    - name: Setup .NET Core 2.1	
-#      uses: actions/setup-dotnet@v1	
-#      with:	
-#        dotnet-version: 2.1.x	
-    
-#    - name: Setup .NET Core 3.1	
-#      uses: actions/setup-dotnet@v1	
-#      with:	
-#        dotnet-version: 3.1.x
-    
-#    - name: Setup .NET Core 5.0
+#    - name: Setup dotnet ${{ matrix.dotnet-version }}
 #      uses: actions/setup-dotnet@v1
 #      with:
-#        dotnet-version: 5.0.x
+#        dotnet-version: ${{ matrix.dotnet-version }}
+          
+    - name: Setup .NET Core 2.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 2.1.x	
+    
+    - name: Setup .NET Core 3.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 3.1.x
+    
+    - name: Setup .NET Core 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
     
     - name: Start Databases
       run: |
@@ -59,52 +57,43 @@ jobs:
     - name: Build
       run: dotnet build DapperExtensions --configuration Release --no-restore
       
-    - name: Test
-      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+    - name: Test Netcore 2.1
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-2.1" --framework:netcoreapp2.1
 
-    - name: Upload dotnet test results
+    - name: Upload dotnet test results netcore 2.1
       uses: actions/upload-artifact@v2
       with:
-        name: dotnet-results-${{ matrix.dotnet-version }}
-        path: TestResults-${{ matrix.dotnet-version }}
+        name: dotnet-results-2.1
+        path: TestResults-2.1
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
       
-#    - name: Publish
-#      uses: brandedoutcast/publish-nuget@v2.5.2
-#      with:
-#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
-#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
-#          INCLUDE_SYMBOLS: true
+    - name: Test Netcore 3.1
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-3.1" --framework:netcoreapp3.1
 
-    - name: Pack Default Version
-      run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
-      
-    - name: Upload Artifact for Default Version
-      uses: actions/upload-artifact@v1.0.0
+    - name: Upload dotnet test results netcore 3.1
+      uses: actions/upload-artifact@v2
       with:
-        name: nuget_package
-        path: bin\Release\Publish
-
-    - name: Pack Signed Version
-      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+        name: dotnet-results-3.1
+        path: TestResults-3.1
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
       
-    - name: Upload Artifact for Signed Version
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: nuget_signed_package
-        path: bin\Release\Publish
+    - name: Test Net 5
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-5.0" --framework:net5.0
 
-#   - name: PushNuget
-#      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-#      run: dotnet nuget push *.nupkg
+    - name: Upload dotnet test results net 5.0
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-5.0
+        path: TestResults-5.0
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}    
+      
   build_fullframework:
     if: always()
     needs: [build_netcore]
     runs-on: windows-latest
-    strategy:
-      matrix:
-        dotnet-version: ['4.6.1']
         
     steps:
     - uses: actions/checkout@v2
@@ -113,8 +102,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-      env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
           
     - name: Install dependencies
       run: dotnet restore DapperExtensions
@@ -123,15 +110,46 @@ jobs:
       run: dotnet build DapperExtensions --configuration Release --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-4.6.1"  --framework:net4.6.1
 
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v2
       with:
-        name: dotnet-results-${{ matrix.dotnet-version }}
-        path: TestResults-${{ matrix.dotnet-version }}
+        name: dotnet-results-4.6.1
+        path: TestResults-4.6.1
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
+      
+  publish:
+    runs-on: windows-latest
+    if: always()
+    needs: [build_netcore, build_fullframework]
+    env:
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+       
+    steps:
+    - uses: actions/checkout@v2
+          
+    - name: Setup .NET Core 2.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 2.1.x	
+    
+    - name: Setup .NET Core 3.1	
+      uses: actions/setup-dotnet@v1	
+      with:	
+        dotnet-version: 3.1.x
+    
+    - name: Setup .NET Core 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions
+      
+    - name: Build
+      run: dotnet build DapperExtensions --configuration Release --no-restore
       
 #    - name: Publish
 #      uses: brandedoutcast/publish-nuget@v2.5.2
@@ -150,7 +168,7 @@ jobs:
         path: bin\Release\Publish
 
     - name: Pack Signed Version
-      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+      run: dotnet pack --no-build --configuration Release ./DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
       
     - name: Upload Artifact for Signed Version
       uses: actions/upload-artifact@v1.0.0
@@ -161,3 +179,4 @@ jobs:
 #   - name: PushNuget
 #      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
 #      run: dotnet nuget push *.nupkg
+
