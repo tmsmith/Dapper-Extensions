@@ -53,7 +53,7 @@ jobs:
     - name: Build
       run: dotnet build DapperExtensions --configuration Release --no-restore
     - name: Test
-      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --no-build
 #    - name: Publish
 #      uses: brandedoutcast/publish-nuget@v2.5.2
 #      with:
@@ -61,13 +61,13 @@ jobs:
 #          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
 #          INCLUDE_SYMBOLS: true
 
-    - name: Pack Default Versions
+    - name: Pack Default Version
       run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
 
     #- name: PushNuget Default Version
     #  run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
       
-    - name: Upload Artifact
+    - name: Upload Artifact for Default Version
       uses: actions/upload-artifact@v1.0.0
       with:
         name: nuget_package
@@ -79,7 +79,7 @@ jobs:
     #- name: PushNuget Signed Version
     #  run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
       
-    - name: Upload Artifact
+    - name: Upload Artifact for Signed Version
       uses: actions/upload-artifact@v1.0.0
       with:
         name: nuget_signed_package
