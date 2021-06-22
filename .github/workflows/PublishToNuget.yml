@@ -51,9 +51,9 @@ jobs:
     - name: Install dependencies
       run: dotnet restore DapperExtensions
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build DapperExtensions --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal
 #    - name: Publish
 #      uses: brandedoutcast/publish-nuget@v2.5.2
 #      with:
@@ -62,7 +62,7 @@ jobs:
 #          INCLUDE_SYMBOLS: true
 
     - name: Pack Default Versions
-      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions/DapperExtensions.csproj --output .
+      run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
 
     #- name: PushNuget Default Version
     #  run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
