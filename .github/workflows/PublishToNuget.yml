@@ -58,7 +58,7 @@ jobs:
       run: dotnet build DapperExtensions --configuration Release --no-restore
       
     - name: Test Netcore 2.1
-      run: 	dotnet test .\DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp2.1 --settings:coverlet.runsettings
+      run: 	dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp2.1 --settings:coverlet.runsettings
       
     - name: Coverage Report Netcore 2.1
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/netcore21" -reporttypes:Html
@@ -75,7 +75,7 @@ jobs:
       run: find . -name '*cobertura.xml' -delete
       
     - name: Test Netcore 3.1
-      run: 	dotnet test .\DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings
+      run: 	dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings
       
     - name: Coverage Report Netcore 3.1
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/netcore31" -reporttypes:Html
@@ -92,7 +92,7 @@ jobs:
       run: find . -name '*cobertura.xml' -delete
       
     - name: Test Net 5
-      run: 	dotnet test .\DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net5.0 --settings:coverlet.runsettings
+      run: 	dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net5.0 --settings:coverlet.runsettings
       
     - name: Coverage Report Net 5.0
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/net50" -reporttypes:Html
