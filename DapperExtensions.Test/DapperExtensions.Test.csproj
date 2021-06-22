@@ -69,7 +69,7 @@
   <!--<PropertyGroup Label="FineCodeCoverage">
     <Enabled>
       True
-    </Enabled>
+    </Enabled>-->
     <!--<Exclude>
       [ThirdParty.*]*
       [FourthParty]*
@@ -80,7 +80,7 @@
     <!--<ExcludeByFile>
       **/Migrations/*
       **/Hacks/*.cs
-    </ExcludeByFile>
+    </ExcludeByFile>-->
     <!--<ExcludeByAttribute>
       MyCustomExcludeFromCodeCoverage
     </ExcludeByAttribute>-->
