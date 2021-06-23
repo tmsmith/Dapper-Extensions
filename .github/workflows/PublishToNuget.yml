@@ -1,11 +1,11 @@
 name: NuGet Generation
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    types: [closed]
-    branches: [ master ]
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    types: [closed]
+#    branches: [ master ]
   workflow_dispatch:
     inputs:
       logLevel:
@@ -120,6 +120,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
+    
+    - name: Start Databases
+      run: |
+        cd Docker
+        docker-compose up -d 
+        cd ..
           
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
