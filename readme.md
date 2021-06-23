@@ -6,10 +6,16 @@
     <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/PublishToNuget.yml/badge.svg" />
   </a>
   <a href="https://github.com/tmsmith/github-readme-stats/issues">
-    <img alt="Issues" src="https://img.shields.io/github/issues/tmsmith/Dapper-Extensions/github-readme-stats?color=0088ff" />
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/tmsmith/Dapper-Extensions">
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/issues">
+    <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/tmsmith/Dapper-Extensions">
   </a>
   <a href="https://github.com/tmsmith/github-readme-stats/pulls">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tmsmith/Dapper-Extensions/github-readme-stats?color=0088ff" />
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tmsmith/Dapper-Extensions">
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/pulls">
+    <img alt="GitHub closed pull requests" src="https://img.shields.io/github/issues-pr-closed/tmsmith/Dapper-Extensions">
   </a>
 </p>
 
