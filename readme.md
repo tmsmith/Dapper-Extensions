@@ -5,14 +5,11 @@
   <a href="https://github.com/tmsmith/github-readme-stats/workflows">
     <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/PublishToNuget.yml/badge.svg" />
   </a>
-  <a href="https://github.com/tmsmith/github-readme-stats/workflows">
-    <img src="https://codecov.io/gh/tmsmith/github-readme-stats/branch/master/graph/badge.svg" />
-  </a>
   <a href="https://github.com/tmsmith/github-readme-stats/issues">
-    <img alt="Issues" src="https://img.shields.io/github/issues/tmsmith/github-readme-stats?color=0088ff" />
+    <img alt="Issues" src="https://img.shields.io/github/issues/tmsmith/Dapper-Extensions/github-readme-stats?color=0088ff" />
   </a>
   <a href="https://github.com/tmsmith/github-readme-stats/pulls">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tmsmith/github-readme-stats?color=0088ff" />
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tmsmith/Dapper-Extensions/github-readme-stats?color=0088ff" />
   </a>
 </p>
 
