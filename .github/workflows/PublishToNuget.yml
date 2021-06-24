@@ -16,7 +16,8 @@ on:
         description: 'Test scenario tags'
 
 jobs:
-  build_netcore:
+#  build_netcore:
+  build:
     runs-on: windows-latest
 #    strategy:
 #      matrix:
@@ -191,7 +192,8 @@ jobs:
   publish:
     runs-on: windows-latest
     if: always()
-    needs: [build_netcore, build_fullframework]
+#    needs: [build_netcore, build_fullframework]
+    needs: [build]
     env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
        
