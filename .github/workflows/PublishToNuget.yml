@@ -183,7 +183,7 @@ jobs:
 #      
   publish:
     runs-on: windows-latest
-    if: always()
+#    if: always()
 #    needs: [build_netcore, build_fullframework]
     needs: [build]
     env:
