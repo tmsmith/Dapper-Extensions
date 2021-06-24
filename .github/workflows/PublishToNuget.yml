@@ -69,8 +69,6 @@ jobs:
       with:
         name: dotnet-results-2.1
         path: ./CoverageReports/netcore21
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
       
     - name: Remove Coverage files netcore 2.1
 #      run: find . -name '*cobertura.xml' -delete
@@ -87,8 +85,6 @@ jobs:
       with:
         name: dotnet-results-3.1
         path: ./CoverageReports/netcore31
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
       
     - name: Remove Coverage files netcore 3.1
 #      run: find . -name '*cobertura.xml' -delete
@@ -105,8 +101,6 @@ jobs:
       with:
         name: dotnet-results-50
         path: ./CoverageReports/netcore50
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}    
       
     - name: Remove Coverage files net 5.0
 #      run: find . -name '*cobertura.xml' -delete
@@ -132,8 +126,6 @@ jobs:
       with:
         name: dotnet-results-4.6.1
         path: ./CoverageReports/net461
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
       
     - name: Remove Coverage files net 5.0
       run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
