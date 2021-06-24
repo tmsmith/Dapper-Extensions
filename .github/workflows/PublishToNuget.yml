@@ -30,6 +30,12 @@ jobs:
 #      uses: actions/setup-dotnet@v1
 #      with:
 #        dotnet-version: ${{ matrix.dotnet-version }}
+    
+    - name: Start Databases
+      run: |
+        cd Docker
+        docker-compose up -d 
+        cd ..
           
     - name: Setup .NET Core 2.1	
       uses: actions/setup-dotnet@v1	
@@ -45,12 +51,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    
-    - name: Start Databases
-      run: |
-        cd Docker
-        docker-compose up -d 
-        cd ..
         
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
