@@ -1,1 +1,1 @@
-FROM mariadb:latest
+FROM  --platform=linux mariadb:latest
