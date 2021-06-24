@@ -5,7 +5,7 @@ services:
 
   mariadb:
 #    image: mariadb:latest
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
         context: ./mariadb
     restart: always
@@ -20,7 +20,7 @@ services:
 
   adminer:
 #    image: adminer
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
         context: ./adminer
     restart: always
@@ -29,7 +29,7 @@ services:
 
   oracle-db:
 #    image: oracleinanutshell/oracle-xe-11g:latest
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
         context: ./oracle
     restart: always
@@ -44,7 +44,7 @@ services:
   
   sqlserver:
 #    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
         context: ./sqlserver
     restart: always
@@ -56,7 +56,7 @@ services:
       
   db2:
 #    image: ibmcom/db2
-    platform: linux/amd64
+#    platform: linux/amd64
     build:
         context: ./db2
     restart: always
