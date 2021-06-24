@@ -17,7 +17,7 @@ on:
 
 jobs:
   build_netcore:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 #    strategy:
 #      matrix:
 #        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
@@ -72,7 +72,8 @@ jobs:
       if: ${{ always() }}
       
     - name: Remove Coverage files netcore 2.1
-      run: find . -name '*cobertura.xml' -delete
+#      run: find . -name '*cobertura.xml' -delete
+      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test Netcore 3.1
       run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings
@@ -89,7 +90,8 @@ jobs:
       if: ${{ always() }}
       
     - name: Remove Coverage files netcore 3.1
-      run: find . -name '*cobertura.xml' -delete
+#      run: find . -name '*cobertura.xml' -delete
+      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test Net 5
       run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net5.0 --settings:coverlet.runsettings
@@ -106,32 +108,8 @@ jobs:
       if: ${{ always() }}    
       
     - name: Remove Coverage files net 5.0
-      run: find . -name '*cobertura.xml' -delete
-      
-  build_fullframework:
-    if: always()
-    needs: [build_netcore]
-    runs-on: windows-latest
-        
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup dotnet ${{ matrix.dotnet-version }}
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
-    
-    - name: Start Databases
-      run: |
-        cd Docker
-        docker-compose up -d 
-        cd ..
-          
-    - name: Install dependencies
-      run: dotnet restore DapperExtensions.sln
-      
-    - name: Build
-      run: dotnet build DapperExtensions --configuration Release --no-restore
+#      run: find . -name '*cobertura.xml' -delete
+      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test
       run: dotnet test .\DapperExtensions.Test -c debug --collect:"Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net461 --settings:mscoverage.runsettings
@@ -159,6 +137,57 @@ jobs:
     - name: Remove Coverage files net 5.0
       run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
       
+#  build_fullframework:
+#    if: always()
+#    needs: [build_netcore]
+#    runs-on: windows-latest
+#        
+#    steps:
+#    - uses: actions/checkout@v2
+#    
+#    - name: Setup dotnet ${{ matrix.dotnet-version }}
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: ${{ matrix.dotnet-version }}
+#    
+#    - name: Start Databases
+#      run: |
+#        cd Docker
+#        docker-compose up -d 
+#        cd ..
+#          
+#    - name: Install dependencies
+#      run: dotnet restore DapperExtensions.sln
+#      
+#    - name: Build
+#      run: dotnet build DapperExtensions --configuration Release --no-restore
+#      
+#    - name: Test
+#      run: dotnet test .\DapperExtensions.Test -c debug --collect:"Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net461 --settings:mscoverage.runsettings
+#      
+#    - name: Coverage Report Net 4.6.1
+#      run: |
+#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+#          $arguments="analyze /output:$outpath\net461.coveragexml $f"
+#          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
+#        }
+#        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+#          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\net461" -reporttypes:Html
+#        }
+#        
+#    - name: Upload dotnet test results
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: dotnet-results-4.6.1
+#        path: ./CoverageReports/net461
+#      # Use always() to always run this step to publish test results when there are test failures
+#      if: ${{ always() }}
+#      
+#    - name: Remove Coverage files net 5.0
+#      run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
+#      
   publish:
     runs-on: windows-latest
     if: always()
