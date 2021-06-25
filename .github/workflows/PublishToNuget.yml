@@ -31,6 +31,11 @@ jobs:
 #      with:
 #        dotnet-version: ${{ matrix.dotnet-version }}
     
+    - name: Install Ubuntu for Databases
+      run: |
+        Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-2004 -OutFile Ubuntu.appx -UseBasicParsing
+        Add-AppxPackage .\Ubuntu.appx
+    
     - name: Start Databases
       run: |
         cd Docker
