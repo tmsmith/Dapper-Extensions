@@ -34,7 +34,7 @@ jobs:
     - name: Start Databases
       run: |
         cd Docker
-        docker-compose up -d 
+        wsl -u root docker-compose up -d 
         cd ..
           
     - name: Setup .NET Core 2.1	
