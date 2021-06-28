@@ -39,12 +39,12 @@ jobs:
     
     - name: Start Databases
       run: |
-        cd Docker
+        cd "C:\Program Files\Docker\Docker"
+        ./DockerCli.exe -SwitchDaemon
         docker pull --platform linux mariadb:10.4
-#        docker run --name mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons MYSQL_DATABASE=dapperTest MYSQL_USER=dapperExtensions MYSQL_PASSWORD: password -p 3306:3306 -p 33306:3306 -d
+        docker run --name mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons MYSQL_DATABASE=dapperTest MYSQL_USER=dapperExtensions MYSQL_PASSWORD: password -p 3306:3306 -p 33306:3306 -d
+#        cd Docker
 #        cd ..
-#        cd "C:\Program Files\Docker\Docker"
-#        ./DockerCli.exe -SwitchDaemon
 #        docker-compose up -d 
 #        wsl -u root docker-compose up -d 
           
