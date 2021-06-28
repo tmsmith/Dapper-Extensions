@@ -39,8 +39,8 @@ jobs:
     
     - name: Start Databases
       run: |
+        Get-ChildItem -Path / -Filter "*DockerCli*" -Recurse
         cd Docker
-        DockerCli.exe -SwitchDaemon
         docker-compose up -d 
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
 #        Pop-Location -StackName Docker
