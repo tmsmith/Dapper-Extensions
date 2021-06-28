@@ -4,10 +4,7 @@ version: '3.1'
 services:
 
   mariadb:
-#    image: mariadb:latest
-#    platform: linux/amd64
-    build:
-        context: ./mariadb
+    image: mariadb:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: D4pp3rExt3ns1ons 
@@ -18,20 +15,14 @@ services:
       - 3306:3306
       - 33306:3306
 
-  adminer:
-#    image: adminer
-#    platform: linux/amd64
-    build:
-        context: ./adminer
+  mariadbadminer:
+    image: adminer
     restart: always
     ports:
       - 8080:8080
 
   oracle-db:
-#    image: oracleinanutshell/oracle-xe-11g:latest
-#    platform: linux/amd64
-    build:
-        context: ./oracle
+    image: oracleinanutshell/oracle-xe-11g:latest
     restart: always
     environment:
       ORACLE_CHARACTERSET: AL32UTF8
@@ -43,10 +34,7 @@ services:
       - 1521:1521 
   
   sqlserver:
-#    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
-#    platform: linux/amd64
-    build:
-        context: ./sqlserver
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
     restart: always
     environment:
       ACCEPT_EULA: Y
@@ -55,10 +43,7 @@ services:
       - 1433:1433
       
   db2:
-#    image: ibmcom/db2
-#    platform: linux/amd64
-    build:
-        context: ./db2
+    image: ibmcom/db2
     restart: always
     privileged: true
     environment:
