@@ -5,7 +5,7 @@ services:
 
   mariadb:
     image: mariadb:latest
-    platform: linux
+    platform: linux/amd64
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: D4pp3rExt3ns1ons 
