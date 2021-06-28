@@ -1,1 +1,1 @@
-FROM  --platform=linux mariadb:latest
+FROM  --platform=linux/amd64 mariadb:latest
