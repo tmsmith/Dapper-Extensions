@@ -4,7 +4,7 @@ version: '3.1'
 services:
 
   mariadb:
-    image: mysql:8
+    image: mysql:latest
 #    platform: linux
 #    build:
 #        context: ./mariadb
