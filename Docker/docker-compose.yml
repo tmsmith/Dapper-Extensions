@@ -4,10 +4,10 @@ version: '2.4'
 services:
 
   mariadb:
-    image: mariadb:latest
-    platform: linux
-#    build:
-#        context: ./mariadb
+#    image: mariadb:latest
+#    platform: linux
+    build:
+        context: ./mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: D4pp3rExt3ns1ons 
