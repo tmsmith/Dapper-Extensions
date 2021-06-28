@@ -40,7 +40,7 @@ jobs:
     - name: Start Databases
       run: |
         cd Docker
-        docker-compose up -d 
+        docker compose up -d 
         cd ..
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
 #        Pop-Location -StackName Docker
