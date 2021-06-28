@@ -18,7 +18,7 @@ on:
 jobs:
 #  build_netcore:
   build:
-    runs-on: windows-2016
+    runs-on: windows-2019
 #    strategy:
 #      matrix:
 #        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
@@ -40,7 +40,7 @@ jobs:
     - name: Start Databases
       run: |
         cd Docker
-        docker-compose up -d 
+        docker-compose up
         cd ..
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
 #        Pop-Location -StackName Docker
