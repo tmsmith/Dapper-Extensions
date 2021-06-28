@@ -37,9 +37,11 @@ jobs:
 #    - name: Install Ubuntu for Databases
 #      run: Add-AppxPackage .\Ubuntu.appx
     
+    - name: Locate DockerCli
+      run: Get-ChildItem -Path / -Filter "*DockerCli*" -Recurse
+    
     - name: Start Databases
       run: |
-        Get-ChildItem -Path / -Filter "*DockerCli*" -Recurse
         cd Docker
         docker-compose up -d 
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
