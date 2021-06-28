@@ -18,7 +18,7 @@ on:
 jobs:
 #  build_netcore:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2016
 #    strategy:
 #      matrix:
 #        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
