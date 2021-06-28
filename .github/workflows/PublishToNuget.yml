@@ -31,11 +31,11 @@ jobs:
 #      with:
 #        dotnet-version: ${{ matrix.dotnet-version }}
     
-    - name: Download Ubuntu for Databases
-      run: Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-2004 -OutFile Ubuntu.appx -UseBasicParsing
+#    - name: Download Ubuntu for Databases
+#      run: Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-2004 -OutFile Ubuntu.appx -UseBasicParsing
 
-    - name: Install Ubuntu for Databases
-      run: Add-AppxPackage .\Ubuntu.appx
+#    - name: Install Ubuntu for Databases
+#      run: Add-AppxPackage .\Ubuntu.appx
     
     - name: Start Databases
       run: |
