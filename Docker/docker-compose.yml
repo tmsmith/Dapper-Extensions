@@ -5,6 +5,7 @@ services:
 
   mariadb:
     image: mariadb:latest
+	  platform: linux
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: D4pp3rExt3ns1ons 
@@ -17,12 +18,14 @@ services:
 
   mariadbadminer:
     image: adminer
+	  platform: linux
     restart: always
     ports:
       - 8080:8080
 
   oracle-db:
     image: oracleinanutshell/oracle-xe-11g:latest
+	  platform: linux
     restart: always
     environment:
       ORACLE_CHARACTERSET: AL32UTF8
@@ -35,6 +38,7 @@ services:
   
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+	  platform: linux
     restart: always
     environment:
       ACCEPT_EULA: Y
@@ -44,6 +48,7 @@ services:
       
   db2:
     image: ibmcom/db2
+	  platform: linux
     restart: always
     privileged: true
     environment:
