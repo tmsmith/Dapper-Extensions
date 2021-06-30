@@ -1,4 +1,4 @@
-﻿#if NETCORE
+﻿#if NETCOREAPP
 using Dapper;
 using DapperExtensions.Sql;
 using IBM.Data.DB2.Core;

@@ -268,7 +268,7 @@ namespace DapperExtensions
             foreach (var property in properties)
                 typeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, null);
 
-#if NETSTANDARD20
+#if NETSTANDARD2_0
             return typeBuilder.CreateTypeInfo();
 #else
             return typeBuilder.CreateType();
@@ -310,7 +310,7 @@ namespace DapperExtensions
                     methodIl.Emit(OpCodes.Ret);
                 }
             }
-#if NETSTANDARD20
+#if NETSTANDARD2_0
             return typeBuilder.CreateTypeInfo();
 #else
             return typeBuilder.CreateType();

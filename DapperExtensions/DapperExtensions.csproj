@@ -1,95 +1,110 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
-    <Version>1.7.0</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks Condition="'$(OSTYPE)' == 'linux-gnu' or '$(OSTYPE)' == 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
+		<TargetFrameworks Condition="'$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
+		<Version>1.7.0</Version>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<LangVersion>8.0</LangVersion>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>$(AssemblyName)</PackageId>
-    <files>
-      <file src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
-      <file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
-      <file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
-      <file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
-      <file src="bin\Release\netstandard2.0\$(AssemblyName).dll" target="lib\netstandard2.0\$(AssemblyName).dll" />
-      <file src="bin\Release\netstandard2.1\$(AssemblyName).dll" target="lib\netstandard2.1\$(AssemblyName).dll" />
-    </files>
-    <Description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</Description>
-    <Authors>Thad Smith, Page Brooks, Valfrid Couto</Authors>
-    <Company>Thad Smith, Page Brooks</Company>
-    <PackageProjectUrl>https://github.com/tmsmith/Dapper-Extensions</PackageProjectUrl>
-    <Copyright>Thad Smith, Page Brooks</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions.git</RepositoryUrl>
-    <PackageReleaseNotes>
-      1.7.0
-      * Removed DNXCore
-      * Migrate project to Visual Studio 2019
-      * Compatibility with .Net Framework 4.6.1, .Core 2.1, 3.1, Net 5.0 and Net Standard 2.0 and 2.1
-      * Removed DB2 support from .Net Framework due IBM removal of nuget packages
-      * Included possibility to define a subset of columns to select / update
-      * Implemented Code Coverage to the Tests
-      * Migrate tests connection strings to JSon
-      * Unified NetCore and NetFramework projects to use a simple multi-target projects
-      * Multiple enhancements to the code
-      * Implemented multi-level predicate support
-      1.6.2 / 1.6.3
-      * Exposed Ignore keys on update in usages of Implementor
-      1.6.1
-      * Added Oracle Dialect to 4.5
-      1.6.0
-      * Added DB2 Dialect
-      * Added flag to ignore All Key fields when doing an update
-      * Added missing async/await methods
-      * Added unmap method to Mapper
-    </PackageReleaseNotes>
-    <PackageTags>orm sql micro-orm Data Dapper</PackageTags>
-    <NeutralLanguage></NeutralLanguage>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageId>$(AssemblyName)</PackageId>
+		<files>
+			<file Condition="'$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18' " src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
+			<file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
+			<file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
+			<file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
+			<file src="bin\Release\netstandard2.0\$(AssemblyName).dll" target="lib\netstandard2.0\$(AssemblyName).dll" />
+			<file src="bin\Release\netstandard2.1\$(AssemblyName).dll" target="lib\netstandard2.1\$(AssemblyName).dll" />
+		</files>
+		<Description>A small library that complements Dapper by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system.</Description>
+		<Authors>Thad Smith, Page Brooks, Valfrid Couto</Authors>
+		<Company>Thad Smith, Page Brooks</Company>
+		<PackageProjectUrl>https://github.com/tmsmith/Dapper-Extensions</PackageProjectUrl>
+		<Copyright>Thad Smith, Page Brooks</Copyright>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions.git</RepositoryUrl>
+		<PackageReleaseNotes>
+			1.7.0
+			* Removed DNXCore
+			* Migrate project to Visual Studio 2019
+			* Compatibility with .Net Framework 4.6.1, .Core 2.1, 3.1, Net 5.0 and Net Standard 2.0 and 2.1
+			* Removed DB2 support from .Net Framework due IBM removal of nuget packages
+			* Included possibility to define a subset of columns to select / update
+			* Implemented Code Coverage to the Tests
+			* Migrate tests connection strings to JSon
+			* Unified NetCore and NetFramework projects to use a simple multi-target projects
+			* Multiple enhancements to the code
+			* Implemented multi-level predicate support
+			1.6.2 / 1.6.3
+			* Exposed Ignore keys on update in usages of Implementor
+			1.6.1
+			* Added Oracle Dialect to 4.5
+			1.6.0
+			* Added DB2 Dialect
+			* Added flag to ignore All Key fields when doing an update
+			* Added missing async/await methods
+			* Added unmap method to Mapper
+		</PackageReleaseNotes>
+		<PackageTags>orm sql micro-orm Data Dapper</PackageTags>
+		<NeutralLanguage></NeutralLanguage>
+	</PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
-    <DefineConstants>NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="$(TargetFramework.StartsWith('net4')) and '$(OS)' == 'Unix'">
+		<!-- When compiling .NET SDK 2.0 projects targeting .NET 4.x on Mono using 'dotnet build' you -->
+		<!-- have to teach MSBuild where the Mono copy of the reference asssemblies is -->
+		<!-- Look in the standard install locations -->
+		<BaseFrameworkPathOverrideForMono Condition="'$(BaseFrameworkPathOverrideForMono)' == '' AND EXISTS('/Library/Frameworks/Mono.framework/Versions/Current/lib/mono')">/Library/Frameworks/Mono.framework/Versions/Current/lib/mono</BaseFrameworkPathOverrideForMono>
+		<BaseFrameworkPathOverrideForMono Condition="'$(BaseFrameworkPathOverrideForMono)' == '' AND EXISTS('/usr/lib/mono')">/usr/lib/mono</BaseFrameworkPathOverrideForMono>
+		<BaseFrameworkPathOverrideForMono Condition="'$(BaseFrameworkPathOverrideForMono)' == '' AND EXISTS('/usr/local/lib/mono')">/usr/local/lib/mono</BaseFrameworkPathOverrideForMono>
+		<!-- If we found Mono reference assemblies, then use them -->
+	    <FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net40'">$(BaseFrameworkPathOverrideForMono)/4.0-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net45'">$(BaseFrameworkPathOverrideForMono)/4.5-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net451'">$(BaseFrameworkPathOverrideForMono)/4.5.1-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net452'">$(BaseFrameworkPathOverrideForMono)/4.5.2-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net46'">$(BaseFrameworkPathOverrideForMono)/4.6-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net461'">$(BaseFrameworkPathOverrideForMono)/4.6.1-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net462'">$(BaseFrameworkPathOverrideForMono)/4.6.2-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net47'">$(BaseFrameworkPathOverrideForMono)/4.7-api</FrameworkPathOverride>
+		<FrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != '' AND '$(TargetFramework)' == 'net471'">$(BaseFrameworkPathOverrideForMono)/4.7.1-api</FrameworkPathOverride>
+		<EnableFrameworkPathOverride Condition="'$(BaseFrameworkPathOverrideForMono)' != ''">true</EnableFrameworkPathOverride>
+		<!-- Add the Facades directory.  Not sure how else to do this. Necessary at least for .NET 4.5 -->
+	    <AssemblySearchPaths Condition="'$(BaseFrameworkPathOverrideForMono)' != ''">$(FrameworkPathOverride)/Facades;$(AssemblySearchPaths)</AssemblySearchPaths>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net461' AND '$(TargetFramework)' != 'netstandard2.0'">
-    <DefineConstants>NETCORE</DefineConstants>
-  </PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Properties\**" />
+		<EmbeddedResource Remove="Properties\**" />
+		<None Remove="Properties\**" />
+	</ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETSTANDARD20</DefineConstants>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+		<PackageReference Include="Newtonsoft.Json" version="13.0.1" />
+		<PackageReference Include="Dapper" Version="2.0.90" />
+		<PackageReference Include="Slapper.AutoMapper" Version="2.0.1" targetFramework="$(TargetFramework)"/>
+		<PackageReference Include="System.Data.Common" Version="4.3.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <None Remove="Properties\**" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' != 'net461' and '$(TargetFramework)' != 'net461'">
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
+		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Newtonsoft.Json" version="13.0.1" />
-    <PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
-    <PackageReference Include="Dapper" Version="2.0.90" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net461' and '$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18'">
+		<PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net461' and '$(TargetFramework)' != 'net461'">
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>DapperExtensions.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>DapperExtensions.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 </Project>

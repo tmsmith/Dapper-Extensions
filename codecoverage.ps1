@@ -1,10 +1,3 @@
-[CmdletBinding()]
-param (
-    [Parameter(Mandatory = $false)]
-    [ValidateSet("core21", "core31", "net5", "netfull")]
-    [string]$target = ""
-)
-
 echo "Removing existing Coverage data"
 Get-ChildItem -Path . -Filter "TestResults" -Recurse | Remove-Item -force -recurse
 Get-ChildItem -Path . -Filter "CoverageReports" -Recurse | Remove-Item -force -recurse
