@@ -1,3 +1,25 @@
+<p align="center">
+  <a href="https://github.com/tmsmith/github-readme-stats/workflows">
+    <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/codeql-analysis.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/workflows">
+    <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/PublishToNuget.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/tmsmith/Dapper-Extensions">
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/issues">
+    <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/tmsmith/Dapper-Extensions">
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/pulls">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tmsmith/Dapper-Extensions">
+  </a>
+  <a href="https://github.com/tmsmith/github-readme-stats/pulls">
+    <img alt="GitHub closed pull requests" src="https://img.shields.io/github/issues-pr-closed/tmsmith/Dapper-Extensions">
+  </a>
+</p>
+
+
 # Introduction
 
 Dapper Extensions is a small library that complements [Dapper](https://github.com/SamSaffron/dapper-dot-net) by adding basic CRUD operations (Get, Insert, Update, Delete) for your POCOs. For more advanced querying scenarios, Dapper Extensions provides a predicate system. The goal of this library is to keep your POCOs pure by not requiring any attributes or base class inheritance.

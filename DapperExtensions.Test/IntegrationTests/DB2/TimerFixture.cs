@@ -1,4 +1,4 @@
-﻿#if NETCORE
+﻿#if NETCOREAPP
 using DapperExtensions.Test.Data.DB2;
 using NUnit.Framework;
 using System;

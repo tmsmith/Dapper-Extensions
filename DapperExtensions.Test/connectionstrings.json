@@ -5,6 +5,6 @@
 	"DB2": "Server=localhost;Database=TESTDB;UID=db2inst1;PWD=D4pp3rExt3ns1ons;",
 	"Oracle": "Data Source=localhost:1521/xe; User Id=xe; Password=xe;",
 	"OracleDBA": "Data Source=localhost:1521/xe;DBA Privilege=SYSDBA; User Id=sys; Password=oracle;",
-	"SqlCe": "Data Source=PortableDatabases\\\\dapperTest_{0}.sdf",
-	"Sqlite": "Data Source=PortableDatabases\\dapperTest_{0}.sqlite"
+	"SqlCe": "Data Source=PortableDatabases/dapperTest_{0}.sdf",
+	"Sqlite": "Data Source=PortableDatabases/dapperTest_{0}.sqlite"
 }

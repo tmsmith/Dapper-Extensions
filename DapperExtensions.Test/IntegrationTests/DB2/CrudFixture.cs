@@ -1,4 +1,4 @@
-﻿#if NETCORE
+﻿#if NETCOREAPP
 using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.DB2;
 using FluentAssertions;
