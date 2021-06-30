@@ -18,7 +18,7 @@ on:
 jobs:
 #  build_netcore:
   build:
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 #    strategy:
 #      matrix:
 #        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
@@ -48,22 +48,21 @@ jobs:
 #        ./DockerCli.exe -SwitchDaemon
 #        Pop-Location -StackName Docker
     
-    - name: Preparing environment
-      run: |
-        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
-        Restart-Service Docker
-        'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchLinuxEngine
+#    - name: Preparing environment
+#      run: |
+#        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+#        Restart-Service Docker
+#        'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchLinuxEngine
 #        Get-VM *WinContainerHost* | Set-VMProcessor -ExposeVirtualizationExtensions $true
         
-    - name: Download docker images
-      run: |
-        cd Docker
-        docker pull mariadb
-        docker pull adminer
-        docker pull oracleinanutshell/oracle-xe-11g:latest
-        docker pull mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
-        docker pull ibmcom/db2
-        cd ..
+#    - name: Download docker images
+#      run: |
+#        cd Docker
+#        docker pull mariadb
+#        docker pull adminer
+#        docker pull oracleinanutshell/oracle-xe-11g:latest
+#        docker pull mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+#        docker pull ibmcom/db2
 #        docker-compose up
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
 #        Pop-Location -StackName Docker
@@ -75,8 +74,9 @@ jobs:
     - name: Start databases
       run: |
         cd Docker
-        docker run --name=mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons -e MYSQL_DATABASE=dapperTest -e MYSQL_USER=dapperExtensions -e MYSQL_PASSWORD=password -p 3306:3306 -p 33306:3306 -d mariadb
-        docker run --name=adminer -p 8080:8080 -d adminer
+        docker-compose up -d
+#        docker run --name=mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons -e MYSQL_DATABASE=dapperTest -e MYSQL_USER=dapperExtensions -e MYSQL_PASSWORD=password -p 3306:3306 -p 33306:3306 -d mariadb
+#        docker run --name=adminer -p 8080:8080 -d adminer
 
     - name: Setup .NET Core 2.1	
       uses: actions/setup-dotnet@v1	
@@ -92,6 +92,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    
+    - name: Setup .Net 4.6.1
+      run: export FrameworkPathOverride=/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.6.1-api
         
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
@@ -112,8 +115,8 @@ jobs:
         path: ./CoverageReports/netcore21
       
     - name: Remove Coverage files netcore 2.1
-#      run: find . -name '*cobertura.xml' -delete
-      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
+      run: find . -name '*cobertura.xml' -delete
+#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test Netcore 3.1
       run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings
@@ -128,8 +131,8 @@ jobs:
         path: ./CoverageReports/netcore31
       
     - name: Remove Coverage files netcore 3.1
-#      run: find . -name '*cobertura.xml' -delete
-      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
+      run: find . -name '*cobertura.xml' -delete
+#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test Net 5
       run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net5.0 --settings:coverlet.runsettings
@@ -144,32 +147,32 @@ jobs:
         path: ./CoverageReports/netcore50
       
     - name: Remove Coverage files net 5.0
-#      run: find . -name '*cobertura.xml' -delete
-      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
+      run: find . -name '*cobertura.xml' -delete
+#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
       
     - name: Test
       run: dotnet test .\DapperExtensions.Test -c debug --collect:"Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net461 --settings:mscoverage.runsettings
       
-    - name: Coverage Report Net 4.6.1
-      run: |
-        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
-        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
-          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
-          $arguments="analyze /output:$outpath\net461.coveragexml $f"
-          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
-        }
-        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
-          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\net461" -reporttypes:Html
-        }
+#    - name: Coverage Report Net 4.6.1
+#      run: |
+#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+#          $arguments="analyze /output:$outpath\net461.coveragexml $f"
+#          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
+#        }
+#        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+#          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\net461" -reporttypes:Html
+#        }
         
-    - name: Upload dotnet test results
-      uses: actions/upload-artifact@v2
-      with:
-        name: dotnet-results-4.6.1
-        path: ./CoverageReports/net461
+#    - name: Upload dotnet test results
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: dotnet-results-4.6.1
+#        path: ./CoverageReports/net461
       
-    - name: Remove Coverage files net 5.0
-      run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
+#    - name: Remove Coverage files net 5.0
+#      run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
       
 #  build_fullframework:
 #    if: always()
