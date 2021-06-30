@@ -50,9 +50,9 @@ jobs:
     
     - name: Preparing environment
       run: |
-        Get-VM *WinContainerHost* | Set-VMProcessor -ExposeVirtualizationExtensions $true
         [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
         Restart-Service Docker
+#        Get-VM *WinContainerHost* | Set-VMProcessor -ExposeVirtualizationExtensions $true
         
     - name: Download docker images
       run: |
