@@ -22,7 +22,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
         protected DatabaseTestsFixture(string configPath = null)
         {
-            ProjectPath = configPath ?? $"{Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."))}";
+            ProjectPath = configPath ?? GetBasePath();
         }
 
         public virtual IDatabase Db { get; private set; }
@@ -37,7 +37,7 @@ namespace DapperExtensions.Test.IntegrationTests
             {
                 if (_connectionStrings.Count == 0)
                 {
-                    var fileContent = ReadFile($"{ProjectPath}\\connectionstrings.json");
+                    var fileContent = ReadFile(Path.Combine(ProjectPath, "connectionstrings.json"));
 
                     foreach (var item in JsonConvert.DeserializeObject<Dictionary<string, string>>(fileContent))
                     {
@@ -103,6 +103,7 @@ namespace DapperExtensions.Test.IntegrationTests
             foreach (var script in scripts)
             {
                 var fileName = $"{ProjectPath}\\{namespacePath}\\{script}";
+
                 fileName += !Path.HasExtension(fileName) ? ".sql" : "";
 
                 files.Add(ReadFile(fileName));
@@ -140,6 +141,18 @@ namespace DapperExtensions.Test.IntegrationTests
             {
                 Db.Dispose();
             }
+        }
+
+        private string GetBasePath()
+        {
+            var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            while (directory != null && !directory.GetFiles("*.csproj").Any())
+            {
+                directory = directory.Parent;
+            }
+
+            return directory.FullName;
         }
     }
 }
