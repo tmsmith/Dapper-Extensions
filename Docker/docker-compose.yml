@@ -21,7 +21,7 @@ services:
   adminer:
     image: adminer
 #    platform: linux/amd64
-    depends_on: mariadb
+    depends_on: [mariadb]
 #    build:
 #        context: ./adminer
     restart: always
