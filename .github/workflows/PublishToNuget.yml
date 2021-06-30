@@ -48,18 +48,29 @@ jobs:
 #        ./DockerCli.exe -SwitchDaemon
 #        Pop-Location -StackName Docker
     
-    - name: Start Databases
+    - name: Download docker images
       run: |
         cd Docker
-        docker-compose up
+        docker pull mariadb
+        docker pull adminer
+        docker pull oracleinanutshell/oracle-xe-11g:latest
+        docker pull mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+        docker pull ibmcom/db2
         cd ..
+#        docker-compose up
 #        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
 #        Pop-Location -StackName Docker
 #        ./DockerCli.exe -SwitchDaemon
 #        docker pull --platform linux mariadb:10.4
 #        docker run --name mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons MYSQL_DATABASE=dapperTest MYSQL_USER=dapperExtensions MYSQL_PASSWORD: password -p 3306:3306 -p 33306:3306 -d
 #        wsl -u root docker-compose up -d 
-          
+    
+    - name: Start databases
+      run: |
+        cd Docker
+        docker run --name=mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons -e MYSQL_DATABASE=dapperTest -e MYSQL_USER=dapperExtensions -e MYSQL_PASSWORD=password -p 3306:3306 -p 33306:3306 -d mariadb
+        docker run --name=adminer -p 8080:8080 -d adminer
+
     - name: Setup .NET Core 2.1	
       uses: actions/setup-dotnet@v1	
       with:	
