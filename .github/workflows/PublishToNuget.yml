@@ -37,16 +37,16 @@ jobs:
 #    - name: Install Ubuntu for Databases
 #      run: Add-AppxPackage .\Ubuntu.appx
     
-    - name: Switch docker to Linux containers
-      run: |
-        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
-        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
-          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
-          echo $outpath
-          Push-Location $outpath -StackName Docker
-        }
-        ./DockerCli.exe -SwitchDaemon
-        Pop-Location -StackName Docker
+#    - name: Switch docker to Linux containers
+#      run: |
+#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+#          echo $outpath
+#          Push-Location $outpath -StackName Docker
+#        }
+#        ./DockerCli.exe -SwitchDaemon
+#        Pop-Location -StackName Docker
     
     - name: Start Databases
       run: |
