@@ -1,10 +1,10 @@
 # Use root/example as user/password credentials
-version: '3.1'
+version: '3.3'
 
 services:
 
   mariadb:
-    image: mariadb
+    image: mariadb:latest
 #    platform: linux/amd64
 #    build:
 #        context: ./mariadb
@@ -22,17 +22,17 @@ services:
     image: adminer
 #    platform: linux/amd64
     depends_on: mariadb
-    build:
-        context: ./adminer
+#    build:
+#        context: ./adminer
     restart: always
     ports:
       - 8080:8080
 
   oracle-db:
-#    image: oracleinanutshell/oracle-xe-11g:latest
+    image: oracleinanutshell/oracle-xe-11g:latest
 #    platform: linux/amd64
-    build:
-        context: ./oracle
+#    build:
+#        context: ./oracle
     restart: always
     environment:
       ORACLE_CHARACTERSET: AL32UTF8
@@ -44,10 +44,10 @@ services:
       - 1521:1521 
   
   sqlserver:
-#    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
 #    platform: linux/amd64
-    build:
-        context: ./sqlserver
+#    build:
+#        context: ./sqlserver
     restart: always
     environment:
       ACCEPT_EULA: Y
@@ -56,10 +56,10 @@ services:
       - 1433:1433
       
   db2:
-#    image: ibmcom/db2
+    image: ibmcom/db2
 #    platform: linux/amd64
-    build:
-        context: ./db2
+#    build:
+#        context: ./db2
     restart: always
     privileged: true
     environment:
