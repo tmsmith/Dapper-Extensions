@@ -52,6 +52,7 @@ jobs:
       run: |
         [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
         Restart-Service Docker
+        'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchDaemon
 #        Get-VM *WinContainerHost* | Set-VMProcessor -ExposeVirtualizationExtensions $true
         
     - name: Download docker images
