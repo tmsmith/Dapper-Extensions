@@ -649,7 +649,7 @@ namespace DapperExtensions
             }
         }
 
-        private IDictionary<string, object> AddSequenceParameter<T>(IDbConnection connection, T entity, 
+        private IDictionary<string, object> AddSequenceParameter<T>(IDbConnection connection, T entity,
             IMemberMap key, DynamicParameters dynamicParameters, IDictionary<string, object> keyValues)
         {
             var query = $"select {key.SequenceName}.nextval seq from dual";
