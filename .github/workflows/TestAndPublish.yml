@@ -1,5 +1,4 @@
-name: NuGet Generation
-
+name: Test Build and Publish
 on:
 #  push:
 #    branches: [ master ]
