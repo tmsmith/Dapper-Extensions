@@ -16,7 +16,6 @@ on:
         description: 'Test scenario tags'
 
 jobs:
-#  build_netcore:
   build:
     runs-on: ubuntu-latest
 #    strategy:
