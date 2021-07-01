@@ -96,6 +96,12 @@ jobs:
     - name: Setup .Net 4.6.1
       run: export FrameworkPathOverride=/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.6.1-api
         
+    - name: Update DB2 package
+      run: |
+        cd DapperExtensions.Test
+        sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
+        cd ..
+        
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
       
