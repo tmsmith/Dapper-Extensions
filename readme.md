@@ -17,8 +17,9 @@
   <a href="https://github.com/tmsmith/github-readme-stats/pulls">
     <img alt="GitHub closed pull requests" src="https://img.shields.io/github/issues-pr-closed/tmsmith/Dapper-Extensions">
   </a>
+  <a href="https://www.nuget.org/packages/DapperExtensions"><img src="https://img.shields.io/nuget/v/DapperExtensions.svg" alt="NuGet Version" /></a> 
+  <a href="https://www.nuget.org/packages/DapperExtensions"><img src="https://img.shields.io/nuget/dt/DapperExtensions.svg" alt="NuGet Download Count" /></a>
 </p>
-
 
 # Introduction
 
