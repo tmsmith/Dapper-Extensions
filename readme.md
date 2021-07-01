@@ -3,7 +3,7 @@
     <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/codeql-analysis.yml/badge.svg" />
   </a>
   <a href="https://github.com/tmsmith/github-readme-stats/workflows">
-    <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/PublishToNuget.yml/badge.svg" />
+    <img src="https://github.com/tmsmith/Dapper-Extensions/actions/workflows/TestAndPublish.yml/badge.svg" />
   </a>
   <a href="https://github.com/tmsmith/github-readme-stats/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/tmsmith/Dapper-Extensions">
