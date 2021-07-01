@@ -44,23 +44,10 @@ jobs:
       
     - name: Build
       run: dotnet build DapperExtensions --configuration Release --no-restore
-      
-#    - name: Publish
-#      uses: brandedoutcast/publish-nuget@v2.5.2
-#      with:
-#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
-#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
-#          INCLUDE_SYMBOLS: true
 
     - name: Pack Default Version
       run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
       
-#    - name: Upload Artifact for Default Version
-#      uses: actions/upload-artifact@v1.0.0
-#      with:
-#        name: nuget_package
-#        path: bin\Release\*.nupkg
-
 #    - name: Pack Signed Version
 #      run: dotnet pack --no-build --configuration Release ./DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
       
@@ -70,7 +57,7 @@ jobs:
         name: nuget_packages
         path: .\*.nupkg
 
-#   - name: PushNuget
+    - name: PushNuget
 #      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-#      run: dotnet nuget push *.nupkg
+      run: dotnet nuget push *.nupkg
 
