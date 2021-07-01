@@ -23,18 +23,8 @@ jobs:
        
     steps:
     - uses: actions/checkout@v2
-          
-#    - name: Setup .NET Core 2.1	
-#      uses: actions/setup-dotnet@v1	
-#      with:	
-#        dotnet-version: 2.1.x	
     
-#    - name: Setup .NET Core 3.1	
-#      uses: actions/setup-dotnet@v1	
-#      with:	
-#        dotnet-version: 3.1.x
-    
-    - name: Setup .NET Core 5.0
+    - name: Setup .NET 5.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
@@ -59,5 +49,4 @@ jobs:
 
     - name: PushNuget
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-#      run: dotnet nuget push *.nupkg
 
