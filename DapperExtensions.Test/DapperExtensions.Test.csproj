@@ -47,14 +47,15 @@
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 		<PackageReference Include="System.Data.SQLite.Core" version="1.0.113.7" />
+		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
 
 		<!--<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
 		<PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100"  Condition="'$(OSTYPE)' != 'linux-gnu' AND '$(OSTYPE)' != 'darwin18'" />-->
+		-->
 	</ItemGroup>
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsWindows) == true ">
-		<PackageReference Include="IBM.Data.DB2.Core" version="2.2.0.100" />
+		<PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsLinux) == true ">
@@ -64,32 +65,32 @@
 	<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsOSX) == true ">
 		<PackageReference Include="IBM.Data.DB2.Core-osx" version="2.2.0.100" />
 	</ItemGroup>-->
-	
+	<!--
 	<Choose>
 		<When Condition="'$(TargetFramework)' != 'net461' and $(RuntimeIdentifier) != ''">
 			<ItemGroup>
-				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('win'))" Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('win'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('osx'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
 				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 			</ItemGroup>
 		</When>
 		<When Condition="'$(TargetFramework)' != 'net461'">
 			<ItemGroup>
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 			</ItemGroup>
-		</When>
+		</When> -->
 		<!--<Otherwise>
 			<ItemGroup>
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 			</ItemGroup>
 		</Otherwise>-->
-	</Choose>
+	<!--</Choose>-->
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net461' and '$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
 		<PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
 		<PackageReference Include="System.Data.SQLite" version="1.0.113.7" targetFramework="net461" />
 		<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />

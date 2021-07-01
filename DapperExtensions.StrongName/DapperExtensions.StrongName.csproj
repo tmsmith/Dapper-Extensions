@@ -94,6 +94,9 @@
 		</PackageReleaseNotes>
 		<PackageTags>orm sql micro-orm Data Dapper</PackageTags>
 		<NeutralLanguage></NeutralLanguage>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>DapperExtensions.snk</AssemblyOriginatorKeyFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
 	<ItemGroup>
