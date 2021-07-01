@@ -1,0 +1,1 @@
+FROM --platform=linux/amd64 oracleinanutshell/oracle-xe-11g:latest

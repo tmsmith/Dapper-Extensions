@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks Condition="'$(OSTYPE)' == 'linux-gnu' or '$(OSTYPE)' == 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
-		<TargetFrameworks Condition="'$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net461;net5.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	

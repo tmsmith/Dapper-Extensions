@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks Condition="'$(OSTYPE)' == 'linux-gnu' or '$(OSTYPE)' == 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
-		<TargetFrameworks Condition="'$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18' ">netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
+		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
 		<Version>1.7.0</Version>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<LangVersion>8.0</LangVersion>
@@ -15,7 +14,7 @@
 	<PropertyGroup>
 		<PackageId>$(AssemblyName)</PackageId>
 		<files>
-			<file Condition="'$(OSTYPE)' != 'linux-gnu' and '$(OSTYPE)' != 'darwin18' " src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
+			<file src="bin\Release\net461\$(AssemblyName).dll" target="lib\net461\$(AssemblyName).dll" />
 			<file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
 			<file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
 			<file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
