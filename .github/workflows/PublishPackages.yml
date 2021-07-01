@@ -65,9 +65,9 @@ jobs:
 #      run: dotnet pack --no-build --configuration Release ./DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
       
     - name: Upload Artifact for Signed Version
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v2
       with:
-        name: nuget_signed_package
+        name: nuget_packages
         path: .\*.nupkg
 
 #   - name: PushNuget
