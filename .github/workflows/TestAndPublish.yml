@@ -23,7 +23,7 @@ jobs:
         os: [ubuntu-latest]
 #        os: [macos-latest, ubuntu-latest]
 #        os: [macos-latest, windows-latest, ubuntu-latest]
-        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: net461, version: 4.6.1, collect: '"Code Coverage"', settings: mscoverage }]
+        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net461, version: 4.6.1, collect: 'Code Coverage', settings: mscoverage }]
 
 #   env: 
 #     ORIGINAL_PATH: ""
@@ -76,7 +76,7 @@ jobs:
 #      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:${{ matrix.dotnet.collect }} -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
+      run: dotnet test ./DapperExtensions.Test -c debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
       if: ${{ matrix.dotnet.version != '4.6.1' }} 
@@ -155,7 +155,7 @@ jobs:
       run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:${{ matrix.dotnet.collect }} -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
+      run: dotnet test ./DapperExtensions.Test -c debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
       
     - name: Coverage Report
       if: ${{ matrix.dotnet.version != '4.6.1' }} 
