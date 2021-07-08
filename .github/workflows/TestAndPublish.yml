@@ -104,7 +104,7 @@ jobs:
       run: dotnet restore DapperExtensions.sln
       
     - name: Build
-      run: dotnet build DapperExtensions --configuration Debug --no-restore
+      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
       
     - name: Test Netcore 2.1
       run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp2.1 --settings:coverlet.runsettings --no-build
