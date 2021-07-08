@@ -23,7 +23,7 @@ jobs:
         os: [ubuntu-latest]
 #        os: [macos-latest, ubuntu-latest]
 #        os: [macos-latest, windows-latest, ubuntu-latest]
-        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: "XPlat Code Coverage", settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: "XPlat Code Coverage", settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: "XPlat Code Coverage", settings: coverlet }, { framework: net461, version: 4.6.1, collect: "Code Coverage", settings: mscoverage }]
+        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: '"XPlat Code Coverage"', settings: coverlet }, { framework: net461, version: 4.6.1, collect: '"Code Coverage"', settings: mscoverage }]
 
 #   env: 
 #     ORIGINAL_PATH: ""
@@ -110,9 +110,90 @@ jobs:
       if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: find . -name '*net461.coveragexml*' -delete
       
+
+
+  test_SqlCe:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        dotnet: [{ framework: net461, version: 4.6.1, collect: "Code Coverage", settings: mscoverage }]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup netcore 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.x
+    
+    - name: Setup netcore 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    
+    - name: Setup net 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+#    - name: Start databases
+#      run: |
+#        cd Docker
+#        docker-compose up -d
+
+#    - name: Setup DB2 Lib Paths
+#      run: |
+#        export DB2_CLIDRIVER_PATH=$(pwd)/DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }}/clidriver
+#        export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
+#        export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
+
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions.sln
+      
+    - name: Build
+      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
+      
+    - name: Test
+      run: dotnet test ./DapperExtensions.Test -c debug --collect:${{ matrix.dotnet.collect }} -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
+      
+    - name: Coverage Report
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
+
+    - name: Coverage Report
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      shell: pwsh
+      run: |
+        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+          $arguments="analyze /output:$outpath\net461.coveragexml $f"
+          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
+        }
+        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
+        }
+      
+    - name: Remove Coverage files
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      run: find . -name '*cobertura.xml' -delete
+
+    - name: Remove Coverage files
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      run: find . -name '*net461.coveragexml*' -delete
+
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet.version }}
+        path: ./CoverageReports/${{ matrix.dotnet.framework }}
+      
+
+
   publish:
     runs-on: windows-latest
-    needs: [test]
+    needs: [test, test_SqlCe]
     env:
       NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
        
