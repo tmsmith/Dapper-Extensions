@@ -31,22 +31,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Prerequisites
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libxml2-dev
+#    - name: Install Prerequisites
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install -y libxml2-dev
     
 #   - name: Set env
 #      run: echo $PATH >> $ORIGINAL_PATH
     
     - name: Setup dotnet ${{ matrix.dotnet.version }}
-      if: ${{ matrix.dotnet.version }} != '4.6.1'
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet.version }}
     
     - name: Setup .Net 4.6.1
-      if: ${{ matrix.dotnet.version }} == '4.6.1'
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: export FrameworkPathOverride= /usr/lib/mono/${{ matrix.dotnet.version }}-api/
 
     - name: Start databases
@@ -70,11 +70,11 @@ jobs:
       run: dotnet test ./DapperExtensions.Test -c debug --collect:${{ matrix.dotnet.collect }} -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
-      if: ${{ matrix.dotnet.version }} != '4.6.1'
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
 
     - name: Coverage Report
-      if: ${{ matrix.dotnet.version }} == '4.6.1'
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
       shell: pwsh
       run: |
         $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
@@ -94,11 +94,11 @@ jobs:
         path: ./CoverageReports/${{ matrix.dotnet.framework }}
       
     - name: Remove Coverage files
-      if: ${{ matrix.dotnet.version }} == '4.6.1'
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
       run: find . -name '*cobertura.xml' -delete
 
     - name: Remove Coverage files
-      if: ${{ matrix.dotnet.version }} == '4.6.1'
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: find . -name '*net461.coveragexml*' -delete
       
   publish:
