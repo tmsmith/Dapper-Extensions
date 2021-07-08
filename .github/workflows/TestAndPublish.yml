@@ -92,7 +92,8 @@ jobs:
 #        dotnet-version: 5.0.x
     
     - name: Setup .Net 4.6.1
-      run: export FrameworkPathOverride=/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.6.1-api
+      run: export FrameworkPathOverride=/usr/lib/mono/4.6.1-api/
+#      run: export FrameworkPathOverride=/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.6.1-api
         
     - name: Update DB2 package
       run: |
