@@ -39,14 +39,22 @@ jobs:
 #   - name: Set env
 #      run: echo $PATH >> $ORIGINAL_PATH
     
-    - name: Setup dotnet ${{ matrix.dotnet.version }}
-      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+    - name: Setup netcore 2.1
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet.version }}
+        dotnet-version: 2.1.x
+    
+    - name: Setup netcore 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    
+    - name: Setup net 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
     
     - name: Setup .Net 4.6.1
-      if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: export FrameworkPathOverride="/Library/lib/mono/${{ matrix.dotnet.version }}-api/"
 
     - name: Start databases
