@@ -60,11 +60,12 @@ jobs:
         export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
         export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
 
-    - name: Install dependencies
-      run: dotnet restore DapperExtensions.sln
+#    - name: Install dependencies
+#      run: dotnet restore DapperExtensions.sln
       
     - name: Build
-      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
+      run: dotnet build DapperExtensions.sln --configuration Debug
+#      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
       
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c debug --collect:${{ matrix.dotnet.collect }} -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
