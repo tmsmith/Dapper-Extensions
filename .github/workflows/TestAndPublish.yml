@@ -29,10 +29,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Prerequisites
-      run: |
-        sudo apt-get update
-        sudo apt install libxml2-dev
+#    - name: Install Prerequisites
+#      run: |
+#        sudo apt-get update
+#        sudo apt install libxml2-dev
 #        cd DapperExtensions.Test
 #        dotnet tool install -g dotnet-reportgenerator-globaltool
 #        cd ..
@@ -172,12 +172,11 @@ jobs:
 #        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\"
 #        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\amd64"
 
-#    - name: Upload SqlCe Client installation logs
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: sqlce_install_logs
-#        path: ./sqlce_install*.*
-
+    - name: Upload SqlCe Client installation logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: sqlce_install_logs
+        path: ./sqlce_install*.*
       
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
