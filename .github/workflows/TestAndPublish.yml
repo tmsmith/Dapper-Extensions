@@ -84,7 +84,7 @@ jobs:
         cd ..
       
     - name: Build
-      run: dotnet build DapperExtensions.sln --c Debug --no-restore
+      run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
@@ -155,10 +155,10 @@ jobs:
       run: dotnet restore DapperExtensions.sln
       
     - name: Build
-      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
+      run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
 
     - name: Upload dotnet test logs
       uses: actions/upload-artifact@v2
