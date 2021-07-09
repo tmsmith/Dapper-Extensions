@@ -82,6 +82,12 @@ jobs:
         cd DapperExtensions.Test
         dotnet tool install -g dotnet-reportgenerator-globaltool
         cd ..
+        
+    - name: Update DB2 package
+      run: |
+        cd DapperExtensions.Test
+        sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
+        cd ..
       
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
@@ -90,11 +96,11 @@ jobs:
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
-      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
 
     - name: Coverage Report
-      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
       shell: pwsh
       run: |
         $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
@@ -108,17 +114,18 @@ jobs:
         }
 
     - name: Upload dotnet test results
+      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: dotnet-results-${{ matrix.dotnet.version }}
         path: ./CoverageReports/${{ matrix.dotnet.framework }}
       
     - name: Remove Coverage files
-      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
       run: find . -name '*cobertura.xml' -delete
 
     - name: Remove Coverage files
-      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
       run: find . -name '*net461.coveragexml*' -delete
       
 
