@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+<assemblyIdentity 
+       type="win32"
+       name="Microsoft.SQLSERVER.CE.4.0"
+       processorArchitecture="x86"
+       version="4.0.0.0" />
+
+<!-- OLEDB Provider -->
+<file name = "sqlceoledb40.dll">
+    <comClass
+            description = "Microsoft SQL Server Compact OLE DB Provider for Windows"
+            clsid="{2006C53A-C915-41EA-BAA9-9EAB3A1FBF97}"
+            threadingModel = "Both"
+            progid = "Microsoft.SQLSERVER.CE.OLEDB.4.0" />
+</file>
+
+<!-- Native flat engine library -->
+<file name="sqlceme40.dll" />
+
+<!-- Engine and Replication COM object -->
+<file name="sqlceca40.dll">
+    <comClass description="Active SSCE Engine Object"
+            clsid="{68D45319-3702-4837-9F8E-DA6845D82482}"
+            threadingModel="Both"
+            progid="SSCE.Engine.4.0" />
+    <comClass description="SSCE Error Object"
+            clsid="{36228F21-B5C7-4054-8DC2-47D3E236E8B5}"
+            threadingModel="Both"
+            progid="SSCE.Error.4.0" />
+    <comClass description="SSCE Param Object"
+            clsid="{0B3A7B75-A9B0-4580-9AA5-1A7DA47AD1CB}"
+            threadingModel="Both"
+            progid="SSCE.Param.4.0" />
+    <comClass description="Active SSCE Replication Object"
+            clsid="{11D5B2D4-26A4-44F5-A48B-0FAC3A919ED8}"
+            threadingModel="Both"
+            progid="SSCE.Replication.4.0" />
+    <comClass description="Active SSCE remote data access Object"
+            clsid="{58BC9AD6-BF11-40B3-9AB1-E3F2ED784C08}"
+            threadingModel="Both"
+            progid="SSCE.RemoteDataAccess.4.0" />
+
+    <typelib tlbid="{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}"
+            version="4.0" 
+            helpdir=""/>
+</file>
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEEngine"
+    iid="{10EC3E45-0870-4D7B-9A2D-F4F81B6B7FA2}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEError"
+    iid="{31155A3B-871D-407F-9F73-DEBFAC7EFBE3}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCERDA"
+    iid="{4F04F79D-1FF1-4DCD-802B-3D51B9356C14}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEParams"
+    iid="{A78AFF90-049C-41EC-B1D8-665968AAC4A6}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEParam"
+    iid="{A9876C60-2667-44E5-89DB-E9A46ED392C0}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEErrors"
+    iid="{C40143CA-E9F9-4FF4-B8B4-CC02C064FC1B}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<comInterfaceExternalProxyStub 
+    name="ISSCEMerge"
+    iid="{C6EB397F-D585-428D-A4F4-454A1842CB47}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}"
+    baseInterface="{00000000-0000-0000-C000-000000000046}"
+    tlbid = "{CE4AACFA-3CFD-4028-B2D9-F272314F07C8}" />
+
+<file name="sqlceqp40.dll" />
+<file name="sqlcese40.dll" />
+<file name="sqlcecompact40.dll" />
+<file name="sqlceer40EN.dll" />
+
+</assembly>
