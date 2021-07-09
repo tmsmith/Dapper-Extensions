@@ -11,8 +11,6 @@ on:
         description: 'Log level'     
         required: true
         default: 'warning'
-      tags:
-        description: 'Test scenario tags'
 
 jobs:
   test:
@@ -164,6 +162,9 @@ jobs:
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
+    - name: Copy Sql Server CE Client
+      run: xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\netcoreapp3.1 /E /I /H /k /y
+      
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
 
@@ -172,7 +173,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: dotnet-test-logs-${{ matrix.dotnet.version }}
-        path: ./TestResults/foo.*
+        path: ./TestResults/Test*.*
         
     - name: Coverage Report
       if: ${{ matrix.dotnet.version != '4.6.1' }} 
@@ -189,7 +190,7 @@ jobs:
           Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
         }
         foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
-          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
+          $filepath "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
         }
       
     - name: Remove Coverage files

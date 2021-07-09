@@ -93,12 +93,12 @@
       </Logger>
       <Logger friendlyName="trx" enabled="True">
         <Configuration>
-          <LogFileName>foo.trx</LogFileName>
+          <LogFileName>TestLogs.trx</LogFileName>
         </Configuration>
       </Logger>
       <Logger friendlyName="html" enabled="True">
         <Configuration>
-          <LogFileName>foo.html</LogFileName>
+          <LogFileName>TestRun.html</LogFileName>
         </Configuration>
       </Logger>
       <Logger friendlyName="blame" enabled="True" />
