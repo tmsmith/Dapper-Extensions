@@ -94,11 +94,11 @@ jobs:
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
-      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
+      if: ${{ always() && matrix.dotnet.version != '4.6.1' }} 
       run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
 
     - name: Coverage Report
-      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
+      if: ${{ always() && matrix.dotnet.version == '4.6.1' }} 
       shell: pwsh
       run: |
         $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
@@ -119,11 +119,11 @@ jobs:
         path: ./CoverageReports/${{ matrix.dotnet.framework }}
       
     - name: Remove Coverage files
-      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
+      if: ${{ always() && matrix.dotnet.version != '4.6.1' }} 
       run: find . -name '*cobertura.xml' -delete
 
     - name: Remove Coverage files
-      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
+      if: ${{ always() && matrix.dotnet.version == '4.6.1' }} 
       run: find . -name '*net461.coveragexml*' -delete
       
 
