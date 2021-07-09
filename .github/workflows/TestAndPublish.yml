@@ -162,8 +162,12 @@ jobs:
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
-    - name: Copy Sql Server CE Client
-      run: xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }} /E /I /H /k /y
+    - name: Setup Sql Server CE Client
+      run: |
+        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\"
+        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\amd64"
+#        xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }} /E /I /H /k /y
+
       
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
