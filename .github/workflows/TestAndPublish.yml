@@ -163,7 +163,7 @@ jobs:
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
     - name: Copy Sql Server CE Client
-      run: xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\netcoreapp3.1 /E /I /H /k /y
+      run: xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }} /E /I /H /k /y
       
     - name: Test
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
