@@ -15,278 +15,225 @@ on:
         description: 'Test scenario tags'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
-        
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+#        os: [macos-latest, ubuntu-latest]
+#        os: [macos-latest, windows-latest, ubuntu-latest]
+        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net461, version: 4.6.1, collect: 'Code Coverage', settings: mscoverage }]
+
+#   env: 
+#     ORIGINAL_PATH: ""
+
     steps:
     - uses: actions/checkout@v2
-    
-#    - name: Setup dotnet ${{ matrix.dotnet-version }}
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: ${{ matrix.dotnet-version }}
-    
-#    - name: Download Ubuntu for Databases
-#      run: Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-2004 -OutFile Ubuntu.appx -UseBasicParsing
 
-#    - name: Install Ubuntu for Databases
-#      run: Add-AppxPackage .\Ubuntu.appx
-    
-#    - name: Switch docker to Linux containers
+#    - name: Install Prerequisites
 #      run: |
-#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
-#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
-#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
-#          echo $outpath
-#          Push-Location $outpath -StackName Docker
-#        }
-#        ./DockerCli.exe -SwitchDaemon
-#        Pop-Location -StackName Docker
+#        cd DapperExtensions.Test
+#        dotnet tool install -g dotnet-reportgenerator-globaltool
+#        cd ..
+#        sudo apt-get update
+#        sudo apt install nuget
     
-#    - name: Preparing environment
-#      run: |
-#        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
-#        Restart-Service Docker
-#        'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchLinuxEngine
-#        Get-VM *WinContainerHost* | Set-VMProcessor -ExposeVirtualizationExtensions $true
-        
-#    - name: Download docker images
-#      run: |
-#        cd Docker
-#        docker pull mariadb
-#        docker pull adminer
-#        docker pull oracleinanutshell/oracle-xe-11g:latest
-#        docker pull mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
-#        docker pull ibmcom/db2
-#        docker-compose up
-#        Push-Location "C:\Program Files\Docker\Docker" -StackName Docker
-#        Pop-Location -StackName Docker
-#        ./DockerCli.exe -SwitchDaemon
-#        docker pull --platform linux mariadb:10.4
-#        docker run --name mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons MYSQL_DATABASE=dapperTest MYSQL_USER=dapperExtensions MYSQL_PASSWORD: password -p 3306:3306 -p 33306:3306 -d
-#        wsl -u root docker-compose up -d 
+#   - name: Set env
+#      run: echo $PATH >> $ORIGINAL_PATH
     
-    - name: Start databases
-      run: |
-        cd Docker
-        docker-compose up -d
-#        docker run --name=mariadb -e MYSQL_ROOT_PASSWORD=D4pp3rExt3ns1ons -e MYSQL_DATABASE=dapperTest -e MYSQL_USER=dapperExtensions -e MYSQL_PASSWORD=password -p 3306:3306 -p 33306:3306 -d mariadb
-#        docker run --name=adminer -p 8080:8080 -d adminer
-
-    - name: Setup .NET Core 2.1	
-      uses: actions/setup-dotnet@v1	
-      with:	
-        dotnet-version: 2.1.x	
+    - name: Setup netcore 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.x
     
-    - name: Setup .NET Core 3.1	
-      uses: actions/setup-dotnet@v1	
-      with:	
+    - name: Setup netcore 3.1
+      uses: actions/setup-dotnet@v1
+      with:
         dotnet-version: 3.1.x
     
-    - name: Setup .NET Core 5.0
+    - name: Setup net 5.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
     
     - name: Setup .Net 4.6.1
-      run: export FrameworkPathOverride=/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.6.1-api
+      run: export FrameworkPathOverride="/Library/lib/mono/${{ matrix.dotnet.version }}-api/"
+
+    - name: Start databases
+      run: |
+        cd Docker
+        docker-compose up -d
+
+    - name: Setup DB2 Lib Paths
+      run: |
+        export DB2_CLIDRIVER_PATH=$(pwd)/DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }}/clidriver
+        export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
+        export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
+
+    - name: Clean solution
+      run: dotnet clean DapperExtensions.sln
+
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions.sln
+
+    - name: Install ReportGenerator
+      run: |
+        cd DapperExtensions.Test
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        cd ..
         
     - name: Update DB2 package
       run: |
         cd DapperExtensions.Test
         sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
         cd ..
-        
+      
+    - name: Build
+      run: dotnet build DapperExtensions.sln -c Debug --no-restore
+      
+    - name: Test
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
+      
+    - name: Coverage Report
+      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
+      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
+
+    - name: Coverage Report
+      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
+      shell: pwsh
+      run: |
+        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+          $arguments="analyze /output:$outpath\net461.coveragexml $f"
+          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
+        }
+        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
+        }
+
+    - name: Upload dotnet test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet.version }}
+        path: ./CoverageReports/${{ matrix.dotnet.framework }}
+      
+    - name: Remove Coverage files
+      if: ${{ always() and matrix.dotnet.version != '4.6.1' }} 
+      run: find . -name '*cobertura.xml' -delete
+
+    - name: Remove Coverage files
+      if: ${{ always() and matrix.dotnet.version == '4.6.1' }} 
+      run: find . -name '*net461.coveragexml*' -delete
+      
+
+
+  test_SqlCe:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        dotnet: [{ framework: net461, version: 4.6.1, collect: "Code Coverage", settings: mscoverage }]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup netcore 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.x
+    
+    - name: Setup netcore 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    
+    - name: Setup net 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Clean solution
+      run: dotnet clean DapperExtensions.sln
+
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
       
     - name: Build
-      run: dotnet build DapperExtensions --configuration Release --no-restore
-      
-    - name: Test Netcore 2.1
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp2.1 --settings:coverlet.runsettings
-      
-    - name: Coverage Report Netcore 2.1
-      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/netcore21" -reporttypes:Html
-
-    - name: Upload dotnet test results netcore 2.1
-      uses: actions/upload-artifact@v2
-      with:
-        name: dotnet-results-2.1
-        path: ./CoverageReports/netcore21
-      
-    - name: Remove Coverage files netcore 2.1
-      run: find . -name '*cobertura.xml' -delete
-#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
-      
-    - name: Test Netcore 3.1
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings
-      
-    - name: Coverage Report Netcore 3.1
-      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/netcore31" -reporttypes:Html
-
-    - name: Upload dotnet test results netcore 3.1
-      uses: actions/upload-artifact@v2
-      with:
-        name: dotnet-results-3.1
-        path: ./CoverageReports/netcore31
-      
-    - name: Remove Coverage files netcore 3.1
-      run: find . -name '*cobertura.xml' -delete
-#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
-      
-    - name: Test Net 5
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net5.0 --settings:coverlet.runsettings
-      
-    - name: Coverage Report Net 5.0
-      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/net50" -reporttypes:Html
-
-    - name: Upload dotnet test results net 5.0
-      uses: actions/upload-artifact@v2
-      with:
-        name: dotnet-results-50
-        path: ./CoverageReports/netcore50
-      
-    - name: Remove Coverage files net 5.0
-      run: find . -name '*cobertura.xml' -delete
-#      run: Get-ChildItem -Path . -Filter "*cobertura.xml" -Recurse | Remove-Item -force -recurse
+      run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
     - name: Test
-      run: dotnet test .\DapperExtensions.Test -c debug --collect:"Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net461 --settings:mscoverage.runsettings
-      
-#    - name: Coverage Report Net 4.6.1
-#      run: |
-#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
-#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
-#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
-#          $arguments="analyze /output:$outpath\net461.coveragexml $f"
-#          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
-#        }
-#        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
-#          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\net461" -reporttypes:Html
-#        }
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
+
+    - name: Upload dotnet test logs
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-test-logs-${{ matrix.dotnet.version }}
+        path: ./TestResults/foo.*
         
-#    - name: Upload dotnet test results
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: dotnet-results-4.6.1
-#        path: ./CoverageReports/net461
+    - name: Coverage Report
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
+
+    - name: Coverage Report
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      shell: pwsh
+      run: |
+        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
+        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
+          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
+          $arguments="analyze /output:$outpath\net461.coveragexml $f"
+          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
+        }
+        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
+        }
       
-#    - name: Remove Coverage files net 5.0
-#      run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
+    - name: Remove Coverage files
+      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+      run: find . -name '*cobertura.xml' -delete
+
+    - name: Remove Coverage files
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      run: find . -name '*net461.coveragexml*' -delete
+
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet.version }}
+        path: ./CoverageReports/${{ matrix.dotnet.framework }}
       
-#  build_fullframework:
-#    if: always()
-#    needs: [build_netcore]
-#    runs-on: windows-latest
-#        
-#    steps:
-#    - uses: actions/checkout@v2
-#    
-#    - name: Setup dotnet ${{ matrix.dotnet-version }}
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: ${{ matrix.dotnet-version }}
-#    
-#    - name: Start Databases
-#      run: |
-#        cd Docker
-#        docker-compose up -d 
-#        cd ..
-#          
-#    - name: Install dependencies
-#      run: dotnet restore DapperExtensions.sln
-#      
-#    - name: Build
-#      run: dotnet build DapperExtensions --configuration Release --no-restore
-#      
-#    - name: Test
-#      run: dotnet test .\DapperExtensions.Test -c debug --collect:"Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:net461 --settings:mscoverage.runsettings
-#      
-#    - name: Coverage Report Net 4.6.1
-#      run: |
-#        $filepath="$env:userprofile\.nuget\packages\microsoft.codecoverage\16.9.4\build\netstandard1.0\CodeCoverage\CodeCoverage.exe"
-#        foreach ($f in Get-ChildItem -Path . -Filter "*.coverage" -Recurse){ 
-#          $outpath=Split-Path -Path $f.Directory -Resolve -NoQualifier
-#          $arguments="analyze /output:$outpath\net461.coveragexml $f"
-#          Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
-#        }
-#        foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
-#          reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\net461" -reporttypes:Html
-#        }
-#        
-#    - name: Upload dotnet test results
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: dotnet-results-4.6.1
-#        path: ./CoverageReports/net461
-#      # Use always() to always run this step to publish test results when there are test failures
-#      if: ${{ always() }}
-#      
-#    - name: Remove Coverage files net 5.0
-#      run: Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse | Remove-Item -force -recurse
-#      
+
+
   publish:
     runs-on: windows-latest
-#    if: always()
-#    needs: [build_netcore, build_fullframework]
-    needs: [build]
+    needs: [test, test_SqlCe]
     env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+      NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
        
     steps:
     - uses: actions/checkout@v2
           
-    - name: Setup .NET Core 2.1	
-      uses: actions/setup-dotnet@v1	
-      with:	
-        dotnet-version: 2.1.x	
-    
-    - name: Setup .NET Core 3.1	
-      uses: actions/setup-dotnet@v1	
-      with:	
-        dotnet-version: 3.1.x
-    
-    - name: Setup .NET Core 5.0
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-        
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
       
     - name: Build
-      run: dotnet build DapperExtensions --configuration Release --no-restore
+      run: dotnet build DapperExtensions.sln --configuration Release --no-restore
       
-#    - name: Publish
-#      uses: brandedoutcast/publish-nuget@v2.5.2
-#      with:
-#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
-#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
-#          INCLUDE_SYMBOLS: true
-
     - name: Pack Default Version
       run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
       
-    - name: Upload Artifact for Default Version
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: nuget_package
-        path: bin\Release\*.nupkg
-
     - name: Pack Signed Version
       run: dotnet pack --no-build --configuration Release ./DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
       
-    - name: Upload Artifact for Signed Version
-      uses: actions/upload-artifact@v1.0.0
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
       with:
-        name: nuget_signed_package
-        path: bin\Release\*.nupkg
-
-#   - name: PushNuget
+        name: nuget_packages
+        path: .\*.nupkg
+        
+#    - name: PushNuget
 #      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-#      run: dotnet nuget push *.nupkg
-
