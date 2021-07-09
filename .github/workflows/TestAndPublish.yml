@@ -69,8 +69,8 @@ jobs:
         export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
         export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
 
-    - name: Clean solution
-      run: dotnet clean DapperExtensions.sln
+#    - name: Clean solution
+#      run: dotnet clean DapperExtensions.sln
 
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
@@ -153,11 +153,11 @@ jobs:
       with:
         dotnet-version: 5.0.x
     
-    - name: Clean solution
-      run: dotnet clean DapperExtensions.sln
+#    - name: Clean solution
+#      run: dotnet clean DapperExtensions.sln
 
     - name: Install dependencies
-      run: dotnet restore DapperExtensions.sln
+      run: dotnet restore DapperExtensions.sln -f
       
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore

@@ -7,6 +7,18 @@
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<DefineConstants>NETFRAMEWORK</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' != 'net461' AND '$(TargetFramework)' != 'netstandard2.0'">
+		<DefineConstants>NETCOREAPP</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<DefineConstants>NETSTANDARD2_0</DefineConstants>
+	</PropertyGroup>
+
 	<!--<PropertyGroup Condition="'$(TargetFramework)'== 'net461' AND '$(OS)' != 'WINDOWS_NT'">
 		<FrameworkPathOverride>/usr/lib/mono/4.6.1-api/</FrameworkPathOverride>
 	</PropertyGroup>-->
@@ -93,13 +105,22 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
 		<PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
 		<PackageReference Include="System.Data.SQLite" version="1.0.113.7" targetFramework="net461" />
-		<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />
+		<!--<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />-->
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj" />
 		<ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
 		<ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+		<Reference Include="System.Data.SqlServerCe">
+			<HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.dll</HintPath>
+			<Private>true</Private>
+			<SpecificVersion>false</SpecificVersion>
+			<EmbedInteropTypes>false</EmbedInteropTypes>
+		</Reference>
 	</ItemGroup>
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">

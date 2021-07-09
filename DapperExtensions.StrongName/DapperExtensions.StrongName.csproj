@@ -7,22 +7,6 @@
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-	</PropertyGroup>
-
-	<!--<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
-		<DefineConstants>NETFRAMEWORK</DefineConstants>
-	</PropertyGroup>-->
-
-	<!--<PropertyGroup Condition="'$(TargetFramework)' != 'net461' AND '$(TargetFramework)' != 'netstandard2.0'">
-		<DefineConstants>NETCORE</DefineConstants>
-	</PropertyGroup>-->
-
-	<!--<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-		<DefineConstants>NETSTANDARD20</DefineConstants>
-	</PropertyGroup>-->
-
 	<ItemGroup>
 		<Compile Remove="Properties\**" />
 		<EmbeddedResource Remove="Properties\**" />
