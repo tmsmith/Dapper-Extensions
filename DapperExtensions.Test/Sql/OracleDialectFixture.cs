@@ -1,9 +1,8 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
+using DapperExtensions.Test.Extensions;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
-using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 
@@ -127,15 +126,17 @@ namespace DapperExtensions.Test.Sql
             public void Select_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = @"SELECT * FROM (
+                string sql = @"SELECT * FROM (
 SELECT ss_dapper_1.*, liner.LINE_NUMBER FROM (
 SELECT ""COLUMN"" FROM ""SCHEMA"".""TABLE"") ss_dapper_1 
 inner join (select ""COLUMN"", ROW_NUMBER() OVER (ORDER BY ""COLUMN"" ASC) LINE_NUMBER from (
 select distinct ""COLUMN"" from (SELECT ""COLUMN"" FROM ""SCHEMA"".""TABLE""))) liner on liner.""COLUMN"" = ss_dapper_1.""COLUMN""
 ) ss_dapper_2 
 WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
-";
-                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "\"COLUMN\"");
+".RemoveLineEndings();
+
+                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "\"COLUMN\"").RemoveLineEndings();
+
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(0, parameters[":toSkip"]);
@@ -146,15 +147,15 @@ WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
             public void SelectDistinct_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = @"SELECT * FROM (
+                string sql = @"SELECT * FROM (
 SELECT ss_dapper_1.*, liner.LINE_NUMBER FROM (
 SELECT DISTINCT ""COLUMN"" FROM ""SCHEMA"".""TABLE"") ss_dapper_1 
 inner join (select ""COLUMN"", ROW_NUMBER() OVER (ORDER BY ""COLUMN"" ASC) LINE_NUMBER from (
 select distinct ""COLUMN"" from (SELECT DISTINCT ""COLUMN"" FROM ""SCHEMA"".""TABLE""))) liner on liner.""COLUMN"" = ss_dapper_1.""COLUMN""
 ) ss_dapper_2 
 WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
-";
-                var result = Dialect.GetPagingSql("SELECT DISTINCT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "\"COLUMN\"");
+".RemoveLineEndings();
+                var result = Dialect.GetPagingSql("SELECT DISTINCT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "\"COLUMN\"").RemoveLineEndings();
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(0, parameters[":toSkip"]);
@@ -165,15 +166,15 @@ WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
             public void SelectOrderBy_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = @"SELECT * FROM (
+                string sql = @"SELECT * FROM (
 SELECT ss_dapper_1.*, liner.LINE_NUMBER FROM (
 SELECT ""COLUMN"" FROM ""SCHEMA"".""TABLE"" ORDER BY ""COLUMN"" DESC) ss_dapper_1 
 inner join (select ""COLUMN"", ROW_NUMBER() OVER (ORDER BY ""COLUMN"" ASC) LINE_NUMBER from (
 select distinct ""COLUMN"" from (SELECT ""COLUMN"" FROM ""SCHEMA"".""TABLE"" ORDER BY ""COLUMN"" DESC))) liner on liner.""COLUMN"" = ss_dapper_1.""COLUMN""
 ) ss_dapper_2 
 WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
-";
-                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\" ORDER BY \"COLUMN\" DESC", 1, 10, parameters, "\"COLUMN\"");
+".RemoveLineEndings();
+                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\" ORDER BY \"COLUMN\" DESC", 1, 10, parameters, "\"COLUMN\"").RemoveLineEndings();
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(0, parameters[":toSkip"]);
@@ -184,15 +185,15 @@ WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
             public void SelectMultiplePartitionBy_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = @"SELECT * FROM (
+                string sql = @"SELECT * FROM (
 SELECT ss_dapper_1.*, liner.LINE_NUMBER FROM (
 SELECT c1, c2, c3 FROM ""SCHEMA"".""TABLE"" ORDER BY c1, c2, c3 DESC) ss_dapper_1 
 inner join (select c1, c2, c3, ROW_NUMBER() OVER (ORDER BY c1, c2, c3 ASC) LINE_NUMBER from (
 select distinct c1, c2, c3 from (SELECT c1, c2, c3 FROM ""SCHEMA"".""TABLE"" ORDER BY c1, c2, c3 DESC))) liner on liner.c1 = ss_dapper_1.c1 and liner.c2 = ss_dapper_1.c2 and liner.c3 = ss_dapper_1.c3
 ) ss_dapper_2 
 WHERE ss_dapper_2.line_number > :toSkip AND ss_dapper_2.line_number <= :topLimit
-";
-                var result = Dialect.GetPagingSql("SELECT c1, c2, c3 FROM \"SCHEMA\".\"TABLE\" ORDER BY c1, c2, c3 DESC", 1, 10, parameters, "c1, c2, c3");
+".RemoveLineEndings();
+                var result = Dialect.GetPagingSql("SELECT c1, c2, c3 FROM \"SCHEMA\".\"TABLE\" ORDER BY c1, c2, c3 DESC", 1, 10, parameters, "c1, c2, c3").RemoveLineEndings();
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(0, parameters[":toSkip"]);

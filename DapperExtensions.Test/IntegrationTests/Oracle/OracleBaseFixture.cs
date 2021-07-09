@@ -40,7 +40,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
                 else
                     throw;
-            }            
+            }
 
             ExecuteScripts(connection, true, CreateTableScripts.Where(s => s.IndexOf("foo", StringComparison.InvariantCultureIgnoreCase) < 0).ToArray());
         }

@@ -92,7 +92,7 @@ namespace DapperExtensions.Test.IntegrationTests
                 namespacePath = namespacePath.Substring(namespacePath.IndexOf(".") + 1);
             }
 
-            return $"DDL\\{namespacePath}";
+            return $"DDL/{namespacePath}";
         }
 
         public virtual void ExecuteScripts(IDbConnection connection, bool abortOnError, params string[] scripts)
@@ -102,7 +102,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
             foreach (var script in scripts)
             {
-                var fileName = $"{ProjectPath}\\{namespacePath}\\{script}";
+                var fileName = $"{ProjectPath}/{namespacePath}/{script}";
 
                 fileName += !Path.HasExtension(fileName) ? ".sql" : "";
 

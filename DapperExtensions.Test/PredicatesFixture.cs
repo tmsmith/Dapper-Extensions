@@ -441,7 +441,7 @@ namespace DapperExtensions.Test
             [Test]
             public void GetSql_RightPropertyWithDatabaseFunction_ReturnsProperSql()
             {
-                var predicate = Setup<PredicateTestEntity, PredicateTestEntity2>("Name", Operator.Eq, "Value", false, 
+                var predicate = Setup<PredicateTestEntity, PredicateTestEntity2>("Name", Operator.Eq, "Value", false,
                     rightDatabaseFunction: DatabaseFunction.NullValue, rightFunctionParameters: "Empty");
                 predicate.Setup(p => p.GetOperatorString()).Returns("**").Verifiable();
                 var parameters = new Dictionary<string, object>();
@@ -457,7 +457,7 @@ namespace DapperExtensions.Test
             [Test]
             public void GetSql_BothtPropertyWithDatabaseFunction_ReturnsProperSql()
             {
-                var predicate = Setup<PredicateTestEntity, PredicateTestEntity2>("Name", Operator.Eq, "Value", false, 
+                var predicate = Setup<PredicateTestEntity, PredicateTestEntity2>("Name", Operator.Eq, "Value", false,
                     DatabaseFunction.NullValue, "Empty", DatabaseFunction.NullValue, "Empty");
                 predicate.Setup(p => p.GetOperatorString()).Returns("**").Verifiable();
                 var parameters = new Dictionary<string, object>();
@@ -470,7 +470,7 @@ namespace DapperExtensions.Test
                 Assert.AreEqual("(IsNull(fooCol, Empty) ** IsNull(fooCol2, Empty))", sql);
             }
 
-            protected Mock<PropertyPredicate<T, T2>> Setup<T, T2>(string propertyName, Operator op, string propertyName2, bool not, 
+            protected Mock<PropertyPredicate<T, T2>> Setup<T, T2>(string propertyName, Operator op, string propertyName2, bool not,
                 DatabaseFunction leftDatabaseFunction = DatabaseFunction.None, string leftFunctionParameters = null,
                 DatabaseFunction rightDatabaseFunction = DatabaseFunction.None, string rightFunctionParameters = null)
                 where T : class

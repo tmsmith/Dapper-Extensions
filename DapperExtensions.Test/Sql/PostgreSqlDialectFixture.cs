@@ -1,6 +1,5 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
-using DapperExtensions.Test.Helpers;
 using FluentAssertions;
 using NUnit.Framework;
 using System;

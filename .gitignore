@@ -379,8 +379,9 @@ MigrationBackup/
 *.dotCover
 StyleCop.*
 _ReSharper.*
-[Pp]ortableDatabases/
 
 # Nuget
 [Pp]ackages
 
+#Test File for Portable Databases
+*[Pp]ortable[Dd]atabases*

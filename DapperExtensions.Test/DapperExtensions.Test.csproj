@@ -3,15 +3,13 @@
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
-	</PropertyGroup>
-	
-	<PropertyGroup>
 		<RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-	</PropertyGroup>
-	
-	<PropertyGroup>
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
+
+	<!--<PropertyGroup Condition="'$(TargetFramework)'== 'net461' AND '$(OS)' != 'WINDOWS_NT'">
+		<FrameworkPathOverride>/usr/lib/mono/4.6.1-api/</FrameworkPathOverride>
+	</PropertyGroup>-->
 
 	<!--<PropertyGroup>
 		<IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
@@ -47,9 +45,11 @@
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 		<PackageReference Include="System.Data.SQLite.Core" version="1.0.113.7" />
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 
-		<!--<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
+		<!--
+		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
+		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
 		<PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
 		-->
 	</ItemGroup>
@@ -81,7 +81,7 @@
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 			</ItemGroup>
 		</When> -->
-		<!--<Otherwise>
+	<!--<Otherwise>
 			<ItemGroup>
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
 				<PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
@@ -101,6 +101,15 @@
 		<ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
 		<ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
 	</ItemGroup>
+
+	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+		<Reference Include="System.Data.SqlServerCe.Entity">
+			<HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.Entity.dll</HintPath>
+			<Private>true</Private>
+			<SpecificVersion>true</SpecificVersion>
+			<EmbedInteropTypes>false</EmbedInteropTypes>
+		</Reference>
+	</ItemGroup>-->
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
 		<Reference Include="IBM.Data.DB2">

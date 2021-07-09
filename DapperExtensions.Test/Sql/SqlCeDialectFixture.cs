@@ -1,10 +1,8 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
-using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Data;
 
 namespace DapperExtensions.Test.Sql
 {

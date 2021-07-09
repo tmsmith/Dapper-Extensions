@@ -1,6 +1,7 @@
 ﻿using DapperExtensions.Mapper;
 using DapperExtensions.Predicate;
 using DapperExtensions.Sql;
+using DapperExtensions.Test.Extensions;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -78,7 +79,7 @@ namespace DapperExtensions.Test.Sql
                     .Verifiable();
 
                 var result = Generator.Object.Select(ClassMap.Object, null, null, parameters, Projections.Object);
-                Assert.AreEqual("SELECT Columns 1, Columns 2 FROM TableName", result.Replace("\r\n", String.Empty));
+                Assert.AreEqual("SELECT Columns 1, Columns 2 FROM TableName", result.RemoveLineEndings());
                 ClassMap.Verify();
                 Dialect.Verify();
             }
