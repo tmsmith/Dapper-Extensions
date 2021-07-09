@@ -1,4 +1,4 @@
-name: clean artifacts
+name: Clean Artifacts
 
 on:
   schedule:
