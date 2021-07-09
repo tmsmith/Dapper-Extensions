@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-latest]
 #        os: [macos-latest, ubuntu-latest]
 #        os: [macos-latest, windows-latest, ubuntu-latest]
-        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net5.0, version: 5.0.x, collect: 'XPlat Code Coverage', settings: coverlet }, { framework: net461, version: 4.6.1, collect: 'Code Coverage', settings: mscoverage }]
+        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, settings: coverlet }, { framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
 
 #   env: 
 #     ORIGINAL_PATH: ""
@@ -91,7 +91,7 @@ jobs:
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
       if: ${{ always() && matrix.dotnet.version != '4.6.1' }} 
@@ -133,7 +133,7 @@ jobs:
 
     strategy:
       matrix:
-        dotnet: [{ framework: net461, version: 4.6.1, collect: "Code Coverage", settings: mscoverage }]
+        dotnet: [{ framework: net461, version: 4.6.1, settings: mscoverage }]
 
     steps:
     - uses: actions/checkout@v2
@@ -164,15 +164,23 @@ jobs:
       
     - name: Setup Sql Server CE Client
       run: |
-        xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }} /E /I /H /k /y
-        regsvr32 .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }}\adm64\sqlceca40.dll
-        regsvr32 .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }}\adm64\sqlceoledb40.dll
+        xcopy .\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\*.* .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }} /E /I /H /k /y /f
+#        regsvr32 .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }}\adm64\sqlceca40.dll
+#        regsvr32 .\DapperExtensions.Test\bin\debug\${{ matrix.dotnet.framework }}\adm64\sqlceoledb40.dll
 #        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\"
 #        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\amd64"
+#        Invoke-WebRequest -Uri "https://download.microsoft.com/download/F/F/D/FFDF76E3-9E55-41DA-A750-1798B971936C/ENU/SSCERuntime_x64-ENU.exe" -OutFile ./sqlce_client.exe
+#        ./sqlce_client.exe /i /quiet /log sqlce_install.log
+
+#    - name: Upload SqlCe Client installation logs
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: sqlce_install_logs
+#        path: ./sqlce_install*.*
 
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
 
     - name: Upload dotnet test logs
       if: always()
