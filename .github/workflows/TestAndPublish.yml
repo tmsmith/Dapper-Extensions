@@ -84,10 +84,10 @@ jobs:
         cd ..
       
     - name: Build
-      run: dotnet build DapperExtensions.sln --configuration Debug --no-restore
+      run: dotnet build DapperExtensions.sln --c Debug --no-restore
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
       
     - name: Coverage Report
       if: ${{ matrix.dotnet.version != '4.6.1' }} 
