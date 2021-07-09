@@ -161,6 +161,7 @@ jobs:
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"${{ matrix.dotnet.collect }}" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --filter SqlCe
 
     - name: Upload dotnet test logs
+      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: dotnet-test-logs-${{ matrix.dotnet.version }}
