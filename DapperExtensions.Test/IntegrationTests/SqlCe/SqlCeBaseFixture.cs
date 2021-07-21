@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK
+﻿#if NETFRAMEWORK && Windows
 using Dapper;
 using DapperExtensions.Sql;
 using NUnit.Framework;

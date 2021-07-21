@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK
+﻿#if NETFRAMEWORK && Windows
 using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;
