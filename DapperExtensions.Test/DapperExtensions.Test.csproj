@@ -123,6 +123,10 @@
 		</Reference>
 	</ItemGroup>
 
+	<!--<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net461'">
+	  <Exec Command="xcopy $(ProjectDir)\Microsoft.SQLSERVER.CE.4.0\*.* $(TargetDir) /E /I /H /k /y" />
+	</Target>-->
+
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
 		<Reference Include="System.Data.SqlServerCe.Entity">
 			<HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.Entity.dll</HintPath>

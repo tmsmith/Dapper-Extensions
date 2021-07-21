@@ -68,6 +68,12 @@ jobs:
         export DB2_CLIDRIVER_PATH=$(pwd)/DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }}/clidriver
         export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
         export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
+        
+    - name: Update DB2 package
+      run: |
+        cd DapperExtensions.Test
+        sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
+        cd ..
 
 #    - name: Clean solution
 #      run: dotnet clean DapperExtensions.sln
@@ -79,12 +85,6 @@ jobs:
       run: |
         cd DapperExtensions.Test
         dotnet tool install -g dotnet-reportgenerator-globaltool
-        cd ..
-        
-    - name: Update DB2 package
-      run: |
-        cd DapperExtensions.Test
-        sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
         cd ..
       
     - name: Build
