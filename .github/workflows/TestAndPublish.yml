@@ -29,13 +29,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-#    - name: Install Prerequisites
-#      run: |
-#        sudo apt-get update
-#        sudo apt install libxml2-dev
-#        cd DapperExtensions.Test
-#        dotnet tool install -g dotnet-reportgenerator-globaltool
-#        cd ..
+    - name: Install Prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt install libxml2-dev -y
+        sudo apt-get install build-essential -y
+        sudo apt install sqlite3 -y
+        sudo apt install unzip -y
+        cd DapperExtensions.Test
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        cd ..
     
 #   - name: Set env
 #      run: echo $PATH >> $ORIGINAL_PATH
@@ -69,7 +72,7 @@ jobs:
         echo $DB2_CLIDRIVER_PATH
         export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
         export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
-        
+
     - name: Update DB2 package
       run: |
         cd DapperExtensions.Test
@@ -90,6 +93,22 @@ jobs:
       
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
+        
+    - name: Setup SQLite
+      if: ${{ matrix.dotnet.version == '4.6.1' }} 
+      run: |
+        curl https://system.data.sqlite.org/blobs/1.0.114.0/sqlite-netFx-full-source-1.0.114.0.zip -o ./Support/sqlite_source.zip
+        cd Support
+        mkdir SQLite
+        unzip sqlite_source.zip -d SQLite
+        cd SQLite/Setup
+        chmod +x compile-interop-assembly-release.sh
+        eport SQLITE_NET_YEAR=2019
+        ./compile-interop-assembly-release.sh
+        cd ..
+        chmod -x ./bin/$SQLITE_NET_YEAR/Release/bin/libSQLite.Interop.so
+        cd ../..
+        cp ./Support/SQLite/bin/$SQLITE_NET_YEAR/Release/bin/* ./DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }} 
       
 #    - name: Setup Sql Server CE Client
 #      if: ${{ matrix.dotnet.version == '4.6.1' }} 
@@ -119,6 +138,9 @@ jobs:
         foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
           reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
         }
+    - name: Coverage Report
+      run: |
+        find . -name \*.txt -exec process {} \;
 
     - name: Upload dotnet test results
       if: always()

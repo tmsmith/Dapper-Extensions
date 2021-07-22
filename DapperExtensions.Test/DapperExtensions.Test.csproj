@@ -7,13 +7,13 @@
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
+	<PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'True'">
 		<DefineConstants>Windows</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
 		<DefineConstants>OSX</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
+	<PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'True'">
 		<DefineConstants>Linux</DefineConstants>
 	</PropertyGroup>
 
@@ -27,6 +27,14 @@
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
 		<DefineConstants>NETSTANDARD2_0</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PreBuildEvent>
+			echo Windows Constant "#'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'#".
+		</PreBuildEvent>
+		<!--<PreBuildEvent Condition="'$(BuildingInsideVisualStudio)' == 'true'">echo This code execute from Visual Studio.</PreBuildEvent>
+		<PreBuildEvent Condition="'$(BuildingInsideVisualStudio)' == ''">echo This code execute from MSBuild Command line.</PreBuildEvent>-->
 	</PropertyGroup>
 
 	<!--<PropertyGroup Condition="'$(TargetFramework)'== 'net461' AND '$(OS)' != 'WINDOWS_NT'">
