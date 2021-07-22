@@ -233,7 +233,9 @@ jobs:
           $arguments="analyze /output:$outpath\net461.coveragexml $f"
           Start-Process -FilePath $filepath -ArgumentList $arguments -NoNewWindow -Wait -WorkingDirectory:.
         }
+        Write-Output $filepath
         foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
+          Write-Output $f
           $filepath "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
         }
       
