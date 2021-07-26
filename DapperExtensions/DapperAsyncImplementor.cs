@@ -140,7 +140,7 @@ namespace DapperExtensions
         public async Task<T> GetAsync<T>(IDbConnection connection, dynamic id, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false,
             IList<IProjection> colsToSelect = null, IList<IReferenceMap> includedProperties = null) where T : class
         {
-            return await Task.FromResult(InternalGet<T>(connection, id, transaction, commandTimeout, colsToSelect, includedProperties));
+            return (T)InternalGet<T>(connection, id, transaction, commandTimeout, colsToSelect, includedProperties);
         }
 
         /// <summary>
