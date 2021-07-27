@@ -58,7 +58,7 @@ namespace DapperExtensions
 
         public T Get<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout, IList<IReferenceMap> includedProperties = null) where T : class
         {
-            return InternalGet<T>(connection, id, transaction, commandTimeout, null, includedProperties);
+            return (T)InternalGet<T>(connection, id, transaction, commandTimeout, null, includedProperties);
         }
 
         public TOut GetPartial<TIn, TOut>(IDbConnection connection, Expression<Func<TIn, TOut>> func, dynamic id, IDbTransaction transaction, int? commandTimeout, IList<IReferenceMap> includedProperties = null) where TIn : class where TOut : class
@@ -770,7 +770,7 @@ namespace DapperExtensions
 
         protected T InternalGet<T>(IDbConnection connection, dynamic id, IDbTransaction transaction, int? commandTimeout, IList<IProjection> colsToSelect, IList<IReferenceMap> includedProperties = null) where T : class
         {
-            IEnumerable<T> result = InternalGetListAutoMap<T>(connection, id, null, transaction, commandTimeout, true, colsToSelect, includedProperties);
+            var result = (IEnumerable<T>)InternalGetListAutoMap<T>(connection, id, null, transaction, commandTimeout, true, colsToSelect, includedProperties);
             return result.SingleOrDefault();
         }
 
