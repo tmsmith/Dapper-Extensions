@@ -137,11 +137,11 @@
 		</Reference>
 	</ItemGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent" >
+	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent" >
 		<Exec Condition="'$(IsWindows)'=='true'" Command="echo Running on Windows with constants: $(DefineConstants)" />
 		<Exec Condition="'$(IsOSX)'=='true'" Command="echo Running on OSX with constants: $(DefineConstants)" />
 		<Exec Condition="'$(IsLinux)'=='true'" Command="echo Running on Linux with constants: $(DefineConstants)" />
-	</Target>
+	</Target>-->
 
 	<!--<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net461'">
 	  <Exec Command="xcopy $(ProjectDir)\Microsoft.SQLSERVER.CE.4.0\*.* $(TargetDir) /E /I /H /k /y" />

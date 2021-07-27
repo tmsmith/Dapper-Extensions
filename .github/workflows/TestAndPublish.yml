@@ -217,9 +217,9 @@ jobs:
         name: dotnet-test-logs-${{ matrix.dotnet.version }}
         path: ./TestResults/Test*.*
         
-    - name: Coverage Report
-      if: ${{ matrix.dotnet.version != '4.6.1' }} 
-      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
+#    - name: Coverage Report
+#      if: ${{ matrix.dotnet.version != '4.6.1' }} 
+#      run: reportgenerator "-reports:./**/coverage.cobertura.xml" "-targetdir:./CoverageReports/${{ matrix.dotnet.framework }}" -reporttypes:Html
 
     - name: Coverage Report
       if: ${{ matrix.dotnet.version == '4.6.1' }} 
