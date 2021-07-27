@@ -172,7 +172,7 @@ namespace DapperExtensions
         public static async Task<T> GetAsync<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null,
             int? commandTimeout = null, bool buffered = false) where T : class
         {
-            return await Instance.GetAsync<T>(connection, id, transaction, commandTimeout, buffered, null).ConfigureAwait(false);
+            return await ((Task<T>)Instance.GetAsync<T>(connection, id, transaction, commandTimeout, buffered, null)).ConfigureAwait(false);
         }
 
         /// <summary>
