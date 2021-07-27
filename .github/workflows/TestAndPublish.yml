@@ -23,25 +23,19 @@ jobs:
 #        os: [macos-latest, windows-latest, ubuntu-latest]
         dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, settings: coverlet }, { framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
 
-#   env: 
-#     ORIGINAL_PATH: ""
-
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Prerequisites
       run: |
         sudo apt-get update
-        sudo apt install libxml2-dev -y
-        sudo apt-get install build-essential -y
-        sudo apt install sqlite3 -y
-        sudo apt install unzip -y
         cd DapperExtensions.Test
         dotnet tool install -g dotnet-reportgenerator-globaltool
         cd ..
-    
-#   - name: Set env
-#      run: echo $PATH >> $ORIGINAL_PATH
+#        sudo apt install libxml2-dev -y
+#        sudo apt-get install build-essential -y
+#        sudo apt install sqlite3 -y
+#        sudo apt install unzip -y
     
     - name: Setup netcore 2.1
       uses: actions/setup-dotnet@v1
@@ -68,10 +62,12 @@ jobs:
 
     - name: Setup DB2 Lib Paths
       run: |
-        export DB2_CLIDRIVER_PATH=$(pwd)/DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }}/clidriver
-        echo $DB2_CLIDRIVER_PATH
-        export LD_LIBRARY_PATH=$DB2_CLIDRIVER_PATH/lib
-        export PATH=$PATH:$DB2_CLIDRIVER_PATH/bin:$LD_LIBRARY_PATH
+        export DB2_CLI_DRIVER_INSTALL_PATH=$(pwd)/DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }}/clidriver
+        echo $DB2_CLI_DRIVER_INSTALL_PATH
+        export LD_LIBRARY_PATH=$DB2_CLI_DRIVER_INSTALL_PATH/lib
+        export LIBPATH=$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=$DB2_CLI_DRIVER_INSTALL_PATH/lib
+        export PATH=$PATH:$DB2_CLI_DRIVER_INSTALL_PATH/bin::$DB2_CLI_DRIVER_INSTALL_PATH/adm:$LD_LIBRARY_PATH
 
     - name: Update DB2 package
       run: |
@@ -85,11 +81,11 @@ jobs:
     - name: Install dependencies
       run: dotnet restore DapperExtensions.sln
 
-    - name: Install ReportGenerator
-      run: |
-        cd DapperExtensions.Test
-        dotnet tool install -g dotnet-reportgenerator-globaltool
-        cd ..
+#    - name: Install ReportGenerator
+#      run: |
+#        cd DapperExtensions.Test
+#        dotnet tool install -g dotnet-reportgenerator-globaltool
+#        cd ..
       
     - name: Build
       run: dotnet build DapperExtensions.sln -c Debug --no-restore
@@ -138,9 +134,12 @@ jobs:
         foreach ($f in Get-ChildItem -Path . -Filter "net461.coveragexml" -Recurse){ 
           reportgenerator "-reports:$f" "-targetdir:.\CoverageReports\${{ matrix.dotnet.framework }}" -reporttypes:Html
         }
+
     - name: Coverage Report
       run: |
-        find . -name \*.txt -exec process {} \;
+        find ... | while read -r file; do
+          echo "look at my $file, my $file is amazing";
+        done
 
     - name: Upload dotnet test results
       if: always()
@@ -155,8 +154,7 @@ jobs:
 
     - name: Remove Coverage files
       if: ${{ always() && matrix.dotnet.version == '4.6.1' }} 
-      run: find . -name '*net461.coveragexml*' -delete
-      
+      run: find . -name '*net461.coveragexml*' -delete      
 
 
   test_SqlCe:
