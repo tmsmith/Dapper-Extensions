@@ -14,6 +14,17 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
     public static class CrudFixture
     {
         [TestFixture]
+        public class InsertAsyncList : SqlServerBaseAsyncFixture
+        {
+            [Test]
+            public void InsertAsyncListWithIgnore()
+            {
+                var f = new Foo { FirstName = "Test", LastName = "Person", DateOfBirth = DateTime.Today };
+                _ = Db.Insert(f).Result;
+            }
+        }
+
+        [TestFixture]
         public class InsertMethod : SqlServerBaseAsyncFixture
         {
             [Test]

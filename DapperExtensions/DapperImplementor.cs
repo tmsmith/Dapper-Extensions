@@ -557,12 +557,16 @@ namespace DapperExtensions
             return GetDynamicParameters(entity, classMap, sequenceIdentityColumn, foreignKeys, ignored, useColumnAlias);
         }
 
-        public DynamicParameters GetDynamicParameters<T>(T entity, DynamicParameters dynamicParameters, IMemberMap keyColumn, bool useColumnAlias = false)
+        public DynamicParameters GetDynamicParameters<T>(IClassMapper classMap, T entity, IMemberMap keyColumn, bool useColumnAlias = false)
         {
-            dynamicParameters ??= new DynamicParameters();
-            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.Name != keyColumn.Name))
-                AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
+            var ignored = classMap.Properties.Where(x => x.Ignored).Select(p => p.MemberInfo).ToList();
+
+            var dynamicParameters = new DynamicParameters();
+            
+            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.Name != keyColumn.Name && !ignored.Contains(p)
+                ))
+                dynamicParameters = AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
 
             return dynamicParameters;
         }
@@ -695,7 +699,7 @@ namespace DapperExtensions
                 var keyColumn = triggerIdentityColumn ?? identityColumn;
                 object keyValue;
 
-                dynamicParameters = GetDynamicParameters(entity, dynamicParameters, keyColumn, true);
+                dynamicParameters = GetDynamicParameters(classMap, entity, keyColumn, true);
 
                 if (triggerIdentityColumn != null)
                 {
