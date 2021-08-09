@@ -19,7 +19,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
             [Test]
             public void InsertAsyncListWithIgnore()
             {
-                var f = new Foo { FirstName = "Test", LastName = "Person", DateOfBirth = DateTime.Today };
+                var f = new Foo { FirstName = "Test", LastName = "Person", DateOfBirth = DateTime.Today, BarList = new List<Bar>() { new Bar { Name = "BarTest" } } };
                 _ = Db.Insert(f).Result;
             }
         }
