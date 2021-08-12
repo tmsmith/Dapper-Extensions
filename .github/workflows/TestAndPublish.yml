@@ -110,6 +110,7 @@ jobs:
         echo $(pwd)
         chmod -x ./bin/$SQLITE_NET_YEAR/Release/bin/libSQLite.Interop.so
         cd ../..
+        echo $(pwd)
         cp ./Support/SQLite/bin/$SQLITE_NET_YEAR/Release/bin/* ./DapperExtensions.Test/bin/Debug/${{ matrix.dotnet.framework }} 
       
 #    - name: Setup Sql Server CE Client
