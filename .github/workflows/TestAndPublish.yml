@@ -22,7 +22,7 @@ jobs:
 #        os: [macos-latest, ubuntu-latest]
 #        os: [macos-latest, windows-latest, ubuntu-latest]
 #        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, settings: coverlet }, { framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
-        dotnet: [{ framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
+        dotnet: [{ framework: net461, version: 4.6.1, settings: mscoverage }]
 
     steps:
     - uses: actions/checkout@v2
@@ -94,18 +94,23 @@ jobs:
     - name: Setup SQLite
       if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: |
+        echo $(pwd)
         mkdir Support
         curl https://system.data.sqlite.org/blobs/1.0.114.0/sqlite-netFx-full-source-1.0.114.0.zip -o ./Support/sqlite_source.zip
         cd Support
+        echo $(pwd)
         mkdir SQLite
-        unzip sqlite_source.zip -d SQLite -y
+        unzip sqlite_source.zip -d SQLite
         cd SQLite/Setup
+        echo $(pwd)
         chmod +x compile-interop-assembly-release.sh
         export SQLITE_NET_YEAR=2019
         ./compile-interop-assembly-release.sh
         cd ..
+        echo $(pwd)
         chmod -x ./bin/$SQLITE_NET_YEAR/Release/bin/libSQLite.Interop.so
         cd ../..
+        echo $(pwd)
         cp ./Support/SQLite/bin/$SQLITE_NET_YEAR/Release/bin/* ./DapperExtensions.Test/bin/debug/${{ matrix.dotnet.framework }} 
       
 #    - name: Setup Sql Server CE Client
