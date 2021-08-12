@@ -93,6 +93,7 @@ jobs:
     - name: Setup SQLite
       if: ${{ matrix.dotnet.version == '4.6.1' }} 
       run: |
+        mkdir Support
         curl https://system.data.sqlite.org/blobs/1.0.114.0/sqlite-netFx-full-source-1.0.114.0.zip -o ./Support/sqlite_source.zip
         cd Support
         mkdir SQLite
