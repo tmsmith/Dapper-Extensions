@@ -25,7 +25,7 @@
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <!-- <Format>json,cobertura,lcov,teamcity,opencover</Format> -->
-          <Format>cobertura</Format>
+          <Format>json,cobertura</Format>
           <Exclude>[coverlet.*.tests?]*,[*]Coverlet.Core*</Exclude>
           <!-- [Assembly-Filter]Type-Filter -->
           <!--<Include>[coverlet.*]*,[*]Coverlet.Core*</Include>-->

@@ -100,7 +100,7 @@ namespace DapperExtensions
         /// <param name="defaultMapper"></param>
         /// <param name="mappingAssemblies"></param>
         /// <param name="sqlDialect"></param>
-        public static void Configure(this IDapperExtensionsConfiguration configuration)
+        public static void Configure(IDapperExtensionsConfiguration configuration)
         {
             _instance = null;
             _configuration = configuration;
@@ -126,7 +126,7 @@ namespace DapperExtensions
         /// <param name="defaultMapper"></param>
         /// <param name="mappingAssemblies"></param>
         /// <param name="sqlDialect"></param>
-        public static void Configure(this Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
+        public static void Configure(Type defaultMapper, IList<Assembly> mappingAssemblies, ISqlDialect sqlDialect)
         {
             Configure(new DapperExtensionsConfiguration(defaultMapper, mappingAssemblies, sqlDialect));
         }
