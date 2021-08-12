@@ -39,11 +39,13 @@ jobs:
 #        sudo apt install unzip -y
     
     - name: Setup netcore 2.1
+      if: ${{ matrix.dotnet.version == '2.1.x' }} 
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.1.x
     
     - name: Setup netcore 3.1
+      if: ${{ matrix.dotnet.version == '3.1.x' }} 
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
@@ -125,7 +127,7 @@ jobs:
       run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
 
     - name: Upload dotnet test logs
-      if: ${{ always() && matrix.dotnet.version != '4.6.1' }} 
+      if: ${{ always() && matrix.dotnet.version = '4.6.1' }} 
       uses: actions/upload-artifact@v2
       with:
         name: dotnet-test-logs-${{ matrix.dotnet.version }}
