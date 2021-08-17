@@ -100,7 +100,7 @@ jobs:
         curl https://system.data.sqlite.org/blobs/1.0.114.0/sqlite-netFx-full-source-1.0.114.0.zip -o ./Support/sqlite_source.zip
         cd Support
         mkdir SQLite
-        unzip sqlite_source.zip -d SQLite
+        unzip -o sqlite_source.zip -d SQLite
         cd SQLite/Setup
         chmod +x compile-interop-assembly-release.sh
         export SQLITE_NET_YEAR=2019

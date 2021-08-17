@@ -97,7 +97,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
         public virtual void ExecuteScripts(IDbConnection connection, bool abortOnError, params string[] scripts)
         {
-            var files = new List<string>();
+            var files = new Dictionary<string, string>();
             var namespacePath = GetNamespacePath();
 
             foreach (var script in scripts)
@@ -106,17 +106,18 @@ namespace DapperExtensions.Test.IntegrationTests
 
                 fileName += !Path.HasExtension(fileName) ? ".sql" : "";
 
-                files.Add(ReadFile(fileName));
+                files.Add(fileName, ReadFile(fileName));
             };
 
             foreach (var setupFile in files)
             {
                 try
                 {
-                    connection.Execute(setupFile);
+                    connection.Execute(setupFile.Value);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine("{0}: {1}\r\nErro: {2}\r\nStackTrace: {3}", setupFile.Key, setupFile.Value, e.Message, e.StackTrace);
                     if (abortOnError)
                         throw;
                 }

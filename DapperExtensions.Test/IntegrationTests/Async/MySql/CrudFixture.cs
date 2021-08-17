@@ -110,8 +110,10 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                     DateCreated = DateTime.UtcNow
                 };
                 var id = Db.Insert(p1).Result;
+                Console.WriteLine("UsingKey_ReturnsEntity: Insert Done");
 
                 var p2 = Db.Get<Person>(id).Result;
+                Console.WriteLine("UsingKey_ReturnsEntity: Get Done");
                 Assert.AreEqual(id, p2.Id);
                 Assert.AreEqual("Foo", p2.FirstName);
                 Assert.AreEqual("Bar", p2.LastName);
@@ -123,8 +125,10 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 var m1 = new Multikey { Key2 = "key", Value = "bar" };
                 var key = Db.Insert(m1).Result;
+                Console.WriteLine("UsingCompositeKey_ReturnsEntity: Insert Done");
 
                 var m2 = Db.Get<Multikey>(new { key.Key1, key.Key2 }).Result;
+                Console.WriteLine("UsingCompositeKey_ReturnsEntity: Get Done");
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
@@ -181,14 +185,18 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 PersonArrange();
 
+                Console.WriteLine("UsingPredicate_DeletesRows: Arrange Done");
                 var list = Db.GetList<Person>().Result;
+                Console.WriteLine("UsingPredicate_DeletesRows: 1st GetList");
                 Assert.AreEqual(3, list.Count());
 
                 var pred = Predicates.Field<Person>(p => p.LastName, Operator.Eq, "Bar");
                 var result = Db.Delete<Person>(pred).Result;
+                Console.WriteLine("UsingPredicate_DeletesRows: Delete");
                 Assert.IsTrue(result);
 
                 list = Db.GetList<Person>().Result;
+                Console.WriteLine("UsingPredicate_DeletesRows: 2nd GetList");
                 Assert.AreEqual(1, list.Count());
                 Dispose();
             }
@@ -198,13 +206,17 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 PersonArrange();
 
+                Console.WriteLine("UsingObject_DeletesRows: Arrange Done");
                 var list = Db.GetList<Person>().Result;
+                Console.WriteLine("UsingObject_DeletesRows: 1st GetList");
                 Assert.AreEqual(3, list.Count());
 
                 var result = Db.Delete<Person>(new { LastName = "Bar" }).Result;
+                Console.WriteLine("UsingObject_DeletesRows: Delete");
                 Assert.IsTrue(result);
 
                 list = Db.GetList<Person>().Result;
+                Console.WriteLine("UsingObject_DeletesRows: 2nd GetList");
                 Assert.AreEqual(1, list.Count());
                 Dispose();
             }
@@ -273,7 +285,9 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange();
 
+                Console.WriteLine("UsingNullPredicate_ReturnsAll: Arrange Done");
                 var list = Db.GetList<Person>().Result;
+                Console.WriteLine("UsingNullPredicate_ReturnsAll: GetList Done");
                 Assert.AreEqual(4, list.Count());
                 Dispose();
             }
@@ -283,8 +297,10 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange();
 
+                Console.WriteLine("UsingPredicate_ReturnsMatching: Arrange Done");
                 var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 var list = Db.GetList<Person>(predicate, null).Result;
+                Console.WriteLine("UsingPredicate_ReturnsMatching: GetList Done");
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "a" || p.FirstName == "c"));
                 Dispose();
@@ -295,8 +311,10 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange();
 
+                Console.WriteLine("UsingObject_ReturnsMatching: Arrange Done");
                 var predicate = new { Active = true, FirstName = "c" };
                 var list = Db.GetList<Person>(predicate, null).Result;
+                Console.WriteLine("UsingObject_ReturnsMatching: GetList Done");
                 Assert.AreEqual(1, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "c"));
                 Dispose();
@@ -319,6 +337,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange(out var id1, out var id2, out var id3, out var id4);
 
+                Console.WriteLine("UsingNullPredicate_ReturnsMatching: Arrange Done");
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
@@ -326,6 +345,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                                     };
 
                 var list = Db.GetPage<Person>(null, sort, 0, 2).Result;
+                Console.WriteLine("UsingNullPredicate_ReturnsMatching: GetPage Done");
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id2, list.First().Id);
                 Assert.AreEqual(id1, list.Skip(1).First().Id);
@@ -337,6 +357,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange(out var id1, out var id2, out var id3, out var id4);
 
+                Console.WriteLine("UsingPredicate_ReturnsMatching: Arrange Done");
                 var predicate = Predicates.Field<Person>(f => f.Active, Operator.Eq, true);
                 var sort = new List<ISort>
                                     {
@@ -345,6 +366,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                                     };
 
                 var list = Db.GetPage<Person>(predicate, sort, 0, 2).Result;
+                Console.WriteLine("UsingPredicate_ReturnsMatching: GetPage Done");
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
                 Dispose();
@@ -355,6 +377,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange(out var id1, out var id2, out var id3, out var id4);
 
+                Console.WriteLine("NotFirstPage_Returns_NextResults: Arrange Done");
                 var sort = new List<ISort>
                                     {
                                         Predicates.Sort<Person>(p => p.LastName),
@@ -362,6 +385,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                                     };
 
                 var list = Db.GetPage<Person>(null, sort, 2, 2).Result;
+                Console.WriteLine("NotFirstPage_Returns_NextResults: GetPage Done");
                 Assert.AreEqual(2, list.Count());
                 Assert.AreEqual(id4, list.First().Id);
                 Assert.AreEqual(id3, list.Skip(1).First().Id);
@@ -373,6 +397,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
             {
                 Arrange(out var id1, out var id2, out var id3, out var id4);
 
+                Console.WriteLine("UsingObject_ReturnsMatching: Arrange Done");
                 var predicate = new { Active = true };
                 var sort = new List<ISort>
                                     {
@@ -381,6 +406,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                                     };
 
                 var list = Db.GetPage<Person>(predicate, sort, 0, 2).Result;
+                Console.WriteLine("UsingObject_ReturnsMatching: GetPage Done");
                 Assert.AreEqual(2, list.Count());
                 Assert.IsTrue(list.All(p => p.FirstName == "Sigma" || p.FirstName == "Theta"));
                 Dispose();
@@ -446,15 +472,19 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 Db.Insert(new Animal { Name = "Bar" });
                 Db.Insert(new Animal { Name = "Baz" });
 
+                Console.WriteLine("ReturnsItems: Inserts Done");
                 var predicate = new GetMultiplePredicate();
                 predicate.Add<Person>(null);
                 predicate.Add<Animal>(Predicates.Field<Animal>(a => a.Name, Operator.Like, "Ba%"));
                 predicate.Add<Person>(Predicates.Field<Person>(a => a.LastName, Operator.Eq, "c1"));
+                Console.WriteLine("ReturnsItems: Predicates Done");
 
                 var result = Db.GetMultiple(predicate).Result;
+                Console.WriteLine("ReturnsItems: GetMultiple Done");
                 var people = result.Read<Person>().ToList();
                 var animals = result.Read<Animal>().ToList();
                 var people2 = result.Read<Person>().ToList();
+                Console.WriteLine("ReturnsItems: Reads Done");
 
                 people.Should().HaveCount(4);
                 animals.Should().HaveCount(2);
