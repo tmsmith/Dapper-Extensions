@@ -41,8 +41,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + (total / cnt));
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -73,8 +73,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + (total / cnt));
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -95,8 +95,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + total / cnt);
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + total / cnt);
                 Dispose();
                 */
             }
@@ -117,8 +117,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + (total / cnt));
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -138,8 +138,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + (total / cnt));
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -159,8 +159,8 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 }
 
                 double total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                Console.WriteLine("Total Time:" + total);
-                Console.WriteLine("Average Time:" + (total / cnt));
+                TestContext.WriteLine("Total Time:" + total);
+                TestContext.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
         }
