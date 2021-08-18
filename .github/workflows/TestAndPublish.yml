@@ -119,8 +119,7 @@ jobs:
 #        $env:Path += ";D:\a\Dapper-Extensions\Dapper-Extensions\DapperExtensions.Test\Microsoft.SQLSERVER.CE.4.0\amd64"
       
     - name: Test
-      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
-#      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build
+      run: dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:${{ matrix.dotnet.framework }} --settings:${{ matrix.dotnet.settings }}.runsettings --no-build --diag ./TestResults/TestLog.log
 
     - name: Upload dotnet test logs
       if: ${{ always() && matrix.dotnet.version == '4.6.1' }} 

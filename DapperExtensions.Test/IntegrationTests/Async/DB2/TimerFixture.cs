@@ -41,8 +41,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -73,8 +73,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -94,8 +94,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
 
@@ -115,8 +115,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
                 Dispose();
             }
         }

@@ -40,8 +40,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -71,8 +71,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -90,8 +90,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -109,8 +109,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -129,8 +129,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
 
             [Test]
@@ -149,8 +149,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 }
 
                 var total = DateTime.Now.Subtract(start).TotalMilliseconds;
-                TestContext.WriteLine("Total Time:" + total);
-                TestContext.WriteLine("Average Time:" + (total / cnt));
+                TestContext.Progress.WriteLine("Total Time:" + total);
+                TestContext.Progress.WriteLine("Average Time:" + (total / cnt));
             }
         }
     }
