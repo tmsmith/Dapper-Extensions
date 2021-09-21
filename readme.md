@@ -21,6 +21,7 @@ Dapper Extensions is a small library that complements [Dapper](https://github.co
 Customized mappings are achieved through [ClassMapper](https://github.com/tmsmith/Dapper-Extensions/wiki/AutoClassMapper). 
 
 **Important**: This library is a separate effort from Dapper.Contrib (a sub-system of the [Dapper](https://github.com/SamSaffron/dapper-dot-net) project).
+**Important**: Check our projects list to see the plans for the next releases.
 
 Features
 --------
