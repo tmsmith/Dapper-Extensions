@@ -1,0 +1,274 @@
+name: NuGet Generation
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
+
+jobs:
+  build_netcore:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
+        
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup dotnet ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+          
+#    - name: Setup .NET Core 2.1	
+#      uses: actions/setup-dotnet@v1	
+#      with:	
+#        dotnet-version: 2.1.x	
+    
+#    - name: Setup .NET Core 3.1	
+#      uses: actions/setup-dotnet@v1	
+#      with:	
+#        dotnet-version: 3.1.x
+    
+#    - name: Setup .NET Core 5.0
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: 5.0.x
+    
+    - name: Start Databases
+      run: |
+        cd Docker
+        docker-compose up -d 
+        cd ..
+        
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions
+      
+    - name: Set framework variable
+      env:
+          TARGET_FRAMEWORK: ""
+      run: |
+        if [ ${{TARGET_FRAMEWORK}} -eq "2.1.x" ]
+        then echo netcoreapp2.1 > ${{TARGET_FRAMEWORK}}
+        elif [ ${{TARGET_FRAMEWORK}} -eq "3.1.x" ]
+        then echo netcoreapp3.1 > ${{TARGET_FRAMEWORK}}
+        else echo net5.0 > ${{TARGET_FRAMEWORK}}
+        fi
+      if: dotnet-version == '2.1.x'
+
+    - name: Build
+      if: dotnet-version == '2.1.x'
+      run: dotnet build DapperExtensions --configuration Release --no-restore --framework:${{TARGET_FRAMEWORK}}
+      
+    - name: Test
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}" --framework:${{TARGET_FRAMEWORK}}
+
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+      
+#    - name: Publish
+#      uses: brandedoutcast/publish-nuget@v2.5.2
+#      with:
+#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
+#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
+#          INCLUDE_SYMBOLS: true
+
+    - name: Pack Default Version
+      run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
+      
+    - name: Upload Artifact for Default Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_package
+        path: bin\Release\Publish
+
+    - name: Pack Signed Version
+      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+      
+    - name: Upload Artifact for Signed Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_signed_package
+        path: bin\Release\Publish
+
+#   - name: PushNuget
+#      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+#      run: dotnet nuget push *.nupkg
+
+  build_fullframework:
+    if: always()
+    needs: [build_netcore]
+    runs-on: windows-latest
+#    strategy:
+#      matrix:
+#        dotnet-version: ['4.6.1']
+        
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup dotnet ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+          
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions
+      
+    - name: Build
+      run: dotnet build DapperExtensions --configuration Release --no-restore
+      
+    - name: Test
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-4.6.1"
+
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+      
+#    - name: Publish
+#      uses: brandedoutcast/publish-nuget@v2.5.2
+#      with:
+#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
+#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
+#          INCLUDE_SYMBOLS: true
+
+    - name: Pack Default Version
+      run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
+      
+    - name: Upload Artifact for Default Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_package
+        path: bin\Release\Publish
+
+    - name: Pack Signed Version
+      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+      
+    - name: Upload Artifact for Signed Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_signed_package
+        path: bin\Release\Publish
+
+#   - name: PushNuget
+#      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+#      run: dotnet nuget push *.nupkg
+
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['2.1.x', '3.1.x', '5.0.x' ]
+        
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup dotnet ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+          
+#    - name: Setup .NET Core 2.1	
+#      uses: actions/setup-dotnet@v1	
+#      with:	
+#        dotnet-version: 2.1.x	
+    
+#    - name: Setup .NET Core 3.1	
+#      uses: actions/setup-dotnet@v1	
+#      with:	
+#        dotnet-version: 3.1.x
+    
+#    - name: Setup .NET Core 5.0
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: 5.0.x
+    
+    - name: Start Databases
+      run: |
+        cd Docker
+        docker-compose up -d 
+        cd ..
+        
+    - name: Install dependencies
+      run: dotnet restore DapperExtensions
+      
+    - name: Set framework variable
+      env:
+          TARGET_FRAMEWORK: ""
+      run: |
+        if [ ${{TARGET_FRAMEWORK}} -eq "2.1.x" ]
+        then echo netcoreapp2.1 > ${{TARGET_FRAMEWORK}}
+        elif [ ${{TARGET_FRAMEWORK}} -eq "3.1.x" ]
+        then echo netcoreapp3.1 > ${{TARGET_FRAMEWORK}}
+        else echo net5.0 > ${{TARGET_FRAMEWORK}}
+        fi
+      if: dotnet-version == '2.1.x'
+
+    - name: Build
+      if: dotnet-version == '2.1.x'
+      run: dotnet build DapperExtensions --configuration Release --no-restore --framework:${{TARGET_FRAMEWORK}}
+      
+    - name: Test
+      run: dotnet test ./DapperExtensions.Test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}" --framework:${{TARGET_FRAMEWORK}}
+
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+      
+#    - name: Publish
+#      uses: brandedoutcast/publish-nuget@v2.5.2
+#      with:
+#          PROJECT_FILE_PATH: MintPlayer.SeasonChecker/MintPlayer.SeasonChecker.csproj
+#          NUGET_KEY: ${{secrets.PUBLISH_TO_NUGET_ORG}}
+#          INCLUDE_SYMBOLS: true
+
+    - name: Pack Default Version
+      run: dotnet pack --no-build --configuration Release ./DapperExtensions/DapperExtensions.csproj --output .
+      
+    - name: Upload Artifact for Default Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_package
+        path: bin\Release\Publish
+
+    - name: Pack Signed Version
+      run: dotnet pack --no-build --configuration Release DapperExtensions/DapperExtensions.StrongName/DapperExtensions.StrongName.csproj --output .
+      
+    - name: Upload Artifact for Signed Version
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: nuget_signed_package
+        path: bin\Release\Publish
+
+#   - name: PushNuget
+#      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
+#      run: dotnet nuget push *.nupkg
+

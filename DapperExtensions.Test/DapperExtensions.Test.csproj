@@ -73,7 +73,7 @@
 		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
 		
 		<!--
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
+		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
 		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
 		<PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
 		-->

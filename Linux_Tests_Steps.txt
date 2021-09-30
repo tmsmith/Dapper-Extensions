@@ -1,0 +1,77 @@
+- Instalar SDKs (2.1, 3.1, 5.0 e Mono) 
+
+https://docs.microsoft.com/pt-br/dotnet/core/install/linux-ubuntu#apt-troubleshooting
+https://docs.microsoft.com/pt-br/dotnet/core/install/linux-ubuntu 
+
+wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+sudo apt-get update; \
+  sudo apt-get -y upgrade; \
+  sudo apt-get install -y apt-transport-https && \
+  sudo apt-get update && \
+  sudo apt-get install -y dotnet-sdk-2.1; \
+  sudo apt-get install -y dotnet-sdk-3.1; \
+  sudo apt-get install -y dotnet-sdk-5.0
+
+https://linuxize.com/post/how-to-install-mono-on-ubuntu-20-04/
+  
+sudo apt install dirmngr gnupg apt-transport-https ca-certificates software-properties-common
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+sudo apt-add-repository 'deb https://download.mono-project.com/repo/ubuntu stable-focal main'
+sudo apt install -y mono-complete 
+
+
+
+export FrameworkPathOverride=/usr/lib/mono/4.6.1-api/
+export DB2_CLI_DRIVER_INSTALL_PATH=$(pwd)/DapperExtensions.Test/bin/debug/<target_framework>/clidriver
+export LD_LIBRARY_PATH=$DB2_CLI_DRIVER_INSTALL_PATH/lib
+export LIBPATH=$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$DB2_CLI_DRIVER_INSTALL_PATH/lib
+export PATH=$PATH:$DB2_CLI_DRIVER_INSTALL_PATH/bin::$DB2_CLI_DRIVER_INSTALL_PATH/adm:$LD_LIBRARY_PATH
+
+
+sudo apt install -y unzip
+sudo apt install -y gcc
+
+
+sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+sudo apt install -y build-essential
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt update
+sudo apt install -y docker-ce
+sudo service docker start
+
+
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+
+
+########### DB2
+sudo apt-get install -y libxml2-dev
+
+
+
+
+
+
+
+
+
+
+############### Log output
+dotnet test ./DapperExtensions.Test -c debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings --no-build 2>&1 | tee TestOutput.log
+
+
+
+
+
+
+
+dotnet test ./DapperExtensions.Test -c Debug --collect:"XPlat Code Coverage" -verbosity:diagnostic -bl:msbuild.binlog -noconsolelogger --framework:netcoreapp3.1 --settings:coverlet.runsettings --no-build
