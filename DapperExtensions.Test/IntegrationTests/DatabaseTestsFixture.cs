@@ -117,7 +117,7 @@ namespace DapperExtensions.Test.IntegrationTests
                 }
                 catch (Exception e)
                 {
-                    TestContext.Progress.WriteLine("{0}: {1}\r\nErro: {2}\r\nStackTrace: {3}", setupFile.Key, setupFile.Value, e.Message, e.StackTrace);
+                    TestContext.Progress.WriteLine("{0}: {1}\r\nConnection: {2}\r\nErro: {3}\r\nStackTrace: {4}", setupFile.Key, setupFile.Value, connection.ConnectionString, e.Message, e.StackTrace);
                     if (abortOnError)
                         throw;
                 }

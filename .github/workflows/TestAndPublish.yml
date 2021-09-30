@@ -62,6 +62,7 @@ jobs:
       run: |
         cd Docker
         docker-compose up -d
+        cd ..
 
     - name: Setup DB2 Lib Paths
       run: |
