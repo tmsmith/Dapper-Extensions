@@ -30,7 +30,7 @@ netsh interface portproxy add v4tov4 listenport="50000" connectaddress="$wslIp" 
 netsh interface portproxy add v4tov4 listenport="55001" connectaddress="$wslIp" connectport="55001"
 
 # postgresql
-#netsh interface portproxy delete v4tov4 listenport="1433" # Delete any existing port 1433 forwarding
-#netsh interface portproxy add v4tov4 listenport="1433" connectaddress="$wslIp" connectport="1433"
+# netsh interface portproxy delete v4tov4 listenport="1433" # Delete any existing port 1433 forwarding
+# netsh interface portproxy add v4tov4 listenport="1433" connectaddress="$wslIp" connectport="1433"
 
 wsl -u root -- service docker start
