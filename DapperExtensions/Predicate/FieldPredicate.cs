@@ -97,6 +97,10 @@ namespace DapperExtensions.Predicate
 
             var format = (Operator == Operator.Like && Value != null && sqlGenerator.Configuration.Dialect is OracleDialect) ?
                     "(upper({0}) {1} upper('%'||{2}||'%'))" : "({0} {1} {2})";
+            if (Operator == Operator.BitEq && Value != null)
+            {
+                format = (sqlGenerator.Configuration.Dialect is OracleDialect) ? "BITAND({0}, {2}) {1} {2}" : "{0}&{2} {1} {2}";
+            }
 
             return string.Format(format, columnName, GetOperatorString(), GetParameterName(sqlGenerator, parameters, parameterPropertyName, parentType));
         }

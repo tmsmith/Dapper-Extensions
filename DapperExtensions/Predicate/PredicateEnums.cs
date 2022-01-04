@@ -18,6 +18,11 @@
         Eq,
 
         /// <summary>
+        /// Bit Equal (flags)
+        /// </summary>
+        BitEq,
+
+        /// <summary>
         /// Greater than
         /// </summary>
         Gt,
