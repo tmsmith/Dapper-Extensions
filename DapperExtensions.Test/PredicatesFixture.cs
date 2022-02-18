@@ -148,6 +148,16 @@ namespace DapperExtensions.Test
                 Assert.AreEqual(values, predicate.Collection);
                 Assert.AreEqual(false, predicate.Not);
             }
+
+            [Test]
+            public void BitEq_ReturnsSetupPredicate()
+            {
+                var predicate = Predicates.Field<PredicateTestEntity>(f => f.Id, Operator.BitEq, 1, false);
+                Assert.AreEqual("Id", predicate.PropertyName);
+                Assert.AreEqual(Operator.BitEq, predicate.Operator);
+                Assert.AreEqual(1, predicate.Value);
+                Assert.AreEqual(false, predicate.Not);
+            }
         }
 
         [TestFixture]
