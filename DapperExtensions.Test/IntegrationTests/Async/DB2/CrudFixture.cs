@@ -1,6 +1,7 @@
 ﻿#if NETCOREAPP
 using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.DB2;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -15,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : DB2BaseAsyncFixture
+        public class InsertMethod : DB2BaseAsyncFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -62,10 +63,20 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 Assert.AreEqual(3, animals.Count);
                 Dispose();
             }
+
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestFixture]
-        public class GetMethod : DB2BaseAsyncFixture
+        public class GetMethod : DB2BaseAsyncFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()
@@ -101,7 +112,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
         }
 
         [TestFixture]
-        public class DeleteMethod : DB2BaseAsyncFixture
+        public class DeleteMethod : DB2BaseAsyncFixture, IDeleteMethod
         {
             private static void Arrange(out Person p1, out Person p2, out Person p3)
             {

@@ -25,7 +25,7 @@ namespace DapperExtensions.Test.Data.Common
         public PersonMapper()
         {
             TableName = nameof(Person);
-            Map(m => m.Phones).Ignore();
+            //Map(m => m.Phones).Ignore();
             AutoMap();
         }
     }

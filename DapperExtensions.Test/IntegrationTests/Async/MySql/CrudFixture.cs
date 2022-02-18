@@ -1,5 +1,6 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.Common;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -14,7 +15,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : MySqlBaseAsyncFixture
+        public class InsertMethod : MySqlBaseAsyncFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -97,7 +98,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
         }
 
         [TestFixture]
-        public class GetMethod : MySqlBaseAsyncFixture
+        public class GetMethod : MySqlBaseAsyncFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()
@@ -137,7 +138,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
         }
 
         [TestFixture]
-        public class DeleteMethod : MySqlBaseAsyncFixture
+        public class DeleteMethod : MySqlBaseAsyncFixture, IDeleteMethod
         {
             private void PersonArrange()
             {

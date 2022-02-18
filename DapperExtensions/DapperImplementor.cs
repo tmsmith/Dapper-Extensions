@@ -538,8 +538,7 @@ namespace DapperExtensions
             var dynamicParameters = new DynamicParameters();
 
             foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => !keyColumns.Any(k => k.Name.Equals(p.Name)) && !foreignKeys.Contains(p) && !ignoredColumns.Contains(p)
-                ))
+                .Where(p => !keyColumns.Any(k => k.Name.Equals(p.Name)) && !foreignKeys.Contains(p) && !ignoredColumns.Contains(p) && p.CanWrite))
                 dynamicParameters = AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
 
             return dynamicParameters;
@@ -560,8 +559,8 @@ namespace DapperExtensions
         public DynamicParameters GetDynamicParameters<T>(T entity, DynamicParameters dynamicParameters, IMemberMap keyColumn, bool useColumnAlias = false)
         {
             dynamicParameters ??= new DynamicParameters();
-            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.Name != keyColumn.Name))
+            foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty)
+                .Where(p => p.Name != keyColumn.Name && p.CanWrite))
                 AddParameter(entity, dynamicParameters, new MemberMap(prop), useColumnAlias);
 
             return dynamicParameters;

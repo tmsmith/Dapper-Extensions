@@ -1,5 +1,6 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.Common;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -13,7 +14,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : MySqlBaseFixture
+        public class InsertMethod : MySqlBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -96,7 +97,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
         }
 
         [TestFixture]
-        public class GetMethod : MySqlBaseFixture
+        public class GetMethod : MySqlBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

@@ -26,7 +26,7 @@ namespace DapperExtensions.Test.Data.Oracle
         {
             Table("Person");
             Map(x => x.Id).Key(KeyType.TriggerIdentity);
-            Map(x => x.Phones).Ignore();
+            //Map(x => x.Phones).Ignore();
             AutoMap();
         }
     }

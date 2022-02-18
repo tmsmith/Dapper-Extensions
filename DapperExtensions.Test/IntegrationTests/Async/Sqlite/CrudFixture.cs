@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -16,7 +17,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : SqliteBaseAsyncFixture
+        public class InsertMethod : SqliteBaseAsyncFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -93,7 +94,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
         }
 
         [TestFixture]
-        public class GetMethod : SqliteBaseAsyncFixture
+        public class GetMethod : SqliteBaseAsyncFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()
@@ -127,7 +128,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
         }
 
         [TestFixture]
-        public class DeleteMethod : SqliteBaseAsyncFixture
+        public class DeleteMethod : SqliteBaseAsyncFixture, IDeleteMethod
         {
             private static void Arrange(out Person p1, out Person p2, out Person p3)
             {

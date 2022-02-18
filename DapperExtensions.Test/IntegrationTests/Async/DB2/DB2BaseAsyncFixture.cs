@@ -1,11 +1,14 @@
 ﻿#if NETCOREAPP
 using Dapper;
 using DapperExtensions.Sql;
+#if NET50
+using IBM.Data.Db2;
+#elif NET60
+using IBM.Data.Db2;
+#else
 using IBM.Data.DB2.Core;
+#endif
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace DapperExtensions.Test.IntegrationTests.Async.DB2
 {

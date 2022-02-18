@@ -30,7 +30,7 @@ namespace DapperExtensions.Test.Data.DB2
             Map(p => p.LastName).Column("LASTNAME");
             Map(p => p.DateCreated).Column("DATECREATED");
             Map(p => p.Active).Column("ACTIVE");
-            Map(p => p.Phones).Ignore();
+            //Map(p => p.Phones).Ignore();
         }
     }
 }

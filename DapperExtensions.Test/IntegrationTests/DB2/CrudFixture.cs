@@ -1,6 +1,7 @@
 ﻿#if NETCOREAPP
 using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.DB2;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -14,7 +15,7 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : DB2BaseFixture
+        public class InsertMethod : DB2BaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -61,10 +62,20 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
                 Assert.AreEqual(3, animals.Count);
                 Dispose();
             }
+
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestFixture]
-        public class GetMethod : DB2BaseFixture
+        public class GetMethod : DB2BaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

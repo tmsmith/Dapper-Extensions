@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -15,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : OracleBaseFixture
+        public class InsertMethod : OracleBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -62,10 +63,20 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual(3, animals.Count);
                 Dispose();
             }
+
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestFixture]
-        public class GetMethod : OracleBaseFixture
+        public class GetMethod : OracleBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

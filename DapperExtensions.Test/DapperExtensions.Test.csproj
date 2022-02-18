@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;net6.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 		<RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
 		<LangVersion>8.0</LangVersion>
@@ -19,7 +19,24 @@
 	<PropertyGroup Condition="'$(IsLinux)'=='true'">
 		<DefineConstants>Linux</DefineConstants>
 	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+		<DefineConstants>NETFULL</DefineConstants>
+	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'netcoreapp2.1' ">
+		<DefineConstants>NETCORE</DefineConstants>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<DefineConstants>NET50</DefineConstants>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<DefineConstants>NET60</DefineConstants>
+	</PropertyGroup>
+
+	
 	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
 	</Target>-->
@@ -42,43 +59,54 @@
 	</PropertyGroup> -->
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="3.1.0">
+		<PackageReference Include="coverlet.collector" Version="3.1.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.msbuild" Version="3.1.0">
+		<PackageReference Include="coverlet.msbuild" Version="3.1.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="FluentAssertions" Version="5.10.3" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-		<PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.10.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+		<PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.1.0" />
 		<PackageReference Include="Newtonsoft.Json" version="13.0.1" />
 		<PackageReference Include="Moq" version="4.16.1" />
-		<PackageReference Include="MySql.Data" version="8.0.24" />
+		<PackageReference Include="MySql.Data" version="8.0.28" />
 		<PackageReference Include="NUnit" Version="3.13.2" />
-		<PackageReference Include="NUnit.ConsoleRunner" Version="3.12.0" />
-		<PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-		<PackageReference Include="ReportGenerator" Version="4.8.8" />
+		<PackageReference Include="NUnit.ConsoleRunner" Version="3.15.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+		<PackageReference Include="ReportGenerator" Version="5.0.4" />
 		<PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-		<PackageReference Include="Dapper" Version="2.0.90" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+		<PackageReference Include="Dapper" Version="2.0.123" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' != 'net461'">
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-		<PackageReference Include="System.Data.SQLite.Core" version="1.0.114.3" />
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+		<PackageReference Include="System.Data.SQLite.Core" version="1.0.115.5" />
 		
 		<!--
-		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
+		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
 		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
 		<PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
 		-->
 	</ItemGroup>
 
+	<ItemGroup Condition="$(DefineConstants.Contains('NETCORE'))">
+		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(DefineConstants.Contains('NET50'))">
+		<PackageReference Include="Net5.IBM.Data.DB2" Version="5.0.0.500" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(DefineConstants.Contains('NET60'))">
+		<PackageReference Include="Net.IBM.Data.DB2" Version="5.0.0.500" />
+	</ItemGroup>
+	
 	<!--<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsWindows) == true ">
 		<PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
 	</ItemGroup>
@@ -117,8 +145,9 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
 		<PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
-		<PackageReference Include="System.Data.SQLite" version="1.0.114.3" targetFramework="net461" />
+		<PackageReference Include="System.Data.SQLite" version="1.0.115.5" targetFramework="net461" />
 		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" targetFramework="net461" />
+		<PackageReference Include="IBM.Data.DB.Provider" version="11.5.5010.4" targetFramework="net461" />		
 		<!--<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />-->
 	</ItemGroup>
 
@@ -157,7 +186,7 @@
 	</ItemGroup>-->
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<Reference Include="IBM.Data.DB2">
+		<Reference Include="IBM.Data.DB2-lnx">
 			<HintPath>..\..\..\..\..\Program Files\IBM\IBM DATA SERVER DRIVER\bin\netf40\IBM.Data.DB2.dll</HintPath>
 		</Reference>
 	</ItemGroup>-->

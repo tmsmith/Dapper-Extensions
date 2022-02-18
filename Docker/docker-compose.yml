@@ -17,11 +17,22 @@ services:
     ports:
       - 3306:3306
       - 33306:3306
+      
+  postgres:
+    image: postgres
+#    platform: linux/amd64
+#    build:
+#        context: ./db2
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: D4pp3rExt3ns1ons
+      POSTGRES_DB: dapperTest
+      POSTGRES_USER: dapperExtensions
 
   adminer:
     image: adminer
 #    platform: linux/amd64
-    depends_on: [mariadb]
+    depends_on: [mariadb, postgres]
 #    build:
 #        context: ./adminer
     restart: always

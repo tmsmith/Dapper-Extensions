@@ -1,8 +1,6 @@
 ﻿#if NETFRAMEWORK && Windows
-using Dapper;
 using DapperExtensions.Sql;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Data.SqlServerCe;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlCe

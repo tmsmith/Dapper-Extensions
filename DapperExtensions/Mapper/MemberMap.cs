@@ -61,6 +61,7 @@ namespace DapperExtensions.Mapper
             ClassMapper = classMapper;
 
             ParentProperty = parent;
+            IsReadOnly = !((PropertyInfo)memberInfo).CanWrite;
         }
         #endregion
 

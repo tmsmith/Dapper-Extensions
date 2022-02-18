@@ -5,6 +5,11 @@ echo "Forwarding port to MySql"
 netsh interface portproxy delete v4tov4 listenport="3306" # Delete any existing port 3306 forwarding
 netsh interface portproxy add v4tov4 listenport="3306" connectaddress="$wslIp" connectport="3306"
 
+# Postgres
+echo "Forwarding port to Postgres"
+netsh interface portproxy delete v4tov4 listenport="5432" # Delete any existing port 3306 forwarding
+netsh interface portproxy add v4tov4 listenport="5432" connectaddress="$wslIp" connectport="5432"
+
 # adminer
 echo "Forwarding port to MySql Adminer"
 netsh interface portproxy delete v4tov4 listenport="8080" # Delete any existing port 8080 forwarding

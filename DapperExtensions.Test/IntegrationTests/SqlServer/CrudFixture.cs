@@ -1,5 +1,6 @@
 ﻿using DapperExtensions.Predicate;
 using DapperExtensions.Test.Data.Common;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -13,7 +14,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : SqlServerBaseFixture
+        public class InsertMethod : SqlServerBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -56,10 +57,20 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
             }
+
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestFixture]
-        public class GetMethod : SqlServerBaseFixture
+        public class GetMethod : SqlServerBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

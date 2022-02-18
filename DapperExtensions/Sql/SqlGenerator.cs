@@ -71,6 +71,25 @@ namespace DapperExtensions.Sql
             }
         }
 
+        private bool IsInsertable(IMemberMap member)
+        {
+            return !(member.Ignored ||
+                member.IsReadOnly ||
+                member.KeyType == KeyType.Identity ||
+                member.KeyType == KeyType.TriggerIdentity);
+        }
+
+        private bool IsUpdatable(IMemberMap member, bool ignoreAllKeys)
+        {
+            return ignoreAllKeys ? !(member.Ignored || member.IsReadOnly) && member.KeyType == KeyType.NotAKey
+                : !(member.Ignored ||
+                member.IsReadOnly ||
+                member.KeyType == KeyType.Identity ||
+                member.KeyType == KeyType.Assigned ||
+                member.KeyType == KeyType.SequenceIdentity ||
+                member.KeyType == KeyType.TriggerIdentity);
+        }
+
         public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters, IList<IProjection> colsToSelect, IList<IReferenceMap> includedProperties = null)
         {
             if (parameters == null)
@@ -225,7 +244,7 @@ namespace DapperExtensions.Sql
             }).ToList<IColumn>();
 
             var parameters = AllColumns
-                .Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity || p.Property.KeyType == KeyType.TriggerIdentity))
+                .Where(p => IsInsertable(p.Property))
                 .Select(col => col.SimpleAlias)
                 .ToList();
 
@@ -235,7 +254,7 @@ namespace DapperExtensions.Sql
             }
 
             var columnNames = AllColumns
-                .Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity || p.Property.KeyType == KeyType.TriggerIdentity))
+                .Where(p => IsInsertable(p.Property))
                 .Select(p => GetColumnName(p, false, false)).ToList();
 
             var sql = $"INSERT INTO {GetTableName(classMap)} ({columnNames.AppendStrings()}) VALUES ({parameters.AppendStrings()})";
@@ -281,12 +300,9 @@ namespace DapperExtensions.Sql
                 Table = c.Table
             }).ToList<IColumn>();
 
-            var columns = (ignoreAllKeyProperties
-                ? AllColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly) && p.Property.KeyType == KeyType.NotAKey)
-                : AllColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity ||
-                                          p.Property.KeyType == KeyType.Assigned || p.Property.KeyType == KeyType.SequenceIdentity))).ToList();
+            var columns = AllColumns.Where(p => IsUpdatable(p.Property, ignoreAllKeyProperties));
 
-            if (columns.Count == 0)
+            if (!columns.Any())
             {
                 throw new ArgumentException("No columns were mapped.");
             }
@@ -749,8 +765,7 @@ namespace DapperExtensions.Sql
             MapTables(classMap, includedProperties);
 
             var i = 0;
-            //AllColumns = GetColumns(classMap, classMap.Identity).ToList();
-            AllColumns = GetColumns().ToList();
+            AllColumns = GetColumns().Where(p => !(p.Property.Ignored || p.Property.IsReadOnly)).ToList();
 
             AllColumns = AllColumns.Select(c => new Column
             {

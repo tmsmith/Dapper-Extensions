@@ -8,7 +8,7 @@ namespace DapperExtensions.Test.Extensions
             {
                 return value;
             }
-            
+
             string lineSeparator = ((char)0x2028).ToString();
             string paragraphSeparator = ((char)0x2029).ToString();
 

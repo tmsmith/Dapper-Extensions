@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -15,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : SqliteBaseFixture
+        public class InsertMethod : SqliteBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -92,7 +93,7 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
         }
 
         [TestFixture]
-        public class GetMethod : SqliteBaseFixture
+        public class GetMethod : SqliteBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

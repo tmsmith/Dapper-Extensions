@@ -1,5 +1,5 @@
 {
-	"MySql": "Server=localhost;Database=dapperTest;Uid=dapperExtensions;Pwd=password;",
+	"MySql": "Server=localhost;Database=dapperTest;Uid=dapperExtensions;Pwd=password;charset=utf8;pooling=false;Allow User Variables=True",
 	"SqlServer": "Data Source=localhost;Initial Catalog=dapper;Persist Security Info=True;User ID=dapperExtensions;Password=p@ssw0rd",
 	"SqlServerDBA": "Data Source=localhost;Persist Security Info=True;User ID=sa;Password=D4pp3rExt3ns1ons",
 	"DB2": "Server=localhost;Database=TESTDB;UID=db2inst1;PWD=D4pp3rExt3ns1ons;",

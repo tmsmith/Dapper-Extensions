@@ -317,6 +317,11 @@ namespace DapperExtensions
 #endif
         }
 
+        private static object GetParameterValue(object value)
+        {
+            return value is Func<object> ? (value as Func<object>).Invoke() : value;
+        }
+
         public static Parameter GetParameter(Type entityType, ISqlGenerator sqlGenerator, string propertyName, object value)
         {
             IClassMapper map = sqlGenerator.Configuration.GetMap(entityType);
@@ -337,7 +342,7 @@ namespace DapperExtensions
                 Precision = propertyMap.DbPrecision,
                 Scale = propertyMap.DbScale,
                 Size = propertyMap.DbSize,
-                Value = value is Func<object> ? (value as Func<object>).Invoke() : value,
+                Value = GetParameterValue(value),
                 Name = propertyName
             };
         }

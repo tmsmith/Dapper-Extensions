@@ -16,7 +16,7 @@ namespace DapperExtensions.Test.IntegrationTests
     [NonParallelizable]
     public abstract class DatabaseTestsFixture : IDisposable
     {
-        private readonly Dictionary<string, string> _connectionStrings = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _connectionStrings = new Dictionary<string, string>();
         private readonly string projectName = Assembly.GetCallingAssembly().GetName().Name;
         protected readonly string[] CreateTableScripts = { "CreateAnimalTable", "CreateFooTable", "CreateMultikeyTable", "CreatePersonTable", "CreateCarTable" };
 

@@ -14,7 +14,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : SqlCeBaseFixture
+        public class InsertMethod : SqlCeBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -97,7 +97,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlCe
         }
 
         [TestFixture]
-        public class GetMethod : SqlCeBaseFixture
+        public class GetMethod : SqlCeBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
+		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;net6.0;netstandard2.0;netstandard2.1;</TargetFrameworks>
 		<Version>1.7.0</Version>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<LangVersion>8.0</LangVersion>
@@ -14,6 +14,7 @@
 			<file src="bin\Release\netcoreapp2.1\$(AssemblyName).dll" target="lib\netcoreapp2.1\$(AssemblyName).dll" />
 			<file src="bin\Release\netcoreapp3.1\$(AssemblyName).dll" target="lib\netcoreapp3.1\$(AssemblyName).dll" />
 			<file src="bin\Release\net5.0\$(AssemblyName).dll" target="lib\net5.0\$(AssemblyName).dll" />
+			<file src="bin\Release\net6.0\$(AssemblyName).dll" target="lib\net6.0\$(AssemblyName).dll" />
 			<file src="bin\Release\netstandard2.0\$(AssemblyName).dll" target="lib\netstandard2.0\$(AssemblyName).dll" />
 			<file src="bin\Release\netstandard2.1\$(AssemblyName).dll" target="lib\netstandard2.1\$(AssemblyName).dll" />
 		</files>
@@ -61,7 +62,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" version="13.0.1" />
-		<PackageReference Include="Dapper" Version="2.0.90" />
+		<PackageReference Include="Dapper" Version="2.0.123" />
 		<PackageReference Include="Slapper.AutoMapper" Version="2.0.1" targetFramework="$(TargetFramework)" />
 		<PackageReference Include="System.Data.Common" Version="4.3.0" />
 	</ItemGroup>

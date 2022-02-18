@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-latest]
 #        os: [macos-latest, ubuntu-latest]
 #        os: [macos-latest, windows-latest, ubuntu-latest]
-#        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, settings: coverlet }, { framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
+#        dotnet: [{ framework: netcoreapp2.1, version: 2.1.x, settings: coverlet }, { framework: netcoreapp3.1, version: 3.1.x, settings: coverlet }, { framework: net5.0, version: 5.0.x, settings: coverlet }, { framework: net6.0, version: 6.0.x, settings: coverlet }, { framework: net461, version: 4.6.1, settings: mscoverage }]
         dotnet: [{ framework: net461, version: 4.6.1, settings: mscoverage }]
 
     steps:
@@ -77,6 +77,8 @@ jobs:
       run: |
         cd DapperExtensions.Test
         sed -i 's/"IBM.Data.DB2.Core"/"IBM.Data.DB2.Core-lnx"/gI' DapperExtensions.Test.csproj
+        sed -i 's/"Net.IBM.Data.DB2"/"Net.IBM.Data.DB2-lnx"/gI' DapperExtensions.Test.csproj
+        sed -i 's/"Net5.IBM.Data.DB2"/"Net5.IBM.Data.DB2-lnx"/gI' DapperExtensions.Test.csproj
         cd ..
 
 #    - name: Clean solution

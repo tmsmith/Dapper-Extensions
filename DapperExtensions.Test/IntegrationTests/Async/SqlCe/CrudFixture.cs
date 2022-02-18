@@ -15,7 +15,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlCe
     public static class CrudFixture
     {
         [TestFixture]
-        public class InsertMethod : SqlCeBaseFixture
+        public class InsertMethod : SqlCeBaseFixture, IInsertMethod
         {
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
@@ -98,7 +98,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlCe
         }
 
         [TestFixture]
-        public class GetMethod : SqlCeBaseFixture
+        public class GetMethod : SqlCeBaseFixture, IGetMethod
         {
             [Test]
             public void UsingKey_ReturnsEntity()
@@ -134,7 +134,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlCe
         }
 
         [TestFixture]
-        public class DeleteMethod : SqlCeBaseFixture
+        public class DeleteMethod : SqlCeBaseFixture, IDeleteMethod
         {
             private void Arrange(out Person p1, out Person p2, out Person p3)
             {
