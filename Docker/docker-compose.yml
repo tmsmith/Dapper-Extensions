@@ -28,6 +28,8 @@ services:
       POSTGRES_PASSWORD: D4pp3rExt3ns1ons
       POSTGRES_DB: dapperTest
       POSTGRES_USER: dapperExtensions
+    ports:
+      - 5432:5432
 
   adminer:
     image: adminer

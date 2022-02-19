@@ -4,8 +4,8 @@ BEGIN
 END
 
 CREATE TABLE FooTable (
-    FooId INT IDENTITY(1,1) PRIMARY KEY,
-    [First] NVARCHAR(50),
-    [Last] NVARCHAR(50),
-    BirthDate DATETIME
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    DateOfBirth DATETIME
 )

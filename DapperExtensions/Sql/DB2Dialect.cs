@@ -38,13 +38,13 @@ namespace DapperExtensions.Sql
             var selectIndex = GetSelectEnd(sql) + 1;
             var orderByClause = GetOrderByClause(sql) ?? "ORDER BY CURRENT_TIMESTAMP";
 
-            var projectedColumns = GetColumnNames(sql).Aggregate(new StringBuilder(), (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(GetColumnName("_TEMP", s, null)), sb => sb.ToString());
+            var projectedColumns = GetColumnNames(sql).Aggregate(new StringBuilder(), (sb, s) => (sb.Length == 0 ? sb : sb.Append(", ")).Append(GetColumnName("TEMP", s, null)), sb => sb.ToString());
             var newSql = sql
                 .Replace(" " + orderByClause, string.Empty)
-                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(9), GetColumnName(null, "_ROW_NUMBER", null)));
+                .Insert(selectIndex, string.Format("ROW_NUMBER() OVER(ORDER BY {0}) AS {1}, ", orderByClause.Substring(9), GetColumnName(null, "ROW_NUMBER", null)));
 
-            var result = string.Format("SELECT {0} FROM ({1}) AS \"_TEMP\" WHERE {2} BETWEEN @_pageStartRow AND @_pageEndRow",
-                projectedColumns.Trim(), newSql, GetColumnName("_TEMP", "_ROW_NUMBER", null));
+            var result = string.Format("SELECT {0} FROM ({1}) AS TEMP WHERE {2} BETWEEN @_pageStartRow AND @_pageEndRow",
+                projectedColumns.Trim(), newSql, GetColumnName("TEMP", "ROW_NUMBER", null));
 
             parameters.Add("@_pageStartRow", firstResult);
             parameters.Add("@_pageEndRow", maxResults);
@@ -110,6 +110,52 @@ namespace DapperExtensions.Sql
                 DatabaseFunction.Truncate => $"Truncate({columnName})",
                 _ => columnName,
             };
+        }
+
+        public override string GetTableName(string schemaName, string tableName, string alias)
+        {
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentNullException(nameof(tableName), $"{nameof(tableName)} cannot be null or empty.");
+            }
+
+            var result = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(schemaName))
+            {
+                result.AppendFormat(schemaName + ".");
+            }
+
+            result.AppendFormat(tableName);
+
+            if (!string.IsNullOrWhiteSpace(alias))
+            {
+                result.AppendFormat(" {0}", alias);
+            }
+            return result.ToString();
+        }
+
+        public override string GetColumnName(string prefix, string columnName, string alias)
+        {
+            if (string.IsNullOrEmpty(columnName))
+                throw new ArgumentNullException(nameof(columnName), $"{nameof(columnName)} cannot be null or empty.");
+
+            if (string.IsNullOrWhiteSpace(columnName))
+                throw new ArgumentNullException(nameof(columnName), $"{nameof(columnName)} cannot be null or empty.");
+
+            var result = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(prefix))
+            {
+                result.AppendFormat(prefix + ".");
+            }
+
+            result.AppendFormat(columnName);
+
+            if (!string.IsNullOrWhiteSpace(alias))
+            {
+                result.AppendFormat(" AS {0}", alias);
+            }
+
+            return result.ToString();
         }
 
         [ExcludeFromCodeCoverage]

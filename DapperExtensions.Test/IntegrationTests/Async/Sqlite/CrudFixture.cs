@@ -1,9 +1,11 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Test.Data.Common;
 using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
 using Animal = DapperExtensions.Test.Data.Common.Animal;
@@ -124,6 +126,36 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
+            }
+
+            [Test]
+            public void UsingDirectConnection_ReturnsEntity()
+            {
+                using (SQLiteConnection cn = new SQLiteConnection(ConnectionString))
+                {
+                    cn.Open();
+                    int personId = 1;
+                    var person = cn.Get<Person>(personId);
+                    cn.Close();
+                }
+            }
+
+            [Test]
+
+            public void UsingKey_ReturnsEntityWithRelations()
+            {
+                var f1 = new Foo { FirstName = "First", LastName = "Last", DateOfBirth = DateTime.Now };
+                long fooId = Db.Insert(f1).Result;
+
+                var b1 = new Bar { FooId = fooId, Name = $"Bar1_For_{f1.FullName}" };
+                Db.Insert(b1);
+
+                var f2 = Db.Get<Foo>(fooId, includedReferences: new List<Type> { typeof(Bar) }).Result;
+
+                Assert.AreEqual(fooId, f2.Id);
+                Assert.AreEqual("First", f2.FirstName);
+                Assert.AreEqual("Last", f2.LastName);
+                Assert.AreEqual(1, f2.BarList.Count);
             }
         }
 

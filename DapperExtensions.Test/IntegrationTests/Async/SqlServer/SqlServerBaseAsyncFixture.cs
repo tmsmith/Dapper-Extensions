@@ -11,19 +11,20 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
         [ExcludeFromCodeCoverage]
         private SqlConnection SetupDatabase()
         {
-            var connection = new SqlConnection(ConnectionString("SqlServerDBA"));
+            var connection = new SqlConnection(GetConnectionString("SqlServerDBA"));
 
             ExecuteScripts(connection, true, "Setup");
 
             connection.Close();
 
-            return new SqlConnection(ConnectionString("SqlServer"));
+            return new SqlConnection(GetConnectionString("SqlServer"));
         }
 
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new SqlConnection(ConnectionString("SqlServer"));
+            ConnectionString = GetConnectionString("SqlServer");
+            var connection = new SqlConnection(ConnectionString);
 
             try
             {

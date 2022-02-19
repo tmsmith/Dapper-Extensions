@@ -13,19 +13,20 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
         [ExcludeFromCodeCoverage]
         private OracleConnection SetupDatabase()
         {
-            var connection = new OracleConnection(ConnectionString("OracleDBA"));
+            var connection = new OracleConnection(GetConnectionString("OracleDBA"));
 
             ExecuteScripts(connection, true, "Setup");
 
             connection.Close();
 
-            return new OracleConnection(ConnectionString("Oracle"));
+            return new OracleConnection(GetConnectionString("Oracle"));
         }
 
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new OracleConnection(ConnectionString("Oracle"));
+            ConnectionString = GetConnectionString("Oracle");
+            var connection = new OracleConnection(ConnectionString);
 
             try
             {

@@ -1,13 +1,13 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Sql;
+using DapperExtensions.Test.Data.Oracle;
 using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Animal = DapperExtensions.Test.Data.Oracle.Animal;
-using Multikey = DapperExtensions.Test.Data.Oracle.Multikey;
-using Person = DapperExtensions.Test.Data.Oracle.Person;
 
 namespace DapperExtensions.Test.IntegrationTests.Oracle
 {
@@ -64,11 +64,13 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Dispose();
             }
 
+            [Test]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
             }
 
+            [Test]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
@@ -108,6 +110,37 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
                 Dispose();
+            }
+
+            [Test]
+            public void UsingDirectConnection_ReturnsEntity()
+            {
+                using (OracleConnection cn = new OracleConnection(ConnectionString))
+                {
+                    cn.Open();
+                    int personId = 1;
+                    DapperExtensions.SqlDialect = new OracleDialect();
+                    var person = cn.Get<Person>(personId);
+                    cn.Close();
+                }
+            }
+
+            [Test]
+
+            public void UsingKey_ReturnsEntityWithRelations()
+            {
+                var f1 = new Foo { FirstName = "First", LastName = "Last", DateOfBirth = DateTime.Now };
+                long fooId = Db.Insert(f1);
+
+                var b1 = new Bar { FooId = fooId, Name = $"Bar1_For_{f1.FullName}" };
+                Db.Insert(b1);
+
+                var f2 = Db.Get<Foo>(fooId, includedReferences: new List<Type> { typeof(Bar) });
+
+                Assert.AreEqual(fooId, f2.Id);
+                Assert.AreEqual("First", f2.FirstName);
+                Assert.AreEqual("Last", f2.LastName);
+                Assert.AreEqual(1, f2.BarList.Count);
             }
         }
 

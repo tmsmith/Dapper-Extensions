@@ -1,0 +1,23 @@
+﻿BEGIN
+  FOR cur IN (SELECT table_name FROM USER_TABLES WHERE table_name = 'BAR') LOOP
+    EXECUTE IMMEDIATE 'DROP TABLE BAR CASCADE CONSTRAINTS';
+  END LOOP;
+
+  FOR cur IN (SELECT sequence_name FROM USER_SEQUENCES WHERE sequence_name = 'BAR_SEQ') LOOP
+    EXECUTE IMMEDIATE 'DROP SEQUENCE BAR_SEQ';
+  END LOOP;
+
+  EXECUTE IMMEDIATE 'CREATE SEQUENCE BAR_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE';
+
+  EXECUTE IMMEDIATE 'CREATE TABLE BAR (
+                       BarId NUMBER PRIMARY KEY,
+                       FooId NUMBER,
+                       BarName VARCHAR2(50))';
+
+  EXECUTE IMMEDIATE 'CREATE or REPLACE TRIGGER trg#BAR#b_ins
+                     BEFORE INSERT ON BAR FOR EACH ROW
+                     BEGIN
+                       SELECT BAR_SEQ.nextval INTO :NEW.BarId  FROM dual;
+                     END;';
+END;
+

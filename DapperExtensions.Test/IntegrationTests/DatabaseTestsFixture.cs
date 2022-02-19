@@ -18,7 +18,7 @@ namespace DapperExtensions.Test.IntegrationTests
     {
         private static readonly Dictionary<string, string> _connectionStrings = new Dictionary<string, string>();
         private readonly string projectName = Assembly.GetCallingAssembly().GetName().Name;
-        protected readonly string[] CreateTableScripts = { "CreateAnimalTable", "CreateFooTable", "CreateMultikeyTable", "CreatePersonTable", "CreateCarTable" };
+        protected readonly string[] CreateTableScripts = { "CreateAnimalTable", "CreateFooTable", "CreateMultikeyTable", "CreatePersonTable", "CreateCarTable", "CreateBarTable" };
 
         protected DatabaseTestsFixture(string configPath = null)
         {
@@ -27,11 +27,15 @@ namespace DapperExtensions.Test.IntegrationTests
 
         public virtual IDatabase Db { get; private set; }
 
+        public virtual IDbConnection Connection => Db?.Connection;
+
+        public virtual string ConnectionString { get; protected set; }
+
         public string ProjectPath { get; }
 
-        protected SqlDialectBase Dialect { get; private set; }
+        protected SqlDialectBase Dialect { get; set; }
 
-        protected virtual string ConnectionString(string connectionName)
+        protected virtual string GetConnectionString(string connectionName)
         {
             lock (_connectionStrings)
             {

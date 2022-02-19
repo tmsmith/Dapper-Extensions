@@ -1,10 +1,12 @@
 ﻿using DapperExtensions.Predicate;
+using DapperExtensions.Sql;
 using DapperExtensions.Test.Data.Common;
 using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace DapperExtensions.Test.IntegrationTests.SqlServer
@@ -19,7 +21,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             [Test]
             public void AddsEntityToDatabase_ReturnsKey()
             {
-                Person p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+                var p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
                 var id = Db.Insert(p);
                 Assert.AreEqual(1, id);
                 Assert.AreEqual(1, p.Id);
@@ -28,7 +30,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             [Test]
             public void AddsEntityToDatabase_ReturnsCompositeKey()
             {
-                Multikey m = new Multikey { Key2 = "key", Value = "foo" };
+                var m = new Multikey { Key2 = "key", Value = "foo" };
                 var key = Db.Insert(m);
                 Assert.AreEqual(1, key.Key1);
                 Assert.AreEqual("key", key.Key2);
@@ -37,7 +39,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             [Test]
             public void AddsEntityToDatabase_ReturnsGeneratedPrimaryKey()
             {
-                Animal a1 = new Animal { Name = "Foo" };
+                var a1 = new Animal { Name = "Foo" };
                 Db.Insert(a1);
 
                 var a2 = Db.Get<Animal>(a1.Id);
@@ -48,24 +50,45 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             [Test]
             public void AddsMultipleEntitiesToDatabase()
             {
-                Animal a1 = new Animal { Name = "Foo" };
-                Animal a2 = new Animal { Name = "Bar" };
-                Animal a3 = new Animal { Name = "Baz" };
+                var f1 = new Foo { FirstName = "First1", LastName = "Last1", DateOfBirth = DateTime.Now };
+                var f2 = new Foo { FirstName = "First2", LastName = "Last2", DateOfBirth = DateTime.Now };
+                var f3 = new Foo { FirstName = "First3", LastName = "Last3", DateOfBirth = DateTime.Now };
+
+                Db.Insert<Foo>(new[] { f1, f2, f3 });
+
+                var foos = Db.GetList<Foo>().ToList();
+                Assert.AreEqual(3, foos.Count);
+            }
+
+            [Test]
+            public void AddsEntityToDatabase_WithPassedInGuid()
+            {
+                var guid = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid, Name = "Foo" };
+                Db.Insert(a1);
+
+                var a2 = Db.Get<Animal>(a1.Id);
+                Assert.AreNotEqual(Guid.Empty, a2.Id);
+                Assert.AreEqual(guid, a2.Id);
+            }
+
+            [Test]
+            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
+            {
+                var guid1 = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid1, Name = "Foo" };
+                var guid2 = Guid.NewGuid();
+                Animal a2 = new Animal { Id = guid2, Name = "Bar" };
+                var guid3 = Guid.NewGuid();
+                Animal a3 = new Animal { Id = guid3, Name = "Baz" };
 
                 Db.Insert<Animal>(new[] { a1, a2, a3 });
 
                 var animals = Db.GetList<Animal>().ToList();
                 Assert.AreEqual(3, animals.Count);
-            }
-
-            public void AddsEntityToDatabase_WithPassedInGuid()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
-            {
-                throw new NotImplementedException();
+                Assert.IsNotNull(animals.Find(x => x.Id == guid1));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid2));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid3));
             }
         }
 
@@ -75,7 +98,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
             [Test]
             public void UsingKey_ReturnsEntity()
             {
-                Person p1 = new Person
+                var p1 = new Person
                 {
                     Active = true,
                     FirstName = "Foo",
@@ -84,7 +107,7 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
                 };
                 var id = Db.Insert(p1);
 
-                Person p2 = Db.Get<Person>(id);
+                var p2 = Db.Get<Person>(id);
                 Assert.AreEqual(id, p2.Id);
                 Assert.AreEqual("Foo", p2.FirstName);
                 Assert.AreEqual("Bar", p2.LastName);
@@ -100,6 +123,38 @@ namespace DapperExtensions.Test.IntegrationTests.SqlServer
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
+            }
+
+            [Test]
+
+            public void UsingDirectConnection_ReturnsEntity()
+            {
+                using (SqlConnection cn = new SqlConnection(ConnectionString))
+                {
+                    cn.Open();
+                    int personId = 1;
+                    DapperExtensions.SqlDialect = new SqlServerDialect();
+                    var person = cn.Get<Person>(personId);
+                    cn.Close();
+                }
+            }
+
+            [Test]
+
+            public void UsingKey_ReturnsEntityWithRelations()
+            {
+                var f1 = new Foo { FirstName = "First", LastName = "Last", DateOfBirth = DateTime.Now };
+                var fooId = Db.Insert(f1);
+
+                var b1 = new Bar { FooId = fooId, Name = $"Bar1_For_{f1.FullName}" };
+                Db.Insert(b1);
+
+                Foo f2 = Db.Get<Foo>(fooId, includedReferences: new List<Type> { typeof(Bar) });
+
+                Assert.AreEqual(fooId, f2.Id);
+                Assert.AreEqual("First", f2.FirstName);
+                Assert.AreEqual("Last", f2.LastName);
+                Assert.AreEqual(1, f2.BarList.Count);
             }
         }
 

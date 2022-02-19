@@ -2,13 +2,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace DapperExtensions.Test.Data.Common
+namespace DapperExtensions.Test.Data.Oracle
 {
     public class CustomMapper : PluralizedAutoClassMapper<Foo>
     {
         public CustomMapper() : base()
         {
             TableName = "FooTable";
+            Map(f => f.Id).Column("Id").Key(KeyType.TriggerIdentity);
+            //Map(f => f.DateOfBirth).Column("BirthDate");
+            //Map(f => f.FirstName).Column("First");
+            //Map(f => f.LastName).Column("Last");
+            //Map(f => f.FullName).Ignore();
 
             Map(f => f.BarList).Ignore();
 
@@ -21,7 +26,8 @@ namespace DapperExtensions.Test.Data.Common
         public CustomBarMapper() : base()
         {
             TableName = "Bar";
-            Map(f => f.Id).Column("BarId").Key(KeyType.Identity);
+            Map(f => f.Id).Column("BarId").Key(KeyType.TriggerIdentity);
+            //Map(f => f.FooId).Column("FooId");
             Map(f => f.Name).Column("BarName");
         }
     }

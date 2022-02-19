@@ -184,7 +184,7 @@ namespace DapperExtensions.Sql
                 result.AppendFormat(prefix + ".");
             }
 
-            result.AppendFormat(columnName);
+            result.Append(columnName);
 
             if (!string.IsNullOrWhiteSpace(alias))
             {

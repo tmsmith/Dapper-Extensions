@@ -175,14 +175,7 @@ namespace DapperExtensions.Mapper
             var result = new MemberMap(propertyInfo, this, parent: parent);
             if (GuardForDuplicatePropertyMap(result))
             {
-                if (propertyInfo.PropertyType.IsClass)
-                {
-                    result = (MemberMap)Properties.FirstOrDefault(p => p.Name.Equals(result.Name) && p.ParentProperty == result.ParentProperty);
-                }
-                else
-                {
-                    throw new ApplicationException("Unable to UnMap because mapping does not exist.");
-                }
+                result = (MemberMap)Properties.FirstOrDefault(p => p.Name.Equals(result.Name) && p.ParentProperty == result.ParentProperty);
             }
             else
             {

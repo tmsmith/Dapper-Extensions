@@ -13,7 +13,7 @@ namespace DapperExtensions.Test.IntegrationTests
 
         protected string ProcessedConnectionString(string connectionName)
         {
-            return PortableDatabaseHelper.ProcessConnectionString(ConnectionString(connectionName), ProjectPath);
+            return PortableDatabaseHelper.ProcessConnectionString(GetConnectionString(connectionName), ProjectPath);
         }
 
         [TearDown]

@@ -4,6 +4,7 @@ using DapperExtensions.Sql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DapperExtensions
@@ -22,8 +23,8 @@ namespace DapperExtensions
 
     public interface IDatabase : IBaseDatabase
     {
-        T Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout = null) where T : class;
-        T Get<T>(dynamic id, int? commandTimeout = null) where T : class;
+        T Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout = null, IList<Type> includedReferences = null) where T : class;
+        T Get<T>(dynamic id, int? commandTimeout = null, IList<Type> includedReferences = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, int? commandTimeout = null) where T : class;
         dynamic Insert<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -34,10 +35,10 @@ namespace DapperExtensions
         bool Delete<T>(T entity, int? commandTimeout = null) where T : class;
         bool Delete<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         bool Delete<T>(object predicate, int? commandTimeout = null) where T : class;
-        IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
-        IEnumerable<T> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true) where T : class;
-        IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
-        IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true) where T : class;
+        IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        IEnumerable<T> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
         IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class;
         int Count<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -52,8 +53,8 @@ namespace DapperExtensions
 
     public interface IAsyncDatabase : IBaseDatabase
     {
-        Task<T> Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout = null) where T : class;
-        Task<T> Get<T>(dynamic id, int? commandTimeout = null) where T : class;
+        Task<T> Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout = null, IList<Type> includedReferences = null) where T : class;
+        Task<T> Get<T>(dynamic id, int? commandTimeout = null, IList<Type> includedReferences = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         void Insert<T>(IEnumerable<T> entities, int? commandTimeout = null) where T : class;
         Task<dynamic> Insert<T>(T entity, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -64,10 +65,10 @@ namespace DapperExtensions
         Task<bool> Delete<T>(T entity, int? commandTimeout = null) where T : class;
         Task<bool> Delete<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
         Task<bool> Delete<T>(object predicate, int? commandTimeout = null) where T : class;
-        Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
-        Task<IEnumerable<T>> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true) where T : class;
-        Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true) where T : class;
-        Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true) where T : class;
+        Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        Task<IEnumerable<T>> GetList<T>(object predicate = null, IList<ISort> sort = null, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
+        Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout = null, bool buffered = true, IList<Type> includedReferences = null) where T : class;
         Task<IEnumerable<T>> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class;
         Task<IEnumerable<T>> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, int? commandTimeout, bool buffered) where T : class;
         Task<int> Count<T>(object predicate, IDbTransaction transaction, int? commandTimeout = null) where T : class;
@@ -188,6 +189,27 @@ namespace DapperExtensions
         {
             dapper.SqlGenerator.Configuration.ClearCache();
         }
+
+        protected virtual IList<IReferenceMap> GetReferenceMaps<T>(IList<Type> referncesToInclude)
+        {
+            if (referncesToInclude != null)
+            {
+                var mapper = typeof(T).GetMap();
+                var resultingReferences = new List<IReferenceMap>();
+
+                foreach (var t in referncesToInclude)
+                {
+                    var addReference = mapper.References.FirstOrDefault(r => r.EntityType.Equals(t));
+
+                    if (addReference != null)
+                        resultingReferences.Add(addReference);
+                }
+
+                return resultingReferences;
+            }
+            else
+                return null;
+        }
     }
 
     public class Database : BaseDatabase, IDatabase
@@ -199,14 +221,14 @@ namespace DapperExtensions
             _dapper = new DapperImplementor(sqlGenerator);
         }
 
-        public virtual T Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
+        public virtual T Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout, IList<Type> includedReferences = null) where T : class
         {
-            return (T)_dapper.Get<T>(Connection, id, transaction, commandTimeout);
+            return (T)_dapper.Get<T>(Connection, id, transaction, commandTimeout, GetReferenceMaps<T>(includedReferences));
         }
 
-        public virtual T Get<T>(dynamic id, int? commandTimeout) where T : class
+        public virtual T Get<T>(dynamic id, int? commandTimeout, IList<Type> includedReferences = null) where T : class
         {
-            return (T)_dapper.Get<T>(Connection, id, _transaction, commandTimeout);
+            return (T)_dapper.Get<T>(Connection, id, _transaction, commandTimeout, GetReferenceMaps<T>(includedReferences));
         }
 
         public virtual void Insert<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
@@ -259,24 +281,24 @@ namespace DapperExtensions
             return _dapper.Delete<T>(Connection, predicate, _transaction, commandTimeout);
         }
 
-        public virtual IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        public virtual IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return _dapper.GetList<T>(Connection, predicate, sort, transaction, commandTimeout, buffered);
+            return _dapper.GetList<T>(Connection, predicate, sort, transaction, commandTimeout, buffered, GetReferenceMaps<T>(includedReferences));
         }
 
-        public virtual IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, int? commandTimeout, bool buffered) where T : class
+        public virtual IEnumerable<T> GetList<T>(object predicate, IList<ISort> sort, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return _dapper.GetList<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered);
+            return _dapper.GetList<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered, GetReferenceMaps<T>(includedReferences));
         }
 
-        public virtual IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        public virtual IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return _dapper.GetPage<T>(Connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
+            return _dapper.GetPage<T>(Connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, GetReferenceMaps<T>(includedReferences));
         }
 
-        public virtual IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout, bool buffered) where T : class
+        public virtual IEnumerable<T> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return _dapper.GetPage<T>(Connection, predicate, sort, page, resultsPerPage, _transaction, commandTimeout, buffered);
+            return _dapper.GetPage<T>(Connection, predicate, sort, page, resultsPerPage, _transaction, commandTimeout, buffered, GetReferenceMaps<T>(includedReferences));
         }
 
         public virtual IEnumerable<T> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
@@ -334,14 +356,14 @@ namespace DapperExtensions
             _dapper = new DapperAsyncImplementor(sqlGenerator);
         }
 
-        public async virtual Task<T> Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout) where T : class
+        public async virtual Task<T> Get<T>(dynamic id, IDbTransaction transaction, int? commandTimeout, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetAsync<T>(Connection, id, transaction, commandTimeout);
+            return await _dapper.GetAsync<T>(Connection, id, transaction, commandTimeout, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
-        public async virtual Task<T> Get<T>(dynamic id, int? commandTimeout) where T : class
+        public async virtual Task<T> Get<T>(dynamic id, int? commandTimeout, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetAsync<T>(Connection, id, _transaction, commandTimeout);
+            return await _dapper.GetAsync<T>(Connection, id, _transaction, commandTimeout, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
         public async virtual void Insert<T>(IEnumerable<T> entities, IDbTransaction transaction, int? commandTimeout) where T : class
@@ -394,24 +416,24 @@ namespace DapperExtensions
             return await _dapper.DeleteAsync<T>(Connection, predicate, _transaction, commandTimeout);
         }
 
-        public async virtual Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        public async virtual Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetListAsync<T>(Connection, predicate, sort, transaction, commandTimeout, buffered);
+            return await _dapper.GetListAsync<T>(Connection, predicate, sort, transaction, commandTimeout, buffered, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
-        public async virtual Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, int? commandTimeout, bool buffered) where T : class
+        public async virtual Task<IEnumerable<T>> GetList<T>(object predicate, IList<ISort> sort, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetListAsync<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered);
+            return await _dapper.GetListAsync<T>(Connection, predicate, sort, _transaction, commandTimeout, buffered, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
-        public async virtual Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class
+        public async virtual Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, IDbTransaction transaction, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetPageAsync<T>(Connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered);
+            return await _dapper.GetPageAsync<T>(Connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
-        public async virtual Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout, bool buffered) where T : class
+        public async virtual Task<IEnumerable<T>> GetPage<T>(object predicate, IList<ISort> sort, int page, int resultsPerPage, int? commandTimeout, bool buffered, IList<Type> includedReferences = null) where T : class
         {
-            return await _dapper.GetPageAsync<T>(Connection, predicate, sort, page, resultsPerPage, _transaction, commandTimeout, buffered);
+            return await _dapper.GetPageAsync<T>(Connection, predicate, sort, page, resultsPerPage, _transaction, commandTimeout, buffered, includedProperties: GetReferenceMaps<T>(includedReferences));
         }
 
         public async virtual Task<IEnumerable<T>> GetSet<T>(object predicate, IList<ISort> sort, int firstResult, int maxResults, IDbTransaction transaction, int? commandTimeout, bool buffered) where T : class

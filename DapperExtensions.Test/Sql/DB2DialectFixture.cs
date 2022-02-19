@@ -87,8 +87,8 @@ namespace DapperExtensions.Test.Sql
             public void Select_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = "SELECT \"_TEMP\".\"COLUMN\" FROM (SELECT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS \"_ROW_NUMBER\", \"COLUMN\" FROM \"SCHEMA\".\"TABLE\") AS \"_TEMP\" WHERE \"_TEMP\".\"_ROW_NUMBER\" BETWEEN @_pageStartRow AND @_pageEndRow";
-                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "");
+                const string sql = "SELECT TEMP.COLUMN FROM (SELECT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS ROW_NUMBER, COLUMN FROM SCHEMA.TABLE) AS TEMP WHERE TEMP.ROW_NUMBER BETWEEN @_pageStartRow AND @_pageEndRow";
+                var result = Dialect.GetPagingSql("SELECT COLUMN FROM SCHEMA.TABLE", 1, 10, parameters, "");
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(parameters["@_pageStartRow"], 1);
@@ -99,8 +99,8 @@ namespace DapperExtensions.Test.Sql
             public void SelectDistinct_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = "SELECT \"_TEMP\".\"COLUMN\" FROM (SELECT DISTINCT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS \"_ROW_NUMBER\", \"COLUMN\" FROM \"SCHEMA\".\"TABLE\") AS \"_TEMP\" WHERE \"_TEMP\".\"_ROW_NUMBER\" BETWEEN @_pageStartRow AND @_pageEndRow";
-                var result = Dialect.GetPagingSql("SELECT DISTINCT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\"", 1, 10, parameters, "");
+                const string sql = "SELECT TEMP.COLUMN FROM (SELECT DISTINCT ROW_NUMBER() OVER(ORDER BY CURRENT_TIMESTAMP) AS ROW_NUMBER, COLUMN FROM SCHEMA.TABLE) AS TEMP WHERE TEMP.ROW_NUMBER BETWEEN @_pageStartRow AND @_pageEndRow";
+                var result = Dialect.GetPagingSql("SELECT DISTINCT COLUMN FROM SCHEMA.TABLE", 1, 10, parameters, "");
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(parameters["@_pageStartRow"], 1);
@@ -111,8 +111,8 @@ namespace DapperExtensions.Test.Sql
             public void SelectOrderBy_ReturnsSql()
             {
                 var parameters = new Dictionary<string, object>();
-                const string sql = "SELECT \"_TEMP\".\"COLUMN\" FROM (SELECT ROW_NUMBER() OVER(ORDER BY \"COLUMN\" DESC) AS \"_ROW_NUMBER\", \"COLUMN\" FROM \"SCHEMA\".\"TABLE\") AS \"_TEMP\" WHERE \"_TEMP\".\"_ROW_NUMBER\" BETWEEN @_pageStartRow AND @_pageEndRow";
-                var result = Dialect.GetPagingSql("SELECT \"COLUMN\" FROM \"SCHEMA\".\"TABLE\" ORDER BY \"COLUMN\" DESC", 1, 10, parameters, "");
+                const string sql = "SELECT TEMP.COLUMN FROM (SELECT ROW_NUMBER() OVER(ORDER BY COLUMN DESC) AS ROW_NUMBER, COLUMN FROM SCHEMA.TABLE) AS TEMP WHERE TEMP.ROW_NUMBER BETWEEN @_pageStartRow AND @_pageEndRow";
+                var result = Dialect.GetPagingSql("SELECT COLUMN FROM SCHEMA.TABLE ORDER BY COLUMN DESC", 1, 10, parameters, "");
                 Assert.AreEqual(sql, result);
                 Assert.AreEqual(2, parameters.Count);
                 Assert.AreEqual(parameters["@_pageStartRow"], 1);

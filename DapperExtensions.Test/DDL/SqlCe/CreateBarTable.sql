@@ -1,0 +1,5 @@
+﻿CREATE TABLE Bar (
+    BarId INT IDENTITY(1,1) PRIMARY KEY,
+    FooId INT,
+    BarName NVARCHAR(50)
+)

@@ -10,7 +10,8 @@ namespace DapperExtensions.Test.IntegrationTests.Sqlite
         [SetUp]
         public virtual void Setup()
         {
-            SQLiteConnection connection = new SQLiteConnection(ProcessedConnectionString("Sqlite"));
+            ConnectionString = ProcessedConnectionString("Sqlite");
+            var connection = new SQLiteConnection(ConnectionString);
 
             CommonSetup(connection, new SqliteDialect());
 

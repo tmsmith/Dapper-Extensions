@@ -19,11 +19,12 @@ namespace DapperExtensions.Test.IntegrationTests.DB2
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new DB2Connection(ConnectionString("DB2"));
+            ConnectionString = GetConnectionString("DB2");
+            var connection = new DB2Connection(ConnectionString);
 
             CommonSetup(connection, new DB2Dialect());
 
-            ExecuteScripts(Db.Connection, false, "DropAnimalTable", "DropFooTable", "DropMultikeyTable", "DropPersonTable", "DropCarTable");
+            ExecuteScripts(Db.Connection, false, "DropAnimalTable", "DropFooTable", "DropMultikeyTable", "DropPersonTable", "DropCarTable", "DropBarTable");
             ExecuteScripts(Db.Connection, true, CreateTableScripts);
         }
     }

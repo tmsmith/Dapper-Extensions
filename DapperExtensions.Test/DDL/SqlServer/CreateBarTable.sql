@@ -1,0 +1,10 @@
+﻿IF (OBJECT_ID('Bar') IS NOT NULL)
+BEGIN
+    DROP TABLE Bar
+END
+
+CREATE TABLE Bar (
+    BarId INT IDENTITY(1,1) PRIMARY KEY,
+    FooId INT,
+    BarName NVARCHAR(50)
+)

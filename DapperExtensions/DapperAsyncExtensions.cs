@@ -49,7 +49,7 @@ namespace DapperExtensions
 
             set
             {
-                Configure(_configuration.DefaultMapper, _configuration.MappingAssemblies, value);
+                Configure(DefaultMapper, _configuration.MappingAssemblies, value);
             }
         }
 

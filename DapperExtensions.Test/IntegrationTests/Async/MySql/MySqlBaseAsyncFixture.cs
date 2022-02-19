@@ -10,7 +10,8 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
         [SetUp]
         public virtual void Setup()
         {
-            var connection = new MySqlConnection(ConnectionString("MySql"));
+            ConnectionString = GetConnectionString("MySql");
+            var connection = new MySqlConnection(ConnectionString);
 
             CommonSetup(connection, new MySqlDialect());
 

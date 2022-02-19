@@ -5,6 +5,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -59,14 +60,35 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 Assert.AreEqual(3, animals.Count);
             }
 
+            [Test]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
-                throw new NotImplementedException();
+                var guid = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid, Name = "Foo" };
+                Db.Insert(a1);
+
+                var a2 = Db.Get<Animal>(a1.Id).Result;
+                Assert.AreNotEqual(Guid.Empty, a2.Id);
+                Assert.AreEqual(guid, a2.Id);
             }
 
+            [Test]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
-                throw new NotImplementedException();
+                var guid1 = Guid.NewGuid();
+                Animal a1 = new Animal { Id = guid1, Name = "Foo" };
+                var guid2 = Guid.NewGuid();
+                Animal a2 = new Animal { Id = guid2, Name = "Bar" };
+                var guid3 = Guid.NewGuid();
+                Animal a3 = new Animal { Id = guid3, Name = "Baz" };
+
+                Db.Insert<Animal>(new[] { a1, a2, a3 });
+
+                var animals = Db.GetList<Animal>().Result.ToList();
+                Assert.AreEqual(3, animals.Count);
+                Assert.IsNotNull(animals.Find(x => x.Id == guid1));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid2));
+                Assert.IsNotNull(animals.Find(x => x.Id == guid3));
             }
         }
 
@@ -101,6 +123,36 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 Assert.AreEqual(1, m2.Key1);
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
+            }
+
+            [Test]
+            public void UsingDirectConnection_ReturnsEntity()
+            {
+                using (SqlConnection cn = new SqlConnection(ConnectionString))
+                {
+                    cn.Open();
+                    int personId = 1;
+                    var person = cn.Get<Person>(personId);
+                    cn.Close();
+                }
+            }
+
+            [Test]
+
+            public void UsingKey_ReturnsEntityWithRelations()
+            {
+                var f1 = new Foo { FirstName = "First", LastName = "Last", DateOfBirth = DateTime.Now };
+                long fooId = Db.Insert(f1).Result;
+
+                var b1 = new Bar { FooId = fooId, Name = $"Bar1_For_{f1.FullName}" };
+                Db.Insert(b1);
+
+                var f2 = Db.Get<Foo>(fooId, includedReferences: new List<Type> { typeof(Bar) }).Result;
+
+                Assert.AreEqual(fooId, f2.Id);
+                Assert.AreEqual("First", f2.FirstName);
+                Assert.AreEqual("Last", f2.LastName);
+                Assert.AreEqual(1, f2.BarList.Count);
             }
         }
 

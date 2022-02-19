@@ -2,6 +2,7 @@
 using DapperExtensions.Test.Data.Common;
 using DapperExtensions.Test.IntegrationTests.Interfaces;
 using FluentAssertions;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -134,6 +135,37 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 Assert.AreEqual("key", m2.Key2);
                 Assert.AreEqual("bar", m2.Value);
                 Dispose();
+            }
+
+            [Test]
+
+            public void UsingDirectConnection_ReturnsEntity()
+            {
+                using (MySqlConnection cn = new MySqlConnection(ConnectionString))
+                {
+                    cn.Open();
+                    int personId = 1;
+                    var person = cn.Get<Person>(personId);
+                    cn.Close();
+                }
+            }
+
+            [Test]
+
+            public void UsingKey_ReturnsEntityWithRelations()
+            {
+                var f1 = new Foo { FirstName = "First", LastName = "Last", DateOfBirth = DateTime.Now };
+                long fooId = Db.Insert(f1).Result;
+
+                var b1 = new Bar { FooId = fooId, Name = $"Bar1_For_{f1.FullName}" };
+                Db.Insert(b1);
+
+                var f2 = Db.Get<Foo>(fooId, includedReferences: new List<Type> { typeof(Bar) }).Result;
+
+                Assert.AreEqual(fooId, f2.Id);
+                Assert.AreEqual("First", f2.FirstName);
+                Assert.AreEqual("Last", f2.LastName);
+                Assert.AreEqual(1, f2.BarList.Count);
             }
         }
 

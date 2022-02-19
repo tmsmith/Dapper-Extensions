@@ -1,0 +1,5 @@
+﻿CREATE TABLE Bar (
+    BarId INTEGER PRIMARY KEY AUTOINCREMENT,  -- In SQLITE3, this is the alias for ROWID
+    FooId INTEGER,
+    BarName NVARCHAR(50)
+)

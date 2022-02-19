@@ -1,4 +1,5 @@
 ﻿using DapperExtensions.Mapper;
+using DapperExtensions.Test.Data.Common;
 using NUnit.Framework;
 using System;
 
@@ -121,8 +122,8 @@ namespace DapperExtensions.Test.Mapper
             }
         }
 
-        private class Foo
-        {
-        }
+        //private class Foo
+        //{
+        //}
     }
 }

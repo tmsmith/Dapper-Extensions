@@ -100,10 +100,11 @@ namespace DapperExtensions
         /// <param name="defaultMapper"></param>
         /// <param name="mappingAssemblies"></param>
         /// <param name="sqlDialect"></param>
-        public static void Configure(IDapperExtensionsConfiguration configuration)
+        public static IDapperExtensionsConfiguration Configure(IDapperExtensionsConfiguration configuration)
         {
             _instance = null;
             _configuration = configuration;
+            return _configuration;
         }
 
         static DapperExtensions()
