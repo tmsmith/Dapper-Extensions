@@ -67,32 +67,13 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Oracle
             [Test]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
-                var guid = Guid.NewGuid();
-                var a1 = new Animal { Id = guid, Name = "Foo" };
-                Db.Insert(a1);
-
-                Animal a2 = Db.Get<Animal>(a1.Id).Result;
-                Assert.AreNotEqual(Guid.Empty, a2.Id);
-                Assert.AreEqual(guid, a2.Id);
+                throw new NotImplementedException();
             }
 
             [Test]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
-                var guid1 = Guid.NewGuid();
-                Animal a1 = new Animal { Id = guid1, Name = "Foo" };
-                var guid2 = Guid.NewGuid();
-                Animal a2 = new Animal { Id = guid2, Name = "Bar" };
-                var guid3 = Guid.NewGuid();
-                Animal a3 = new Animal { Id = guid3, Name = "Baz" };
-
-                Db.Insert<Animal>(new[] { a1, a2, a3 });
-
-                var animals = Db.GetList<Animal>().Result.ToList();
-                Assert.AreEqual(3, animals.Count);
-                Assert.IsNotNull(animals.Find(x => x.Id == guid1));
-                Assert.IsNotNull(animals.Find(x => x.Id == guid2));
-                Assert.IsNotNull(animals.Find(x => x.Id == guid3));
+                throw new NotImplementedException();
             }
         }
 

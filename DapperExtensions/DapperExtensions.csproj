@@ -27,6 +27,9 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/tmsmith/Dapper-Extensions.git</RepositoryUrl>
 		<PackageReleaseNotes>
+			1.7.1
+			* Bug Fixes
+			* - Issues #289, #290
 			1.7.0
 			* Removed DNXCore
 			* Migrate project to Visual Studio 2019

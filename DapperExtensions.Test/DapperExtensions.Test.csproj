@@ -1,220 +1,220 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;net6.0</TargetFrameworks>
-		<IsPackable>false</IsPackable>
-		<RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-		<LangVersion>8.0</LangVersion>
-		<IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
-		<IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
-		<IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net461;net5.0;net6.0</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+        <LangVersion>8.0</LangVersion>
+        <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+        <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(IsWindows)'=='true'">
-		<DefineConstants>Windows</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(IsOSX)'=='true'">
-		<DefineConstants>OSX</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(IsLinux)'=='true'">
-		<DefineConstants>Linux</DefineConstants>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
-		<DefineConstants>NETFULL</DefineConstants>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(IsWindows)'=='true'">
+        <DefineConstants>Windows</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsOSX)'=='true'">
+        <DefineConstants>OSX</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsLinux)'=='true'">
+        <DefineConstants>Linux</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+        <DefineConstants>NETFULL</DefineConstants>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'netcoreapp2.1' ">
-		<DefineConstants>NETCORE</DefineConstants>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
-		<DefineConstants>NET50</DefineConstants>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-		<DefineConstants>NET60</DefineConstants>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'netcoreapp2.1' ">
+        <DefineConstants>NETCORE</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
+        <DefineConstants>NET50</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <DefineConstants>NET60</DefineConstants>
+    </PropertyGroup>
 
-	
-	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
-	</Target>-->
-	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
-	</Target>-->
+    
+    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
+    </Target>-->
+    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
+    </Target>-->
 
 
-	<!--<PropertyGroup Condition="'$(TargetFramework)'== 'net461' AND '$(OS)' != 'WINDOWS_NT'">
-		<FrameworkPathOverride>/usr/lib/mono/4.6.1-api/</FrameworkPathOverride>
-	</PropertyGroup>-->
+    <!--<PropertyGroup Condition="'$(TargetFramework)'== 'net461' AND '$(OS)' != 'WINDOWS_NT'">
+        <FrameworkPathOverride>/usr/lib/mono/4.6.1-api/</FrameworkPathOverride>
+    </PropertyGroup>-->
 
-	<!--<PropertyGroup>
-		<IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
-	</PropertyGroup>
+    <!--<PropertyGroup>
+        <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
-		<IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
-		<IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-	</PropertyGroup> -->
+    <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
+        <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    </PropertyGroup> -->
 
-	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="3.1.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="coverlet.msbuild" Version="3.1.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="FluentAssertions" Version="5.10.3" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-		<PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.1.0" />
-		<PackageReference Include="Newtonsoft.Json" version="13.0.1" />
-		<PackageReference Include="Moq" version="4.16.1" />
-		<PackageReference Include="MySql.Data" version="8.0.28" />
-		<PackageReference Include="NUnit" Version="3.13.2" />
-		<PackageReference Include="NUnit.ConsoleRunner" Version="3.15.0" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-		<PackageReference Include="ReportGenerator" Version="5.0.4" />
-		<PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-		<PackageReference Include="Dapper" Version="2.0.123" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" Version="3.1.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.msbuild" Version="3.1.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="FluentAssertions" Version="5.10.3" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+        <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.1.0" />
+        <PackageReference Include="Newtonsoft.Json" version="13.0.1" />
+        <PackageReference Include="Moq" version="4.16.1" />
+        <PackageReference Include="MySql.Data" version="8.0.28" />
+        <PackageReference Include="NUnit" Version="3.13.2" />
+        <PackageReference Include="NUnit.ConsoleRunner" Version="3.15.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+        <PackageReference Include="ReportGenerator" Version="5.0.4" />
+        <PackageReference Include="Slapper.AutoMapper" Version="2.0.1" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+        <PackageReference Include="Dapper" Version="2.0.123" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'net461'">
-		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
-		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-		<PackageReference Include="System.Data.SQLite.Core" version="1.0.115.5" />
-		
-		<!--
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
-		<PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
-		<PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
-		-->
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.110" />
+        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+        <PackageReference Include="System.Data.SQLite.Core" version="1.0.115.5" />
+        
+        <!--
+        <PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" Condition="'$(OS)' == 'WINDOWS_NT'"/>
+        <PackageReference Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'linux-gnu'" />
+        <PackageReference Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" Condition="'$(OSTYPE)' == 'darwin18'"/>
+        -->
+    </ItemGroup>
 
-	<ItemGroup Condition="$(DefineConstants.Contains('NETCORE'))">
-		<PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
-	</ItemGroup>
+    <ItemGroup Condition="$(DefineConstants.Contains('NETCORE'))">
+        <PackageReference Include="IBM.Data.DB2.Core" Version="2.2.0.100" />
+    </ItemGroup>
 
-	<ItemGroup Condition="$(DefineConstants.Contains('NET50'))">
-		<PackageReference Include="Net5.IBM.Data.DB2" Version="5.0.0.500" />
-	</ItemGroup>
+    <ItemGroup Condition="$(DefineConstants.Contains('NET50'))">
+        <PackageReference Include="Net5.IBM.Data.DB2" Version="5.0.0.500" />
+    </ItemGroup>
 
-	<ItemGroup Condition="$(DefineConstants.Contains('NET60'))">
-		<PackageReference Include="Net.IBM.Data.DB2" Version="5.0.0.500" />
-	</ItemGroup>
-	
-	<!--<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsWindows) == true ">
-		<PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
-	</ItemGroup>
+    <ItemGroup Condition="$(DefineConstants.Contains('NET60'))">
+        <PackageReference Include="Net.IBM.Data.DB2" Version="5.0.0.500" />
+    </ItemGroup>
+    
+    <!--<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsWindows) == true ">
+        <PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsLinux) == true ">
-		<PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsLinux) == true ">
+        <PackageReference Include="IBM.Data.DB2.Core-lnx" version="2.2.0.100" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsOSX) == true ">
-		<PackageReference Include="IBM.Data.DB2.Core-osx" version="2.2.0.100" />
-	</ItemGroup>-->
-	<!--
-	<Choose>
-		<When Condition="'$(TargetFramework)' != 'net461' and $(RuntimeIdentifier) != ''">
-			<ItemGroup>
-				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('win'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('osx'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
-				<PackageReference Condition="$(RuntimeIdentifier.StartsWith('linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-			</ItemGroup>
-		</When>
-		<When Condition="'$(TargetFramework)' != 'net461'">
-			<ItemGroup>
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-			</ItemGroup>
-		</When> -->
-	<!--<Otherwise>
-			<ItemGroup>
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
-				<PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
-			</ItemGroup>
-		</Otherwise>-->
-	<!--</Choose>-->
+    <ItemGroup Condition="'$(TargetFramework)' != 'net461' and $(IsOSX) == true ">
+        <PackageReference Include="IBM.Data.DB2.Core-osx" version="2.2.0.100" />
+    </ItemGroup>-->
+    <!--
+    <Choose>
+        <When Condition="'$(TargetFramework)' != 'net461' and $(RuntimeIdentifier) != ''">
+            <ItemGroup>
+                <PackageReference Condition="$(RuntimeIdentifier.StartsWith('win'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+                <PackageReference Condition="$(RuntimeIdentifier.StartsWith('osx'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
+                <PackageReference Condition="$(RuntimeIdentifier.StartsWith('linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+            </ItemGroup>
+        </When>
+        <When Condition="'$(TargetFramework)' != 'net461'">
+            <ItemGroup>
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+            </ItemGroup>
+        </When> -->
+    <!--<Otherwise>
+            <ItemGroup>
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="IBM.Data.DB2.Core-osx" Version="2.2.0.100" />
+                <PackageReference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="IBM.Data.DB2.Core-lnx" Version="2.2.0.100" />
+            </ItemGroup>
+        </Otherwise>-->
+    <!--</Choose>-->
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
-		<PackageReference Include="System.Data.SQLite" version="1.0.115.5" targetFramework="net461" />
-		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" targetFramework="net461" />
-		<PackageReference Include="IBM.Data.DB.Provider" version="11.5.5010.4" targetFramework="net461" />		
-		<!--<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />-->
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+        <PackageReference Include="Oracle.ManagedDataAccess" version="19.11.0" targetFramework="net461" />
+        <PackageReference Include="System.Data.SQLite" version="1.0.115.5" targetFramework="net461" />
+        <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" targetFramework="net461" />
+        <PackageReference Include="IBM.Data.DB.Provider" version="11.5.5010.4" targetFramework="net461" />		
+        <!--<PackageReference Include="Microsoft.SqlServer.Compact" version="4.0.8876.1" />-->
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj" />
-		<ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
-		<ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\DapperExtensions.Test.Entities\DapperExtensions.Test.Entities.csproj" />
+        <ProjectReference Include="..\DapperExtensions.Test.Maps\DapperExtensions.Test.Maps.csproj" />
+        <ProjectReference Include="..\DapperExtensions\DapperExtensions.csproj" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<Reference Include="System.Data.SqlServerCe">
-			<HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.dll</HintPath>
-			<Private>true</Private>
-			<SpecificVersion>false</SpecificVersion>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-		</Reference>
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+        <Reference Include="System.Data.SqlServerCe">
+            <HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.dll</HintPath>
+            <Private>true</Private>
+            <SpecificVersion>false</SpecificVersion>
+            <EmbedInteropTypes>false</EmbedInteropTypes>
+        </Reference>
+    </ItemGroup>
 
-	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent" >
-		<Exec Condition="'$(IsWindows)'=='true'" Command="echo Running on Windows with constants: $(DefineConstants)" />
-		<Exec Condition="'$(IsOSX)'=='true'" Command="echo Running on OSX with constants: $(DefineConstants)" />
-		<Exec Condition="'$(IsLinux)'=='true'" Command="echo Running on Linux with constants: $(DefineConstants)" />
-	</Target>-->
+    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent" >
+        <Exec Condition="'$(IsWindows)'=='true'" Command="echo Running on Windows with constants: $(DefineConstants)" />
+        <Exec Condition="'$(IsOSX)'=='true'" Command="echo Running on OSX with constants: $(DefineConstants)" />
+        <Exec Condition="'$(IsLinux)'=='true'" Command="echo Running on Linux with constants: $(DefineConstants)" />
+    </Target>-->
 
-	<!--<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net461'">
-	  <Exec Command="xcopy $(ProjectDir)\Microsoft.SQLSERVER.CE.4.0\*.* $(TargetDir) /E /I /H /k /y" />
-	</Target>-->
+    <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net461'">
+      <Exec Command="xcopy $(ProjectDir)\Microsoft.SQLSERVER.CE.4.0\*.* $(TargetDir) /E /I /H /k /y" />
+    </Target>-->
 
-	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<Reference Include="System.Data.SqlServerCe.Entity">
-			<HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.Entity.dll</HintPath>
-			<Private>true</Private>
-			<SpecificVersion>true</SpecificVersion>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-		</Reference>
-	</ItemGroup>-->
+    <!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+        <Reference Include="System.Data.SqlServerCe.Entity">
+            <HintPath>Microsoft.SQLSERVER.CE.4.0\System.Data.SqlServerCe.Entity.dll</HintPath>
+            <Private>true</Private>
+            <SpecificVersion>true</SpecificVersion>
+            <EmbedInteropTypes>false</EmbedInteropTypes>
+        </Reference>
+    </ItemGroup>-->
 
-	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<Reference Include="IBM.Data.DB2-lnx">
-			<HintPath>..\..\..\..\..\Program Files\IBM\IBM DATA SERVER DRIVER\bin\netf40\IBM.Data.DB2.dll</HintPath>
-		</Reference>
-	</ItemGroup>-->
+    <!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+        <Reference Include="IBM.Data.DB2-lnx">
+            <HintPath>..\..\..\..\..\Program Files\IBM\IBM DATA SERVER DRIVER\bin\netf40\IBM.Data.DB2.dll</HintPath>
+        </Reference>
+    </ItemGroup>-->
 
-	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
-	</Target>-->
+    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="del $(SolutionDir)dapperTest_*.s* /s /q" />
+    </Target>-->
 
-	<!--<PropertyGroup Label="FineCodeCoverage">
-		<Enabled>
-			True
-		</Enabled>-->
-	<!--<Exclude>
+    <!--<PropertyGroup Label="FineCodeCoverage">
+        <Enabled>
+            True
+        </Enabled>-->
+    <!--<Exclude>
       [ThirdParty.*]*
       [FourthParty]*
     </Exclude>
     <Include>
       [*]*
     </Include>-->
-	<!--<ExcludeByFile>
-			**/Migrations/*
-			**/Hacks/*.cs
-		</ExcludeByFile>-->
-	<!--<ExcludeByAttribute>
+    <!--<ExcludeByFile>
+            **/Migrations/*
+            **/Hacks/*.cs
+        </ExcludeByFile>-->
+    <!--<ExcludeByAttribute>
       MyCustomExcludeFromCodeCoverage
     </ExcludeByAttribute>-->
-	<!--<IncludeTestAssembly>
-			True
-		</IncludeTestAssembly>
-	</PropertyGroup>-->
+    <!--<IncludeTestAssembly>
+            True
+        </IncludeTestAssembly>
+    </PropertyGroup>-->
 </Project>
