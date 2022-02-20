@@ -29,7 +29,7 @@
 		<PackageReleaseNotes>
 			1.7.1
 			* Bug Fixes
-			* - Issues #289, #290
+			* - Issues #289, #290, #266
 			1.7.0
 			* Removed DNXCore
 			* Migrate project to Visual Studio 2019

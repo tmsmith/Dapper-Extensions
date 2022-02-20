@@ -115,12 +115,18 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Oracle
             [Test]
             public void UsingDirectConnection_ReturnsEntity()
             {
+                var p = new Person { Active = "T", FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+                long id = Db.Insert(p).Result;
+
                 using (OracleConnection cn = new OracleConnection(ConnectionString))
                 {
                     cn.Open();
-                    int personId = 1;
-                    var person = cn.GetAsync<Person>(personId);
+                    var person = cn.GetAsync<Person>(id).Result;
                     cn.Close();
+
+                    Assert.AreEqual(id, person.Id);
+                    Assert.AreEqual("Foo", person.FirstName);
+                    Assert.AreEqual("Bar", person.LastName);
                 }
             }
 

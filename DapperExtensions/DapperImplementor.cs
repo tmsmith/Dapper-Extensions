@@ -698,11 +698,11 @@ namespace DapperExtensions
 
                 if (triggerIdentityColumn != null)
                 {
-                    keyValue = InsertTriggered(connection, entity, transaction, commandTimeout, sql, triggerIdentityColumn, dynamicParameters);
+                    keyValue = Convert.ChangeType(InsertTriggered(connection, entity, transaction, commandTimeout, sql, triggerIdentityColumn, dynamicParameters), keyColumn.MemberType);
                 }
                 else
                 {
-                    keyValue = InsertIdentity(connection, transaction, commandTimeout, classMap, sql, dynamicParameters);
+                    keyValue = Convert.ChangeType(InsertIdentity(connection, transaction, commandTimeout, classMap, sql, dynamicParameters), keyColumn.MemberType);
                 }
 
                 keyValues.Add(keyColumn.Name, keyValue);

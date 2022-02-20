@@ -131,12 +131,18 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
             [Test]
             public void UsingDirectConnection_ReturnsEntity()
             {
+                var p = new Person { Active = true, FirstName = "Foo", LastName = "Bar", DateCreated = DateTime.UtcNow };
+                long id = Db.Insert(p).Result;
+
                 using (SQLiteConnection cn = new SQLiteConnection(ConnectionString))
                 {
                     cn.Open();
-                    int personId = 1;
-                    var person = cn.Get<Person>(personId);
+                    var person = cn.GetAsync<Person>(id).Result;
                     cn.Close();
+
+                    Assert.AreEqual(id, person.Id);
+                    Assert.AreEqual("Foo", person.FirstName);
+                    Assert.AreEqual("Bar", person.LastName);
                 }
             }
 
