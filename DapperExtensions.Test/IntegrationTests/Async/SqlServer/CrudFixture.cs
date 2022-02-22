@@ -239,7 +239,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
         }
 
         [TestFixture]
-        public class UpdateMethod : SqlServerBaseAsyncFixture
+        public class UpdateMethod : SqlServerBaseAsyncFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -281,10 +281,29 @@ namespace DapperExtensions.Test.IntegrationTests.Async.SqlServer
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
             }
+
+            [Test]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                var a1 = new Animal
+                {
+                    Name = "Guid Update"
+                };
+                Guid id = Db.Insert(a1).Result;
+
+                var a2 = Db.Get<Animal>(id).Result;
+                a2.Name = "Baz";
+
+                Db.Update(a2);
+
+                var a3 = Db.Get<Animal>(id).Result;
+                Assert.AreEqual("Baz", a3.Name);
+                Assert.AreNotEqual(Guid.Empty, a3.Id);
+            }
         }
 
         [TestFixture]
-        public class GetListMethod : SqlServerBaseAsyncFixture
+        public class GetListMethod : SqlServerBaseAsyncFixture, IGetListMethod
         {
             private void Arrange()
             {

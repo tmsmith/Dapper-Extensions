@@ -263,7 +263,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
         }
 
         [TestFixture]
-        public class UpdateMethod : MySqlBaseAsyncFixture
+        public class UpdateMethod : MySqlBaseAsyncFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -306,6 +306,25 @@ namespace DapperExtensions.Test.IntegrationTests.Async.MySql
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
                 Dispose();
+            }
+
+            [Test]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                var a1 = new Animal
+                {
+                    Name = "Guid Update"
+                };
+                Guid id = Db.Insert(a1).Result;
+
+                var a2 = Db.Get<Animal>(id).Result;
+                a2.Name = "Baz";
+
+                Db.Update(a2);
+
+                var a3 = Db.Get<Animal>(id).Result;
+                Assert.AreEqual("Baz", a3.Name);
+                Assert.AreNotEqual(Guid.Empty, a3.Id);
             }
         }
 

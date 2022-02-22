@@ -69,12 +69,14 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
             }
 
             [Test]
+            [Ignore("DB2 Does not support GUID")]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
             }
 
             [Test]
+            [Ignore("DB2 Does not support GUID")]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
@@ -233,7 +235,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
         }
 
         [TestFixture]
-        public class UpdateMethod : DB2BaseAsyncFixture
+        public class UpdateMethod : DB2BaseAsyncFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -277,10 +279,17 @@ namespace DapperExtensions.Test.IntegrationTests.Async.DB2
                 Assert.AreEqual("barz", m3.Value);
                 Dispose();
             }
+
+            [Test]
+            [Ignore("DB2 Does not support GUID")]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TestFixture]
-        public class GetListMethod : DB2BaseAsyncFixture
+        public class GetListMethod : DB2BaseAsyncFixture, IGetListMethod
         {
             private void Arrange()
             {

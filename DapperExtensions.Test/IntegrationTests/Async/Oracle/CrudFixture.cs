@@ -65,12 +65,14 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Oracle
             }
 
             [Test]
+            [Ignore("GUID support for Oracle not implemented")]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
             }
 
             [Test]
+            [Ignore("GUID support for Oracle not implemented")]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
@@ -231,7 +233,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Oracle
         }
 
         [TestFixture]
-        public class UpdateMethod : OracleBaseAsyncFixture
+        public class UpdateMethod : OracleBaseAsyncFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -274,6 +276,13 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Oracle
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
                 Dispose();
+            }
+
+            [Test]
+            [Ignore("GUID support for Oracle not implemented")]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                throw new NotImplementedException();
             }
         }
 

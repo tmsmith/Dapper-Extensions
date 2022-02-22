@@ -65,12 +65,14 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
+            [Ignore("GUID support for Oracle not implemented")]
             public void AddsEntityToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
             }
 
             [Test]
+            [Ignore("GUID support for Oracle not implemented")]
             public void AddsMultipleEntitiesToDatabase_WithPassedInGuid()
             {
                 throw new NotImplementedException();
@@ -145,7 +147,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
         }
 
         [TestFixture]
-        public class DeleteMethod : OracleBaseFixture
+        public class DeleteMethod : OracleBaseFixture, IDeleteMethod
         {
             [Test]
             public void UsingKey_DeletesFromDatabase()
@@ -223,7 +225,7 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
         }
 
         [TestFixture]
-        public class UpdateMethod : OracleBaseFixture
+        public class UpdateMethod : OracleBaseFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -251,7 +253,6 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
             }
 
             [Test]
-            //[Ignore] // TODO add MultiKey support for oracle
             public void UsingCompositeKey_UpdatesEntity()
             {
                 Multikey m1 = new Multikey { Key2 = "key", Value = "bar" };
@@ -267,6 +268,13 @@ namespace DapperExtensions.Test.IntegrationTests.Oracle
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
                 Dispose();
+            }
+
+            [Test]
+            [Ignore("GUID support for Oracle not implemented")]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                throw new NotImplementedException();
             }
         }
 

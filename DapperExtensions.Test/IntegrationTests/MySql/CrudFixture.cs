@@ -166,7 +166,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
         }
 
         [TestFixture]
-        public class DeleteMethod : MySqlBaseFixture
+        public class DeleteMethod : MySqlBaseFixture, IDeleteMethod
         {
             private void PersonArrange()
             {
@@ -240,7 +240,7 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
         }
 
         [TestFixture]
-        public class UpdateMethod : MySqlBaseFixture
+        public class UpdateMethod : MySqlBaseFixture, IUpdateMethod
         {
             [Test]
             public void UsingKey_UpdatesEntity()
@@ -283,6 +283,25 @@ namespace DapperExtensions.Test.IntegrationTests.MySql
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
                 Dispose();
+            }
+
+            [Test]
+            public void UsingGuidKey_UpdatesEntity()
+            {
+                var a1 = new Animal
+                {
+                    Name = "Guid Update"
+                };
+                Guid id = Db.Insert(a1);
+
+                var a2 = Db.Get<Animal>(id);
+                a2.Name = "Baz";
+
+                Db.Update(a2);
+
+                var a3 = Db.Get<Animal>(id);
+                Assert.AreEqual("Baz", a3.Name);
+                Assert.AreNotEqual(Guid.Empty, a3.Id);
             }
         }
 

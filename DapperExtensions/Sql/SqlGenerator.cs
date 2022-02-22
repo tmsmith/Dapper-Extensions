@@ -87,7 +87,8 @@ namespace DapperExtensions.Sql
                 member.KeyType == KeyType.Identity ||
                 member.KeyType == KeyType.Assigned ||
                 member.KeyType == KeyType.SequenceIdentity ||
-                member.KeyType == KeyType.TriggerIdentity);
+                member.KeyType == KeyType.TriggerIdentity ||
+                member.KeyType == KeyType.Guid);
         }
 
         public virtual string Select(IClassMapper classMap, IPredicate predicate, IList<ISort> sort, IDictionary<string, object> parameters, IList<IProjection> colsToSelect, IList<IReferenceMap> includedProperties = null)
