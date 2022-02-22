@@ -1,6 +1,7 @@
 ﻿using DapperExtensions.Mapper;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -10,6 +11,44 @@ namespace DapperExtensions.Test.Mapper
     [Parallelizable(ParallelScope.All)]
     public static class AutoClassMapperFixture
     {
+        [TestFixture]
+        public class IListTests
+        {
+            [ExcludeFromCodeCoverage]
+            public class Foo
+            {
+                public IList<Bar> Bars { get; set; }
+            }
+
+            [ExcludeFromCodeCoverage]
+            public class Bar
+            {
+                public string Name { get; set; }
+            }
+
+            public class FooClassMapper : AutoClassMapper<Foo>
+            {
+                public FooClassMapper()
+                    : base()
+                {
+                    Map(f => f.Bars).Ignore();
+                }
+            }
+
+            private static bool MappingIsIgnored(FooClassMapper mapper)
+            {
+                return mapper.Properties.Any(w => w.Name == "Bars" && w.Ignored);
+            }
+
+            [Test]
+            public void IListIsIgnored()
+            {
+                var target = new FooClassMapper();
+
+                Assert.IsTrue(MappingIsIgnored(target));
+            }
+        }
+
         [TestFixture]
         public class AutoClassMapperTableName
         {
