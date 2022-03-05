@@ -392,7 +392,7 @@ namespace DapperExtensions.Test
                 sql.Should().Be("(y2.Id ** @Id_0)");
             }
 
-            protected Mock<FieldPredicate<T>> Setup<T>(string propertyName, Operator op, object value, bool not, DatabaseFunction databaseFunction = DatabaseFunction.None, string functionParameters = null) where T : class
+            protected Mock<FieldPredicate<T>> Setup<T>(string propertyName, Operator op, object value, bool not, DatabaseFunction databaseFunction = DatabaseFunction.None, string functionParameters = null)
             {
                 Configuration.Setup(m => m.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
 
@@ -483,7 +483,7 @@ namespace DapperExtensions.Test
             protected Mock<PropertyPredicate<T, T2>> Setup<T, T2>(string propertyName, Operator op, string propertyName2, bool not, 
                 DatabaseFunction leftDatabaseFunction = DatabaseFunction.None, string leftFunctionParameters = null,
                 DatabaseFunction rightDatabaseFunction = DatabaseFunction.None, string rightFunctionParameters = null)
-                where T : class
+               
                 where T2 : class
             {
                 Mock<PropertyPredicate<T, T2>> predicate = new Mock<PropertyPredicate<T, T2>>();
@@ -539,7 +539,7 @@ namespace DapperExtensions.Test
             }
 
             protected Mock<BetweenPredicate<T>> Setup<T>(string propertyName, object value1, object value2, bool not)
-                where T : class
+               
             {
                 Configuration.Setup(m => m.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
 
@@ -706,7 +706,7 @@ namespace DapperExtensions.Test
                 Assert.AreEqual(classMap.Object, result);
             }
 
-            protected Mock<ExistsPredicate<T>> Setup<T>(IPredicate predicate, IClassMapper classMap, bool not) where T : class
+            protected Mock<ExistsPredicate<T>> Setup<T>(IPredicate predicate, IClassMapper classMap, bool not)
             {
                 Configuration.Setup(m => m.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
 
@@ -759,7 +759,7 @@ namespace DapperExtensions.Test
             }
 
             protected Mock<InPredicate<T>> Setup<T>(string propertyName, bool not, params long[] values)
-                where T : class
+               
             {
                 Configuration.Setup(m => m.GetMap(It.IsAny<Type>())).Returns(new AutoClassMapper<T>());
 

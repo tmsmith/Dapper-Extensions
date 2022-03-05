@@ -30,13 +30,13 @@ namespace DapperExtensions.Mapper
         void SetJoinPredicate(IPredicateGroup predicate);
     }
 
-    public interface IReferenceMap<T> : IReferenceMap where T : class
+    public interface IReferenceMap<T> : IReferenceMap
     {
-        void Reference<TMany>(Expression<Func<TMany, T, object>> expression) where TMany : class;
+        void Reference<TMany>(Expression<Func<TMany, T, object>> expression);
         void Reference(Expression<Func<T, T, object>> expression);
     }
 
-    public class ReferenceMap<T> : IReferenceMap<T> where T : class
+    public class ReferenceMap<T> : IReferenceMap<T>
     {
         public Guid Identity { get; private set; }
         public Guid ParentIdentity { get; private set; }
@@ -86,7 +86,7 @@ namespace DapperExtensions.Mapper
             return ((MemberExpression)((UnaryExpression)expression).Operand).Member;
         }
 
-        protected void SetReferenceProperties<TEntity>(UnaryExpression expression) where TEntity : class
+        protected void SetReferenceProperties<TEntity>(UnaryExpression expression)
         {
             var binaries = ReflectionHelper.GetBinaryExpressionsFromUnary(((UnaryExpression)expression));
             foreach (BinaryExpression binary in binaries)
@@ -115,7 +115,7 @@ namespace DapperExtensions.Mapper
             Reference<T>(expression);
         }
 
-        public void Reference<TMany>(Expression<Func<TMany, T, object>> expression) where TMany : class
+        public void Reference<TMany>(Expression<Func<TMany, T, object>> expression)
         {
             var resultExpression = ReflectionHelper.GetProperty(expression, true);
             SetReferenceProperties<TMany>((UnaryExpression)resultExpression);

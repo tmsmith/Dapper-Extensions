@@ -17,7 +17,6 @@ namespace DapperExtensions.Predicate
     }
 
     public class BetweenPredicate<T> : BasePredicate, IBetweenPredicate
-        where T : class
     {
         public override string GetSql(ISqlGenerator sqlGenerator, IDictionary<string, object> parameters, bool isDml = false)
         {

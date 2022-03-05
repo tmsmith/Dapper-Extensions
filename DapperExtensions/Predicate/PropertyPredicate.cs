@@ -14,8 +14,6 @@ namespace DapperExtensions.Predicate
     }
 
     public class PropertyPredicate<T, T2> : ComparePredicate, IPropertyPredicate
-        where T : class
-        where T2 : class
     {
         public string PropertyName2 { get; set; }
         public bool UseRightTableAlias { get; set; }

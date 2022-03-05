@@ -75,7 +75,7 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual("equipment", m.TableName);
             }
 
-            private static PluralizedAutoClassMapper<T> GetMapper<T>() where T : class
+            private static PluralizedAutoClassMapper<T> GetMapper<T>()
             {
                 return new PluralizedAutoClassMapper<T>();
             }
@@ -100,12 +100,12 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual("People", m.TableName);
             }
 
-            private static CustomPluralizedMapper<T> GetMapper<T>() where T : class
+            private static CustomPluralizedMapper<T> GetMapper<T>()
             {
                 return new CustomPluralizedMapper<T>();
             }
 
-            public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T> where T : class
+            public class CustomPluralizedMapper<T> : PluralizedAutoClassMapper<T>
             {
                 public override void Table(string tableName)
                 {

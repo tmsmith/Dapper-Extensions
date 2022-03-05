@@ -11,7 +11,6 @@ namespace DapperExtensions.Predicate
     }
 
     public class InPredicate<T> : BasePredicate, IInPredicate
-        where T : class
     {
         public ICollection Collection { get; }
         public bool Not { get; set; }
