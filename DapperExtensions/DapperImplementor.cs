@@ -820,7 +820,7 @@ namespace DapperExtensions
 
         protected virtual void GetMapAndPredicate<T>(object predicateValue, out IClassMapper classMapper, out IPredicate wherePredicate, bool keyPredicate = false) where T : class
         {
-            classMapper = SqlGenerator.Configuration.GetMap<T>();
+            classMapper = SqlGenerator.Configuration.GetMap(predicateValue.GetType());
             wherePredicate = keyPredicate ? GetKeyPredicate(classMapper, predicateValue) : GetPredicate(classMapper, predicateValue);
         }
 
