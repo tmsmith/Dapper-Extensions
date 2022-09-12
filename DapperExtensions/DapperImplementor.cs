@@ -467,15 +467,19 @@ namespace DapperExtensions
 
         protected string GetColumnAliasFromSimpleAlias(string simpleAlias)
         {
-            if (SqlGenerator.AllColumns.Any(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)))
-                return SqlGenerator.AllColumns.Where(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.Alias).Single();
+            var allColumns = SqlGenerator.AllColumns;
+            if (allColumns.Any(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)))
+                return allColumns.Where(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.Alias).Single();
             return "";
         }
 
         protected string GetSimpleAliasFromColumnAlias(string columnAlias)
         {
-            if (SqlGenerator.AllColumns.Any(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)))
-                return SqlGenerator.AllColumns.Where(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.SimpleAlias).Single();
+            var allColumns = SqlGenerator.AllColumns;
+
+            if (allColumns.Any(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)))
+                return allColumns.Where(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.SimpleAlias).Single();
+            
             return "";
         }
 
