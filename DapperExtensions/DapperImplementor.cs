@@ -465,17 +465,18 @@ namespace DapperExtensions
             }
         }
 
-        protected string GetColumnAliasFromSimpleAlias(string simpleAlias)
+        protected string GetColumnAliasFromSimpleAlias<T>(string simpleAlias) where T : class
         {
-            var allColumns = SqlGenerator.AllColumns;
+            var allColumns = SqlGenerator.GetColumnsByClassMapper<T>().ToList();
+
             if (allColumns.Any(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)))
                 return allColumns.Where(c => c.SimpleAlias.Equals(simpleAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.Alias).Single();
             return "";
         }
 
-        protected string GetSimpleAliasFromColumnAlias(string columnAlias)
+        protected string GetSimpleAliasFromColumnAlias(IClassMapper classMapper, string columnAlias)
         {
-            var allColumns = SqlGenerator.AllColumns;
+            var allColumns = SqlGenerator.GetColumnsByClassMapper(classMapper,prefix: "p").ToList();
 
             if (allColumns.Any(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)))
                 return allColumns.Where(c => c.Alias.Equals(columnAlias, StringComparison.InvariantCultureIgnoreCase)).Select(c => c.SimpleAlias).Single();
@@ -491,7 +492,7 @@ namespace DapperExtensions
                 var dictionary = new Dictionary<string, object>();
                 foreach (KeyValuePair<string, object> kvp in d)
                 {
-                    var alias = GetColumnAliasFromSimpleAlias(kvp.Key);
+                    var alias = GetColumnAliasFromSimpleAlias<T>(kvp.Key);
                     if (!string.IsNullOrEmpty(alias))
                         dictionary.Add(alias, kvp.Value);
                 }
@@ -523,11 +524,11 @@ namespace DapperExtensions
             return dynamicParameters;
         }
 
-        protected virtual DynamicParameters AddParameter<T>(T entity, DynamicParameters parameters, IMemberMap prop, bool useColumnAlias = false)
+        protected virtual DynamicParameters AddParameter<T>(T entity, DynamicParameters parameters, IMemberMap prop, bool useColumnAlias = false) where T : class
         {
             var propValue = prop.GetValue(entity);
             var parameter = ReflectionHelper.GetParameter(entity.GetType(), SqlGenerator, prop.Name, propValue);
-            var alias = GetSimpleAliasFromColumnAlias(parameter.Name);
+            var alias = GetSimpleAliasFromColumnAlias(SqlGenerator.Configuration.GetMap(entity.GetType()),parameter.Name);
             var name = useColumnAlias ? string.IsNullOrEmpty(alias) ? parameter.Name : alias : parameter.Name;
 
             parameters ??= new DynamicParameters();
@@ -558,7 +559,7 @@ namespace DapperExtensions
             return parameters;
         }
 
-        private DynamicParameters GetDynamicParameters<T>(T entity, IClassMapper classMap, IList<IMemberMap> sequenceColumn, IList<MemberInfo> foreignKeys, IList<MemberInfo> ignoredColumns, bool useColumnAlias)
+        private DynamicParameters GetDynamicParameters<T>(T entity, IClassMapper classMap, IList<IMemberMap> sequenceColumn, IList<MemberInfo> foreignKeys, IList<MemberInfo> ignoredColumns, bool useColumnAlias) where T : class
         {
             var keyColumns = sequenceColumn.Count == 0 ? classMap.Properties.Where(p => p.KeyType == KeyType.Assigned || p.KeyType == KeyType.Guid)?.ToList() : sequenceColumn;
 
@@ -572,7 +573,7 @@ namespace DapperExtensions
             return dynamicParameters;
         }
 
-        public DynamicParameters GetDynamicParameters<T>(IClassMapper classMap, T entity, bool useColumnAlias = false)
+        public DynamicParameters GetDynamicParameters<T>(IClassMapper classMap, T entity, bool useColumnAlias = false) where T : class
         {
             var sequenceIdentityColumn = classMap.Properties.Where(p => p.KeyType == KeyType.SequenceIdentity)?.ToList();
             var foreignKeys = classMap.Properties.Where(p => p.KeyType == KeyType.ForeignKey).Select(p => p.MemberInfo).ToList();
@@ -584,7 +585,7 @@ namespace DapperExtensions
             return GetDynamicParameters(entity, classMap, sequenceIdentityColumn, foreignKeys, ignored, useColumnAlias);
         }
 
-        public DynamicParameters GetDynamicParameters<T>(T entity, DynamicParameters dynamicParameters, IMemberMap keyColumn, bool useColumnAlias = false)
+        public DynamicParameters GetDynamicParameters<T>(T entity, DynamicParameters dynamicParameters, IMemberMap keyColumn, bool useColumnAlias = false) where T : class
         {
             dynamicParameters ??= new DynamicParameters();
             foreach (var prop in entity.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public)
@@ -677,7 +678,7 @@ namespace DapperExtensions
         }
 
         private IDictionary<string, object> AddSequenceParameter<T>(IDbConnection connection, T entity,
-            IMemberMap key, DynamicParameters dynamicParameters, IDictionary<string, object> keyValues)
+            IMemberMap key, DynamicParameters dynamicParameters, IDictionary<string, object> keyValues) where T : class
         {
             var query = $"select {key.SequenceName}.nextval seq from dual";
             var value = connection.ExecuteScalar<int>(query);
@@ -692,7 +693,7 @@ namespace DapperExtensions
             return keyValues;
         }
 
-        private void AddKeyParameters<T>(T entity, IList<IMemberMap> keyList, DynamicParameters dynamicParameters, bool useColumnAlias = false)
+        private void AddKeyParameters<T>(T entity, IList<IMemberMap> keyList, DynamicParameters dynamicParameters, bool useColumnAlias = false) where T : class
         {
             foreach (var prop in keyList)
             {

@@ -11,7 +11,7 @@ namespace DapperExtensions.Sql
     public interface ISqlGenerator
     {
         IDapperExtensionsConfiguration Configuration { get; }
-        IList<IColumn> AllColumns { get; }
+        //IList<IColumn> AllColumns { get; }
         IList<Table> MappedTables { get; }
         bool SupportsMultipleStatements();
 
@@ -29,6 +29,9 @@ namespace DapperExtensions.Sql
         string GetColumnName(IClassMapper map, IMemberMap property, bool includeAlias, bool isDml = false, bool includePrefix = true);
         string GetColumnName(IClassMapper map, string propertyName, bool includeAlias, bool includePrefix = true);
         string GetColumnName(IColumn column, bool includeAlias, bool includePrefix = true);
+        List<IColumn> GetColumnsByClassMapper<T>(string prefix = "c") where T : class;
+        List<IColumn> GetColumnsByClassMapper(IClassMapper classMapper, string prefix = "c");
+        IEnumerable<IColumn> GetColumns<T>() where T : class;
     }
 
     public class SqlGeneratorImpl : ISqlGenerator
@@ -48,9 +51,11 @@ namespace DapperExtensions.Sql
 
         public IDapperExtensionsConfiguration Configuration { get; }
 
-        private string GetPartitionBy()
+        private string GetPartitionBy(IClassMapper classMap)
         {
-            var partitionBy = AllColumns.Where(c =>
+            var allColumns = GetColumnsByClassMapper(classMap, "p");
+
+            var partitionBy = allColumns.Where(c =>
                 c.Property.KeyType == KeyType.Assigned ||
                 c.Property.KeyType == KeyType.Identity ||
                 c.Property.KeyType == KeyType.SequenceIdentity)
@@ -58,16 +63,16 @@ namespace DapperExtensions.Sql
 
             if (!string.IsNullOrEmpty(partitionBy))
             {
-                var keyTable = AllColumns.Where(c => c.SimpleAlias.Equals(partitionBy)).Select(c => c.Table).First();
+                var keyTable = allColumns.Where(c => c.SimpleAlias.Equals(partitionBy)).Select(c => c.Table).First();
 
-                return AllColumns.Where(c => (c.Property.KeyType == KeyType.Assigned || c.Property.KeyType == KeyType.Identity ||
+                return allColumns.Where(c => (c.Property.KeyType == KeyType.Assigned || c.Property.KeyType == KeyType.Identity ||
                      c.Property.KeyType == KeyType.SequenceIdentity) && c.Table.Equals(keyTable))
                     .Select(c => c.SimpleAlias)
                     .Aggregate((prior, next) => $"{prior}, {next}");
             }
             else
             {
-                return AllColumns.Select(c => c.SimpleAlias).First();
+                return allColumns.Select(c => c.SimpleAlias).First();
             }
         }
 
@@ -80,7 +85,7 @@ namespace DapperExtensions.Sql
 
             MapTables(classMap);
 
-            AllColumns = GetColumns().ToList();
+            var allColumns = GetColumns(classMap).ToList();
 
             var sql = new StringBuilder(string.Format("SELECT {0} FROM {1}",
                 BuildSelectColumns(classMap, colsToSelect, includedProperties),
@@ -125,7 +130,7 @@ namespace DapperExtensions.Sql
 
             var innerSql = new StringBuilder(Select(classMap, predicate, sort, parameters, colsToSelect, includedProperties));
 
-            var partitionBy = GetPartitionBy();
+            var partitionBy = GetPartitionBy(classMap);
 
             return Configuration.Dialect.GetPagingSql(innerSql.ToString(), page, resultsPerPage, parameters, partitionBy);
         }
@@ -178,7 +183,7 @@ namespace DapperExtensions.Sql
                         .Append(predicate.GetSql(this, parameters));
                 }
 
-                var partitionBy = GetPartitionBy();
+                var partitionBy = GetPartitionBy(classMap);
 
                 countSql.Append("SELECT ")
                     .Append(partitionBy)
@@ -212,19 +217,19 @@ namespace DapperExtensions.Sql
             MapTables(classMap);
 
             var i = 0;
-            AllColumns = GetColumns().ToList();
+            var allColumns = GetColumns(classMap).ToList();
 
-            AllColumns = AllColumns.Select(c => new Column
+            allColumns = allColumns.Select(c => new Column
             {
                 Alias = c.Alias,
                 ClassMapper = c.ClassMapper,
                 Property = c.Property,
-                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}i_{i++}",
+                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}p_{i++}",
                 TableIdentity = c.TableIdentity,
                 Table = c.Table
             }).ToList<IColumn>();
 
-            var parameters = AllColumns
+            var parameters = allColumns
                 .Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity || p.Property.KeyType == KeyType.TriggerIdentity))
                 .Select(col => col.SimpleAlias)
                 .ToList();
@@ -234,7 +239,7 @@ namespace DapperExtensions.Sql
                 throw new ArgumentException("No columns were mapped.");
             }
 
-            var columnNames = AllColumns
+            var columnNames = allColumns
                 .Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity || p.Property.KeyType == KeyType.TriggerIdentity))
                 .Select(p => GetColumnName(p, false, false)).ToList();
 
@@ -269,21 +274,21 @@ namespace DapperExtensions.Sql
             MapTables(classMap);
 
             var i = 0;
-            AllColumns = GetColumns().ToList();
+            var allColumns = GetColumns(classMap).ToList();
 
-            AllColumns = AllColumns.Select(c => new Column
+            allColumns = allColumns.Select(c => new Column
             {
                 Alias = c.Alias,
                 ClassMapper = c.ClassMapper,
                 Property = c.Property,
-                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}u_{i++}",
+                SimpleAlias = $"{Configuration.Dialect.ParameterPrefix}p_{i++}",
                 TableIdentity = c.TableIdentity,
                 Table = c.Table
             }).ToList<IColumn>();
 
             var columns = (ignoreAllKeyProperties
-                ? AllColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly) && p.Property.KeyType == KeyType.NotAKey)
-                : AllColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity ||
+                ? allColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly) && p.Property.KeyType == KeyType.NotAKey)
+                : allColumns.Where(p => !(p.Property.Ignored || p.Property.IsReadOnly || p.Property.KeyType == KeyType.Identity ||
                                           p.Property.KeyType == KeyType.Assigned || p.Property.KeyType == KeyType.SequenceIdentity))).ToList();
 
             if (columns.Count == 0)
@@ -513,9 +518,9 @@ namespace DapperExtensions.Sql
             if (isDml)
                 return Configuration.Dialect.GetColumnName(GetTableName(map), property.ColumnName, "");
 
-            if (AllColumns?.Any(c => c.Property == property) == true)
+            if (GetColumns(map)?.Any(c => c.Property == property) == true)
             {
-                foreach (var c in AllColumns.Where(c => c.TableIdentity == map.Identity))
+                foreach (var c in GetColumnsByClassMapper(map).Where(c => c.TableIdentity == map.Identity))
                 {
                     c.ClassMapper.GetType().GetProperty("SimpleAlias").SetValue(c.ClassMapper, GetTableName(c.ClassMapper, c), null);
                 }
@@ -543,7 +548,7 @@ namespace DapperExtensions.Sql
             return Configuration.Dialect.SupportsMultipleStatements;
         }
 
-        public virtual IList<IColumn> AllColumns { get; private set; }
+        //public virtual IList<IColumn> AllColumns { get; private set; }
 
         public Table GetMappedTables(Type entityType, Type parentEntityType = null)
         {
@@ -735,24 +740,32 @@ namespace DapperExtensions.Sql
         }
         public void MapTables(IClassMapper classMap, IList<IReferenceMap> includedProperties = null)
         {
-            Tables = new List<Table>();
-            TableCount = 0;
-            TablesAdded.Clear();
-            TableReferencesAdded.Clear();
+            //Tables = new List<Table>();
+            //TableCount = 0;
+            //TablesAdded.Clear();
+            //TableReferencesAdded.Clear();
 
-            Tables = GetAllMappedTables(classMap, classMap, null, false, includedProperties).ToList();
+            var tables = GetAllMappedTables(classMap, classMap, null, false, includedProperties).ToList();
+
+            foreach (var item in tables)
+            {
+                if (!Tables.Any(x => x.Name == item.Name))
+                    Tables.Add(item);
+            }
+
+            TableCount = Tables.Count;
         }
 
         public virtual string BuildSelectColumns(IClassMapper classMap, IList<IProjection> colsToSelect, IList<IReferenceMap> includedProperties = null)
         {
-            AllColumns = new List<IColumn>();
+            var allColumns = new List<IColumn>();
             MapTables(classMap, includedProperties);
 
             var i = 0;
             //AllColumns = GetColumns(classMap, classMap.Identity).ToList();
-            AllColumns = GetColumns().ToList();
+            allColumns = GetColumns(classMap).ToList();
 
-            AllColumns = AllColumns.Select(c => new Column
+            allColumns = allColumns.Select(c => new Column
             {
                 Alias = c.Alias,
                 ClassMapper = c.ClassMapper,
@@ -762,7 +775,7 @@ namespace DapperExtensions.Sql
                 Table = c.Table
             }).ToList<IColumn>();
 
-            var columns = AllColumns
+            var columns = allColumns
                 .Where(col => !col.Property.Ignored && (colsToSelect == null || colsToSelect?.Any(c => c.PropertyName.Equals(col.Property.ColumnName, StringComparison.OrdinalIgnoreCase)) == true))
                 .Select(col => GetColumnName(col, true));
 
@@ -811,14 +824,41 @@ namespace DapperExtensions.Sql
                 .ToList() ?? new List<Column>();
         }
 
-        public IEnumerable<IColumn> GetColumns()
+        private IEnumerable<IColumn> GetColumns(IClassMapper classMapper)
         {
-            var columns = new List<IColumn>();
+            var table = Tables.ToList().FirstOrDefault(x => x.Name == classMapper.TableName);
+            return GetColumns(table);
+        }
 
-            foreach (var table in Tables)
-                columns.AddRange(GetColumns(table));
+        public IEnumerable<IColumn> GetColumns<T>() where T : class
+        {
+            var table = Tables.ToList().FirstOrDefault(x => x.Name == this.Configuration.GetMap<T>().TableName);
+            return GetColumns(table);
+        }
 
-            return columns;
+        public List<IColumn> GetColumnsByClassMapper(IClassMapper classMapper, string prefix = "c")
+        {
+            var table = Tables.ToList().FirstOrDefault(x => x.Name == classMapper.TableName);
+
+            var allColumns = GetColumns(table).ToList();
+
+            var i = 0;
+
+            allColumns = allColumns.Select(c => new Column
+            {
+                Alias = c.Alias,
+                ClassMapper = c.ClassMapper,
+                Property = c.Property,
+                SimpleAlias = $"{prefix}_{i++}",
+                TableIdentity = c.TableIdentity,
+                Table = c.Table
+            }).ToList<IColumn>();
+
+            return allColumns;
+        }
+        public List<IColumn> GetColumnsByClassMapper<T>(string prefix = "c") where T : class
+        {
+            return GetColumnsByClassMapper(this.Configuration.GetMap<T>(), prefix);
         }
 
         public static IList<IReferenceProperty> GetReferenceProperties(IClassMapper map)
