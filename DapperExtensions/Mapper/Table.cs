@@ -16,6 +16,11 @@ namespace DapperExtensions.Mapper
         public PropertyInfo PropertyInfo { get; set; }
         public bool IsVirtual { get; set; }
         public IClassMapper ClassMapper { get; set; }
+
+        public override string ToString()
+        {
+            return $"{EntityType} - {Alias}";
+        }
     }
 }
 

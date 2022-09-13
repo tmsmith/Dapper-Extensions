@@ -470,7 +470,7 @@ namespace DapperExtensions.Sql
 
             var tableName = new StringBuilder();
 
-            var mainTableName = GetTableName(map, true);
+            var mainTableName = GetTableName(map, false);
             var joints = _includeRelacionalEntities ? GetAllJointTables(map, map.TableName, parameters, includedProperties: includedProperties) : "";
             var sqlInjection = GetJoinFromSqlInjection(Configuration.GetOrSetSqlInjection(map.EntityType));
 
@@ -732,7 +732,21 @@ namespace DapperExtensions.Sql
             if (parentClassMapper.Identity == topParentMap.Identity || includedProperties.Any(a => a.Identity == _table.Identity))
             {
                 tables.Add(_table);
-                TablesAdded.Add(_table);
+                //TablesAdded.Add(_table);
+
+                if (!TablesAdded.ToList().Any(x => x.Name == _table.Name))
+                    TablesAdded.Add(_table);
+                else
+                {
+                    var t = TablesAdded.ToList().FirstOrDefault(x => x.Name == _table.Name);
+                    if (t != null)
+                    {
+                        var index = TablesAdded.IndexOf(t);
+
+                        if (index != -1)
+                            TablesAdded[index] = _table;
+                    }
+                }
 
                 tables.AddRange(ProcessReferences(parentClassMapper, topParentMap, virtualReferenceMap, includedProperties));
             }
@@ -749,8 +763,19 @@ namespace DapperExtensions.Sql
 
             foreach (var item in tables)
             {
-                if (!Tables.Any(x => x.Name == item.Name))
+                if (!Tables.ToList().Any(x => x.Name == item.Name))
                     Tables.Add(item);
+                else
+                {
+                    var t = Tables.ToList().FirstOrDefault(x => x.Name == item.Name);
+                    if (t != null)
+                    {
+                        var index = Tables.IndexOf(t);
+
+                        if (index != -1)
+                            Tables[index] = item;
+                    }
+                }
             }
 
             TableCount = Tables.Count;
@@ -777,7 +802,7 @@ namespace DapperExtensions.Sql
 
             var columns = allColumns
                 .Where(col => !col.Property.Ignored && (colsToSelect == null || colsToSelect?.Any(c => c.PropertyName.Equals(col.Property.ColumnName, StringComparison.OrdinalIgnoreCase)) == true))
-                .Select(col => GetColumnName(col, true));
+                .Select(col => GetColumnName(col, true,false));
 
             var result = columns.AppendStrings();
             return string.IsNullOrEmpty(result) ? throw new NotSupportedException("Query with empty ClassMapper is not supported.") : result;

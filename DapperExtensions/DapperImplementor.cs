@@ -500,7 +500,7 @@ namespace DapperExtensions
                 list.Add(dictionary);
             }
 
-            SetAutoMapperIdentifier(SqlGenerator.MappedTables);
+            SetAutoMapperIdentifier(SqlGenerator.MappedTables.ToList());
 
             return AutoMapper.Map<T>(list, false);
         }
