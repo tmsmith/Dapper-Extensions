@@ -60,7 +60,7 @@ namespace DapperExtensions
         {
             get
             {
-                return _instanceFactory ??= config => new DapperAsyncImplementor(new SqlGeneratorImpl(_configuration));
+                return _instanceFactory ??= config => new DapperAsyncImplementor(new ThreadSafeSqlGeneratorImpl(_configuration));
             }
             set
             {
