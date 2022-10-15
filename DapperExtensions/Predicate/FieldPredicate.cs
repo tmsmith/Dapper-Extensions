@@ -16,7 +16,6 @@ namespace DapperExtensions.Predicate
     }
 
     public class FieldPredicate<T> : ComparePredicate, IFieldPredicate
-        where T : class
     {
         public object Value { get; set; }
         public DatabaseFunction DatabaseFunction { get; set; }

@@ -91,7 +91,7 @@ namespace DapperExtensions.Test.Mapper
                 Assert.IsTrue(map.ColumnName == "SomeId");
             }
 
-            private static AutoClassMapper<T> GetMapper<T>() where T : class
+            private static AutoClassMapper<T> GetMapper<T>()
             {
                 return new AutoClassMapper<T>();
             }
@@ -114,12 +114,12 @@ namespace DapperExtensions.Test.Mapper
                 Assert.AreEqual("TheFoo", m.TableName);
             }
 
-            private static CustomAutoMapper<T> GetMapper<T>() where T : class
+            private static CustomAutoMapper<T> GetMapper<T>()
             {
                 return new CustomAutoMapper<T>();
             }
 
-            public class CustomAutoMapper<T> : AutoClassMapper<T> where T : class
+            public class CustomAutoMapper<T> : AutoClassMapper<T>
             {
                 public override void Table(string tableName)
                 {

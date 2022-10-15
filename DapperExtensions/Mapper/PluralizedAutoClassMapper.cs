@@ -8,7 +8,7 @@ namespace DapperExtensions.Mapper
     /// Identical to AutoClassMapper, but attempts to pluralize table names automatically.
     /// Example: Person entity maps to People table
     /// </summary>
-    public class PluralizedAutoClassMapper<T> : AutoClassMapper<T> where T : class
+    public class PluralizedAutoClassMapper<T> : AutoClassMapper<T>
     {
         public override void Table(string tableName)
         {

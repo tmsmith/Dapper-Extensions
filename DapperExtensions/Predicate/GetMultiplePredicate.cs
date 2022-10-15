@@ -17,7 +17,7 @@ namespace DapperExtensions.Predicate
             get { return _items.AsReadOnly(); }
         }
 
-        public void Add<T>(IPredicate predicate, IList<ISort> sort = null) where T : class
+        public void Add<T>(IPredicate predicate, IList<ISort> sort = null)
         {
             _items.Add(new GetMultiplePredicateItem
             {
