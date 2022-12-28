@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -320,6 +321,19 @@ namespace DapperExtensions.Test.Mapper
         }
 
         [TestFixture]
+        public class UnderscoreColumnsTest: ClassMapperFixtureBase
+        {
+            [Test]
+            public void ValidateUnderScoreProperties()
+            {
+                var mapper = new TestMapper<FooUnderscore>();
+                mapper.TestProtected().RunMethod("AutoMap");
+                Assert.AreEqual(3, mapper.Properties.Count);
+            }
+
+        }
+
+        [TestFixture]
         public class ReferenceMapTests : ClassMapperFixtureBase
         {
             [ExcludeFromCodeCoverage]
@@ -398,7 +412,14 @@ namespace DapperExtensions.Test.Mapper
             public long BarId { get; set; }
             public string Name { get; set; }
         }
-
+        [ExcludeFromCodeCoverage]
+        public class FooUnderscore
+        {
+            public long FooId { get; set; }
+            [Column("first_name")]
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
         [ExcludeFromCodeCoverage]
         public class TestMapper<T> : ClassMapper<T>
         {

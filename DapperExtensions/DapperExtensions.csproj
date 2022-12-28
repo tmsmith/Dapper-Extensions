@@ -89,6 +89,7 @@
 		<PackageReference Include="Newtonsoft.Json" version="13.0.2" />
 		<PackageReference Include="Dapper" Version="2.0.90" />
 		<PackageReference Include="Slapper.AutoMapper" Version="2.0.1" targetFramework="$(TargetFramework)" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
 		<PackageReference Include="System.Data.Common" Version="4.3.0" />
 	</ItemGroup>
 
