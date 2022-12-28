@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -114,7 +115,7 @@ namespace DapperExtensions.Mapper
                 {
                     continue;
                 }
-
+                this.MapUnderScoreColumns();
                 var map = Map(propertyInfo);
                 if (!hasDefinedKey)
                 {
@@ -134,7 +135,23 @@ namespace DapperExtensions.Mapper
                     ? PropertyTypeKeyTypeMapping[keyMap.MemberType]
                     : KeyType.Assigned);
         }
-
+        /// <summary>
+        /// Map Underscore columns i.e. first_name using columns attribute
+        /// [Column("first_name")]
+        /// Public FirstName {get;set;}
+        /// </summary>
+        private void MapUnderScoreColumns()
+        {
+            #region //Handling under score columns properties using Columns Attribute while Insert, Update & Delete Operations
+            foreach (MemberMap mp in this.Properties)
+            {
+                ColumnAttribute columnAttribute = mp.MemberInfo.GetCustomAttribute<ColumnAttribute>();
+                var propertyMap = mp as MemberMap;
+                if (propertyMap != null && columnAttribute != null)
+                    propertyMap.Column(columnAttribute.Name);
+            }
+            #endregion
+        }
         protected virtual IReferenceMap<T> ReferenceMap(Expression<Func<T, object>> expression)
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
@@ -173,6 +190,7 @@ namespace DapperExtensions.Mapper
         protected virtual MemberMap Map(PropertyInfo propertyInfo, MemberMap parent = null)
         {
             var result = new MemberMap(propertyInfo, this, parent: parent);
+
             if (GuardForDuplicatePropertyMap(result))
             {
                 result = (MemberMap)Properties.FirstOrDefault(p => p.Name.Equals(result.Name) && p.ParentProperty == result.ParentProperty);
@@ -181,6 +199,14 @@ namespace DapperExtensions.Mapper
             {
                 Properties.Add(result);
             }
+
+            //foreach (MemberMap mp in this.Properties)
+            //{
+            //    System.ComponentModel.DataAnnotations.Schema.ColumnAttribute columnAttribute = mp.MemberInfo.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
+            //    var propertyMap = mp as MemberMap;
+            //    if (propertyMap != null && columnAttribute != null)
+            //        propertyMap.Column(columnAttribute.Name);
+            //}
             return result;
         }
 
