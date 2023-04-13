@@ -12,7 +12,6 @@ namespace DapperExtensions.Predicate
     }
 
     public class ExistsPredicate<TSub> : IExistsPredicate
-        where TSub : class
     {
         public IPredicate Predicate { get; set; }
         public bool Not { get; set; }

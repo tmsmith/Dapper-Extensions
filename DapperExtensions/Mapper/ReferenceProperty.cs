@@ -20,11 +20,11 @@ namespace DapperExtensions.Mapper
         void SetParentIdentity(Guid identity);
     }
 
-    public interface IReferenceProperty<T> : IReferenceProperty where T : class
+    public interface IReferenceProperty<T> : IReferenceProperty
     {
     }
 
-    public class ReferenceProperty<T> : IReferenceProperty<T> where T : class
+    public class ReferenceProperty<T> : IReferenceProperty<T>
     {
         public Guid Identity { get; set; }
         public Guid ParentIdentity { get; set; }

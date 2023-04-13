@@ -23,7 +23,7 @@ namespace DapperExtensions.Test.Mapper
             {
             }
 
-            protected ClassMapper<T> GetMapper<T>() where T : class
+            protected ClassMapper<T> GetMapper<T>()
             {
                 return new ClassMapper<T>();
             }
@@ -400,7 +400,7 @@ namespace DapperExtensions.Test.Mapper
         }
 
         [ExcludeFromCodeCoverage]
-        public class TestMapper<T> : ClassMapper<T> where T : class
+        public class TestMapper<T> : ClassMapper<T>
         {
             public new MemberMap Map(Expression<Func<T, object>> expression)
             {

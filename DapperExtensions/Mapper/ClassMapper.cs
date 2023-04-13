@@ -22,14 +22,14 @@ namespace DapperExtensions.Mapper
         void SetParentIdentity(Guid identity);
     }
 
-    public interface IClassMapper<T> : IClassMapper where T : class
+    public interface IClassMapper<T> : IClassMapper
     {
     }
 
     /// <summary>
     /// Maps an entity to a table through a collection of property maps.
     /// </summary>
-    public class ClassMapper<T> : IClassMapper<T> where T : class
+    public class ClassMapper<T> : IClassMapper<T>
     {
         /// <summary>
         /// Gets or sets the schema to use when referring to the corresponding table name in the database.

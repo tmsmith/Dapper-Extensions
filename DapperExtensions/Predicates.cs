@@ -23,7 +23,7 @@ namespace DapperExtensions
         /// <param name="databaseFunctionParameters">Parameters to the database function</param>
         /// <returns>An instance of IFieldPredicate.</returns>
         public static IFieldPredicate Field<T>(Expression<Func<T, object>> expression, Operator op, object value, bool not = false, bool useColumPrefix = true,
-            DatabaseFunction databaseFunction = DatabaseFunction.None, string databaseFunctionParameters = "") where T : class
+            DatabaseFunction databaseFunction = DatabaseFunction.None, string databaseFunctionParameters = "")
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
 
@@ -44,7 +44,7 @@ namespace DapperExtensions
         /// <param name="databaseFunctionParameters">Parameters to the database function</param>
         /// <returns>An instance of IFieldPredicate.</returns>
         public static IFieldPredicate Field<T>(string propertyName, Operator op, object value, bool not = false, bool useColumPrefix = true,
-            DatabaseFunction databaseFunction = DatabaseFunction.None, string databaseFunctionParameters = "") where T : class
+            DatabaseFunction databaseFunction = DatabaseFunction.None, string databaseFunctionParameters = "")
         {
             var properties = ReflectionHelper.GetNestedProperties<T>(propertyName, '.', out string propertyInfoName);
 
@@ -83,8 +83,6 @@ namespace DapperExtensions
         public static IPropertyPredicate Property<T, T2>(Expression<Func<T, object>> expression, Operator op, Expression<Func<T2, object>> expression2,
             bool not = false, bool useLeftColumPrefix = true, bool useRightColumPrefix = true, DatabaseFunction leftDatabaseFunction = DatabaseFunction.None,
             string leftDatabaseFunctionParameters = "", DatabaseFunction rigthDatabaseFunction = DatabaseFunction.None, string rigthDatabaseFunctionParameters = "")
-            where T : class
-            where T2 : class
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             var propertyInfo2 = ReflectionHelper.GetProperty(expression2) as PropertyInfo;
@@ -141,7 +139,7 @@ namespace DapperExtensions
         /// <param name="values">Values to compare</param>
         /// <param name="not">Effectively inverts the comparison operator. Example: WHERE FirstName &lt;&gt; LastName </param>
         public static IBetweenPredicate Between<T>(Expression<Func<T, object>> expression, BetweenValues values, bool not = false)
-            where T : class
+           
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new BetweenPredicate<T>
@@ -186,7 +184,6 @@ namespace DapperExtensions
         }
 
         public static IInPredicate In<T>(Expression<Func<T, object>> expression, ICollection collection, bool not = false)
-            where T : class
         {
             var propertyInfo = ReflectionHelper.GetProperty(expression) as PropertyInfo;
             return new InPredicate<T>(collection, propertyInfo.Name, not);

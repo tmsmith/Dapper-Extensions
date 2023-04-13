@@ -161,7 +161,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a query using the specified predicate, returning an integer that represents the number of rows that match the query.
         /// </summary>
-        public static async Task<int> CountAsync<T>(this IDbConnection connection, object predicate = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static async Task<int> CountAsync<T>(this IDbConnection connection, object predicate = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             return await Instance.CountAsync<T>(connection, predicate, transaction, commandTimeout).ConfigureAwait(false);
         }
@@ -170,7 +170,7 @@ namespace DapperExtensions
         /// Executes a query for the specified id, returning the data typed as per T.
         /// </summary>
         public static async Task<T> GetAsync<T>(this IDbConnection connection, dynamic id, IDbTransaction transaction = null,
-            int? commandTimeout = null, bool buffered = false) where T : class
+            int? commandTimeout = null, bool buffered = false)
         {
             return await Instance.GetAsync<T>(connection, id, transaction, commandTimeout, buffered, null).ConfigureAwait(false);
         }
@@ -192,7 +192,7 @@ namespace DapperExtensions
         /// Executes a select query using the specified predicate, returning an IEnumerable data typed as per T.
         /// </summary>
         public static async Task<IEnumerable<T>> GetListAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null,
-            IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+            IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false)
         {
             return await Instance.GetListAsync<T>(connection, predicate, sort, transaction, commandTimeout, buffered, null).ConfigureAwait(false);
         }
@@ -214,7 +214,7 @@ namespace DapperExtensions
         /// Contains Slapper.Automaper
         /// </summary>
         public static async Task<IEnumerable<T>> GetListAutoMapAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null,
-            IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, IList<IProjection> colsToSelect = null) where T : class
+            IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, IList<IProjection> colsToSelect = null)
         {
             return await Instance.GetListAutoMapAsync<T>(connection, predicate, sort, transaction, commandTimeout, buffered, colsToSelect).ConfigureAwait(false);
         }
@@ -222,7 +222,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes an insert query for the specified entity.
         /// </summary>
-        public static Task InsertAsync<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = default) where T : class
+        public static Task InsertAsync<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = default)
         {
             return Instance.InsertAsync(connection, entities, transaction, commandTimeout);
         }
@@ -233,7 +233,7 @@ namespace DapperExtensions
         /// If the entity has a composite key, an IDictionary&lt;string, object&gt; is returned with the key values.
         /// The key value for the entity will also be updated if the KeyType is a Guid or Identity.
         /// </summary>
-        public static Task<dynamic> InsertAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = default) where T : class
+        public static Task<dynamic> InsertAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = default)
         {
             return Instance.InsertAsync(connection, entity, transaction, commandTimeout);
         }
@@ -242,7 +242,7 @@ namespace DapperExtensions
         /// Executes an update query for the specified entity.
         /// </summary>
         public static Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null,
-            int? commandTimeout = null, bool ignoreAllKeyProperties = false) where T : class
+            int? commandTimeout = null, bool ignoreAllKeyProperties = false)
         {
             return Instance.UpdateAsync(connection, entity, transaction, commandTimeout, ignoreAllKeyProperties, null);
         }
@@ -260,7 +260,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a delete query for the specified entity.
         /// </summary>
-        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             return Instance.DeleteAsync(connection, entity, transaction, commandTimeout);
         }
@@ -268,7 +268,7 @@ namespace DapperExtensions
         /// <summary>
         /// Executes a delete query using the specified predicate.
         /// </summary>
-        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static Task<bool> DeleteAsync<T>(this IDbConnection connection, object predicate, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             return Instance.DeleteAsync(connection, predicate, transaction, commandTimeout);
         }
@@ -278,7 +278,7 @@ namespace DapperExtensions
         /// Data returned is dependent upon the specified page and resultsPerPage.
         /// </summary>
         public static async Task<IEnumerable<T>> GetPageAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, int page = 1,
-            int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+            int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false)
         {
             return await Instance.GetPageAsync<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, null).ConfigureAwait(false);
         }
@@ -307,7 +307,7 @@ namespace DapperExtensions
         /// Contains Slapper.Automaper
         /// </summary>
         public static async Task<IEnumerable<T>> GetPageAutoMapAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, int page = 1,
-            int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, IList<IProjection> colsToSelect = null) where T : class
+            int resultsPerPage = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false, IList<IProjection> colsToSelect = null)
         {
             return await Instance.GetPageAutoMapAsync<T>(connection, predicate, sort, page, resultsPerPage, transaction, commandTimeout, buffered, colsToSelect).ConfigureAwait(false);
         }
@@ -317,7 +317,7 @@ namespace DapperExtensions
         /// Data returned is dependent upon the specified firstResult and maxResults.
         /// </summary>
         public static async Task<IEnumerable<T>> GetSetAsync<T>(this IDbConnection connection, object predicate = null, IList<ISort> sort = null, int firstResult = 1,
-            int maxResults = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false) where T : class
+            int maxResults = 10, IDbTransaction transaction = null, int? commandTimeout = null, bool buffered = false)
         {
             return await Instance.GetSetAsync<T>(connection, predicate, sort, firstResult, maxResults, transaction, commandTimeout, buffered, null).ConfigureAwait(false);
         }
@@ -367,7 +367,7 @@ namespace DapperExtensions
         /// Gets the appropriate mapper for the specified type T.
         /// If the mapper for the type is not yet created, a new mapper is generated from the mapper type specifed by DefaultMapper.
         /// </summary>
-        public static async Task<IClassMapper> GetMap<T>() where T : class
+        public static async Task<IClassMapper> GetMap<T>()
         {
             return await Task.FromResult(_configuration.GetMap<T>());
         }
