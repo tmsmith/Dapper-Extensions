@@ -19,7 +19,7 @@ namespace DapperExtensions.Test.IntegrationTests.Async
         protected override void CommonSetup(DbConnection connection, SqlDialectBase sqlDialect)
         {
             var config = DapperAsyncExtensions.Configure(typeof(AutoClassMapper<>), new List<Assembly>(), sqlDialect);
-            var sqlGenerator = new SqlGeneratorImpl(config);
+            var sqlGenerator = new ThreadSafeSqlGeneratorImpl(config);
             Db = new AsyncDatabase(connection, sqlGenerator);
         }
 

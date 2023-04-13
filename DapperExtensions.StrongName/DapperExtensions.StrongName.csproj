@@ -94,53 +94,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\DapperExtensions\DapperAsyncExtensions.cs" Link="DapperAsyncExtensions.cs" />
-		<Compile Include="..\DapperExtensions\DapperAsyncImplementor.cs" Link="DapperAsyncImplementor.cs" />
-		<Compile Include="..\DapperExtensions\DapperExtensions.cs" Link="DapperExtensions.cs" />
-		<Compile Include="..\DapperExtensions\DapperExtensionsConfiguration.cs" Link="DapperExtensionsConfiguration.cs" />
-		<Compile Include="..\DapperExtensions\DapperImplementor.cs" Link="DapperImplementor.cs" />
-		<Compile Include="..\DapperExtensions\Database.cs" Link="Database.cs" />
-		<Compile Include="..\DapperExtensions\GetMultipleResult.cs" Link="GetMultipleResult.cs" />
-		<Compile Include="..\DapperExtensions\Predicates.cs" Link="Predicates.cs" />
-		<Compile Include="..\DapperExtensions\ReflectionHelper.cs" Link="ReflectionHelper.cs" />
-		<Compile Include="..\DapperExtensions\Enums\Comparator.cs" Link="Enums\Comparator.cs" />
-		<Compile Include="..\DapperExtensions\Extensions\EnumExtensions.cs" Link="Extensions\EnumExtensions.cs" />
-
-		<Compile Include="..\DapperExtensions\Mapper\AutoClassMapper.cs" Link="Mapper\AutoClassMapper.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\ClassMapper.cs" Link="Mapper\ClassMapper.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\Column.cs" Link="Mapper\Column.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\MemberMap.cs" Link="Mapper\MemberMap.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\Parameter.cs" Link="Mapper\Parameter.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\PluralizedAutoClassMapper.cs" Link="Mapper\PluralizedAutoClassMapper.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\PropertyKey.cs" Link="Mapper\PropertyKey.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\ReferenceMap.cs" Link="Mapper\ReferenceMap.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\ReferenceProperty.cs" Link="Mapper\ReferenceProperty.cs" />
-		<Compile Include="..\DapperExtensions\Mapper\Table.cs" Link="Mapper\Table.cs" />
-
-		<Compile Include="..\DapperExtensions\Predicate\BasePredicate.cs" Link="Predicate\BasePredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\BetweenPredicate.cs" Link="Predicate\BetweenPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\ComparePredicate.cs" Link="Predicate\ComparePredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\ExistsPredicate.cs" Link="Predicate\ExistsPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\FieldPredicate.cs" Link="Predicate\FieldPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\GetMultiplePredicate.cs" Link="Predicate\GetMultiplePredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\InPredicate.cs" Link="Predicate\InPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\IPredicate.cs" Link="Predicate\IPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\PredicateEnums.cs" Link="Predicate\PredicateEnums.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\PredicateGroup.cs" Link="Predicate\PredicateGroup.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\Projection.cs" Link="Predicate\Projection.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\PropertyPredicate.cs" Link="Predicate\PropertyPredicate.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\Sort.cs" Link="Predicate\Sort.cs" />
-		<Compile Include="..\DapperExtensions\Predicate\VirtualPredicate.cs" Link="Predicate\VirtualPredicate.cs" />
-
-		<Compile Include="..\DapperExtensions\Sql\DB2Dialect.cs" Link="Sql\DB2Dialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\MySqlDialect.cs" Link="Sql\MySqlDialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\OracleDialect.cs" Link="Sql\OracleDialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\PostgreSqlDialect.cs" Link="Sql\PostgreSqlDialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqlCeDialect.cs" Link="Sql\SqlCeDialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqlDialectBase.cs" Link="Sql\SqlDialectBase.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqlGenerator.cs" Link="Sql\SqlGenerator.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqlInjection.cs" Link="Sql\SqlInjection.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqliteDialect.cs" Link="Sql\SqliteDialect.cs" />
-		<Compile Include="..\DapperExtensions\Sql\SqlServerDialect.cs" Link="Sql\SqlServerDialect.cs" />
+		<Compile Include="..\DapperExtensions\**\*.cs" Exclude="..\DapperExtensions\obj\**\*.cs" LinkBase="." />
 	</ItemGroup>
 </Project>
