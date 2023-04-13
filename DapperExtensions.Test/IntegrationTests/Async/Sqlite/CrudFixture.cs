@@ -245,6 +245,40 @@ namespace DapperExtensions.Test.IntegrationTests.Async.Sqlite
                 Assert.AreEqual("key", m3.Key2);
                 Assert.AreEqual("barz", m3.Value);
             }
+
+            [Test]
+            public async Task AsyncBatch_UsingKey_UpdatesEntity()
+            {
+                Person p1 = new Person
+                {
+                    Active = true,
+                    FirstName = "Foo",
+                    LastName = "Bar",
+                    DateCreated = DateTime.UtcNow
+                };
+                var animal = new Animal
+                {
+                   Name = "Fizz"
+                };
+                p1.Id = await Db.Insert(p1);
+                animal.Id = await Db.Insert(animal);
+
+                p1.FirstName = "Baz";
+                p1.Active = false;
+
+                animal.Name = "Buzz";
+
+                var task1 = Task.Run(() => Db.Update(p1, ignoreAllKeyProperties: true));
+                var task2 = Task.Run(() => Db.Update(animal, ignoreAllKeyProperties: true));
+                await Task.WhenAll(task1, task2);
+
+                var p1_3 = await Db.Get<Person>(p1.Id);
+                Assert.AreEqual("Baz", p1_3.FirstName);
+                Assert.AreEqual("Bar", p1_3.LastName);
+                Assert.AreEqual(false, p1_3.Active);
+                var a2 = await Db.Get<Animal>(animal.Id);
+                Assert.AreEqual("Buzz", a2.Name);
+            }
         }
 
         [TestFixture]
