@@ -286,10 +286,11 @@ namespace DapperExtensions
         protected static IPredicate GetPredicate(IClassMapper classMap, object predicate)
         {
             var wherePredicate = predicate as IPredicate;
+
             if (wherePredicate == null && predicate != null)
             {
                 wherePredicate = GetEntityPredicate(classMap, predicate);
-            }
+            }            
 
             return wherePredicate;
         }
@@ -367,15 +368,28 @@ namespace DapperExtensions
             var notIgnoredColumns = classMap.Properties.Where(p => !p.Ignored);
             foreach (var kvp in ReflectionHelper.GetObjectValues(entity).Where(property => notIgnoredColumns.Any(c => c.Name == property.Key)))
             {
-                var fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
-                fieldPredicate.Not = false;
-                fieldPredicate.Operator = Operator.Eq;
-                fieldPredicate.PropertyName = kvp.Key;
-                fieldPredicate.Value = kvp.Value is Func<object> ? kvp.Value() : kvp.Value;
-                predicates.Add(fieldPredicate);
+                AddPredicates(predicateType, predicates, kvp.Key, kvp.Value is Func<object> ? kvp.Value() : kvp.Value);
+            }
+
+            // predicates will be empty if entity is not KeyValuePair
+            if (entity != null && !predicates.Any())
+            {
+                //Get Primary Key when use Identity
+                var key = classMap.Properties.SingleOrDefault(p=>p.KeyType == KeyType.Identity);
+                AddPredicates(predicateType, predicates, key.Name, entity);
             }
 
             return ReturnPredicate(predicates);
+        }
+
+        private static void AddPredicates(Type predicateType, IList<IPredicate> predicates, string key, object value)
+        {
+            var fieldPredicate = Activator.CreateInstance(predicateType) as IFieldPredicate;
+            fieldPredicate.Not = false;
+            fieldPredicate.Operator = Operator.Eq;
+            fieldPredicate.PropertyName = key;
+            fieldPredicate.Value = value;
+            predicates.Add(fieldPredicate);
         }
 
         protected GridReaderResultReader GetMultipleByBatch(IDbConnection connection, GetMultiplePredicate predicate, IDbTransaction transaction, int? commandTimeout, IList<IReferenceMap> includedProperties = null)
