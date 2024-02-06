@@ -288,7 +288,7 @@ namespace DapperExtensions
             var wherePredicate = predicate as IPredicate;
             if (wherePredicate == null && predicate != null)
             {
-                wherePredicate = GetEntityPredicate(classMap, predicate);
+                wherePredicate = GetIdPredicate(classMap, predicate);
             }
 
             return wherePredicate;
